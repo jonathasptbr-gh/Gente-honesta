@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- ACESSO EXCLUSIVO MOBILE (substitui a antiga restrição de standalone)
+         Roda o quanto antes (head, síncrono, antes de qualquer render ou do Firebase).
+         O app agora roda direto na web (instalado OU no navegador), mas SOMENTE em
+         dispositivos móveis. Em desktop:
+           — html recebe a classe .is-desktop → CSS exibe o bloqueio em tela cheia
+             e esconde loader/telas (ver auth.css, seção BLOQUEIO DESKTOP);
+           — window.IS_MOBILE = false → app.js e auth.js abortam a inicialização
+             (Service Worker, monitor de sessão etc).
+         iPadOS se identifica como Mac no userAgent, por isso o teste extra de
+         plataforma + maxTouchPoints. -->
+    <script>
+      (function () {
+        var isMobileUA = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        var isIPadOS = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+        window.IS_MOBILE = isMobileUA || isIPadOS;
+        if (!window.IS_MOBILE) {
+          document.documentElement.classList.add('is-desktop');
+        }
+      })();
+    </script>
+
+    <title>Gente Honesta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- Cor inicial branca = combina com o loader branco; o showView() ajusta para
+         verde no feed e mantém branco na intro/onboarding dinamicamente. -->
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Fontes ANTES do CSS do projeto: a folha do Google define
+         `.material-symbols-rounded { font-size:24px }`. Carregando-a primeiro, o CSS
+         do projeto (mesma especificidade) vence por ordem de cascata — sem isto o
+         ícone-herói ficava travado em 24px, ignorando o font-size desejado. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/feed.css">
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js" defer></script>
+</head>
+<body class="app-body">
+
+    <!-- =====================================================================
+         CAMADA GLOBAL — Bloqueio de acesso via Desktop
+         Visível APENAS quando html.is-desktop (definido pelo script do head).
+         Em mobile fica display:none e nunca interfere no app.
+         ===================================================================== -->
+    <div id="screen-desktop-block" class="desktop-block" aria-hidden="true">
+        <span class="material-symbols-rounded desktop-block__icon" aria-hidden="true">phone_android</span>
+        <h1 class="desktop-block__title">Gente Honesta é mobile</h1>
+        <p class="desktop-block__text">
+            Este aplicativo foi feito para o seu celular.<br>
+            Acesse este mesmo endereço pelo navegador do seu smartphone para começar.
+        </p>
+    </div>
+
+    <!-- =====================================================================
+         CAMADA GLOBAL — Dialog da câmera de perfil (usa o padrão overlay-dialog)
+         Contrato: visibilidade controlada EXCLUSIVAMENTE por u-hidden
+         ===================================================================== -->
+    <div id="overlay-camera" class="overlay-dialog u-hidden">
+        <div class="dialog-box dialog-box--camera">
+            <h3 class="dialog-box__title">Tire uma foto para seu perfil</h3>
+
+            <!-- Área da câmera 3x4 -->
+            <div class="camera-view">
+                <video id="media-video" class="camera-view__video" autoplay playsinline muted></video>
+                <img id="overlay-photo-preview" class="camera-view__video u-hidden" alt="Preview da foto capturada">
+                <div class="camera-view__guide"></div>
+            </div>
+
+            <!-- Ações: cancelar à esquerda, câmera/confirmar à direita -->
+            <div class="camera-view__actions">
+                <button type="button" id="btn-camera-cancel" class="btn btn--primary camera-view__action-btn camera-view__action-btn--cancel" aria-label="Cancelar">
+                    <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                </button>
+                <button type="button" id="btn-snap" class="btn btn--outline camera-view__action-btn" aria-label="Tirar foto">
+                    <span class="material-symbols-rounded" aria-hidden="true">photo_camera</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas oculto — só usado para processar o frame capturado -->
+    <canvas id="media-canvas" class="u-hidden" width="500" height="667"></canvas>
+
+    <div id="loader-global" class="overlay-loader">
+        <div class="overlay-loader__spinner"></div>
+    </div>
+
+    <!-- =====================================================================
+         CAMADA GLOBAL — Diálogo universal (alert + confirm)
+         Contrato: visibilidade controlada EXCLUSIVAMENTE por u-hidden
+         ===================================================================== -->
+    <div id="dialog-global" class="overlay-dialog u-hidden">
+        <div class="dialog-box">
+            <div id="dialog-icon" class="dialog-box__icon">
+                <span class="material-symbols-rounded" aria-hidden="true">error</span>
+            </div>
+            <h3 id="dialog-title" class="dialog-box__title">Aviso</h3>
+            <p id="dialog-message" class="dialog-box__message">Mensagem padrão.</p>
+            <div class="dialog-box__actions">
+                <button type="button" id="btn-dialog-cancel" class="btn btn--outline u-hidden">Cancelar</button>
+                <button type="button" id="btn-dialog-confirm" class="btn btn--primary">Ok</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         TELA — Autenticação  [id: view-auth]
+         Contrato de visibilidade: .screen + .screen--active (nunca u-hidden)
+         Sub-passos internos: controlados EXCLUSIVAMENTE por u-hidden
+         ===================================================================== -->
+    <section id="view-auth" class="screen">
+
+        <!-- Passo 1: Intro — Carrossel de apresentação (substitui a antiga landing)
+             3 painéis com scroll-snap horizontal + dots sincronizados via JS (auth.js).
+             O botão "Vamos começar" fica fixo abaixo do carrossel em todos os slides. -->
+        <div id="step-intro" class="auth-section">
+
+            <div class="intro-carousel">
+                <div id="intro-carousel-track" class="intro-carousel__track">
+
+                    <div class="intro-carousel__slide">
+                        <span class="material-symbols-rounded intro-carousel__icon" aria-hidden="true">handshake</span>
+                        <h1 class="auth-section__title">Bem-vindo ao<br>Gente Honesta</h1>
+                        <p class="auth-section__text">A rede que conecta você a profissionais locais através de indicações de pessoas reais — sem anúncios, sem avaliações falsas.</p>
+                    </div>
+
+                    <div class="intro-carousel__slide">
+                        <span class="material-symbols-rounded intro-carousel__icon" aria-hidden="true">verified_user</span>
+                        <h1 class="auth-section__title">Índice de<br>Confiança</h1>
+                        <p class="auth-section__text">Cada usuário tem uma reputação viva, que sobe e desce conforme avaliações, acordos cumpridos e indicações recebidas.</p>
+                    </div>
+
+                    <div class="intro-carousel__slide">
+                        <span class="material-symbols-rounded intro-carousel__icon" aria-hidden="true">person_search</span>
+                        <h1 class="auth-section__title">Peça e<br>Indique</h1>
+                        <p class="auth-section__text">Publique um pedido quando precisar de um serviço — ou indique alguém de confiança e fortaleça sua própria reputação.</p>
+                    </div>
+
+                </div>
+
+                <div id="intro-carousel-dots" class="intro-carousel__dots" aria-label="Navegação dos painéis de introdução">
+                    <button type="button" class="intro-carousel__dot intro-carousel__dot--active" data-slide="0" aria-label="Painel 1"></button>
+                    <button type="button" class="intro-carousel__dot" data-slide="1" aria-label="Painel 2"></button>
+                    <button type="button" class="intro-carousel__dot" data-slide="2" aria-label="Painel 3"></button>
+                </div>
+            </div>
+
+            <button type="button" id="btn-start" class="btn btn--primary btn--large">Vamos começar</button>
+        </div>
+
+        <!-- Passo 2: Telefone -->
+        <form id="form-phone" class="auth-section u-hidden" novalidate>
+            <h1 class="auth-section__title">Seu Telefone</h1>
+            <p class="auth-section__text">Enviaremos um código de 6 dígitos via SMS para validar seu acesso.</p>
+
+            <input type="tel" id="inp-phone" class="input-text input-text--center" inputmode="tel" placeholder="(00) 0 0000-0000" required>
+            <button type="submit" id="btn-send-sms" class="btn btn--primary btn--large">Enviar SMS</button>
+
+            <!-- Intencional: container vazio gerenciado dinamicamente pelo Firebase reCAPTCHA (auth.js) -->
+            <div id="recaptcha-container" class="auth-section__captcha"></div>
+
+            <p class="auth-section__legal">
+                Ao continuar, você declara que leu e concorda com nossos
+                <a href="termos.html" target="_blank">Termos de Uso</a> e
+                <a href="privacidade.html" target="_blank">Política de Privacidade</a>.<br><br>
+                Este site é protegido pelo reCAPTCHA e as
+                <a href="https://policies.google.com/privacy" target="_blank">Políticas</a> e
+                <a href="https://policies.google.com/terms" target="_blank">Termos</a> do Google se aplicam.
+            </p>
+        </form>
+
+        <!-- Passo 3: OTP -->
+        <form id="form-otp" class="auth-section u-hidden" novalidate>
+            <button type="button" id="btn-back-phone" class="btn btn--text">← Alterar número</button>
+            <h1 class="auth-section__title">Validar Código</h1>
+            <p class="auth-section__text">Enviaremos um SMS para <b id="text-display-phone" class="text-accent"></b>.</p>
+
+            <div id="container-otp" class="otp-grid">
+                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+            </div>
+
+            <button type="submit" id="btn-verify-otp" class="btn btn--primary btn--large">Verificar e Entrar</button>
+
+            <div class="auth-section__cooldown">
+                <p id="text-timer">Aguarde <span id="text-seconds">60</span>s para reenviar</p>
+                <button type="button" id="btn-resend-sms" class="btn btn--text u-hidden">Reenviar Código SMS</button>
+            </div>
+        </form>
+
+    </section>
+
+    <!-- =====================================================================
+         TELA — Onboarding  [id: view-onboarding]
+         Contrato de visibilidade: .screen + .screen--active (nunca u-hidden)
+         ===================================================================== -->
+    <section id="view-onboarding" class="screen">
+
+        <header class="screen__header">
+            <div class="screen__header-nav">
+                <button type="button" id="btn-onboarding-back" class="btn btn--text" aria-label="Voltar e sair">
+                    ← Voltar
+                </button>
+            </div>
+            <h1 class="screen__title">Complete seu Perfil</h1>
+            <p class="screen__subtitle">Seus dados ajudam a gerar confiança. Você pode editá-los depois e deve mantê-los atualizados sempre que possível.</p>
+        </header>
+
+        <form id="form-onboarding" class="onboarding-form" novalidate>
+
+            <!-- ── Foto + Nome + Sobrenome ──────────────────────────────── -->
+            <div id="field-photo" class="profile-header-row">
+                <div class="profile-header-row__photo">
+                    <div id="media-preview" class="media-capture__display" role="button" tabindex="0" aria-label="Tirar foto de perfil">
+                        <div id="media-placeholder" class="media-capture__placeholder">
+                            <span class="material-symbols-rounded" aria-hidden="true">photo_camera</span>
+                            <span class="media-capture__placeholder-text">Adicionar foto</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-header-row__fields">
+                    <div class="form-group form-group--no-margin">
+                        <div class="input-float">
+                            <input type="text" id="inp-name" class="input-text input-text--float" maxlength="40" placeholder=" " required>
+                            <label class="input-float__label" for="inp-name">Nome</label>
+                        </div>
+                    </div>
+                    <div class="form-group form-group--no-margin">
+                        <div class="input-float">
+                            <input type="text" id="inp-surname" class="input-text input-text--float" maxlength="60" placeholder=" " required>
+                            <label class="input-float__label" for="inp-surname">Sobrenome</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Localização ──────────────────────────────────────────── -->
+            <div class="form-group">
+                <button type="button" id="btn-register-location" class="location-check">
+                    <span class="material-symbols-rounded location-check__icon" aria-hidden="true">location_on</span>
+                    <div class="location-check__content">
+                        <strong id="text-location-status">Registrar sua região atual</strong>
+                    </div>
+                    <span id="icon-location-status" class="material-symbols-rounded location-check__status" aria-hidden="true">radio_button_unchecked</span>
+                </button>
+            </div>
+
+            <!-- ── Detalhes profissionais (opcional) — seção colapsável ─────── -->
+            <div class="collapsible">
+                <button type="button" id="btn-toggle-prodetails" class="collapsible__trigger">
+                    <span class="material-symbols-rounded" aria-hidden="true">work</span>
+                    Detalhes profissionais <span class="form-group__optional">(opcional)</span>
+                    <span class="material-symbols-rounded collapsible__chevron" aria-hidden="true">expand_more</span>
+                </button>
+                <div id="panel-prodetails" class="collapsible__panel u-hidden">
+
+                    <!-- ── Aviso de vínculo com o Plano Pro ─────────────────────
+                         Os dados desta seção montam o PERFIL PROFISSIONAL, que só
+                         é exibido e divulgado para assinantes do Plano Pro. O
+                         aviso deixa essa dependência explícita antes do
+                         preenchimento (o comparativo completo fica no fim do
+                         formulário). -->
+                    <div class="pro-note">
+                        <span class="material-symbols-rounded pro-note__icon" aria-hidden="true">workspace_premium</span>
+                        <p class="pro-note__text">
+                            Os dados abaixo montam o seu <strong>perfil profissional</strong> — e ele só fica
+                            <strong>visível e divulgado</strong> na região para quem tem o <strong>Plano Pro</strong> ativo.
+                            Sem a assinatura, suas informações ficam guardadas, mas seu perfil não aparece
+                            nas buscas nem pode receber indicações. Veja o comparativo no fim do cadastro.
+                        </p>
+                    </div>
+
+                    <!-- ── Área de atuação / Ocupação (opcional) ───────────────── -->
+                    <div class="form-group">
+                        <label class="form-group__label">O que você faz? <span class="form-group__optional">(opcional)</span></label>
+                        <div id="container-tags" class="tag-selector__selected"></div>
+                        <div class="area-search">
+                            <input type="text" id="inp-area-search" class="input-text" placeholder="Buscar profissões ou áreas de atuação...">
+                            <button type="button" id="btn-area-clear" class="area-search__clear u-hidden" aria-label="Limpar busca">
+                                <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                            </button>
+                            <ul id="list-area-results" class="area-search__results u-hidden"></ul>
+                        </div>
+                    </div>
+
+                    <!-- ── Suas Habilidades (opcional) ─────────────────────────── -->
+                    <div class="form-group">
+                        <label class="form-group__label" for="inp-bio">Suas Habilidades <span class="form-group__optional">(opcional)</span></label>
+                        <textarea id="inp-bio" class="input-text input-text--multiline" rows="3" maxlength="200" placeholder="Conte um pouco sobre o que você faz, seus pontos fortes e até suas limitações..."></textarea>
+                        <div class="form-group__hint"><span id="text-bio-counter">0</span> / 200</div>
+                    </div>
+
+                    <!-- ── Padrão de Serviço (opcional) — card ─────────────────── -->
+                    <div class="form-group">
+                        <div class="service-card">
+                            <div class="service-card__header">
+                                <label class="form-group__label">Padrão de Serviços <span class="form-group__optional">(opcional)</span></label>
+                                <button type="button" id="btn-service-help" class="section-help-btn" aria-label="Dúvidas sobre o padrão de serviços">
+                                    <span class="material-symbols-rounded" aria-hidden="true">help</span>
+                                </button>
+                            </div>
+                            <p class="form-group__description">Distribua seus pontos para refletir a relação entre qualidade, agilidade e valor dos seus serviços. A distribuição mudará conforme as avaliações que receber no futuro.</p>
+
+                            <div class="service-bars">
+                                <div class="service-bar__pool">
+                                    <span class="material-symbols-rounded" aria-hidden="true">toll</span>
+                                    Pontos disponíveis: <strong id="val-pool">10</strong>
+                                </div>
+
+                                <div class="service-bar">
+                                    <div class="service-bar__header">
+                                        <span class="material-symbols-rounded" aria-hidden="true">verified</span>
+                                        <span class="service-bar__label">Qualidade</span>
+                                        <span id="val-quality" class="service-bar__value">0</span>
+                                    </div>
+                                    <div class="service-bar__row">
+                                        <button type="button" id="btn-quality-minus" class="service-bar__btn">−</button>
+                                        <div class="service-bar__track">
+                                            <div id="fill-quality" class="service-bar__fill service-bar__fill--green" style="width:0%"></div>
+                                            <div class="service-bar__pips--bg"></div>
+                                        </div>
+                                        <button type="button" id="btn-quality-plus" class="service-bar__btn">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="service-bar service-bar--agility">
+                                    <div class="service-bar__header">
+                                        <span class="material-symbols-rounded" aria-hidden="true">bolt</span>
+                                        <span class="service-bar__label">Agilidade</span>
+                                        <span id="val-agility" class="service-bar__value">0</span>
+                                    </div>
+                                    <div class="service-bar__row">
+                                        <button type="button" id="btn-agility-minus" class="service-bar__btn">−</button>
+                                        <div class="service-bar__track">
+                                            <div id="fill-agility" class="service-bar__fill service-bar__fill--blue" style="width:0%"></div>
+                                            <div class="service-bar__pips--bg"></div>
+                                        </div>
+                                        <button type="button" id="btn-agility-plus" class="service-bar__btn">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="service-bar service-bar--auto">
+                                    <div class="service-bar__header">
+                                        <span class="material-symbols-rounded" aria-hidden="true">payments</span>
+                                        <span class="service-bar__label">Valor cobrado</span>
+                                        <span id="val-price" class="service-bar__value">0</span>
+                                    </div>
+                                    <div class="service-bar__row service-bar__row--auto">
+                                        <div class="service-bar__btn-spacer"></div>
+                                        <div class="service-bar__track">
+                                            <div id="fill-price" class="service-bar__fill service-bar__fill--bronze" style="width:0%"></div>
+                                            <div class="service-bar__pips--bg"></div>
+                                        </div>
+                                        <div class="service-bar__btn-spacer"></div>
+                                    </div>
+                                    <p class="service-bar__auto-hint">O valor é ajustado automaticamente para refletir seu padrão de qualidade e agilidade.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ── Índice de Confiança ──────────────────────────────────── -->
+            <div class="form-group">
+                <div class="ic-card">
+                    <button type="button" id="btn-ic-info" class="ic-card__info-btn" aria-label="Mais informações sobre o Índice de Confiança">
+                        <span class="material-symbols-rounded" aria-hidden="true">help</span>
+                    </button>
+                    <div class="ic-card__body">
+                        <div class="ic-card__gauge-wrap">
+                            <span class="material-symbols-rounded ic-card__shield ic-card__shield--warn" aria-hidden="true">shield_question</span>
+                            <span class="ic-gauge__label ic-gauge__label--warn">70%</span>
+                        </div>
+                        <div class="ic-card__content">
+                            <strong class="ic-card__title">Índice de Confiança</strong>
+                            <p class="ic-card__text">Seu IC reflete sua reputação na plataforma e é influenciado por tudo que você faz e por suas relações com outros usuários. Você começa com 70 pontos — confiança ainda em construção: é com suas ações e relações honestas que você conquista o restante.</p>
+                        </div>
+                    </div>
+                    <p class="ic-card__quote">"O que se recebe de graça se perde com facilidade. O que se conquista com esforço resiste ao tempo. Cuide do seu índice."</p>
+                </div>
+            </div>
+
+            <!-- ── Plano Pro — comparativo SEMPRE VISÍVEL (Grátis × Pro) ──────
+                 Substitui o antigo colapsável. Grid de pares: cada linha compara
+                 o mesmo recurso nas duas versões, com a coluna Pro destacada em
+                 dourado. Linhas alinhadas entre as colunas (mesma row do grid). -->
+            <div class="form-group">
+                <div class="pro-compare">
+
+                    <div class="pro-compare__header">
+                        <span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span>
+                        <strong>Compare: Grátis × Plano Pro</strong>
+                    </div>
+
+                    <div class="pro-compare__grid">
+                        <div class="pro-compare__head pro-compare__head--free">Grátis</div>
+                        <div class="pro-compare__head pro-compare__head--pro">
+                            <span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span>Pro
+                        </div>
+
+                        <div class="pro-compare__cell pro-compare__cell--free">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--limit" aria-hidden="true">remove</span>
+                            <span>1 pedido ativo por vez</span>
+                        </div>
+                        <div class="pro-compare__cell pro-compare__cell--pro">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
+                            <span>Até 3 pedidos ativos por vez</span>
+                        </div>
+
+                        <div class="pro-compare__cell pro-compare__cell--free">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--limit" aria-hidden="true">remove</span>
+                            <span>Duração padrão dos pedidos</span>
+                        </div>
+                        <div class="pro-compare__cell pro-compare__cell--pro">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
+                            <span>Pedidos com maior duração</span>
+                        </div>
+
+                        <div class="pro-compare__cell pro-compare__cell--free">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--limit" aria-hidden="true">remove</span>
+                            <span>Busca na vizinhança próxima</span>
+                        </div>
+                        <div class="pro-compare__cell pro-compare__cell--pro">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
+                            <span>Maior área de busca na região</span>
+                        </div>
+
+                        <div class="pro-compare__cell pro-compare__cell--free">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--no" aria-hidden="true">close</span>
+                            <span>Não recebe indicações de serviços</span>
+                        </div>
+                        <div class="pro-compare__cell pro-compare__cell--pro">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
+                            <span>Perfil disponível para indicações</span>
+                        </div>
+
+                        <div class="pro-compare__cell pro-compare__cell--free">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--no" aria-hidden="true">close</span>
+                            <span>Perfil profissional oculto</span>
+                        </div>
+                        <div class="pro-compare__cell pro-compare__cell--pro">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
+                            <span>Perfil visível na agenda da região</span>
+                        </div>
+
+                        <div class="pro-compare__cell pro-compare__cell--free">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--no" aria-hidden="true">close</span>
+                            <span>Sem ajudantes ou aprendizes</span>
+                        </div>
+                        <div class="pro-compare__cell pro-compare__cell--pro">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
+                            <span>Contrate ajudantes e vincule aprendizes</span>
+                        </div>
+
+                        <div class="pro-compare__cell pro-compare__cell--free">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--no" aria-hidden="true">close</span>
+                            <span>Sem pedidos de vagas de emprego</span>
+                        </div>
+                        <div class="pro-compare__cell pro-compare__cell--pro">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
+                            <span>Crie pedidos de vagas de emprego</span>
+                        </div>
+
+                        <div class="pro-compare__cell pro-compare__cell--free">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--no" aria-hidden="true">close</span>
+                            <span>Sem destaque no outdoor</span>
+                        </div>
+                        <div class="pro-compare__cell pro-compare__cell--pro">
+                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
+                            <span>Destaque no outdoor para empresas físicas</span>
+                        </div>
+                    </div>
+
+                    <p class="pro-compare__more">
+                        <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
+                        E muito mais no Plano Pro...
+                    </p>
+
+                    <p class="pro-price">R$ 9,99<span>/mês</span></p>
+                    <button type="button" id="btn-subscribe-pro" class="btn btn--accent btn--large">
+                        <span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span>
+                        Assinar Plano Pro
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="btn-finish-onboarding" class="btn btn--primary btn--large u-mt-20">Concluir Cadastro</button>
+
+        </form>
+    </section>
+
+    <!-- =====================================================================
+         TELA — Guia de Instalação do PWA  [id: view-install]
+         Contrato de visibilidade: .screen + .screen--active (nunca u-hidden)
+         Exibida UMA vez, logo após a conclusão do cadastro, e somente se o app
+         NÃO estiver rodando como PWA instalado (standalone). Os três blocos
+         internos (android / ios / genérico) usam u-hidden e são alternados por
+         window.prepareInstallView() em auth.js conforme a plataforma e a
+         disponibilidade do beforeinstallprompt capturado em app.js.
+         ===================================================================== -->
+    <section id="view-install" class="screen">
+        <div class="auth-section">
+            <span id="icon-install-hero" class="material-symbols-rounded auth-section__icon-hero" aria-hidden="true">install_mobile</span>
+            <h1 id="text-install-title" class="auth-section__title">Instale o app na<br>sua tela inicial</h1>
+            <p id="text-install-sub" class="auth-section__text">Tenha o Gente Honesta sempre à mão: abre mais rápido, em tela cheia e com a cara de aplicativo de verdade.</p>
+
+            <!-- Bloco ANDROID/Chrome: instalação em 1 toque via beforeinstallprompt -->
+            <div id="install-block-android" class="install-guide u-hidden">
+                <button type="button" id="btn-install-app" class="btn btn--primary btn--large">
+                    <span class="material-symbols-rounded" aria-hidden="true">add_to_home_screen</span>
+                    Instalar agora
+                </button>
+            </div>
+
+            <!-- Bloco iOS/Safari: não existe prompt nativo — passo a passo manual -->
+            <div id="install-block-ios" class="install-guide u-hidden">
+                <ol class="install-guide__steps">
+                    <li class="install-guide__step">
+                        <span class="material-symbols-rounded" aria-hidden="true">ios_share</span>
+                        <span>Toque em <strong>Compartilhar</strong> na barra do Safari</span>
+                    </li>
+                    <li class="install-guide__step">
+                        <span class="material-symbols-rounded" aria-hidden="true">add_box</span>
+                        <span>Escolha <strong>Adicionar à Tela de Início</strong></span>
+                    </li>
+                    <li class="install-guide__step">
+                        <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+                        <span>Confirme tocando em <strong>Adicionar</strong></span>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- Bloco GENÉRICO: navegador sem prompt capturado (Firefox, Samsung etc.) -->
+            <div id="install-block-generic" class="install-guide u-hidden">
+                <ol class="install-guide__steps">
+                    <li class="install-guide__step">
+                        <span class="material-symbols-rounded" aria-hidden="true">more_vert</span>
+                        <span>Abra o <strong>menu do navegador</strong></span>
+                    </li>
+                    <li class="install-guide__step">
+                        <span class="material-symbols-rounded" aria-hidden="true">add_to_home_screen</span>
+                        <span>Toque em <strong>Adicionar à tela inicial</strong> ou <strong>Instalar app</strong></span>
+                    </li>
+                </ol>
+            </div>
+
+            <!-- Estágio "instalação em andamento": exibido após o usuário ACEITAR o
+                 prompt nativo. A instalação NÃO é instantânea — este bloco informa o
+                 andamento, avisa que a aba pode ser fechada e oferece um retry
+                 discreto. Neste estágio o acesso ao feed por esta tela é removido. -->
+            <div id="install-block-progress" class="install-guide u-hidden">
+                <p class="install-progress__note">
+                    <span class="material-symbols-rounded" aria-hidden="true">info</span>
+                    <span>Se o navegador pedir, confirme a instalação. Você pode <strong>fechar esta aba</strong> quando quiser — o app continuará sendo instalado normalmente.</span>
+                </p>
+                <button type="button" id="btn-retry-install" class="btn btn--text install-retry">Algo deu errado? Tentar instalar novamente</button>
+            </div>
+
+            <button type="button" id="btn-skip-install" class="btn btn--text">Continuar no navegador</button>
+        </div>
+    </section>
+
+    <!-- =====================================================================
+         TELA — Feed principal  [id: view-feed]
+         Contrato de visibilidade: .screen + .screen--active (nunca u-hidden)
+         ===================================================================== -->
+    <section id="view-feed" class="screen">
+
+        <!-- ── Top Bar ──────────────────────────────────────────────────── -->
+        <header id="feed-top-bar" class="top-bar">
+            <button type="button" id="btn-open-notifications" class="top-bar__action" aria-label="Notificações">
+                <span class="material-symbols-rounded top-bar__notif-icon" aria-hidden="true">notifications</span>
+                <span id="badge-notif" class="notif-badge u-hidden">3</span>
+                <span class="top-bar__action-label">Avisos</span>
+            </button>
+            <span class="top-bar__brand">Gente Honesta</span>
+            <button type="button" id="btn-open-profile" class="top-bar__action" aria-label="Menu">
+                <span class="material-symbols-rounded top-bar__menu-icon" aria-hidden="true">menu</span>
+                <span class="top-bar__action-label">Menu</span>
+            </button>
+        </header>
+
+        <!-- ── Top-bar PROVISÓRIA do modo indicação (substitui a top-bar acima) ──
+             1ª linha: título "Quem você quer indicar para esse serviço?" + "Fechar".
+             2ª linha: toggle colapsável "Ver profissionais já indicados".
+             Inicia recolhida; a lista expande ao tocar no toggle. -->
+        <header id="agenda-indicated-block" class="agenda-indicated u-hidden">
+            <div class="agenda-indicated__header">
+                <p class="agenda-indicated__title">Quem você quer indicar para este serviço?</p>
+                <button type="button" id="btn-cancel-indicate-mode" class="agenda-indicated__cancel" aria-label="Cancelar indicação">
+                    <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                    Fechar
+                </button>
+            </div>
+            <!-- Card do pedido que está sendo indicado (sem botões) — injetado via JS -->
+            <div id="indicate-post-ref" class="indicate-post-ref"></div>
+            <button type="button" id="btn-toggle-indicated" class="agenda-indicated__toggle" aria-expanded="false">
+                <span class="material-symbols-rounded agenda-indicated__chevron" aria-hidden="true">expand_more</span>
+                <span class="agenda-indicated__label">Ver profissionais já indicados</span>
+            </button>
+            <div id="agenda-indicated-list" class="agenda-indicated__list u-hidden">
+                <!-- Preenchido via JS: cards dos já indicados (oculto até expandir) -->
+            </div>
+        </header>
+
+        <!-- ── Painel de Notificações (desliza da esquerda) ─────────────── -->
+        <!-- Contrato: visibilidade controlada por .notif-panel--open -->
+        <div id="overlay-notif-backdrop" class="notif-backdrop u-hidden"></div>
+        <aside id="panel-notifications" class="notif-panel">
+            <div class="notif-panel__header">
+                <span class="notif-panel__title">Notificações</span>
+                <button type="button" id="btn-close-notifications" class="btn btn--outline btn--close" aria-label="Fechar notificações">
+                    <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                    Fechar
+                </button>
+            </div>
+
+            <!-- Seção: pedidos ativos / aceitar serviço -->
+            <section class="notif-section">
+                <h3 class="notif-section__label">Pedidos Ativos</h3>
+                <div class="notif-card notif-card--action">
+                    <div class="notif-card__avatar-wrap">
+                        <img class="notif-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
+                    </div>
+                    <div class="notif-card__content">
+                        <p class="notif-card__text"><strong>João Silva</strong> quer te contratar para <strong>instalação elétrica</strong>.</p>
+                        <div class="notif-card__actions">
+                            <button type="button" class="btn btn--primary notif-card__btn">Aceitar</button>
+                            <button type="button" class="btn btn--outline notif-card__btn">Recusar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="notif-card notif-card--active">
+                    <div class="notif-card__avatar-wrap">
+                        <img class="notif-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
+                        <span class="notif-card__status-dot"></span>
+                    </div>
+                    <div class="notif-card__content">
+                        <p class="notif-card__text">Serviço com <strong>Maria Souza</strong> em andamento — pintura residencial.</p>
+                        <span class="notif-card__tag notif-card__tag--green">Em andamento</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção: histórico de notificações -->
+            <section class="notif-section">
+                <h3 class="notif-section__label">Recentes</h3>
+                <div class="notif-card">
+                    <span class="material-symbols-rounded notif-card__icon">check_circle</span>
+                    <div class="notif-card__content">
+                        <p class="notif-card__text">Serviço de <strong>Carlos Mendes</strong> foi concluído com sucesso.</p>
+                        <span class="notif-card__time">há 2h</span>
+                    </div>
+                </div>
+                <div class="notif-card">
+                    <span class="material-symbols-rounded notif-card__icon">person_add</span>
+                    <div class="notif-card__content">
+                        <p class="notif-card__text">Você foi indicado para <strong>Ana Lima</strong> — eletricista.</p>
+                        <span class="notif-card__time">há 5h</span>
+                    </div>
+                </div>
+                <div class="notif-card">
+                    <span class="material-symbols-rounded notif-card__icon notif-card__icon--gold">star</span>
+                    <div class="notif-card__content">
+                        <p class="notif-card__text"><strong>Roberto Costa</strong> te avaliou com 5 estrelas.</p>
+                        <span class="notif-card__time">ontem</span>
+                    </div>
+                </div>
+                <div class="notif-card">
+                    <span class="material-symbols-rounded notif-card__icon">handshake</span>
+                    <div class="notif-card__content">
+                        <p class="notif-card__text">Indicação para <strong>Paula Ramos</strong> foi concluída.</p>
+                        <span class="notif-card__time">ontem</span>
+                    </div>
+                </div>
+            </section>
+        </aside>
+
+        <!-- ── Corpo principal: lista de contatos/profissionais ──────────────
+             TROCA: o que antes era a sheet de contatos agora É a tela inicial.
+             Filtros e abas ficam fixos no topo; só a lista (#agenda-list) rola.
+             A barra inferior flutua por cima. -->
+        <main class="feed-body">
+
+            <!-- Barra de busca e filtros -->
+            <div class="agenda-filters">
+                <!-- Linha única: [modo de exibição] [busca] [filtrar] [adicionar] -->
+                <div class="agenda-filters__search-row">
+                    <button type="button" id="btn-toggle-agenda-view" class="agenda-filters__icon-btn" aria-label="Mudar exibição">
+                        <span class="material-symbols-rounded" aria-hidden="true">view_list</span>
+                    </button>
+                    <div class="agenda-filters__search-wrap">
+                        <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
+                        <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar profissional...">
+                    </div>
+                    <button type="button" id="btn-toggle-filters" class="agenda-filters__icon-btn" aria-label="Filtrar contatos" aria-expanded="false">
+                        <span class="material-symbols-rounded" aria-hidden="true">tune</span>
+                    </button>
+                    <button type="button" id="btn-sync-contacts" class="agenda-filters__icon-btn" aria-label="Importar contatos">
+                        <span class="material-symbols-rounded" aria-hidden="true">person_add</span>
+                    </button>
+                </div>
+
+                <!-- Painel de filtros — colapsado por padrão -->
+                <div id="panel-agenda-filters" class="agenda-filters__panel u-hidden">
+                    <div class="agenda-filters__group">
+                        <p class="agenda-filters__group-label">Índice de Confiança</p>
+                        <div class="agenda-filters__chips">
+                            <button type="button" class="chip chip--active" data-filter-ic="all">Todos</button>
+                            <button type="button" class="chip" data-filter-ic="high">≥ 75%</button>
+                            <button type="button" class="chip" data-filter-ic="mid">≥ 50%</button>
+                            <button type="button" class="chip" data-filter-ic="low">≥ 25%</button>
+                        </div>
+                    </div>
+                    <div class="agenda-filters__group">
+                        <p class="agenda-filters__group-label">Disponibilidade</p>
+                        <div class="agenda-filters__chips">
+                            <button type="button" class="chip chip--active" data-filter-avail="all">Todos</button>
+                            <button type="button" class="chip" data-filter-avail="available">Disponível</button>
+                            <button type="button" class="chip" data-filter-avail="full">Agenda cheia</button>
+                            <button type="button" class="chip" data-filter-avail="unavailable">Indisponível</button>
+                        </div>
+                    </div>
+                    <div class="agenda-filters__group">
+                        <p class="agenda-filters__group-label">Padrões mínimos</p>
+                        <div class="agenda-filters__chips">
+                            <button type="button" class="chip chip--active" data-filter-qav="all">Todos</button>
+                            <button type="button" class="chip" data-filter-qav="high">Alto</button>
+                            <button type="button" class="chip" data-filter-qav="mid">Médio</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de profissionais — preenchida via JS (renderAgendaList) -->
+            <div id="agenda-list" class="agenda-list">
+                <!-- Cards/linhas de profissionais inseridos dinamicamente -->
+            </div>
+
+        </main>
+
+        <!-- ── Barra inferior unificada (no fluxo, flex-shrink:0) ─────── -->
+        <div id="feed-bottom-bar" class="bottom-bar">
+            <!-- Botão Pedidos: pílula AZUL no mesmo estilo das abas (ícone + texto
+                 dentro da pílula), em vez do antigo círculo com rótulo externo. -->
+            <button type="button" id="btn-open-agenda" class="bottom-bar__pedidos" aria-label="Abrir pedidos">
+                <span class="material-symbols-rounded" aria-hidden="true">view_agenda</span>
+                <span class="bottom-bar__pedidos-label">Pedidos</span>
+            </button>
+            <nav class="feed-tabs-pill" role="tablist" aria-label="Seções do app">
+                <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="vagas" aria-label="Vagas">
+                    <span class="material-symbols-rounded" aria-hidden="true">work</span>
+                    <span class="feed-tabs-pill__tab-label">Vagas</span>
+                </button>
+                <button type="button" class="feed-tabs-pill__tab feed-tabs-pill__tab--active" role="tab" data-tab="home" aria-label="Buscar contatos">
+                    <span class="material-symbols-rounded" aria-hidden="true">person_search</span>
+                    <span class="feed-tabs-pill__tab-label">Buscar</span>
+                </button>
+                <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="eventos" aria-label="Eventos">
+                    <span class="material-symbols-rounded" aria-hidden="true">event</span>
+                    <span class="feed-tabs-pill__tab-label">Eventos</span>
+                </button>
+            </nav>
+        </div>
+
+    </section>
+
+    <!-- =====================================================================
+         OVERLAY GLOBAL — Agenda / Indicação
+         Contrato: visibilidade controlada por u-hidden + .agenda-sheet--open
+         ===================================================================== -->
+    <div id="overlay-agenda-backdrop" class="agenda-backdrop u-hidden"></div>
+    <div id="sheet-agenda" class="agenda-sheet u-hidden">
+
+        <!-- Cabeçalho fixo do popup — tratado como UM bloco único:
+             linha 1: título + Fechar · linha 2: botão de pedido + indicador de
+             indicações recebidas (badge separado, no mesmo sistema dos cards). -->
+        <div class="pedidos-head">
+            <div class="agenda-sheet__header">
+                <span id="agenda-sheet-title" class="agenda-sheet__title">Pedidos de indicação</span>
+                <button type="button" id="btn-close-agenda" class="btn btn--outline btn--close" aria-label="Fechar pedidos">
+                    <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                    Fechar
+                </button>
+            </div>
+
+            <div class="pedidos-head__action">
+                <!-- Alterna "Fazer um pedido" / "Detalhes do meu pedido" -->
+                <button type="button" id="btn-my-pedido" class="btn btn--primary pedido-action__btn">
+                    <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">add</span>
+                    <span id="btn-my-pedido-label" class="pedido-action__label">Fazer um pedido</span>
+                </button>
+                <!-- Indicador SEPARADO das indicações recebidas — mesmo sistema dos cards (X/3 + grupo) -->
+                <div id="my-pedido-info" class="post-card__indicate-info u-hidden" aria-label="Indicações recebidas no meu pedido">
+                    <span id="my-pedido-count" class="post-card__indicate-count">0/3</span>
+                    <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll dos cards de pedido (movidos da antiga tela principal) -->
+        <div class="scroll-area">
+            <div id="list-feed">
+
+                <!-- ── Card de post (mock) ── -->
+                <article id="post-card-0" class="post-card">
+                    <div class="post-card__header">
+                        <div class="post-card__author">
+                            <img class="post-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do autor">
+                            <div class="post-card__author-info">
+                                <span class="post-card__author-name">João Silva</span>
+                                <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">95%</span><span class="ic-bar__label">Confiável</span></div>
+                            </div>
+                        </div>
+                        <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
+                    </div>
+
+                    <div class="post-card__body">
+                        <p class="post-card__text">Preciso de um eletricista de confiança para instalação de tomadas e revisão do quadro de luz. Apartamento no centro.</p>
+                    </div>
+
+                    <div class="post-card__footer">
+                        <button type="button" class="btn btn--primary post-card__indicate-btn" id="btn-indicate-0" data-post-id="0"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
+                        <div class="post-card__indicate-info" aria-label="1 de 3 indicados"><span class="post-card__indicate-count">1/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
+                        <button type="button" class="btn btn--outline post-card__share-btn" aria-label="Compartilhar">
+                            <span class="material-symbols-rounded" aria-hidden="true">share</span>
+                            Compartilhar
+                        </button>
+                    </div>
+                </article>
+
+                <!-- ── Card de post sem imagem (mock) ── -->
+                <article id="post-card-1" class="post-card">
+                    <div class="post-card__header">
+                        <div class="post-card__author">
+                            <img class="post-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do autor">
+                            <div class="post-card__author-info">
+                                <span class="post-card__author-name">Maria Souza</span>
+                                <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">88%</span><span class="ic-bar__label">Confiável</span></div>
+                            </div>
+                        </div>
+                        <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
+                    </div>
+
+                    <div class="post-card__body">
+                        <p class="post-card__text">Alguém conhece uma diarista de confiança para limpeza semanal? Zona Sul. Boa remuneração garantida.</p>
+                    </div>
+
+                    <div class="post-card__footer">
+                        <button type="button" class="btn btn--primary post-card__indicate-btn" id="btn-indicate-1" data-post-id="1"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
+                        <div class="post-card__indicate-info" aria-label="0 de 3 indicados"><span class="post-card__indicate-count">0/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
+                        <button type="button" class="btn btn--outline post-card__share-btn" aria-label="Compartilhar">
+                            <span class="material-symbols-rounded" aria-hidden="true">share</span>
+                            Compartilhar
+                        </button>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Confirmação de indicação — dock fixo na base durante o modo indicação (na home) -->
+    <div id="agenda-indicate-confirm" class="agenda-confirm u-hidden">
+        <p class="agenda-confirm__title">Indicar este profissional?</p>
+        <!-- Preenchido via JS com o card do profissional selecionado -->
+        <div id="agenda-selected-pro" class="agenda-confirm__pro-preview"></div>
+        <div class="agenda-confirm__actions">
+            <button type="button" id="btn-cancel-indicate" class="btn agenda-confirm__btn agenda-confirm__btn--cancel">Cancelar</button>
+            <button type="button" id="btn-confirm-indicate" class="btn agenda-confirm__btn agenda-confirm__btn--confirm">
+                Confirmar
+            </button>
+        </div>
+    </div>
+
+    <script src="js/app.js" defer></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/feed.js" defer></script>
+</body>
+</html>

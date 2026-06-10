@@ -1,0 +1,383 @@
+/* ===========================================
+   SISTEMA DE BOTÕES (Design System)
+
+   Hierarquia de modificadores:
+   — Estilo:    --primary | --accent | --outline | --text
+   — Estrutura: --large | --pill | --fab
+   ======================================== */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* — Modificadores de Estilo — */
+.btn--primary {
+  background: var(--p-green);
+  color: var(--t-light);
+}
+
+.btn--accent {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.btn--outline {
+  background: transparent;
+  border: 2px solid var(--border-light);
+  color: var(--t-sub);
+}
+
+.btn--text {
+  background: none;
+  padding: 8px 0;
+  color: var(--p-green);
+  text-align: left;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.btn--text:active {
+  transform: none;
+  opacity: 0.7;
+}
+
+/* Botão "Fechar" / dispensar — caixa compacta para cabeçalhos de painéis */
+.btn--close {
+  padding: 7px 12px;
+  font-size: 0.82rem;
+  gap: 5px;
+  border-radius: var(--radius-md);
+}
+
+.btn--close .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
+/* — Modificadores de Estrutura — */
+.btn--large {
+  width: 100%;
+  border-radius: var(--radius-pill);
+  font-size: 18px;
+}
+
+.btn--pill {
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+}
+
+/* FAB: posicionamento gerenciado pelo .fab-group no feed */
+.btn--fab {
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  transition: transform 0.2s ease;
+}
+
+.btn--fab:active {
+  transform: scale(0.92);
+}
+
+.btn--fab .material-symbols-rounded {
+  font-size: 1.8rem;
+}
+
+
+/* ===========================================
+   FORMULÁRIOS & INPUTS
+   ======================================== */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  margin-bottom: var(--space-md);
+}
+
+.form-group--no-margin {
+  margin-bottom: 0;
+}
+
+.form-group__label {
+  color: var(--p-green);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.form-group__hint {
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--t-sub);
+}
+
+.form-group__optional {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--t-sub);
+  text-transform: none;
+}
+
+.form-group__description {
+  font-size: 0.82rem;
+  color: var(--t-sub);
+  line-height: 1.4;
+  margin-bottom: var(--space-xs);
+}
+
+.input-text {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  color: var(--t-main);
+  transition: var(--transition);
+  outline: none;
+  appearance: none;
+}
+
+.input-text:focus {
+  border-color: var(--p-green);
+  background: var(--bg-white);
+  box-shadow: 0 0 0 3px rgba(24, 78, 27, 0.08);
+}
+
+/* Hint (placeholder) um pouco menor: evita corte em campos de 1 linha
+   e reduz o volume do placeholder longo no textarea de habilidades */
+.input-text::placeholder {
+  font-size: 0.875rem;
+}
+
+.input-text--center {
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.input-text--multiline {
+  resize: none;
+  min-height: 90px;
+}
+
+.input-text--maxed {
+  border-color: var(--danger);
+}
+
+/* Estados de erro — aplicados via JS no submit */
+.input-text--error {
+  border-color: var(--danger) !important;
+  background: var(--danger-soft);
+}
+
+.location-check--error-validation {
+  border-color: var(--danger) !important;
+  background: var(--danger-soft);
+}
+
+.media-capture__display--error {
+  border-color: var(--danger) !important;
+  border-style: solid !important;
+}
+
+/* ── Labels flutuantes ── */
+.input-float {
+  position: relative;
+}
+
+.input-text--float {
+  padding-top: 20px;
+  padding-bottom: 8px;
+}
+
+.input-float__label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: all 0.2s ease;
+  transform-origin: left top;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--t-disabled);
+  text-transform: none;
+}
+
+.input-text--float:focus + .input-float__label,
+.input-text--float:not(:placeholder-shown) + .input-float__label {
+  top: 6px;
+  transform: translateY(0) scale(0.72);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--p-green);
+}
+
+
+/* ===========================================
+   ÍNDICE DE CONFIANÇA — Componente ic-bar
+   Reutilizado em cards do feed e na agenda
+   ======================================== */
+.ic-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Padrão fixo do display compacto de confiança: (escudo) ##% Confiável */
+.ic-bar__shield {
+  font-size: 1.2rem;
+  font-variation-settings: 'FILL' 1;
+  flex-shrink: 0;
+}
+
+.ic-bar__value {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.ic-bar__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* Variante vertical: escudo em cima, % no meio, "Confiável" embaixo */
+.ic-bar--vertical {
+  flex-direction: column;
+  gap: 0;
+  align-items: center;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.ic-bar--vertical .ic-bar__shield {
+  font-size: 1.5rem;
+}
+
+/* Cor do escudo, porcentagem E palavra variam pela faixa do índice (100→0 em 4 partes) */
+/* 75–100: verde — verificado (gpp_good) */
+.ic-bar--ok .ic-bar__shield,
+.ic-bar--ok .ic-bar__value,
+.ic-bar--ok .ic-bar__label { color: var(--success-fill); }
+
+/* 50–74: amarelo — em construção (shield_question)
+   Amarelo de texto levemente mais escuro: sem sombra, legível sobre fundo claro */
+.ic-bar--warn .ic-bar__shield,
+.ic-bar--warn .ic-bar__value,
+.ic-bar--warn .ic-bar__label { color: var(--a-gold-text); }
+
+/* 25–49: vermelho — alerta (gpp_maybe) */
+.ic-bar--alert .ic-bar__shield,
+.ic-bar--alert .ic-bar__value,
+.ic-bar--alert .ic-bar__label { color: var(--danger); }
+
+/* 0–24: preto — condenado (gpp_bad) */
+.ic-bar--bad .ic-bar__shield,
+.ic-bar--bad .ic-bar__value,
+.ic-bar--bad .ic-bar__label { color: #111111; }
+
+
+/* ===========================================
+   DIÁLOGOS E SOBREPOSIÇÕES
+   ======================================== */
+.overlay-dialog,
+.overlay-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.overlay-loader {
+  background: var(--bg-white);
+  transition: opacity .4s ease;
+}
+
+.overlay-loader__spinner {
+  width: 80px;
+  height: 80px;
+  border: 8px solid var(--bg-input);
+  border-top-color: var(--p-green);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+.overlay-dialog {
+  padding: var(--space-lg);
+  background: rgba(3, 32, 4, 0.45);
+  backdrop-filter: blur(5px);
+}
+
+.dialog-box {
+  width: 100%;
+  max-width: 360px;
+  padding: 28px var(--space-lg);
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: dialogScaleUp .25s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.dialog-box__icon {
+  margin-bottom: 16px;
+  color: var(--p-green);
+}
+
+.dialog-box__icon .material-symbols-rounded {
+  font-size: 3.5rem;
+}
+
+.dialog-box__title {
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--p-green-dark);
+}
+
+.dialog-box__message {
+  margin-bottom: var(--space-lg);
+  color: var(--t-sub);
+  line-height: 1.5;
+}
+
+.dialog-box__actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.dialog-box__actions .btn {
+  flex: 1;
+}
+
+/* Dialog com scroll para textos longos */
+.dialog-box--scrollable .dialog-box__message {
+  max-height: 55vh;
+  overflow-y: auto;
+  text-align: left;
+  line-height: 1.6;
+  padding-right: 4px;
+  white-space: pre-wrap;
+}

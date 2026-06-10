@@ -1,0 +1,1362 @@
+/* ===========================================
+   INTERFACE PRINCIPAL (FEED)
+
+   Cadeia de altura:
+   body(100dvh flex-col) → .screen--active(flex:1 min-h:0) → #view-feed(flex col) → feed-body(flex:1 min-h:0) → scroll-area(flex:1 overflow-y) → bottom-bar(flex-shrink:0)
+
+   #view-feed não precisa mais forçar height:100% — o flex:1 do .screen--active
+   já o constranga ao tamanho exato do body. Apenas garante flex-col e overflow:hidden.
+   ======================================== */
+/* A VISIBILIDADE do feed é governada EXCLUSIVAMENTE por .screen / .screen--active.
+   NUNCA declarar `display` aqui: o seletor de ID (#view-feed) tem especificidade
+   maior que `.screen { display:none }`, então um `display:flex` fixo manteria o
+   feed renderizado para SEMPRE — inclusive na tela de auth/onboarding e após o
+   logout. Era exatamente isso que causava (1) a "tela dividida" entre intro e feed
+   e (2) o feed empurrando/cortando a barra inferior. Aqui só ajustamos o layout
+   interno (sem tocar em display). */
+#view-feed.screen {
+  padding: 0;
+  position: relative;          /* ancora overlays internos (ex.: painel de notificações) */
+  overflow: hidden;            /* o scroll real acontece em .scroll-area, não no container */
+}
+
+/* 2 SETORES: topo (auto) | feed (1fr). A barra inferior NÃO ocupa linha — ela
+   flutua (position:absolute) sobre o feed, que rola por baixo dela. A altura via
+   --app-height (JS) garante que o fundo do #view-feed é a base visível real. */
+#view-feed.screen--active {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+
+/* ===========================================
+   TOP BAR — fundo verde, elementos brancos
+   ======================================== */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: var(--space-sm) var(--space-md) 0; /* sem bottom: a busca abaixo já tem top padding */
+  background: var(--p-green);
+  border-bottom: none;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.top-bar__brand {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--t-light);
+}
+
+.top-bar__action {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  min-width: 46px;
+  padding: 2px 6px;          /* reduzido de 3px → 2px: cabe dentro dos 40px disponíveis */
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+}
+
+.top-bar__action-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--t-sub);
+}
+
+/* No topo verde os rótulos (Avisos/Menu) são claros; o "Fechar" dos painéis
+   herda o cinza padrão acima, garantindo contraste sobre fundo claro. */
+.top-bar .top-bar__action-label {
+  color: var(--t-light);
+}
+
+.top-bar__action:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.top-bar__notif-icon {
+  font-size: 1.4rem;   /* reduzido de 1.6rem: ~22px + rótulo ~10px + pad 4px = 36px ≤ 40px */
+  color: var(--t-light);
+}
+
+/* Ícone do botão de menu (substitui a antiga foto de perfil) */
+.top-bar__menu-icon {
+  font-size: 1.5rem;   /* reduzido de 1.9rem: ~24px + rótulo ~10px + pad 4px = 38px ≤ 40px */
+  color: var(--t-light);
+}
+
+/* Avatar 3x4 (portrait) — moldura branca sólida */
+.avatar-img {
+  width: 36px;
+  height: 48px;
+  border-radius: 6px;
+  border: 2.5px solid var(--t-light);
+  background: var(--border-light);
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+}
+
+/* Badge de notificação */
+.notif-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--danger);
+  color: var(--t-light);
+  font-size: 0.65rem;
+  font-weight: 700;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 1.5px solid var(--p-green);
+}
+
+
+/* ===========================================
+   PAINEL DE NOTIFICAÇÕES
+   ======================================== */
+.notif-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 32, 4, 0.35);
+  backdrop-filter: blur(3px);
+  z-index: 40;
+  transition: opacity 0.3s ease;
+}
+
+.notif-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 90%;
+  max-width: 400px;
+  background: var(--bg-white);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+}
+
+.notif-panel--open {
+  transform: translateX(0);
+}
+
+.notif-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border-light);
+  min-height: 64px;
+  flex-shrink: 0;
+}
+
+.notif-panel__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--p-green-dark);
+}
+
+.notif-section {
+  padding: var(--space-sm) 0;
+}
+
+.notif-section__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--t-sub);
+  padding: var(--space-xs) var(--space-md);
+}
+
+.notif-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.15s;
+}
+
+.notif-card:active {
+  background: var(--bg-soft);
+}
+
+.notif-card--action {
+  background: var(--p-green-light);
+}
+
+.notif-card__avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.notif-card__avatar {
+  width: 38px;
+  height: 51px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 2px solid var(--border-light);
+  background: var(--bg-soft);
+}
+
+.notif-card__status-dot {
+  position: absolute;
+  bottom: 2px;
+  right: -3px;
+  width: 10px;
+  height: 10px;
+  background: var(--success-fill);
+  border-radius: 50%;
+  border: 2px solid var(--bg-white);
+}
+
+.notif-card__icon {
+  font-size: 1.6rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notif-card__icon--gold {
+  color: var(--a-gold);
+}
+
+.notif-card__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notif-card__text {
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--t-main);
+}
+
+.notif-card__time {
+  font-size: 0.75rem;
+  color: var(--t-sub);
+}
+
+.notif-card__actions {
+  display: flex;
+  gap: var(--space-xs);
+  margin-top: 4px;
+}
+
+.notif-card__btn {
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  height: auto;
+}
+
+.notif-card__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.notif-card__tag--green {
+  background: var(--p-green-light);
+  color: var(--p-green);
+}
+
+
+/* ===========================================
+   FEED BODY + ABAS DE CONTEÚDO
+   ======================================== */
+.feed-body {
+  flex: 1;
+  min-height: 0; /* essencial: permite que filho flex shrink e não transborde o pai */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===========================================
+   BARRA INFERIOR — controles flutuantes (FAB) sobre o feed
+   transparente: o feed rola por baixo; só os controles capturam toque
+   ======================================== */
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 8px var(--space-md);
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  background: transparent;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  pointer-events: none;            /* vãos transparentes deixam passar scroll/tap do feed */
+}
+
+/* apenas os controles (botões laterais e pílula) são clicáveis e ficam por cima do blur */
+.bottom-bar > * {
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Faixa de vidro fosco ATRÁS dos controles: o feed rola por baixo e o desfoque
+   melhora o contraste. Fica num ::before (z-index:-1) para os botões/abas
+   continuarem nítidos por cima. A máscara faz a faixa sumir suavemente no topo. */
+.bottom-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(to top, #000 60%, transparent);
+  mask-image: linear-gradient(to top, #000 60%, transparent);
+  pointer-events: none;
+}
+
+/* Botões circulares laterais — FABs verdes flutuando sobre o feed */
+/* Botão Pedidos: pílula AZUL no mesmo estilo visual das abas (feed-tabs-pill) —
+   ícone + texto DENTRO da pílula, mesma altura e mesmo raio. */
+.bottom-bar__pedidos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;          /* mesma altura total da pílula de abas (44px + 2×4px) */
+  padding: 4px 16px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--info-blue);
+  color: var(--t-light);
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.bottom-bar__pedidos .material-symbols-rounded {
+  font-size: 1.35rem;
+}
+
+.bottom-bar__pedidos-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.bottom-bar__pedidos:active {
+  transform: scale(0.95);
+}
+
+
+/* ===========================================
+   FEED TABS — pílula central na bottom-bar
+   ======================================== */
+.feed-tabs-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--p-green);
+  border-radius: var(--radius-pill);
+  padding: 4px 6px;
+  box-shadow: var(--shadow-lg);
+}
+
+.feed-tabs-pill__tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 5px 2px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.feed-tabs-pill__tab-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.2px;
+}
+
+.feed-tabs-pill__tab .material-symbols-rounded {
+  font-size: 1.4rem;
+  transition: var(--transition);
+}
+
+.feed-tabs-pill__tab--active {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.feed-tabs-pill__tab--active .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
+}
+
+.feed-tabs-pill__tab:not(.feed-tabs-pill__tab--active):active {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--t-light);
+}
+
+.scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-md);
+  /* espaço para o último conteúdo passar acima dos controles flutuantes */
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Dentro da sheet de pedidos não há barra inferior flutuante por cima:
+   remove o espaço extra reservado para ela. O fundo cinza (--bg-canvas) dá
+   contraste entre o topo fixo branco e os cards brancos de pedido. */
+.agenda-sheet .scroll-area {
+  padding-bottom: var(--space-md);
+  background: var(--bg-canvas);
+}
+
+/* ── Cabeçalho fixo do popup de pedidos, tratado como UM bloco único ──
+   Linha 1 (.agenda-sheet__header): título + Fechar.
+   Linha 2 (.pedidos-head__action): botão "Fazer um pedido"/"Detalhes" + o badge
+   separado de indicações recebidas (reaproveita .post-card__indicate-info). */
+.pedidos-head {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-white);
+}
+
+.pedidos-head__action {
+  display: flex;
+  align-items: stretch;   /* badge estica p/ a mesma altura do botão (raio já é radius-md) */
+  gap: var(--space-sm);
+}
+
+/* Botão cresce; o badge de contagem fica ao lado, à direita */
+.pedido-action__btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+
+/* ===========================================
+   CARDS DE POST
+   ======================================== */
+.post-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.13), 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.post-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm);
+}
+
+.post-card__author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.post-card__avatar {
+  width: 42px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 2px solid var(--border-light);
+  background: var(--bg-soft);
+  flex-shrink: 0;
+}
+
+.post-card__author-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.post-card__author-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--t-main);
+  line-height: 1.2;
+}
+
+/* Botão de denúncia — caixa sutil (chip) com bandeira + "Denunciar" */
+.post-card__report {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-light);
+  color: var(--t-sub);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+
+.post-card__report .material-symbols-rounded {
+  font-size: 0.95rem;
+}
+
+.post-card__report:active {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+
+/* Imagem opcional — proporção 4:3 */
+.post-card__body {
+  padding: 6px var(--space-md);        /* reduzido: menos espaço vertical */
+}
+
+.post-card__text {
+  font-size: 0.93rem;
+  line-height: 1.45;                   /* levemente mais compacto */
+  color: var(--t-main);
+}
+
+.post-card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md) var(--space-sm); /* reduzido: top xs, bottom sm */
+}
+
+.post-card__indicate-btn {
+  flex: 3 1 55%;
+  gap: 8px;
+  padding: 9px var(--space-sm);        /* reduzido: de 14px para 9px */
+  font-size: 0.9rem;
+}
+
+.post-card__indicate-count {
+  line-height: 1;
+}
+
+/* Informação (não-clicável) de quantos já foram indicados — fração + pessoas */
+.post-card__indicate-info {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-soft);
+  color: var(--t-sub);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.post-card__indicate-info .material-symbols-rounded {
+  font-size: 1.2rem;
+}
+
+.post-card__share-btn {
+  flex: 2 1 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px var(--space-sm);    /* igualado ao indicate-btn (antes era 14px) */
+  font-size: 0.85rem;
+  border-radius: var(--radius-md);
+}
+
+.post-card__share-btn .material-symbols-rounded {
+  font-size: 1.2rem;
+}
+
+
+/* ===========================================
+   AGENDA SHEET (bottom sheet global)
+   ======================================== */
+.agenda-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 32, 4, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  transition: opacity 0.3s ease;
+}
+
+.agenda-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 92dvh;
+  background: var(--bg-white);
+  border-radius: 20px 20px 0 0;
+  z-index: 110;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.agenda-sheet--open {
+  transform: translateY(0);
+}
+
+/* Modo indicação: sheet mais baixa para os "já indicados" caberem na zona de blur acima */
+.agenda-sheet--indicate {
+  max-height: 70dvh;
+}
+
+.agenda-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.agenda-sheet__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--info-blue);   /* AZUL (agilidade): popup de pedidos = contexto de indicação */
+}
+
+/* Acento AZUL no popup de pedidos: o destaque (botões primários e o "Fechar")
+   fica azul em vez do verde da aba principal, reforçando o contexto de indicação. */
+.agenda-sheet .btn--primary {
+  background: var(--info-blue);
+  border-color: var(--info-blue);
+}
+
+/* Botão "Fechar" do popup: azul sólido com texto branco */
+.agenda-sheet__header .btn--outline {
+  background: var(--info-blue);
+  color: var(--t-light);
+  border-color: var(--info-blue);
+}
+
+/* Top-bar PROVISÓRIA do modo indicação — substitui a top-bar verde da home.
+   Fundo azul (agilidade) p/ sinalizar o processo de indicação; ocupa o slot da
+   top-bar (flex-shrink:0) e rola internamente se a lista de indicados crescer. */
+.agenda-indicated {
+  flex-shrink: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-height: 60dvh;             /* aumentado: garante espaço para os cards */
+  overflow: hidden;              /* o scroll fica na lista, não no container todo */
+  background: var(--info-blue);
+  padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
+}
+
+/* Cabeçalho da top-bar provisória: toggle "Ver profissionais já indicados"
+   (expande/colapsa a lista) + botão "Fechar" (ícone + texto). */
+.agenda-indicated__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-height: 40px;
+}
+
+/* Título em destaque: "Quem você quer indicar para esse serviço?" */
+.agenda-indicated__title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--t-main);   /* preto sobre azul — contraste 7.8:1, muito legível */
+  margin: 0;
+  flex: 1;
+}
+
+/* Toggle de expandir/colapsar a lista de indicados — linha autônoma abaixo do título */
+.agenda-indicated__toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);  /* leve destaque para separar do título */
+  color: var(--t-light);
+  cursor: pointer;
+  padding: 7px var(--space-xs);
+  border-radius: var(--radius-md);
+}
+
+.agenda-indicated__chevron {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+/* Botão "Fechar" (cancela a indicação): ícone + texto, retangular com cantos arredondados —
+   mesmo formato que o "Fechar" do popup de pedidos (radius-md, não pílula). */
+.agenda-indicated__cancel {
+  border: none;
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--t-light);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 7px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.agenda-indicated__cancel .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
+.agenda-indicated__label {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--t-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agenda-indicated__list {
+  /* Grid responsivo: 1 card = coluna única; 2 cards = lado a lado em telas maiores.
+     minmax 200px garante espaço suficiente para IC bar e badge de disponibilidade. */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-xs);
+  overflow-y: auto;              /* só esta parte rola */
+  min-height: 0;                 /* essencial para flex filho poder scrollar */
+  flex: 1;
+}
+
+/* Componente QAV (Qualidade / Agilidade / Valor) — ícone + barra colorida,
+   empilhados. Reutilizado nos indicados e na lista expandida de contatos. */
+.qav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qav__item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qav__item .material-symbols-rounded {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.qav__bar {
+  width: 34px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-light);
+  overflow: hidden;
+}
+
+.qav__fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.qav__item--quality .material-symbols-rounded { color: var(--p-green); }
+.qav__item--quality .qav__fill { background: var(--p-green); }
+.qav__item--agility .material-symbols-rounded { color: var(--info-blue); }
+.qav__item--agility .qav__fill { background: var(--info-blue); }
+.qav__item--value   .material-symbols-rounded { color: var(--tier-bronze); }
+.qav__item--value   .qav__fill { background: var(--tier-bronze); }
+
+/* ── Disponibilidade do profissional (ponto + rótulo) — mesma lógica de cor da ic-bar ──
+   available = verde · full = amarelo · unavailable = vermelho */
+.avail {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;   /* não estica em colunas flex (pro-row__info) */
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.avail__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.avail--available   { color: var(--success-fill); }
+.avail--available   .avail__dot { background: var(--success-fill); }
+
+.avail--full        { color: var(--a-gold-text); }
+.avail--full        .avail__dot { background: var(--a-gold-text); }
+
+.avail--unavailable { color: var(--danger); }
+.avail--unavailable .avail__dot { background: var(--danger); }
+
+/* Filtros da agenda */
+.agenda-filters {
+  /* Integrado à top-bar: mesmo fundo verde, sem gap visual entre os dois.
+     Padding inferior adicionado — estava faltando após a última atualização. */
+  padding: var(--space-sm) var(--space-md) var(--space-sm);
+  background: var(--p-green);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.agenda-filters__search-row {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.agenda-filters__search-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.agenda-filters__search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--t-sub);
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+/* Campo de busca: fundo branco sobre o verde, sem borda visível */
+.agenda-filters__search {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--space-sm) 0 36px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 0.9rem;
+  color: var(--t-main);
+  outline: none;
+}
+
+.agenda-filters__search:focus {
+  background: var(--bg-white);
+  border-color: var(--p-green-light);
+}
+
+/* Botões ícone: brancos sobre o verde da top-bar */
+.agenda-filters__icon-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  cursor: pointer;
+  color: var(--p-green);
+}
+
+.agenda-filters__icon-btn .material-symbols-rounded {
+  font-size: 1.25rem;
+}
+
+/* Painel de filtros colapsável — adapta labels e chips para o fundo verde */
+.agenda-filters__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0 var(--space-xs);
+}
+
+.agenda-filters__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Rótulo dos grupos: branco semi-transparente sobre o verde */
+.agenda-filters__group-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.agenda-filters__chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: var(--space-xs);
+}
+
+/* Chips no painel de filtros (sobre fundo verde) */
+.agenda-filters__panel .chip {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.30);
+  color: var(--t-light);
+}
+
+.agenda-filters__panel .chip--active {
+  background: var(--bg-white);
+  color: var(--p-green);
+  border-color: transparent;
+}
+
+/* Chips de filtro (fora do painel — estilo base preservado) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-light);
+  color: var(--t-sub);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.chip--active {
+  background: var(--p-green);
+  color: var(--t-light);
+  border-color: var(--p-green);
+}
+
+/* Abas da agenda */
+/* Lista da agenda */
+.agenda-list {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+}
+
+/* Na home a lista de contatos é o conteúdo principal e a barra inferior flutua
+   por cima — reserva espaço no fim para o último card não ficar coberto.
+   Fundo cinza (--bg-canvas) dá o mesmo contraste do popup: topo branco x lista. */
+#view-feed .agenda-list {
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-canvas);
+}
+
+/* Modo compacto (linha) */
+.pro-row {
+  display: flex;
+  align-items: flex-start;         /* topo alinhado: mesmo padrão do card expandido */
+  gap: var(--space-sm);
+  padding: var(--space-sm);        /* padding uniforme, igual ao pro-card */
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-xs);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pro-row:active,
+.pro-row--selected {
+  background: var(--p-green-light);
+}
+
+/* ===========================================
+   PAINEL DE AÇÕES DO CARD DE CONTATO
+   Aparece ao clicar num card (fora do modo indicação).
+   Dois botões largos à esquerda + dois ícones à direita.
+   ======================================== */
+
+/* .card-normal = conteúdo normal do card; oculto quando ações estão abertas */
+.pro-row .card-normal,
+.pro-card .card-normal {
+  display: flex;
+  flex: 1;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  min-width: 0;
+}
+
+/* No card EXPANDIDO, o .card-normal é o container real das colunas + rodapé:
+   o wrap permite que o __meta (flex-basis:100%) caia numa linha própria,
+   abaixo de tudo, sem espremer as colunas superiores. */
+.pro-card .card-normal {
+  flex-wrap: wrap;
+}
+
+/* .card-actions = painel de ações; oculto por padrão, exibido no estado ativo */
+.card-actions {
+  display: none;
+  flex: 1;
+  gap: var(--space-sm);
+  align-items: stretch;
+  min-height: 80px;
+}
+
+.card--open-actions .card-normal { display: none; }
+.card--open-actions .card-actions { display: flex; }
+
+/* Coluna esquerda: Contratar + WhatsApp empilhados */
+.card-actions__left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.card-actions__btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.card-actions__btn--hire {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.card-actions__btn--whatsapp {
+  background: #25D366;   /* verde WhatsApp oficial */
+  color: #fff;
+}
+
+/* Coluna direita: X (fechar, vermelho) + Share (branco), só ícones */
+.card-actions__right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.card-actions__icon {
+  flex: 1;
+  width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.card-actions__icon--close {
+  background: var(--danger);
+  color: #fff;
+}
+
+.card-actions__icon--share {
+  background: var(--bg-white);
+  color: var(--t-main);
+  border: 1px solid var(--border-light);
+}
+
+.pro-row__avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pro-row__avatar {
+  width: 48px;          /* mesmo que .pro-card__avatar */
+  height: 64px;
+  border-radius: 8px;   /* mesmo que .pro-card__avatar */
+  object-fit: cover;
+  border: 1px solid var(--border-light);
+  background: var(--bg-soft);
+  display: block;
+}
+
+.pro-row__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pro-row__name {
+  font-size: 0.95rem;   /* igualado a .pro-card__name */
+  font-weight: 700;
+  color: var(--t-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pro-row__tags {
+  font-size: 0.8rem;    /* igualado a .pro-card__tags */
+  color: var(--t-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modo completo (card) */
+/* Animação de entrada — disparada cada vez que .pro-card é inserido no DOM */
+@keyframes cardExpand {
+  from { opacity: 0; transform: scaleY(0.88); transform-origin: top; }
+  to   { opacity: 1; transform: scaleY(1); }
+}
+
+.pro-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  display: flex;
+  flex-wrap: wrap;           /* permite o rodapé (__meta) quebrar p/ linha própria */
+  gap: var(--space-sm);
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+  animation: cardExpand 0.2s ease-out;
+}
+
+/* Rodapé do card expandido: cartão + nota fiscal lado a lado, em tom
+   opaco/discreto (informação secundária de apoio à decisão). */
+.pro-card__meta {
+  flex-basis: 100%;
+  min-width: 0;              /* nunca alarga o card além do container */
+  display: flex;
+  flex-wrap: wrap;           /* em telas muito estreitas, os 2 itens podem empilhar */
+  align-items: center;
+  justify-content: space-between;  /* itens equidistantes na largura do card */
+  gap: 4px var(--space-md);
+  padding-top: 6px;
+  border-top: 1px solid var(--border-light);
+}
+
+.pro-card__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--t-disabled);
+  white-space: nowrap;
+}
+
+.pro-card__meta-item .material-symbols-rounded {
+  font-size: 1rem;
+  color: var(--t-disabled);
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.pro-card:active {
+  box-shadow: var(--shadow-sm);
+}
+
+.pro-card--selected {
+  border-color: var(--p-green);
+  box-shadow: 0 0 0 2px var(--p-green-light);
+}
+
+.pro-card__avatar-wrap {
+  position: relative;
+}
+
+.pro-card__avatar {
+  width: 48px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border-light);
+  background: var(--bg-soft);
+  display: block;
+}
+
+/* Card de referência do pedido no topo da top-bar de indicação (sem os botões). */
+.indicate-post-ref {
+  flex-shrink: 0;
+}
+
+.indicate-post-ref .post-card {
+  margin-bottom: 0;
+}
+
+/* Reduz o espaçamento interno do card de referência — é uma referência, não o card principal */
+.indicate-post-ref .post-card__header {
+  padding: 8px var(--space-sm);
+}
+
+.indicate-post-ref .post-card__body {
+  padding: 4px var(--space-sm) 10px;   /* top mínimo, bottom com respiro */
+}
+
+.indicate-post-ref .post-card__text {
+  font-size: 0.88rem;
+  line-height: 1.4;
+  /* Sem line-clamp: todo o texto do pedido é visível */
+}
+
+/* Coluna esquerda: foto e, abaixo dela, os índices Q/A/V */
+.pro-card__col-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Coluna direita: cabeçalho (nome/profissão + confiança) e, abaixo, a bio */
+.pro-card__col-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pro-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.pro-card__head-text {
+  min-width: 0;
+}
+
+.pro-card__name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--t-main);
+}
+
+.pro-card__tags {
+  font-size: 0.8rem;
+  color: var(--t-sub);
+  margin: 2px 0 2px;   /* menor gap inferior: aproxima a disponibilidade dos tags */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pro-card__bio {
+  font-size: 0.8rem;
+  color: var(--t-sub);
+  line-height: 1.35;
+  margin: 4px 0 0;
+}
+
+/* Bloco de confirmação de indicação — dock fixo na base durante o modo indicação na home */
+.agenda-confirm {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 120;            /* acima da barra inferior e do bloco "já indicados" */
+  padding: var(--space-md);
+  padding-bottom: max(var(--space-md), env(safe-area-inset-bottom, 0px));
+  border: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--info-blue);   /* AZUL: parte do processo de indicação */
+  box-shadow: var(--shadow-lg);
+}
+
+.agenda-confirm__title {
+  color: var(--t-light);
+  font-weight: 800;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: var(--space-sm);
+}
+
+/* A prévia é transparente — o card branco interno (.pro-card) é a moldura */
+.agenda-confirm__pro-preview {
+  margin-bottom: var(--space-sm);
+}
+
+/* Botões lado a lado: cancelar (vermelho) à esquerda, confirmar (amarelo) à direita */
+.agenda-confirm__btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.agenda-confirm__btn--cancel {
+  background: var(--danger);
+  color: var(--t-light);
+}
+
+.agenda-confirm__btn--confirm {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.agenda-confirm__actions {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-xs);
+}

@@ -1,0 +1,259 @@
+/* ===========================================
+   DESIGN TOKENS (Variáveis Globais)
+   ======================================== */
+:root {
+  /* Cores principais */
+  --p-green: #184e1b;
+  --p-green-dark: #032004;
+  --p-green-light: #e8f5e9;
+
+  /* Cores de destaque */
+  --a-gold: #FFC107;
+  --a-gold-hover: #FFB300;
+  --a-gold-text: #E6A700;        /* amarelo levemente mais escuro p/ TEXTO colorido (substitui a sombra escura) */
+  --info-blue: #42a5f5;
+  --gold-soft: #fffdf0;          /* fundo creme (gatilho Pro) */
+
+  /* Estados semânticos — vermelho (perigo/erro), verde (sucesso), laranja (atenção) */
+  --danger: #e53935;             /* denunciar, cancelar câmera, bordas de erro */
+  --danger-hover: #b71c1c;       /* vermelho pressionado */
+  --danger-text: #c62828;        /* texto de alerta (IC baixo) */
+  --danger-soft: #fff5f5;        /* fundo de campo com erro */
+  --success: #2e7d32;            /* confirmar foto, texto verde positivo */
+  --success-fill: #43a047;       /* preenchimento de barra "bom" / ponto de status */
+  --warn-text: #f57c00;          /* laranja claro do IC (faixa alerta) — distinto do vermelho */
+
+  /* Tiers de valor (medalhas) — ouro usa --a-gold; verde usa --p-green */
+  --tier-bronze: #cd7f32;
+  --tier-silver: #9e9e9e;
+
+  /* Superfícies específicas */
+  --camera-bg: #111111;          /* fundo da área da câmera */
+
+  /* Fundos */
+  --bg-white: #FFFFFF;
+  --bg-soft: #F2F4F3;
+  --bg-input: #ECEEED;
+  --bg-canvas: #E3E7E6; /* cinza do fundo das listas/scroll — dá contraste aos cards brancos */
+
+  /* Bordas */
+  --border-light: #D4D8D5;
+  --border-mid: #B0B8B2;
+
+  /* Tipografia */
+  --t-main: #1A1A1A;
+  --t-sub: #5A6360;
+  --t-light: #FFFFFF;
+  --t-disabled: #B8BFBC;
+
+  /* Raios */
+  --radius-md: 12px;
+  --radius-pill: 28px;
+
+  /* Sombras */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.13);
+
+  /* Transição padrão */
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Espaçamento */
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 24px;
+  --space-xl: 48px;
+}
+
+
+/* ===========================================
+   RESET & BASE
+   ======================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body.app-body {
+  width: 100%;
+  /* Cascata de fallback: vh (mais antigo) → dvh → --app-height (JS, mais confiável).
+     A última declaração válida vence; em navegadores sem var()/dvh, cai para vh/dvh.
+     É o que garante que a barra inferior do feed nunca vaze para fora da tela. */
+  height: 100vh;
+  height: 100dvh;
+  height: var(--app-height, 100dvh);
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: var(--app-height, 100dvh);
+  background-color: var(--bg-white);
+  color: var(--t-main);
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* body como flex container — impede que .screen transborde a viewport.
+   Essencial para PWA mobile: sem isso, height:100% em filhos pode ser
+   maior que a área visível em iOS Safari com barra de URL visível. */
+body.app-body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Proteção visual contra arrasto */
+img, svg, button, a, span, div, .material-symbols-rounded {
+  -webkit-user-drag: none;
+}
+
+/* Liberação estrita para campos interativos */
+input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  touch-action: manipulation;
+}
+
+
+/* ===========================================
+   ÍCONES (Material Symbols)
+   ======================================== */
+.material-symbols-rounded {
+  /* Essencial: sem isto, o seletor universal `* { font-family:'Inter' }` vence e os
+     ícones herdam Inter — o glifo não é o ícone e o font-size "não reage". */
+  font-family: 'Material Symbols Rounded';
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 25, 'opsz' 48;
+  display: inline-block;
+  line-height: 1;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+
+/* ===========================================
+   ESTRUTURA DE TELAS (Roteamento Visual)
+
+   Contrato de visibilidade:
+   — Screens: controladas EXCLUSIVAMENTE por .screen--active
+   — u-hidden NUNCA deve ser aplicado diretamente em .screen
+   — u-hidden é reservado para sub-elementos internos
+
+   Cadeia de altura: body(100dvh flex-col) → .screen--active(flex:1 min-h:0) → conteúdo interno
+   flex:1 fica SÓ em .screen--active — se estiver no .screen base, duas telas
+   transitando simultaneamente dividiriam o espaço pela metade (tela dividida).
+   ======================================== */
+.screen {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  animation: screenIn 0.4s ease-out forwards;
+}
+
+/* Padding padrão para telas com scroll livre (auth, onboarding).
+   O fundo apenas iguala as laterais e respeita a safe-area — sem o excesso
+   de 80px que deixava uma folga grande abaixo do botão final. */
+#view-auth.screen,
+#view-onboarding.screen,
+#view-install.screen {
+  padding: var(--space-lg) var(--space-lg) max(var(--space-lg), env(safe-area-inset-bottom, 0px));
+}
+
+.screen--active {
+  display: flex;
+  /* flex:1 + min-height:0 aqui — nunca no .screen base */
+  flex: 1;
+  min-height: 0;
+}
+
+.screen__header {
+  width: 100%;
+  margin-bottom: var(--space-lg);
+  text-align: center;
+}
+
+.screen__header-nav {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+
+.screen__title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--p-green-dark);
+}
+
+.screen__subtitle {
+  margin-top: 4px;
+  font-size: 0.95rem;
+  color: var(--t-sub);
+}
+
+
+/* ===========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* Ocultação universal — reservado para sub-elementos e overlays globais.
+   NUNCA aplicar diretamente em .screen (use .screen--active). */
+.u-hidden {
+  display: none !important;
+}
+
+/* Fade-out do loader global */
+.u-fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.u-mt-20 {
+  margin-top: var(--space-md);
+}
+
+.text-accent {
+  color: var(--a-gold);
+  font-weight: 700;
+}
+
+
+/* ===========================================
+   ANIMAÇÕES
+   ======================================== */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dialogScaleUp {
+  from { opacity: 0; transform: scale(.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
