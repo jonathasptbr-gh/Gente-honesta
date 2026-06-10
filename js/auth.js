@@ -97,6 +97,28 @@ window.sendOTP = async function(isResend = false) {
     return await customAlert("Insira um telefone válido com DDD para podermos enviar o código.", "Número Inválido", "phone_disabled");
   }
 
+  // WHITELIST DE TESTERS: verifica no Firestore se o número está autorizado.
+  // Remova este bloco quando o app estiver aberto ao público.
+  if (!isResend) {
+    try {
+      const testerDoc = await firebase.firestore().collection('testers').doc(cleanPhone).get();
+      if (!testerDoc.exists) {
+        return await customAlert(
+          "Este número ainda não está na lista de acesso ao teste. Entre em contato com o administrador.",
+          "Acesso Restrito",
+          "lock"
+        );
+      }
+    } catch (whitelistErr) {
+      console.warn('[Whitelist] Erro ao verificar acesso:', whitelistErr);
+      return await customAlert(
+        "Não foi possível verificar seu acesso. Verifique sua conexão e tente novamente.",
+        "Erro de Verificação",
+        "cloud_off"
+      );
+    }
+  }
+
   document.activeElement?.blur();
 
   // Só atualiza o btn-send-sms se não for reenvio (ele está em outra tela)
