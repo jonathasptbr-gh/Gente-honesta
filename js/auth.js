@@ -77,6 +77,31 @@ let cooldownVisibilityHandler = null;
 
 
 // =========================================================================
+// HELPERS DE INTERFACE — REUTILIZADOS EM TODO O FLUXO DE AUTH
+// =========================================================================
+
+const clearOTPFields = () =>
+  document.querySelectorAll('.otp-grid__input').forEach(f => f.value = '');
+
+const clearNameErrors = () =>
+  ['inp-name', 'inp-surname'].forEach(id =>
+    document.getElementById(id)?.classList.remove('input-text--error')
+  );
+
+function setButtonLoading(btn, label) {
+  btn.disabled = true;
+  btn.innerHTML = `<span class="material-symbols-rounded" style="display:inline-block;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px;font-size:22px">autorenew</span> ${label}`;
+  btn.classList.add('btn--loading');
+}
+
+function restoreButton(btn, html) {
+  btn.disabled = false;
+  btn.innerHTML = html;
+  btn.classList.remove('btn--loading');
+}
+
+
+// =========================================================================
 // TELA - PROCESSO DE AUTENTICAÇÃO - Mecânica e Requisições SMS
 // =========================================================================
 
@@ -122,11 +147,7 @@ window.sendOTP = async function(isResend = false) {
   document.activeElement?.blur();
 
   // Só atualiza o btn-send-sms se não for reenvio (ele está em outra tela)
-  if (!isResend) {
-    btn.disabled = true;
-    btn.innerHTML = '<span class="material-symbols-rounded" style="display: inline-block; animation: spin 1s linear infinite; vertical-align: middle; margin-right: 8px; font-size: 22px;">autorenew</span> Enviando...';
-    btn.classList.add('btn--loading');
-  }
+  if (!isResend) setButtonLoading(btn, 'Enviando...');
 
   // Limpeza do reCAPTCHA
   if (window.recaptchaVerifier) {
@@ -148,20 +169,12 @@ window.sendOTP = async function(isResend = false) {
       'size': 'invisible',
       'callback': () => {},
       'expired-callback': () => {
-        if (!isResend) {
-          btn.disabled = false;
-          btn.innerHTML = originalText;
-          btn.classList.remove('btn--loading');
-        }
+        if (!isResend) restoreButton(btn, originalText);
       }
     });
   } catch (initErr) {
     console.error("Erro catastrófico ao instanciar RecaptchaVerifier dinâmico:", initErr);
-    if (!isResend) {
-      btn.disabled = false;
-      btn.innerHTML = originalText;
-      btn.classList.remove('btn--loading');
-    }
+    if (!isResend) restoreButton(btn, originalText);
     return await customAlert("Erro na inicialização do módulo de segurança. Recarregue o app.", "Falha Interna", "sync");
   }
 
@@ -173,9 +186,7 @@ window.sendOTP = async function(isResend = false) {
 
         if (!isResend) {
           document.getElementById('text-display-phone').innerText = rawPhone;
-          btn.disabled = false;
-          btn.innerHTML = originalText;
-          btn.classList.remove('btn--loading');
+          restoreButton(btn, originalText);
           navigateTo('form-otp');
         }
 
@@ -185,11 +196,7 @@ window.sendOTP = async function(isResend = false) {
       .catch(async (err) => {
         console.error("Erro detectado no Firebase Auth SMS:", err);
 
-        if (!isResend) {
-          btn.disabled = false;
-          btn.innerHTML = originalText;
-          btn.classList.remove('btn--loading');
-        }
+        if (!isResend) restoreButton(btn, originalText);
 
         if (window.recaptchaVerifier) {
           try { window.recaptchaVerifier.clear(); } catch(e){}
@@ -232,9 +239,7 @@ window.verifyOTP = async function() {
 
   if (btnVerify) {
     originalText = btnVerify.innerHTML;
-    btnVerify.disabled = true;
-    btnVerify.innerHTML = '<span class="material-symbols-rounded" style="display: inline-block; animation: spin 1s linear infinite; vertical-align: middle; margin-right: 8px; font-size: 22px;">autorenew</span> Verificando...';
-    btnVerify.classList.add('btn--loading');
+    setButtonLoading(btnVerify, 'Verificando...');
   }
 
   // TELA - PROCESSO DE AUTENTICAÇÃO - Verificação de Código OTP - Oculta teclado antes do carregamento
@@ -245,21 +250,13 @@ window.verifyOTP = async function() {
   window.appState.confirmationResult.confirm(code)
     .then(() => {
       // Sucesso: onAuthStateChanged assume o controle do loader e do redirecionamento
-      if (btnVerify) {
-        btnVerify.disabled = false;
-        btnVerify.innerHTML = originalText;
-        btnVerify.classList.remove('btn--loading');
-      }
+      if (btnVerify) restoreButton(btnVerify, originalText);
     })
     .catch(async (err) => {
       console.error(err);
       // Erro: estado de auth não muda, então removemos o loader manualmente
       document.getElementById('loader-global')?.classList.add('u-hidden');
-      if (btnVerify) {
-        btnVerify.disabled = false;
-        btnVerify.innerHTML = originalText;
-        btnVerify.classList.remove('btn--loading');
-      }
+      if (btnVerify) restoreButton(btnVerify, originalText);
       await customAlert("O código inserido é inválido ou já expirou. Peça um novo envio se necessário.", "Código Inválido", "cancel");
     });
 };
@@ -360,9 +357,7 @@ window.finishRegistration = async function() {
   const sobrenome = document.getElementById('inp-surname').value.trim();
 
   // Limpa erros anteriores
-  ['inp-name', 'inp-surname'].forEach(id => {
-    document.getElementById(id)?.classList.remove('input-text--error');
-  });
+  clearNameErrors();
   document.getElementById('media-preview')?.classList.remove('media-capture__display--error');
   document.getElementById('btn-register-location')?.classList.remove('location-check--error-validation');
 
@@ -564,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // OTP
-    document.querySelectorAll('.otp-grid__input').forEach(f => f.value = '');
+    clearOTPFields();
 
     // Cooldown — encerramento centralizado (timer + listener de visibilidade + estado)
     stopCooldown();
@@ -621,17 +616,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (locText) locText.innerText = 'Registrar sua região atual';
 
     // Erros de validação
-    ['inp-name', 'inp-surname'].forEach(id => {
-      document.getElementById(id)?.classList.remove('input-text--error');
-    });
+    clearNameErrors();
   };
 
   // INTERAÇÕES DO DOM - Mapeamento e Escuta de Cliques de Navegação Core
   document.getElementById('btn-start')?.addEventListener('click', () => navigateTo('form-phone'));
 
   document.getElementById('btn-back-phone')?.addEventListener('click', () => {
-    // Limpa OTP ao voltar para o telefone
-    document.querySelectorAll('.otp-grid__input').forEach(f => f.value = '');
+    clearOTPFields();
     navigateTo('form-phone');
     const btnSend = document.getElementById('btn-send-sms');
     if (btnSend && window.appState.cooldownActive) {
@@ -679,8 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-resend-sms')?.addEventListener('click', async () => {
     const btnResend = document.getElementById('btn-resend-sms');
 
-    // Limpa campos OTP
-    document.querySelectorAll('.otp-grid__input').forEach(f => f.value = '');
+    clearOTPFields();
 
     // Feedback visual — muda o texto do link para "Enviando..." e desabilita
     const originalHTML = btnResend.innerHTML;

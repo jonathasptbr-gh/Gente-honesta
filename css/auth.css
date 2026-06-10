@@ -587,6 +587,13 @@
   font-weight: 800;
 }
 
+/* Ícones filled com peso médio — compartilhado pelos blocos Pro */
+.pro-note__icon,
+.pro-compare__header .material-symbols-rounded,
+.pro-compare__head--pro .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
 /* ── Aviso de vínculo com o Plano Pro (topo dos Detalhes Profissionais) ──
    Deixa explícito que os dados da seção montam o perfil profissional e que
    ele só é exibido/divulgado com a assinatura Pro ativa. */
@@ -608,7 +615,6 @@
   font-size: 1.4rem;
   color: var(--a-gold);
   margin-top: 2px;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .pro-note__text {
@@ -647,7 +653,6 @@
 
 .pro-compare__header .material-symbols-rounded {
   color: var(--a-gold);
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .pro-compare__grid {
@@ -682,7 +687,6 @@
 
 .pro-compare__head--pro .material-symbols-rounded {
   font-size: 1.1rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .pro-compare__cell {

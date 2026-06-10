@@ -1004,17 +1004,22 @@
   background: var(--bg-canvas);
 }
 
-/* Modo compacto (linha) */
-.pro-row {
-  display: flex;
-  align-items: flex-start;         /* topo alinhado: mesmo padrão do card expandido */
-  gap: var(--space-sm);
-  padding: var(--space-sm);        /* padding uniforme, igual ao pro-card */
+/* Base compartilhada: pro-row (compacto) e pro-card (expandido) */
+.pro-row,
+.pro-card {
   background: var(--bg-white);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  margin-bottom: var(--space-xs);
+  padding: var(--space-sm);
+  display: flex;
+  gap: var(--space-sm);
   cursor: pointer;
+}
+
+/* Modo compacto (linha) */
+.pro-row {
+  align-items: flex-start;
+  margin-bottom: var(--space-xs);
   transition: background 0.15s;
 }
 
@@ -1167,15 +1172,8 @@
 }
 
 .pro-card {
-  background: var(--bg-white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: var(--space-sm);
   margin-bottom: var(--space-sm);
-  display: flex;
   flex-wrap: wrap;           /* permite o rodapé (__meta) quebrar p/ linha própria */
-  gap: var(--space-sm);
-  cursor: pointer;
   transition: box-shadow 0.15s;
   animation: cardExpand 0.2s ease-out;
 }
