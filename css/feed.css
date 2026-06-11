@@ -1035,77 +1035,178 @@
   flex-wrap: wrap;
 }
 
-/* .card-actions = painel de ações; oculto por padrão, exibido no estado ativo */
-.card-actions {
-  display: none;
-  flex: 1;
-  gap: var(--space-sm);
-  align-items: stretch;
-  min-height: 80px;
+/* ===========================================
+   CARD EXPANDIDO
+   Seção revelada ao clicar no card (fora do modo indicação).
+   Exibe QAV detalhado, IC ampliado, detalhes de pagamento/NF,
+   comentários e barra de ações (WhatsApp · Compartilhar · Colapsar).
+   ======================================== */
+@keyframes expSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.card--open-actions .card-normal { display: none; }
-.card--open-actions .card-actions { display: flex; }
+.pro-card__expanded {
+  display: none;
+  flex-basis: 100%;
+  min-width: 0;
+}
 
-/* Coluna esquerda: Contratar + WhatsApp empilhados */
-.card-actions__left {
-  flex: 1;
+.pro-card--expanded {
+  border-color: var(--p-green);
+  box-shadow: 0 0 0 2px var(--p-green-light);
+}
+
+.pro-card--expanded .pro-card__expanded {
+  display: block;
+  animation: expSlideIn 0.18s ease-out;
+}
+
+/* Seções internas — separadas por divisor */
+.pro-card__exp-section {
+  padding: var(--space-sm) 0 0;
+  margin-top: var(--space-sm);
+  border-top: 1px solid var(--border-light);
+}
+
+/* QAV expandido: ícone · label · barra · % por linha */
+.pro-card__exp-qav {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: 8px;
 }
 
-.card-actions__btn {
+.pro-card__exp-qav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pro-card__exp-qav-item .material-symbols-rounded {
+  font-size: 1rem;
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.pro-card__exp-qav-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--t-sub);
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.pro-card__exp-qav-bar {
   flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border-light);
+  overflow: hidden;
+}
+
+.pro-card__exp-qav-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.pro-card__exp-qav-value {
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  width: 30px;
+  text-align: right;
+}
+
+.pro-card__exp-qav-item--quality .material-symbols-rounded,
+.pro-card__exp-qav-item--quality .pro-card__exp-qav-value { color: var(--p-green); }
+.pro-card__exp-qav-item--quality .pro-card__exp-qav-fill  { background: var(--p-green); }
+
+.pro-card__exp-qav-item--agility .material-symbols-rounded,
+.pro-card__exp-qav-item--agility .pro-card__exp-qav-value { color: var(--info-blue); }
+.pro-card__exp-qav-item--agility .pro-card__exp-qav-fill  { background: var(--info-blue); }
+
+.pro-card__exp-qav-item--value .material-symbols-rounded,
+.pro-card__exp-qav-item--value .pro-card__exp-qav-value   { color: var(--tier-bronze); }
+.pro-card__exp-qav-item--value .pro-card__exp-qav-fill    { background: var(--tier-bronze); }
+
+/* Detalhes (pagamento + NF) */
+.pro-card__exp-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px var(--space-md);
+}
+
+.pro-card__exp-detail {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--t-sub);
+  white-space: nowrap;
+}
+
+.pro-card__exp-detail .material-symbols-rounded {
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Comentários — placeholder */
+.pro-card__exp-section--comments {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--t-disabled);
+  font-size: 0.82rem;
+}
+
+.pro-card__exp-section--comments .material-symbols-rounded {
+  font-size: 1.2rem;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  flex-shrink: 0;
+}
+
+/* Barra de ações do card expandido */
+.pro-card__exp-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-light);
+}
+
+.pro-card__exp-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
   font-weight: 700;
   font-size: 0.88rem;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
+  touch-action: manipulation;
 }
 
-.card-actions__btn--hire {
-  background: var(--a-gold);
-  color: var(--p-green-dark);
-}
-
-.card-actions__btn--whatsapp {
-  background: #25D366;   /* verde WhatsApp oficial */
-  color: #fff;
-}
-
-/* Coluna direita: X (fechar, vermelho) + Share (branco), só ícones */
-.card-actions__right {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  flex-shrink: 0;
-}
-
-.card-actions__icon {
+.pro-card__exp-btn--whatsapp {
   flex: 1;
-  width: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-}
-
-.card-actions__icon--close {
-  background: var(--danger);
+  padding: 10px var(--space-sm);
+  background: #25D366;
   color: #fff;
 }
 
-.card-actions__icon--share {
-  background: var(--bg-white);
-  color: var(--t-main);
-  border: 1px solid var(--border-light);
+.pro-card__exp-btn--icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  flex-shrink: 0;
+  background: var(--bg-soft);
+  color: var(--t-sub);
+}
+
+.pro-card__exp-btn .material-symbols-rounded {
+  font-size: 1.2rem;
 }
 
 /* Animação de entrada — disparada cada vez que .pro-card é inserido no DOM */

@@ -199,23 +199,61 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<span class="avail avail--${m.cls}"><span class="avail__dot" aria-hidden="true"></span>${m.label}</span>`;
   };
 
-  // Rodapé do card: ícone individual por forma de pagamento + status de nota fiscal.
-  const proFooterHTML = (pro) => {
-    const items = [];
+  // Seção expandida do card: QAV detalhado, IC, detalhes de pagamento/NF, comentários e ações.
+  const proExpandedHTML = (pro) => {
+    const qavRows = [
+      { cls: 'quality', icon: 'verified', label: 'Qualidade', val: pro.q },
+      { cls: 'agility', icon: 'bolt',     label: 'Agilidade', val: pro.a },
+      { cls: 'value',   icon: 'payments', label: 'Valor',     val: pro.v },
+    ].map(i => `
+      <div class="pro-card__exp-qav-item pro-card__exp-qav-item--${i.cls}">
+        <span class="material-symbols-rounded" aria-hidden="true">${i.icon}</span>
+        <span class="pro-card__exp-qav-label">${i.label}</span>
+        <div class="pro-card__exp-qav-bar"><div class="pro-card__exp-qav-fill" style="width:${i.val * 10}%"></div></div>
+        <span class="pro-card__exp-qav-value">${i.val * 10}%</span>
+      </div>`).join('');
+
+    const details = [];
     if (pro.pay) {
-      if (pro.pay.cash) items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">attach_money</span>Dinheiro</span>`);
-      if (pro.pay.pix)  items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">qr_code_2</span>Pix</span>`);
-      if (pro.pay.card === 'debit') items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">credit_card</span>Débito</span>`);
-      else if (pro.pay.card > 0)    items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">credit_card</span>Até ${pro.pay.card}x</span>`);
+      if (pro.pay.cash) details.push(`<span class="pro-card__exp-detail"><span class="material-symbols-rounded">attach_money</span>Dinheiro</span>`);
+      if (pro.pay.pix)  details.push(`<span class="pro-card__exp-detail"><span class="material-symbols-rounded">qr_code_2</span>Pix</span>`);
+      if (pro.pay.card === 'debit') details.push(`<span class="pro-card__exp-detail"><span class="material-symbols-rounded">credit_card</span>Débito</span>`);
+      else if (pro.pay.card > 0)    details.push(`<span class="pro-card__exp-detail"><span class="material-symbols-rounded">credit_card</span>Até ${pro.pay.card}x</span>`);
     }
     if (typeof pro.nf === 'boolean') {
-      if (pro.nf) {
-        items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">receipt_long</span>Emite NF</span>`);
-      } else {
-        items.push(`<span class="pro-card__meta-item"><span class="icon-crossed material-symbols-rounded" aria-hidden="true">receipt_long</span>Sem NF</span>`);
-      }
+      details.push(pro.nf
+        ? `<span class="pro-card__exp-detail"><span class="material-symbols-rounded">receipt_long</span>Emite NF</span>`
+        : `<span class="pro-card__exp-detail"><span class="icon-crossed material-symbols-rounded">receipt_long</span>Sem NF</span>`);
     }
-    return items.length ? `<div class="pro-card__meta">${items.join('')}</div>` : '';
+
+    return `
+      <div class="pro-card__expanded">
+        <div class="pro-card__exp-section">
+          <div class="pro-card__exp-qav">${qavRows}</div>
+        </div>
+        <div class="pro-card__exp-section">
+          ${icBarHTML(pro.ic)}
+        </div>
+        <div class="pro-card__exp-section">
+          <div class="pro-card__exp-details">${details.join('')}</div>
+        </div>
+        <div class="pro-card__exp-section pro-card__exp-section--comments">
+          <span class="material-symbols-rounded" aria-hidden="true">chat_bubble_outline</span>
+          <span>Nenhum comentário ainda.</span>
+        </div>
+        <div class="pro-card__exp-actions">
+          <button type="button" class="pro-card__exp-btn pro-card__exp-btn--whatsapp">
+            <span class="material-symbols-rounded" aria-hidden="true">chat</span>WhatsApp
+          </button>
+          <button type="button" class="pro-card__exp-btn pro-card__exp-btn--icon pro-card__exp-btn--share" aria-label="Compartilhar">
+            <span class="material-symbols-rounded" aria-hidden="true">share</span>
+          </button>
+          <button type="button" class="pro-card__exp-btn pro-card__exp-btn--icon pro-card__exp-btn--collapse" aria-label="Colapsar">
+            <span class="material-symbols-rounded" aria-hidden="true">expand_less</span>
+          </button>
+        </div>
+      </div>
+    `;
   };
 
   // Card padrão de profissional: coluna esquerda (foto + QAV) e coluna direita
@@ -249,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <p class="pro-card__bio">${pro.bio}</p>
       </div>
-      ${proFooterHTML(pro)}
     `;
   };
 
@@ -296,27 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // TELA - PRINCIPAL (FEED) - LISTA DE CONTATOS - Seleção de profissional (só no modo indicação)
   document.getElementById('agenda-list')?.addEventListener('click', (e) => {
-    // Botão X dentro do painel de ações — fecha o painel e restaura o card
-    if (e.target.closest('.card-actions__icon--close')) {
-      e.target.closest('.pro-card')?.classList.remove('card--open-actions');
-      return;
-    }
-
-    // Placeholder: botões Contratar / WhatsApp / Compartilhar
-    if (e.target.closest('.card-actions__btn--hire')) {
-      customAlert('Iniciar contratação — funcionalidade em breve.', 'Contratar', 'work');
-      return;
-    }
-    if (e.target.closest('.card-actions__btn--whatsapp')) {
-      customAlert('Abrir WhatsApp — funcionalidade em breve.', 'WhatsApp', 'chat');
-      return;
-    }
-    if (e.target.closest('.card-actions__icon--share')) {
-      customAlert('Compartilhar perfil — funcionalidade em breve.', 'Compartilhar', 'share');
-      return;
-    }
-
-    // Botão de fixar no topo
+    // Botão Salvar (fixar no topo)
     if (e.target.closest('.pro-card__pin-btn')) {
       const btn = e.target.closest('.pro-card__pin-btn');
       const proId = btn.dataset.pinId;
@@ -326,25 +343,48 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const row = e.target.closest('.pro-card');
-    if (!row) return;
+    // Botão Colapsar dentro do card expandido
+    if (e.target.closest('.pro-card__exp-btn--collapse')) {
+      e.target.closest('.pro-card')?.classList.remove('pro-card--expanded');
+      return;
+    }
+
+    // Botão WhatsApp dentro do card expandido
+    if (e.target.closest('.pro-card__exp-btn--whatsapp')) {
+      customAlert('Abrir WhatsApp — funcionalidade em breve.', 'WhatsApp', 'chat');
+      return;
+    }
+
+    // Botão Compartilhar dentro do card expandido
+    if (e.target.closest('.pro-card__exp-btn--share')) {
+      customAlert('Compartilhar perfil — funcionalidade em breve.', 'Compartilhar', 'share');
+      return;
+    }
+
+    // Clique dentro da seção expandida (mas fora dos botões) não faz nada
+    if (e.target.closest('.pro-card__expanded')) return;
+
+    const card = e.target.closest('.pro-card');
+    if (!card) return;
 
     if (indicateMode) {
       // ── Modo indicação: seleciona o profissional para indicar ──
       document.querySelectorAll('.pro-card--selected').forEach(el => {
         el.classList.remove('pro-card--selected');
       });
-      row.classList.add('pro-card--selected');
-      selectedProId = row.id;
-      renderConfirmBlock(row);
+      card.classList.add('pro-card--selected');
+      selectedProId = card.id;
+      renderConfirmBlock(card);
       confirmBlock?.classList.remove('u-hidden');
       confirmBlock?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
-      // ── Navegação normal: abre/fecha o painel de ações do card ──
-      const isOpen = row.classList.contains('card--open-actions');
-      // Fecha qualquer outro card aberto
-      document.querySelectorAll('.card--open-actions').forEach(el => el.classList.remove('card--open-actions'));
-      if (!isOpen) row.classList.add('card--open-actions');
+      // ── Navegação normal: expande/colapsa o card ──
+      const isExpanded = card.classList.contains('pro-card--expanded');
+      document.querySelectorAll('.pro-card--expanded').forEach(el => el.classList.remove('pro-card--expanded'));
+      if (!isExpanded) {
+        card.classList.add('pro-card--expanded');
+        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+      }
     }
   });
 
@@ -387,30 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const avatarSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>`;
 
-  // Painel de ações que substitui o conteúdo do card ao clicar (fora do modo indicação).
-  // Dois botões largos à esquerda (Contratar/WhatsApp) + dois ícones à direita (Fechar/Compartilhar).
-  const cardActionsHTML = `
-    <div class="card-actions">
-      <div class="card-actions__left">
-        <button type="button" class="card-actions__btn card-actions__btn--hire">
-          <span class="material-symbols-rounded" aria-hidden="true">work</span>
-          Contratar
-        </button>
-        <button type="button" class="card-actions__btn card-actions__btn--whatsapp">
-          <span class="material-symbols-rounded" aria-hidden="true">chat</span>
-          WhatsApp
-        </button>
-      </div>
-      <div class="card-actions__right">
-        <button type="button" class="card-actions__icon card-actions__icon--close" aria-label="Fechar opções">
-          <span class="material-symbols-rounded" aria-hidden="true">close</span>
-        </button>
-        <button type="button" class="card-actions__icon card-actions__icon--share" aria-label="Compartilhar">
-          <span class="material-symbols-rounded" aria-hidden="true">share</span>
-        </button>
-      </div>
-    </div>
-  `;
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Renderiza lista de contatos
   // Fixados aparecem primeiro; dentro de cada grupo, a ordem original é preservada.
@@ -437,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const card = document.createElement('div');
       card.className = 'pro-card';
       card.id = pro.id;
-      card.innerHTML = `<div class="card-normal">${proCardHTML(pro)}</div>${cardActionsHTML}`;
+      card.innerHTML = `<div class="card-normal">${proCardHTML(pro)}</div>${proExpandedHTML(pro)}`;
       list.appendChild(card);
     });
   };
