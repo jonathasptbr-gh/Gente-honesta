@@ -340,7 +340,7 @@
 }
 
 /* Botões circulares laterais — FABs verdes flutuando sobre o feed */
-/* Botão Pedidos: pílula AZUL no mesmo estilo visual das abas (feed-tabs-pill) —
+/* Botão Pedidos: pílula AMARELA no mesmo estilo visual das abas (feed-tabs-pill) —
    ícone + texto DENTRO da pílula, mesma altura e mesmo raio. */
 .bottom-bar__pedidos {
   display: flex;
@@ -352,8 +352,8 @@
   padding: 4px 16px;
   border-radius: var(--radius-pill);
   border: none;
-  background: var(--info-blue);
-  color: var(--t-light);
+  background: var(--a-gold);
+  color: var(--p-green-dark);
   cursor: pointer;
   box-shadow: var(--shadow-lg);
   transition: transform 0.2s ease, background 0.2s ease;
@@ -672,25 +672,26 @@
 .agenda-sheet__title {
   font-size: 1.1rem;
   font-weight: 800;
-  color: var(--info-blue);   /* AZUL (agilidade): popup de pedidos = contexto de indicação */
+  color: var(--a-gold-text);   /* OURO: popup de pedidos = contexto de indicação */
 }
 
-/* Acento AZUL no popup de pedidos: o destaque (botões primários e o "Fechar")
-   fica azul em vez do verde da aba principal, reforçando o contexto de indicação. */
+/* Acento OURO no popup de pedidos: o destaque (botões primários e o "Fechar")
+   fica amarelo em vez do verde da aba principal, reforçando o contexto de indicação. */
 .agenda-sheet .btn--primary {
-  background: var(--info-blue);
-  border-color: var(--info-blue);
+  background: var(--a-gold);
+  border-color: var(--a-gold);
+  color: var(--p-green-dark);
 }
 
-/* Botão "Fechar" do popup: azul sólido com texto branco */
+/* Botão "Fechar" do popup: ouro sólido com texto verde-escuro */
 .agenda-sheet__header .btn--outline {
-  background: var(--info-blue);
-  color: var(--t-light);
-  border-color: var(--info-blue);
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+  border-color: var(--a-gold);
 }
 
 /* Top-bar PROVISÓRIA do modo indicação — substitui a top-bar verde da home.
-   Fundo azul (agilidade) p/ sinalizar o processo de indicação; ocupa o slot da
+   Fundo ouro p/ sinalizar o processo de indicação; ocupa o slot da
    top-bar (flex-shrink:0) e rola internamente se a lista de indicados crescer. */
 .agenda-indicated {
   flex-shrink: 0;
@@ -700,7 +701,7 @@
   gap: var(--space-sm);
   max-height: 60dvh;             /* aumentado: garante espaço para os cards */
   overflow: hidden;              /* o scroll fica na lista, não no container todo */
-  background: var(--info-blue);
+  background: var(--a-gold);
   padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
 }
 
@@ -718,7 +719,7 @@
 .agenda-indicated__title {
   font-size: 1.15rem;
   font-weight: 800;
-  color: var(--t-main);   /* preto sobre azul — contraste 7.8:1, muito legível */
+  color: var(--p-green-dark);   /* verde-escuro sobre ouro — alto contraste */
   margin: 0;
   flex: 1;
 }
@@ -730,8 +731,8 @@
   align-items: center;
   gap: 6px;
   border: none;
-  background: rgba(255, 255, 255, 0.12);  /* leve destaque para separar do título */
-  color: var(--t-light);
+  background: rgba(0, 0, 0, 0.08);  /* leve destaque para separar do título */
+  color: var(--p-green-dark);
   cursor: pointer;
   padding: 7px var(--space-xs);
   border-radius: var(--radius-md);
@@ -746,8 +747,8 @@
    mesmo formato que o "Fechar" do popup de pedidos (radius-md, não pílula). */
 .agenda-indicated__cancel {
   border: none;
-  background: rgba(255, 255, 255, 0.22);
-  color: var(--t-light);
+  background: rgba(0, 0, 0, 0.12);
+  color: var(--p-green-dark);
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -766,7 +767,7 @@
 .agenda-indicated__label {
   font-size: 0.95rem;
   font-weight: 800;
-  color: var(--t-light);
+  color: var(--p-green-dark);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1356,7 +1357,7 @@
   gap: 3px;
   line-height: 1;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   touch-action: manipulation;
 }
 
@@ -1424,12 +1425,12 @@
   padding-bottom: max(var(--space-md), env(safe-area-inset-bottom, 0px));
   border: none;
   border-radius: var(--radius-md) var(--radius-md) 0 0;
-  background: var(--info-blue);   /* AZUL: parte do processo de indicação */
+  background: var(--a-gold);   /* OURO: parte do processo de indicação */
   box-shadow: var(--shadow-lg);
 }
 
 .agenda-confirm__title {
-  color: var(--t-light);
+  color: var(--p-green-dark);
   font-weight: 800;
   font-size: 1.2rem;
   text-align: center;
@@ -1456,8 +1457,8 @@
 }
 
 .agenda-confirm__btn--confirm {
-  background: var(--a-gold);
-  color: var(--p-green-dark);
+  background: var(--p-green);
+  color: var(--t-light);
 }
 
 .agenda-confirm__actions {
