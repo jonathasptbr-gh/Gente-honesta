@@ -1052,9 +1052,7 @@
   box-shadow: 0 0 0 2px var(--p-green-light);
 }
 
-/* Verso: posicionado sobre a frente, rotacionado 180° inicialmente (invisível).
-   Sem padding próprio: comentários têm margem interna e os botões do rodapé
-   preenchem até a borda, como recortes do cartão. */
+/* Verso: posicionado sobre a frente, rotacionado 180° inicialmente (invisível) */
 .pro-card__back {
   position: absolute;
   inset: 0;
@@ -1064,20 +1062,21 @@
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
+  padding: var(--space-sm);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
 }
 
-/* Área de comentários em scroll — carrega a margem interna do verso */
+/* Área de comentários em scroll */
 .pro-card__back-comments {
   flex: 1;
   overflow-y: scroll;   /* sempre visível */
   min-height: 0;
   scrollbar-width: thin;
   scrollbar-color: var(--info-blue) var(--bg-soft);
-  padding: var(--space-sm);
-  padding-right: calc(var(--space-sm) - 4px); /* compensa a largura do scrollbar */
+  padding-bottom: var(--space-xs);
+  padding-right: 4px;
 }
 
 .pro-card__back-comments::-webkit-scrollbar { width: 3px; }
@@ -1130,48 +1129,45 @@
 .comment__ic.ic-bar--alert { color: var(--danger); }
 .comment__ic.ic-bar--bad   { color: var(--t-main); }
 
-/* Barra de ações no verso: WhatsApp · Compartilhar — caixas preenchidas até
-   a borda do card, como recortes. As linhas divisórias (entre comentários e
-   rodapé, e entre as duas caixas) usam a cor do fundo da tela (--bg-canvas)
-   para dar o aspecto de corte no cartão. */
+/* Rodapé do verso — mesma estética do .pro-card__meta da frente:
+   borda superior, itens flex em texto/ícone, sem fundo preenchido. */
 .pro-card__back-actions {
   display: flex;
-  align-items: stretch;
-  gap: 2px;                                  /* linha vertical entre as caixas */
-  border-top: 2px solid var(--bg-canvas);    /* linha entre comentários e rodapé */
-  background: var(--bg-canvas);              /* cor visível no gap */
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px solid var(--border-light);
   flex-shrink: 0;
 }
 
 .pro-card__back-btn {
-  display: flex;
+  flex: 1;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
+  background: none;
   border: none;
-  border-radius: 0;
-  padding: 9px var(--space-xs);
+  padding: 0;
   cursor: pointer;
-  font-weight: 700;
-  font-size: 0.72rem;   /* igual ao .pro-card__meta-item */
+  font-size: 0.72rem;
   touch-action: manipulation;
-  transition: var(--transition);
 }
 
 .pro-card__back-btn--whatsapp {
-  flex: 1.4;
-  background: #25D366;
-  color: #fff;
+  color: #25D366;
+  font-weight: 700;
 }
 
 .pro-card__back-btn--share {
-  flex: 1;
-  background: var(--info-blue);
-  color: #fff;
+  flex: 0 0 auto;
+  color: var(--info-blue);
+  border-left: 1px solid var(--border-light);
+  padding-left: var(--space-xs);
 }
 
 .pro-card__back-btn .material-symbols-rounded {
-  font-size: 1rem;   /* igual ao .pro-card__meta-item .material-symbols-rounded */
+  font-size: 1rem;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Animação de entrada — disparada cada vez que .pro-card é inserido no DOM */
