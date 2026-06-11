@@ -34,7 +34,7 @@
   --bg-white: #FFFFFF;
   --bg-soft: #F2F4F3;
   --bg-input: #ECEEED;
-  --bg-canvas: #E3E7E6; /* cinza do fundo das listas/scroll — dá contraste aos cards brancos */
+  --bg-canvas: #cfe8d1; /* verde-claro do fundo das listas — contrasta com o verde escuro do cabeçalho e os cards brancos */
 
   /* Bordas */
   --border-light: #D4D8D5;
