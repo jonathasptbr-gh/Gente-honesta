@@ -36,8 +36,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 64px;
-  padding: var(--space-sm) var(--space-md) 0; /* sem bottom: a busca abaixo já tem top padding */
+  min-height: 48px;
+  padding: var(--space-xs) var(--space-md) 0; /* sem bottom: a busca abaixo já tem top padding */
   background: var(--p-green);
   border-bottom: none;
   z-index: 10;
