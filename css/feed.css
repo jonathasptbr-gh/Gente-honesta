@@ -789,12 +789,14 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  width: 100%;    /* preenche os 48px do col-left para o flex:1 das barras resolver */
 }
 
 .qav__item {
   display: flex;
   align-items: center;
   gap: 4px;
+  width: 100%;    /* cada linha ocupa toda a largura disponível */
 }
 
 .qav__item .material-symbols-rounded {
@@ -1123,19 +1125,20 @@
    opaco/discreto (informação secundária de apoio à decisão). */
 .pro-card__meta {
   flex-basis: 100%;
-  min-width: 0;              /* nunca alarga o card além do container */
+  min-width: 0;
   display: flex;
-  flex-wrap: wrap;           /* em telas muito estreitas, os 2 itens podem empilhar */
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;  /* itens equidistantes na largura do card */
-  gap: 4px var(--space-md);
+  gap: 4px 0;        /* row-gap p/ quebra de linha; col-gap zerado (flex:1 cuida) */
   padding-top: 6px;
   border-top: 1px solid var(--border-light);
 }
 
 .pro-card__meta-item {
+  flex: 1;                   /* célula de largura igual para cada item */
   display: inline-flex;
   align-items: center;
+  justify-content: center;   /* centraliza ícone + texto dentro da célula */
   gap: 5px;
   font-size: 0.72rem;
   font-weight: 600;
