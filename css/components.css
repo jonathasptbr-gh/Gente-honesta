@@ -275,10 +275,10 @@
 }
 
 /* Cor do escudo, porcentagem E palavra variam pela faixa do índice (100→0 em 4 partes) */
-/* 75–100: verde-arósia — verificado (gpp_good) */
+/* 75–100: verde médio — verificado (gpp_good); --success-fill é mais legível que --p-green em tamanhos pequenos */
 .ic-bar--ok .ic-bar__shield,
 .ic-bar--ok .ic-bar__value,
-.ic-bar--ok .ic-bar__label { color: var(--p-green); }
+.ic-bar--ok .ic-bar__label { color: var(--success-fill); }
 
 /* 50–74: amarelo — em construção (shield_question)
    Amarelo de texto levemente mais escuro: sem sombra, legível sobre fundo claro */

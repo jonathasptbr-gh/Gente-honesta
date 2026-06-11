@@ -821,8 +821,8 @@
   border-radius: 2px;
 }
 
-.qav__item--quality .qav__label { color: var(--p-green); }
-.qav__item--quality .qav__fill  { background: var(--p-green); }
+.qav__item--quality .qav__label { color: var(--success-fill); }
+.qav__item--quality .qav__fill  { background: var(--success-fill); }
 .qav__item--agility .qav__label { color: var(--info-blue); }
 .qav__item--agility .qav__fill  { background: var(--info-blue); }
 .qav__item--value   .qav__label { color: var(--tier-bronze); }
@@ -848,7 +848,7 @@
 }
 
 .avail--available   { color: var(--t-sub); }
-.avail--available   .avail__dot { background: var(--p-green); }
+.avail--available   .avail__dot { background: var(--success-fill); }
 
 .avail--full        { color: var(--t-sub); }
 .avail--full        .avail__dot { background: var(--a-gold-text); }
@@ -1116,7 +1116,7 @@
   font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
 }
 
-.comment__ic.ic-bar--ok    { color: var(--p-green); }
+.comment__ic.ic-bar--ok    { color: var(--success-fill); }
 .comment__ic.ic-bar--warn  { color: var(--a-gold-text); }
 .comment__ic.ic-bar--alert { color: var(--danger); }
 .comment__ic.ic-bar--bad   { color: var(--t-main); }
