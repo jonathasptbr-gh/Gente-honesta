@@ -210,17 +210,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const icTier = ic => ic >= 75 ? 'ok' : ic >= 50 ? 'warn' : ic >= 25 ? 'alert' : 'bad';
   const icShieldIcon = ic => ic >= 75 ? 'gpp_good' : ic >= 50 ? 'shield_question' : ic >= 25 ? 'gpp_maybe' : 'gpp_bad';
 
-  const COMMENT_SNIPPET = 90;
-  const escAttr = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
   const buildCommentHTML = (c) => {
+    const MAX = 150;
     const tier = icTier(c.ic);
     const shield = icShieldIcon(c.ic);
+    const text = c.text.length > MAX ? c.text.slice(0, MAX).trimEnd() + '...' : c.text;
     const authorIC = `<span class="comment__author">— ${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span>`;
-    if (c.text.length <= COMMENT_SNIPPET) {
-      return `<div class="comment"><p class="comment__text">"${c.text}" ${authorIC}</p></div>`;
-    }
-    const snippet = c.text.slice(0, COMMENT_SNIPPET).trimEnd();
-    return `<div class="comment" data-full="${escAttr(c.text)}" data-author="${escAttr(c.author)}" data-ic="${c.ic}"><p class="comment__text">"${snippet}... <button type="button" class="comment__expand-btn">ver mais</button> ${authorIC}</p></div>`;
+    return `<div class="comment"><p class="comment__text">"${text}" ${authorIC}</p></div>`;
   };
 
   const proBackHTML = () => {
@@ -351,19 +347,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botão Virar (flip de volta para a frente)
     if (e.target.closest('.pro-card__back-btn--flip')) {
       e.target.closest('.pro-card')?.classList.remove('pro-card--flipped');
-      return;
-    }
-
-    // Expandir comentário resumido ("ver mais")
-    if (e.target.closest('.comment__expand-btn')) {
-      const commentEl = e.target.closest('.comment');
-      const p = commentEl.querySelector('.comment__text');
-      const full = commentEl.dataset.full;
-      const author = commentEl.dataset.author;
-      const ic = parseInt(commentEl.dataset.ic);
-      const tier = icTier(ic);
-      const shield = icShieldIcon(ic);
-      p.innerHTML = `"${full}" <span class="comment__author">— ${author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${ic}%</span>`;
       return;
     }
 

@@ -1071,10 +1071,17 @@
 /* Área de comentários em scroll */
 .pro-card__back-comments {
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;   /* sempre visível */
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--info-blue) var(--bg-soft);
   padding-bottom: var(--space-xs);
+  padding-right: 4px; /* folga p/ scrollbar não tocar o texto */
 }
+
+.pro-card__back-comments::-webkit-scrollbar { width: 3px; }
+.pro-card__back-comments::-webkit-scrollbar-track { background: var(--bg-soft); border-radius: 3px; }
+.pro-card__back-comments::-webkit-scrollbar-thumb { background: var(--info-blue); border-radius: 3px; }
 
 .pro-card__comments-list {
   display: flex;
@@ -1095,6 +1102,7 @@
   line-height: 1.4;
   color: var(--t-sub);
   margin: 0;
+  text-align: center;
 }
 
 .comment__author {
@@ -1121,24 +1129,12 @@
 .comment__ic.ic-bar--alert { color: var(--danger); }
 .comment__ic.ic-bar--bad   { color: var(--t-main); }
 
-.comment__expand-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--info-blue);
-  cursor: pointer;
-  display: inline;
-}
-
 /* Barra de ações no verso: WhatsApp · Compartilhar · Virar */
 .pro-card__back-actions {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-  padding-top: var(--space-sm);
+  gap: 6px;
+  padding-top: 6px;   /* igual ao padding-top do .pro-card__meta */
   border-top: 1px solid var(--border-light);
   flex-shrink: 0;
 }
@@ -1147,25 +1143,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: 0.72rem;   /* igual ao .pro-card__meta-item */
   touch-action: manipulation;
+  transition: var(--transition);
 }
 
 .pro-card__back-btn--whatsapp {
   flex: 1;
-  padding: 10px var(--space-sm);
+  padding: 5px var(--space-sm);
   background: #25D366;
   color: #fff;
 }
 
 .pro-card__back-btn--icon {
-  width: 44px;
-  height: 44px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   flex-shrink: 0;
   background: var(--bg-soft);
@@ -1173,7 +1170,7 @@
 }
 
 .pro-card__back-btn .material-symbols-rounded {
-  font-size: 1.2rem;
+  font-size: 1rem;   /* igual ao .pro-card__meta-item .material-symbols-rounded */
 }
 
 /* Animação de entrada — disparada cada vez que .pro-card é inserido no DOM */
