@@ -229,8 +229,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" class="pro-card__back-btn pro-card__back-btn--whatsapp">
             <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
           </button>
-          <button type="button" class="pro-card__back-btn pro-card__back-btn--share">
-            <span class="material-symbols-rounded" aria-hidden="true">share</span>Compartilhar
+          <button type="button" class="pro-card__back-btn pro-card__back-btn--share" aria-label="Compartilhar">
+            <span class="material-symbols-rounded" aria-hidden="true">share</span>
           </button>
         </div>
       </div>
