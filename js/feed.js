@@ -259,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isPinned = pinnedPros.has(pro.id);
     const pinBtn = showPin
       ? `<button type="button" class="pro-card__pin-btn${isPinned ? ' pro-card__pin-btn--pinned' : ''}" aria-label="${isPinned ? 'Remover dos salvos' : 'Salvar contato'}" data-pin-id="${pro.id}">
-           Salvar<span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
+           <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
          </button>`
       : '';
     return `
@@ -330,13 +330,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // TELA - PRINCIPAL (FEED) - LISTA DE CONTATOS - Seleção de profissional (só no modo indicação)
   document.getElementById('agenda-list')?.addEventListener('click', (e) => {
-    // Botão Salvar (fixar no topo)
+    // Botão Salvar (fixar no topo) — atualiza o botão e reordena com
+    // animação FLIP, sem reconstruir a lista (sem piscada de re-render)
     if (e.target.closest('.pro-card__pin-btn')) {
       const btn = e.target.closest('.pro-card__pin-btn');
       const proId = btn.dataset.pinId;
-      if (pinnedPros.has(proId)) pinnedPros.delete(proId);
-      else pinnedPros.add(proId);
-      renderAgendaList();
+      const pinned = !pinnedPros.has(proId);
+      if (pinned) pinnedPros.add(proId);
+      else pinnedPros.delete(proId);
+      btn.classList.toggle('pro-card__pin-btn--pinned', pinned);
+      btn.setAttribute('aria-label', pinned ? 'Remover dos salvos' : 'Salvar contato');
+      reorderAgendaListAnimated();
       return;
     }
 
@@ -450,6 +454,46 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = `<div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro)}</div>${proBackHTML()}</div>`;
       list.appendChild(card);
     });
+  };
+
+  // Reordena os cards já existentes (fixados primeiro) com animação FLIP:
+  // mede a posição de cada card, move os nós no DOM e anima o deslocamento
+  // entre a posição antiga e a nova — sem reconstruir o HTML (sem piscada).
+  const reorderAgendaListAnimated = () => {
+    const list = document.getElementById('agenda-list');
+    if (!list) return;
+    const cards = [...list.querySelectorAll(':scope > .pro-card')];
+    if (cards.length < 2) return;
+
+    const oldTops = new Map(cards.map(c => [c, c.getBoundingClientRect().top]));
+
+    const orderIndex = id => mockProfessionals.findIndex(p => p.id === id);
+    [...cards]
+      .sort((a, b) =>
+        ((pinnedPros.has(b.id) ? 1 : 0) - (pinnedPros.has(a.id) ? 1 : 0)) ||
+        (orderIndex(a.id) - orderIndex(b.id))
+      )
+      .forEach(c => {
+        c.style.animation = 'none'; // evita repetir o cardExpand ao reinserir o nó
+        list.appendChild(c);
+      });
+
+    cards.forEach(c => {
+      const delta = oldTops.get(c) - c.getBoundingClientRect().top;
+      if (!delta) return;
+      c.style.transition = 'none';
+      c.style.transform = `translateY(${delta}px)`;
+    });
+
+    // Dois rAF: garante que o navegador pinte o estado deslocado antes de animar
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      cards.forEach(c => {
+        c.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
+        c.style.transform = '';
+      });
+    }));
+
+    setTimeout(() => cards.forEach(c => { c.style.transition = ''; }), 500);
   };
 
   document.getElementById('inp-agenda-search')?.addEventListener('input', renderAgendaList);

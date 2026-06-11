@@ -1099,6 +1099,11 @@
   margin: 0;
 }
 
+.comment__author {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .comment__ic {
   display: inline-flex;
   align-items: center;
@@ -1298,18 +1303,15 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  color: var(--t-disabled);
+  color: var(--p-green);
   display: flex;
   align-items: center;
-  gap: 3px;
   line-height: 1;
-  font-size: 0.95rem;
-  font-weight: 700;
   touch-action: manipulation;
 }
 
 .pro-card__pin-btn .material-symbols-rounded {
-  font-size: 1.1rem;
+  font-size: 2.2rem;
   font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 
