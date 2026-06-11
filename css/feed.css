@@ -1090,11 +1090,6 @@
 
 .comment {
   padding: var(--space-xs) 0;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.comment:last-child {
-  border-bottom: none;
 }
 
 .comment__text {
@@ -1105,8 +1100,16 @@
   text-align: center;
 }
 
-.comment__author {
+/* Linha do autor + IC — fica abaixo do texto, centralizada */
+.comment__meta {
+  text-align: center;
+  font-size: 0.7rem;
   font-weight: 700;
+  color: var(--t-sub);
+  margin-top: 2px;
+}
+
+.comment__author {
   white-space: nowrap;
 }
 
@@ -1149,7 +1152,8 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  font-size: 0.72rem;
+  font-size: 0.82rem;  /* maior que o meta, mas line-height:1 mantém a mesma altura total */
+  line-height: 1;
   touch-action: manipulation;
 }
 
@@ -1159,14 +1163,15 @@
 }
 
 .pro-card__back-btn--share {
-  flex: 0 0 auto;
   color: var(--info-blue);
+  font-weight: 700;
   border-left: 1px solid var(--border-light);
   padding-left: var(--space-xs);
 }
 
 .pro-card__back-btn .material-symbols-rounded {
   font-size: 1rem;
+  line-height: 1;
   font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 

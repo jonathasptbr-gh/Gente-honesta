@@ -215,8 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tier = icTier(c.ic);
     const shield = icShieldIcon(c.ic);
     const text = c.text.length > MAX ? c.text.slice(0, MAX).trimEnd() + '...' : c.text;
-    const authorIC = `<span class="comment__author">— ${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span>`;
-    return `<div class="comment"><p class="comment__text">"${text}" ${authorIC}</p></div>`;
+    return `<div class="comment"><p class="comment__text">"${text}"</p><p class="comment__meta"><span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span></p></div>`;
   };
 
   const proBackHTML = () => {
@@ -230,8 +229,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" class="pro-card__back-btn pro-card__back-btn--whatsapp">
             <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
           </button>
-          <button type="button" class="pro-card__back-btn pro-card__back-btn--share" aria-label="Compartilhar">
-            <span class="material-symbols-rounded" aria-hidden="true">share</span>
+          <button type="button" class="pro-card__back-btn pro-card__back-btn--share">
+            <span class="material-symbols-rounded" aria-hidden="true">share</span>Compartilhar
           </button>
         </div>
       </div>
