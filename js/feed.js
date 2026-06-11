@@ -224,8 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const proCardHTML = (pro, showPin = true) => {
     const isPinned = pinnedPros.has(pro.id);
     const pinBtn = showPin
-      ? `<button type="button" class="pro-card__pin-btn${isPinned ? ' pro-card__pin-btn--pinned' : ''}" aria-label="${isPinned ? 'Desafixar do topo' : 'Fixar no topo'}" data-pin-id="${pro.id}">
-           <span class="material-symbols-rounded" aria-hidden="true">push_pin</span>
+      ? `<button type="button" class="pro-card__pin-btn${isPinned ? ' pro-card__pin-btn--pinned' : ''}" aria-label="${isPinned ? 'Remover dos salvos' : 'Salvar contato'}" data-pin-id="${pro.id}">
+           Salvar<span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
          </button>`
       : '';
     return `
