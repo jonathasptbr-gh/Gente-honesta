@@ -1010,176 +1010,93 @@
   background: var(--bg-canvas);
 }
 
-/* Base do card de contato */
+/* Base do card de contato — container de perspectiva para o flip 3D */
 .pro-card {
+  cursor: pointer;
+  perspective: 700px;
+}
+
+/* ===========================================
+   FLIP DO CARD
+   Ao clicar, o card gira 180° revelando o verso
+   com comentários em scroll e barra de ações.
+   ======================================== */
+
+.pro-card__flipper {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pro-card--flipped .pro-card__flipper {
+  transform: rotateY(180deg);
+}
+
+/* Frente: layout normal do card (foto + QAV + cabeçalho + bio + rodapé) */
+.pro-card__front {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  min-width: 0;
   background: var(--bg-white);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  padding: var(--space-sm);
-  display: flex;
-  gap: var(--space-sm);
-  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
-/* ===========================================
-   PAINEL DE AÇÕES DO CARD DE CONTATO
-   Aparece ao clicar num card (fora do modo indicação).
-   Dois botões largos à esquerda + dois ícones à direita.
-   ======================================== */
-
-/* .card-normal = conteúdo normal do card; oculto quando ações estão abertas.
-   flex-wrap permite que o __meta (flex-basis:100%) caia numa linha própria. */
-.pro-card .card-normal {
-  display: flex;
-  flex: 1;
-  gap: var(--space-sm);
-  align-items: flex-start;
-  min-width: 0;
-  flex-wrap: wrap;
-}
-
-/* ===========================================
-   CARD EXPANDIDO
-   Seção revelada ao clicar no card (fora do modo indicação).
-   Exibe QAV detalhado, IC ampliado, detalhes de pagamento/NF,
-   comentários e barra de ações (WhatsApp · Compartilhar · Colapsar).
-   ======================================== */
-@keyframes expSlideIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.pro-card__expanded {
-  display: none;
-  flex-basis: 100%;
-  min-width: 0;
-}
-
-.pro-card--expanded {
+.pro-card--flipped .pro-card__front {
   border-color: var(--p-green);
   box-shadow: 0 0 0 2px var(--p-green-light);
 }
 
-.pro-card--expanded .pro-card__expanded {
-  display: block;
-  animation: expSlideIn 0.18s ease-out;
-}
-
-/* Seções internas — separadas por divisor */
-.pro-card__exp-section {
-  padding: var(--space-sm) 0 0;
-  margin-top: var(--space-sm);
-  border-top: 1px solid var(--border-light);
-}
-
-/* QAV expandido: ícone · label · barra · % por linha */
-.pro-card__exp-qav {
+/* Verso: posicionado sobre a frente, rotacionado 180° inicialmente (invisível) */
+.pro-card__back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  background: var(--bg-white);
+  border: 1px solid var(--p-green);
+  border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.pro-card__exp-qav-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pro-card__exp-qav-item .material-symbols-rounded {
-  font-size: 1rem;
-  flex-shrink: 0;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-}
-
-.pro-card__exp-qav-label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--t-sub);
-  width: 64px;
-  flex-shrink: 0;
-}
-
-.pro-card__exp-qav-bar {
-  flex: 1;
-  height: 8px;
-  border-radius: 4px;
-  background: var(--border-light);
+  padding: var(--space-sm);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   overflow: hidden;
 }
 
-.pro-card__exp-qav-fill {
-  height: 100%;
-  border-radius: 4px;
-}
-
-.pro-card__exp-qav-value {
-  font-size: 0.78rem;
-  font-weight: 700;
-  flex-shrink: 0;
-  width: 30px;
-  text-align: right;
-}
-
-.pro-card__exp-qav-item--quality .material-symbols-rounded,
-.pro-card__exp-qav-item--quality .pro-card__exp-qav-value { color: var(--p-green); }
-.pro-card__exp-qav-item--quality .pro-card__exp-qav-fill  { background: var(--p-green); }
-
-.pro-card__exp-qav-item--agility .material-symbols-rounded,
-.pro-card__exp-qav-item--agility .pro-card__exp-qav-value { color: var(--info-blue); }
-.pro-card__exp-qav-item--agility .pro-card__exp-qav-fill  { background: var(--info-blue); }
-
-.pro-card__exp-qav-item--value .material-symbols-rounded,
-.pro-card__exp-qav-item--value .pro-card__exp-qav-value   { color: var(--tier-bronze); }
-.pro-card__exp-qav-item--value .pro-card__exp-qav-fill    { background: var(--tier-bronze); }
-
-/* Detalhes (pagamento + NF) */
-.pro-card__exp-details {
+/* Área de comentários em scroll */
+.pro-card__back-comments {
+  flex: 1;
+  overflow-y: auto;
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px var(--space-md);
-}
-
-.pro-card__exp-detail {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--t-sub);
-  white-space: nowrap;
-}
-
-.pro-card__exp-detail .material-symbols-rounded {
-  font-size: 1.1rem;
-  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
-}
-
-/* Comentários — placeholder */
-.pro-card__exp-section--comments {
-  display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   color: var(--t-disabled);
   font-size: 0.82rem;
+  padding-bottom: var(--space-sm);
 }
 
-.pro-card__exp-section--comments .material-symbols-rounded {
+.pro-card__back-comments .material-symbols-rounded {
   font-size: 1.2rem;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   flex-shrink: 0;
 }
 
-/* Barra de ações do card expandido */
-.pro-card__exp-actions {
+/* Barra de ações no verso: WhatsApp · Compartilhar · Virar */
+.pro-card__back-actions {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  margin-top: var(--space-sm);
   padding-top: var(--space-sm);
   border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
 }
 
-.pro-card__exp-btn {
+.pro-card__back-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1192,14 +1109,14 @@
   touch-action: manipulation;
 }
 
-.pro-card__exp-btn--whatsapp {
+.pro-card__back-btn--whatsapp {
   flex: 1;
   padding: 10px var(--space-sm);
   background: #25D366;
   color: #fff;
 }
 
-.pro-card__exp-btn--icon {
+.pro-card__back-btn--icon {
   width: 44px;
   height: 44px;
   padding: 0;
@@ -1208,7 +1125,7 @@
   color: var(--t-sub);
 }
 
-.pro-card__exp-btn .material-symbols-rounded {
+.pro-card__back-btn .material-symbols-rounded {
   font-size: 1.2rem;
 }
 
@@ -1220,8 +1137,6 @@
 
 .pro-card {
   margin-bottom: var(--space-sm);
-  flex-wrap: wrap;           /* permite o rodapé (__meta) quebrar p/ linha própria */
-  transition: box-shadow 0.15s;
   animation: cardExpand 0.2s ease-out;
 }
 
@@ -1256,11 +1171,11 @@
   font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 
-.pro-card:active {
+.pro-card:active .pro-card__front {
   box-shadow: var(--shadow-sm);
 }
 
-.pro-card--selected {
+.pro-card--selected .pro-card__front {
   border-color: var(--p-green);
   box-shadow: 0 0 0 2px var(--p-green-light);
 }

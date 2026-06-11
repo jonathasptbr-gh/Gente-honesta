@@ -199,22 +199,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<span class="avail avail--${m.cls}"><span class="avail__dot" aria-hidden="true"></span>${m.label}</span>`;
   };
 
-  // Seção expandida do card: comentários e barra de ações (WhatsApp · Compartilhar · Colapsar).
-  const proExpandedHTML = (pro) => `
-    <div class="pro-card__expanded">
-      <div class="pro-card__exp-section pro-card__exp-section--comments">
+  // Verso do card (flip): comentários em scroll + barra de ações.
+  const proBackHTML = () => `
+    <div class="pro-card__back">
+      <div class="pro-card__back-comments">
         <span class="material-symbols-rounded" aria-hidden="true">chat_bubble_outline</span>
         <span>Nenhum comentário ainda.</span>
       </div>
-      <div class="pro-card__exp-actions">
-        <button type="button" class="pro-card__exp-btn pro-card__exp-btn--whatsapp">
+      <div class="pro-card__back-actions">
+        <button type="button" class="pro-card__back-btn pro-card__back-btn--whatsapp">
           <span class="material-symbols-rounded" aria-hidden="true">chat</span>WhatsApp
         </button>
-        <button type="button" class="pro-card__exp-btn pro-card__exp-btn--icon pro-card__exp-btn--share" aria-label="Compartilhar">
+        <button type="button" class="pro-card__back-btn pro-card__back-btn--icon pro-card__back-btn--share" aria-label="Compartilhar">
           <span class="material-symbols-rounded" aria-hidden="true">share</span>
         </button>
-        <button type="button" class="pro-card__exp-btn pro-card__exp-btn--icon pro-card__exp-btn--collapse" aria-label="Colapsar">
-          <span class="material-symbols-rounded" aria-hidden="true">expand_less</span>
+        <button type="button" class="pro-card__back-btn pro-card__back-btn--icon pro-card__back-btn--flip" aria-label="Virar">
+          <span class="material-symbols-rounded" aria-hidden="true">flip_to_front</span>
         </button>
       </div>
     </div>
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const card = document.createElement('div');
       card.className = 'pro-card';
       card.style.cursor = 'default';
-      card.innerHTML = `<div class="card-normal">${proCardHTML(pro, false)}</div>`;
+      card.innerHTML = `<div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div></div>`;
       list.appendChild(card);
     });
   };
@@ -323,26 +323,26 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Botão Colapsar dentro do card expandido
-    if (e.target.closest('.pro-card__exp-btn--collapse')) {
-      e.target.closest('.pro-card')?.classList.remove('pro-card--expanded');
+    // Botão Virar (flip de volta para a frente)
+    if (e.target.closest('.pro-card__back-btn--flip')) {
+      e.target.closest('.pro-card')?.classList.remove('pro-card--flipped');
       return;
     }
 
-    // Botão WhatsApp dentro do card expandido
-    if (e.target.closest('.pro-card__exp-btn--whatsapp')) {
+    // Botão WhatsApp no verso
+    if (e.target.closest('.pro-card__back-btn--whatsapp')) {
       customAlert('Abrir WhatsApp — funcionalidade em breve.', 'WhatsApp', 'chat');
       return;
     }
 
-    // Botão Compartilhar dentro do card expandido
-    if (e.target.closest('.pro-card__exp-btn--share')) {
+    // Botão Compartilhar no verso
+    if (e.target.closest('.pro-card__back-btn--share')) {
       customAlert('Compartilhar perfil — funcionalidade em breve.', 'Compartilhar', 'share');
       return;
     }
 
-    // Clique dentro da seção expandida (mas fora dos botões) não faz nada
-    if (e.target.closest('.pro-card__expanded')) return;
+    // Clique dentro do verso (fora dos botões) não faz nada
+    if (e.target.closest('.pro-card__back')) return;
 
     const card = e.target.closest('.pro-card');
     if (!card) return;
@@ -358,12 +358,12 @@ document.addEventListener('DOMContentLoaded', () => {
       confirmBlock?.classList.remove('u-hidden');
       confirmBlock?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
-      // ── Navegação normal: expande/colapsa o card ──
-      const isExpanded = card.classList.contains('pro-card--expanded');
-      document.querySelectorAll('.pro-card--expanded').forEach(el => el.classList.remove('pro-card--expanded'));
-      if (!isExpanded) {
-        card.classList.add('pro-card--expanded');
-        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+      // ── Navegação normal: flip para o verso ──
+      const isFlipped = card.classList.contains('pro-card--flipped');
+      document.querySelectorAll('.pro-card--flipped').forEach(el => el.classList.remove('pro-card--flipped'));
+      if (!isFlipped) {
+        card.classList.add('pro-card--flipped');
+        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
       }
     }
   });
@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!preview) return;
     const pro = mockProfessionals.find(p => p.id === proEl.id);
     if (!pro) return;
-    preview.innerHTML = `<div class="pro-card"><div class="card-normal">${proCardHTML(pro, false)}</div></div>`;
+    preview.innerHTML = `<div class="pro-card"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div></div></div>`;
   };
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Confirmação da indicação
@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const card = document.createElement('div');
       card.className = 'pro-card';
       card.id = pro.id;
-      card.innerHTML = `<div class="card-normal">${proCardHTML(pro)}</div>${proExpandedHTML(pro)}`;
+      card.innerHTML = `<div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro)}</div>${proBackHTML()}</div>`;
       list.appendChild(card);
     });
   };
