@@ -24,7 +24,7 @@
   --warn-text: #f57c00;          /* laranja claro do IC (faixa alerta) — distinto do vermelho */
 
   /* Tiers de valor (medalhas) — ouro usa --a-gold; verde usa --p-green */
-  --tier-bronze: #cd7f32;
+  --tier-bronze: #a07040;       /* bronze suave — harmonioso com o ocre */
   --tier-silver: #9e9e9e;
 
   /* Superfícies específicas */

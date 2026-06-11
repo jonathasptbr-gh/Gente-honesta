@@ -275,10 +275,10 @@
 }
 
 /* Cor do escudo, porcentagem E palavra variam pela faixa do índice (100→0 em 4 partes) */
-/* 75–100: verde — verificado (gpp_good) */
+/* 75–100: verde-arósia — verificado (gpp_good) */
 .ic-bar--ok .ic-bar__shield,
 .ic-bar--ok .ic-bar__value,
-.ic-bar--ok .ic-bar__label { color: var(--success-fill); }
+.ic-bar--ok .ic-bar__label { color: var(--p-green); }
 
 /* 50–74: amarelo — em construção (shield_question)
    Amarelo de texto levemente mais escuro: sem sombra, legível sobre fundo claro */
@@ -291,10 +291,10 @@
 .ic-bar--alert .ic-bar__value,
 .ic-bar--alert .ic-bar__label { color: var(--danger); }
 
-/* 0–24: preto — condenado (gpp_bad) */
+/* 0–24: cinza-petróleo escuro — condenado (gpp_bad) */
 .ic-bar--bad .ic-bar__shield,
 .ic-bar--bad .ic-bar__value,
-.ic-bar--bad .ic-bar__label { color: #111111; }
+.ic-bar--bad .ic-bar__label { color: var(--t-main); }
 
 
 /* ===========================================

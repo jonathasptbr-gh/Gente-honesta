@@ -847,8 +847,8 @@
   flex-shrink: 0;
 }
 
-.avail--available   { color: var(--success-fill); }
-.avail--available   .avail__dot { background: var(--success-fill); }
+.avail--available   { color: var(--p-green); }
+.avail--available   .avail__dot { background: var(--p-green); }
 
 .avail--full        { color: var(--a-gold-text); }
 .avail--full        .avail__dot { background: var(--a-gold-text); }
@@ -1252,7 +1252,7 @@
 
 .pro-card__meta-item .material-symbols-rounded {
   font-size: 1rem;
-  color: var(--t-sub);
+  color: var(--info-blue);
   font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 
