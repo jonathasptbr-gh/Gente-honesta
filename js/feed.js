@@ -139,8 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
     feedBottomBar?.classList.remove('u-hidden');    // restaura a barra de abas inferior
     themeMeta?.setAttribute('content', FEED_THEME_COLOR);
     document.getElementById('indicate-post-ref').innerHTML = ''; // limpa referência
-    document.querySelectorAll('.pro-row--selected, .pro-card--selected').forEach(el => {
-      el.classList.remove('pro-row--selected', 'pro-card--selected');
+    document.querySelectorAll('.pro-card--selected').forEach(el => {
+      el.classList.remove('pro-card--selected');
     });
   };
 
@@ -154,6 +154,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Renderização do Bloco de Indicados
   // =========================================================================
+
+  // IDs dos cards fixados no topo da lista (persistência em memória por sessão)
+  const pinnedPros = new Set();
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Dados mockados de indicações por post
   const mockIndicatedByPost = {
@@ -196,61 +199,59 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<span class="avail avail--${m.cls}"><span class="avail__dot" aria-hidden="true"></span>${m.label}</span>`;
   };
 
-  // Monta o texto das formas de pagamento a partir de pro.pay.
-  // Variações: "Aceita dinheiro, Pix e cartão até 6x" · "Aceita apenas dinheiro" ·
-  // "Aceita dinheiro, Pix e cartão de débito" · "Aceita Pix e cartão até 12x" etc.
-  const payLabel = (pay) => {
-    if (!pay) return '';
-    const parts = [];
-    if (pay.cash) parts.push('dinheiro');
-    if (pay.pix)  parts.push('Pix');
-    if (pay.card === 'debit')   parts.push('cartão de débito');
-    else if (pay.card > 0)      parts.push(`cartão até ${pay.card}x`);
-    if (!parts.length) return '';
-    const list = parts.length > 1
-      ? parts.slice(0, -1).join(', ') + ' e ' + parts[parts.length - 1]
-      : parts[0];
-    return `Aceita ${parts.length === 1 ? 'apenas ' : ''}${list}`;
-  };
-
-  // Rodapé do card expandido: formas de pagamento + nota fiscal, lado a lado e
-  // equidistantes (space-between no CSS), em tom opaco/discreto.
+  // Rodapé do card: ícone individual por forma de pagamento + status de nota fiscal.
   const proFooterHTML = (pro) => {
     const items = [];
-    const pl = payLabel(pro.pay);
-    if (pl) {
-      items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">payments</span>${pl}</span>`);
+    if (pro.pay) {
+      if (pro.pay.cash) items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">attach_money</span>Dinheiro</span>`);
+      if (pro.pay.pix)  items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">qr_code_2</span>Pix</span>`);
+      if (pro.pay.card === 'debit') items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">credit_card</span>Débito</span>`);
+      else if (pro.pay.card > 0)    items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">credit_card</span>Até ${pro.pay.card}x</span>`);
     }
     if (typeof pro.nf === 'boolean') {
-      items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">receipt_long</span>${pro.nf ? 'Emite nota fiscal' : 'Não emite nota fiscal'}</span>`);
+      if (pro.nf) {
+        items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded" aria-hidden="true">receipt_long</span>Emite NF</span>`);
+      } else {
+        items.push(`<span class="pro-card__meta-item"><span class="icon-crossed material-symbols-rounded" aria-hidden="true">receipt_long</span>Sem NF</span>`);
+      }
     }
     return items.length ? `<div class="pro-card__meta">${items.join('')}</div>` : '';
   };
 
-  // Card EXPANDIDO padrão de profissional: coluna esquerda (foto + QAV) e
-  // coluna direita (nome/profissão + confiança e, abaixo, a bio).
-  // Rodapé full-width com cartão/nota fiscal (proFooterHTML).
-  // Modelo único usado na lista de contatos, nos "já indicados" e na confirmação.
-  const proCardHTML = (pro) => `
-    <div class="pro-card__col-left">
-      <div class="pro-card__avatar-wrap">
-        <img class="pro-card__avatar" src="${avatarSvg}" alt="">
-      </div>
-      ${qavHTML(pro.q, pro.a, pro.v)}
-    </div>
-    <div class="pro-card__col-right">
-      <div class="pro-card__head">
-        <div class="pro-card__head-text">
-          <div class="pro-card__name">${pro.name}</div>
-          <div class="pro-card__tags">${pro.tags}</div>
-          ${availHTML(pro.avail)}
+  // Card padrão de profissional: coluna esquerda (foto + QAV) e coluna direita
+  // (nome/profissão/disponibilidade + ações do cabeçalho + bio).
+  // showPin=false omite o botão de fixar (ex: cards de referência na confirmação).
+  const proCardHTML = (pro, showPin = true) => {
+    const isPinned = pinnedPros.has(pro.id);
+    const pinBtn = showPin
+      ? `<button type="button" class="pro-card__pin-btn${isPinned ? ' pro-card__pin-btn--pinned' : ''}" aria-label="${isPinned ? 'Desafixar do topo' : 'Fixar no topo'}" data-pin-id="${pro.id}">
+           <span class="material-symbols-rounded" aria-hidden="true">push_pin</span>
+         </button>`
+      : '';
+    return `
+      <div class="pro-card__col-left">
+        <div class="pro-card__avatar-wrap">
+          <img class="pro-card__avatar" src="${avatarSvg}" alt="">
         </div>
-        ${icBarHTML(pro.ic)}
+        ${qavHTML(pro.q, pro.a, pro.v)}
       </div>
-      <p class="pro-card__bio">${pro.bio}</p>
-    </div>
-    ${proFooterHTML(pro)}
-  `;
+      <div class="pro-card__col-right">
+        <div class="pro-card__head">
+          <div class="pro-card__head-text">
+            <div class="pro-card__name">${pro.name}</div>
+            <div class="pro-card__tags">${pro.tags}</div>
+            ${availHTML(pro.avail)}
+          </div>
+          <div class="pro-card__head-right">
+            ${pinBtn}
+            ${icBarHTML(pro.ic)}
+          </div>
+        </div>
+        <p class="pro-card__bio">${pro.bio}</p>
+      </div>
+      ${proFooterHTML(pro)}
+    `;
+  };
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Monta os mini-cards dos já indicados
   const renderIndicatedBlock = (postId) => {
@@ -265,23 +266,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Cards compactos COM índice de confiança e disponibilidade (para o grid responsivo)
     indicated.forEach(pro => {
-      const row = document.createElement('div');
-      row.className = 'pro-row';
-      row.style.cursor = 'default';
-      row.innerHTML = `
-        <div class="pro-row__avatar-wrap">
-          <img class="pro-row__avatar" src="${avatarSvg}" alt="">
-        </div>
-        <div class="pro-row__info">
-          <span class="pro-row__name">${pro.name}</span>
-          <span class="pro-row__tags">${pro.tags}</span>
-          ${availHTML(pro.avail)}
-        </div>
-        ${icBarHTML(pro.ic)}
-      `;
-      list.appendChild(row);
+      const card = document.createElement('div');
+      card.className = 'pro-card';
+      card.style.cursor = 'default';
+      card.innerHTML = `<div class="card-normal">${proCardHTML(pro, false)}</div>`;
+      list.appendChild(card);
     });
   };
 
@@ -308,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('agenda-list')?.addEventListener('click', (e) => {
     // Botão X dentro do painel de ações — fecha o painel e restaura o card
     if (e.target.closest('.card-actions__icon--close')) {
-      e.target.closest('.pro-row, .pro-card')?.classList.remove('card--open-actions');
+      e.target.closest('.pro-card')?.classList.remove('card--open-actions');
       return;
     }
 
@@ -326,15 +316,25 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const row = e.target.closest('.pro-row, .pro-card');
+    // Botão de fixar no topo
+    if (e.target.closest('.pro-card__pin-btn')) {
+      const btn = e.target.closest('.pro-card__pin-btn');
+      const proId = btn.dataset.pinId;
+      if (pinnedPros.has(proId)) pinnedPros.delete(proId);
+      else pinnedPros.add(proId);
+      renderAgendaList();
+      return;
+    }
+
+    const row = e.target.closest('.pro-card');
     if (!row) return;
 
     if (indicateMode) {
       // ── Modo indicação: seleciona o profissional para indicar ──
-      document.querySelectorAll('.pro-row--selected, .pro-card--selected').forEach(el => {
-        el.classList.remove('pro-row--selected', 'pro-card--selected');
+      document.querySelectorAll('.pro-card--selected').forEach(el => {
+        el.classList.remove('pro-card--selected');
       });
-      row.classList.add(row.classList.contains('pro-row') ? 'pro-row--selected' : 'pro-card--selected');
+      row.classList.add('pro-card--selected');
       selectedProId = row.id;
       renderConfirmBlock(row);
       confirmBlock?.classList.remove('u-hidden');
@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!preview) return;
     const pro = mockProfessionals.find(p => p.id === proEl.id);
     if (!pro) return;
-    preview.innerHTML = `<div class="pro-card">${proCardHTML(pro)}</div>`;
+    preview.innerHTML = `<div class="pro-card"><div class="card-normal">${proCardHTML(pro, false)}</div></div>`;
   };
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Confirmação da indicação
@@ -372,20 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
     openPedidosSheet();
   });
 
-
-  // =========================================================================
-  // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Alternância de Visualização
-  // =========================================================================
-
-  let agendaViewMode = 'compact'; // 'compact' | 'full'
-  const btnToggleView = document.getElementById('btn-toggle-agenda-view');
-
-  btnToggleView?.addEventListener('click', () => {
-    agendaViewMode = agendaViewMode === 'compact' ? 'full' : 'compact';
-    const icon = btnToggleView.querySelector('.material-symbols-rounded');
-    if (icon) icon.innerText = agendaViewMode === 'compact' ? 'view_list' : 'grid_view';
-    renderAgendaList();
-  });
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Dados mockados de profissionais
   // avail: 'available' (Disponível/verde) | 'full' (Agenda cheia/amarelo) | 'unavailable' (Indisponível/vermelho)
@@ -426,7 +412,8 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   `;
 
-  // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Renderiza lista conforme modo e busca
+  // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Renderiza lista de contatos
+  // Fixados aparecem primeiro; dentro de cada grupo, a ordem original é preservada.
   const renderAgendaList = () => {
     const list = document.getElementById('agenda-list');
     if (!list) return;
@@ -435,43 +422,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const filtered = mockProfessionals.filter(p =>
       p.name.toLowerCase().includes(query) || p.tags.toLowerCase().includes(query)
     );
+    const sorted = [...filtered].sort((a, b) =>
+      (pinnedPros.has(b.id) ? 1 : 0) - (pinnedPros.has(a.id) ? 1 : 0)
+    );
 
     list.innerHTML = '';
 
-    if (filtered.length === 0) {
+    if (sorted.length === 0) {
       list.innerHTML = '<p style="text-align:center;color:var(--t-sub);padding:var(--space-xl) 0;font-size:0.9rem">Nenhum profissional encontrado.</p>';
       return;
     }
 
-    filtered.forEach(pro => {
-      if (agendaViewMode === 'compact') {
-        const row = document.createElement('div');
-        row.className = 'pro-row';
-        row.id = pro.id;
-        // .card-normal = conteúdo normal | .card-actions = painel de ações (oculto por padrão)
-        row.innerHTML = `
-          <div class="card-normal">
-            <div class="pro-row__avatar-wrap">
-              <img class="pro-row__avatar" src="${avatarSvg}" alt="">
-            </div>
-            <div class="pro-row__info">
-              <span class="pro-row__name">${pro.name}</span>
-              <span class="pro-row__tags">${pro.tags}</span>
-              ${availHTML(pro.avail)}
-            </div>
-            ${icBarHTML(pro.ic)}
-          </div>
-          ${cardActionsHTML}
-        `;
-        list.appendChild(row);
-      } else {
-        const card = document.createElement('div');
-        card.className = 'pro-card';
-        card.id = pro.id;
-        // proCardHTML embrulhado em .card-normal, seguido do painel de ações
-        card.innerHTML = `<div class="card-normal">${proCardHTML(pro)}</div>${cardActionsHTML}`;
-        list.appendChild(card);
-      }
+    sorted.forEach(pro => {
+      const card = document.createElement('div');
+      card.className = 'pro-card';
+      card.id = pro.id;
+      card.innerHTML = `<div class="card-normal">${proCardHTML(pro)}</div>${cardActionsHTML}`;
+      list.appendChild(card);
     });
   };
 

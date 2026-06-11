@@ -828,7 +828,7 @@
 .avail {
   display: inline-flex;
   align-items: center;
-  align-self: flex-start;   /* não estica em colunas flex (pro-row__info) */
+  align-self: flex-start;   /* não estica em colunas flex (pro-card__head-text) */
   gap: 5px;
   font-size: 0.72rem;
   font-weight: 700;
@@ -1005,8 +1005,7 @@
   background: var(--bg-canvas);
 }
 
-/* Base compartilhada: pro-row (compacto) e pro-card (expandido) */
-.pro-row,
+/* Base do card de contato */
 .pro-card {
   background: var(--bg-white);
   border: 1px solid var(--border-light);
@@ -1017,38 +1016,20 @@
   cursor: pointer;
 }
 
-/* Modo compacto (linha) */
-.pro-row {
-  align-items: flex-start;
-  margin-bottom: var(--space-xs);
-  transition: background 0.15s;
-}
-
-.pro-row:active,
-.pro-row--selected {
-  background: var(--p-green-light);
-}
-
 /* ===========================================
    PAINEL DE AÇÕES DO CARD DE CONTATO
    Aparece ao clicar num card (fora do modo indicação).
    Dois botões largos à esquerda + dois ícones à direita.
    ======================================== */
 
-/* .card-normal = conteúdo normal do card; oculto quando ações estão abertas */
-.pro-row .card-normal,
+/* .card-normal = conteúdo normal do card; oculto quando ações estão abertas.
+   flex-wrap permite que o __meta (flex-basis:100%) caia numa linha própria. */
 .pro-card .card-normal {
   display: flex;
   flex: 1;
   gap: var(--space-sm);
   align-items: flex-start;
   min-width: 0;
-}
-
-/* No card EXPANDIDO, o .card-normal é o container real das colunas + rodapé:
-   o wrap permite que o __meta (flex-basis:100%) caia numa linha própria,
-   abaixo de tudo, sem espremer as colunas superiores. */
-.pro-card .card-normal {
   flex-wrap: wrap;
 }
 
@@ -1125,47 +1106,6 @@
   border: 1px solid var(--border-light);
 }
 
-.pro-row__avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.pro-row__avatar {
-  width: 48px;          /* mesmo que .pro-card__avatar */
-  height: 64px;
-  border-radius: 8px;   /* mesmo que .pro-card__avatar */
-  object-fit: cover;
-  border: 1px solid var(--border-light);
-  background: var(--bg-soft);
-  display: block;
-}
-
-.pro-row__info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pro-row__name {
-  font-size: 0.95rem;   /* igualado a .pro-card__name */
-  font-weight: 700;
-  color: var(--t-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pro-row__tags {
-  font-size: 0.8rem;    /* igualado a .pro-card__tags */
-  color: var(--t-sub);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Modo completo (card) */
 /* Animação de entrada — disparada cada vez que .pro-card é inserido no DOM */
 @keyframes cardExpand {
   from { opacity: 0; transform: scaleY(0.88); transform-origin: top; }
@@ -1283,10 +1223,64 @@
 }
 
 .pro-card__head-text {
-  display: flex;           /* espelha .pro-row__info: contexto flex para o .avail */
+  display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  flex: 1;
+}
+
+/* Coluna direita do cabeçalho: botão fixar (topo) + índice de confiança (abaixo) */
+.pro-card__head-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.pro-card__pin-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--t-disabled);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  touch-action: manipulation;
+}
+
+.pro-card__pin-btn .material-symbols-rounded {
+  font-size: 1rem;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.pro-card__pin-btn--pinned {
+  color: var(--p-green);
+}
+
+.pro-card__pin-btn--pinned .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+}
+
+/* Ícone riscado na diagonal (ex: sem nota fiscal) */
+.icon-crossed {
+  position: relative;
+  display: inline-block;
+}
+
+.icon-crossed::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  right: -1px;
+  height: 1.5px;
+  background: currentColor;
+  transform: rotate(-35deg);
+  pointer-events: none;
 }
 
 .pro-card__name {
