@@ -12,12 +12,13 @@ Repositório: jonathasptbr-gh/gente-honesta
 
 ## Deploy
 
-- Branch de trabalho: `claude/pwa-github-setup-4vhgdo`
 - Branch de produção: `main` (GitHub Actions → GitHub Pages → domínio customizado)
 - Para publicar: `git push origin HEAD:main`
 - CI: `.github/workflows/deploy.yml` — dispara no push para `main`
 
 > Nunca há build step: todos os arquivos são estáticos, o deploy publica o repo direto.
+
+**Sempre fazer deploy ao final de cada sessão de alterações.** O desenvolvedor usa https://gentehonesta.com.br diretamente como preview de testes, num Samsung S24 Ultra. Não há ambiente de staging separado.
 
 ---
 
