@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Dados mockados de indicações por post
   const mockIndicatedByPost = {
     '0': [
-      { name: 'Carlos Almeida', tags: 'Eletricista · Encanador', ic: 78, q: 7, a: 5, v: 6, avail: 'available', pay: { cash: true, pix: true, card: 6 }, nf: true, bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' }
+      { name: 'Carlos Almeida', tags: ['Eletricista', 'Encanador'], ic: 78, q: 7, a: 5, v: 6, avail: 'available', pay: { cash: true, pix: true, card: 6 }, nf: true, bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' }
     ],
     '1': []
   };
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pro.pay?.cash) items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded">attach_money</span>Dinheiro</span>`);
     if (pro.pay?.pix)  items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded">qr_code_2</span>Pix</span>`);
     if (pro.pay?.card === 'debit') items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded">credit_card</span>Débito</span>`);
-    else if (pro.pay?.card > 0)   items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded">credit_card</span>${pro.pay.card}x</span>`);
+    else if (pro.pay?.card > 0)   items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded">credit_card</span>até ${pro.pay.card}x</span>`);
     if (typeof pro.nf === 'boolean') {
       items.push(pro.nf
         ? `<span class="pro-card__meta-item"><span class="material-symbols-rounded">receipt_long</span>NF</span>`
@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="pro-card__head">
           <div class="pro-card__head-text">
             <div class="pro-card__name">${pro.name}</div>
-            <div class="pro-card__tags">${pro.tags}</div>
+            <div class="pro-card__tags">${allTags.map(t => `<span class="pro-card__tag${(Array.isArray(pro.tags) ? pro.tags : []).includes(t) ? ' pro-card__tag--active' : ''}">${t}</span>`).join('')}</div>
             ${availHTML(pro.avail)}
           </div>
           <div class="pro-card__head-right">
@@ -455,12 +455,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const mockProfessionals = [
     // pay: formas de pagamento — cash (dinheiro), pix, card (0 = não aceita,
     //      'debit' = só débito, número = crédito parcelado em até Nx) · nf: emite nota fiscal
-    { id: 'pro-0', name: 'Carlos Almeida', tags: 'Eletricista · Encanador', ic: 92, q: 8, a: 6, v: 7, avail: 'available',   pay: { cash: true,  pix: true,  card: 6       }, nf: true,  bio: 'Atendo serviços elétricos e hidráulicos residenciais. Não faço obras de grande porte nem trabalho em altura.' },
-    { id: 'pro-1', name: 'Paula Ramos',    tags: 'Diarista · Cozinheira',   ic: 64, q: 7, a: 7, v: 7, avail: 'full',        pay: { cash: true,  pix: true,  card: 0       }, nf: false, bio: 'Faço limpeza e cozinha do dia a dia. Não atendo aos finais de semana e não cuido de crianças.' },
-    { id: 'pro-2', name: 'Roberto Nunes',  tags: 'Pintor · Gesseiro',       ic: 38, q: 6, a: 5, v: 5, avail: 'unavailable', pay: { cash: true,  pix: false, card: 0       }, nf: false, bio: 'Pintura e pequenos reparos em gesso. Estou no início de carreira, então os prazos podem variar.' },
-    { id: 'pro-3', name: 'Fernanda Lima',  tags: 'Costureira · Designer',   ic: 91, q: 9, a: 5, v: 7, avail: 'available',   pay: { cash: false, pix: true,  card: 12      }, nf: true,  bio: 'Costura sob medida e ajustes de roupas. Não trabalho com couro nem com grandes lotes.' },
-    { id: 'pro-4', name: 'Marcos Freitas', tags: 'Marceneiro',              ic: 19, q: 8, a: 4, v: 6, avail: 'full',        pay: { cash: true,  pix: true,  card: 'debit' }, nf: true,  bio: 'Móveis sob medida em madeira. Tenho alta demanda, combine o prazo com antecedência.' },
+    { id: 'pro-0', name: 'Carlos Almeida', tags: ['Eletricista', 'Encanador'],    ic: 92, q: 8, a: 6, v: 7, avail: 'available',   pay: { cash: true,  pix: true,  card: 6       }, nf: true,  bio: 'Atendo serviços elétricos e hidráulicos residenciais. Não faço obras de grande porte nem trabalho em altura.' },
+    { id: 'pro-1', name: 'Paula Ramos',    tags: ['Diarista', 'Cozinheira'],      ic: 64, q: 7, a: 7, v: 7, avail: 'full',        pay: { cash: true,  pix: true,  card: 0       }, nf: false, bio: 'Faço limpeza e cozinha do dia a dia. Não atendo aos finais de semana e não cuido de crianças.' },
+    { id: 'pro-2', name: 'Roberto Nunes',  tags: ['Pintor', 'Gesseiro'],          ic: 38, q: 6, a: 5, v: 5, avail: 'unavailable', pay: { cash: true,  pix: false, card: 0       }, nf: false, bio: 'Pintura e pequenos reparos em gesso. Estou no início de carreira, então os prazos podem variar.' },
+    { id: 'pro-3', name: 'Fernanda Lima',  tags: ['Costureira', 'Designer'],      ic: 91, q: 9, a: 5, v: 7, avail: 'available',   pay: { cash: false, pix: true,  card: 12      }, nf: true,  bio: 'Costura sob medida e ajustes de roupas. Não trabalho com couro nem com grandes lotes.' },
+    { id: 'pro-4', name: 'Marcos Freitas', tags: ['Marceneiro'],                  ic: 19, q: 8, a: 4, v: 6, avail: 'full',        pay: { cash: true,  pix: true,  card: 'debit' }, nf: true,  bio: 'Móveis sob medida em madeira. Tenho alta demanda, combine o prazo com antecedência.' },
   ];
+
+  // Todas as especialidades possíveis — exibidas em todos os cards (ativas = azul, inativas = opacas)
+  const allTags = ['Eletricista', 'Encanador', 'Diarista', 'Cozinheira', 'Pintor', 'Gesseiro', 'Costureira', 'Designer', 'Marceneiro'];
 
   const avatarSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>`;
 
@@ -473,7 +476,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const query = document.getElementById('inp-agenda-search')?.value.trim().toLowerCase() || '';
     const searched = mockProfessionals.filter(p =>
-      p.name.toLowerCase().includes(query) || p.tags.toLowerCase().includes(query)
+      p.name.toLowerCase().includes(query) ||
+      p.tags.some(t => t.toLowerCase().includes(query))
     );
     const filtered = applyFilters(searched);
 
