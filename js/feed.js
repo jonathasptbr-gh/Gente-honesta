@@ -230,11 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" class="pro-card__back-btn pro-card__back-btn--whatsapp">
             <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
           </button>
-          <button type="button" class="pro-card__back-btn pro-card__back-btn--icon pro-card__back-btn--share" aria-label="Compartilhar">
-            <span class="material-symbols-rounded" aria-hidden="true">share</span>
-          </button>
-          <button type="button" class="pro-card__back-btn pro-card__back-btn--icon pro-card__back-btn--flip" aria-label="Virar">
-            <span class="material-symbols-rounded" aria-hidden="true">rotate_left</span>
+          <button type="button" class="pro-card__back-btn pro-card__back-btn--share">
+            <span class="material-symbols-rounded" aria-hidden="true">share</span>Compartilhar
           </button>
         </div>
       </div>
@@ -341,12 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (pinnedPros.has(proId)) pinnedPros.delete(proId);
       else pinnedPros.add(proId);
       renderAgendaList();
-      return;
-    }
-
-    // Botão Virar (flip de volta para a frente)
-    if (e.target.closest('.pro-card__back-btn--flip')) {
-      e.target.closest('.pro-card')?.classList.remove('pro-card--flipped');
       return;
     }
 

@@ -1052,7 +1052,9 @@
   box-shadow: 0 0 0 2px var(--p-green-light);
 }
 
-/* Verso: posicionado sobre a frente, rotacionado 180° inicialmente (invisível) */
+/* Verso: posicionado sobre a frente, rotacionado 180° inicialmente (invisível).
+   Sem padding próprio: comentários têm margem interna e os botões do rodapé
+   preenchem até a borda, como recortes do cartão. */
 .pro-card__back {
   position: absolute;
   inset: 0;
@@ -1062,21 +1064,20 @@
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  padding: var(--space-sm);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
 }
 
-/* Área de comentários em scroll */
+/* Área de comentários em scroll — carrega a margem interna do verso */
 .pro-card__back-comments {
   flex: 1;
   overflow-y: scroll;   /* sempre visível */
   min-height: 0;
   scrollbar-width: thin;
   scrollbar-color: var(--info-blue) var(--bg-soft);
-  padding-bottom: var(--space-xs);
-  padding-right: 4px; /* folga p/ scrollbar não tocar o texto */
+  padding: var(--space-sm);
+  padding-right: calc(var(--space-sm) - 4px); /* compensa a largura do scrollbar */
 }
 
 .pro-card__back-comments::-webkit-scrollbar { width: 3px; }
@@ -1129,13 +1130,16 @@
 .comment__ic.ic-bar--alert { color: var(--danger); }
 .comment__ic.ic-bar--bad   { color: var(--t-main); }
 
-/* Barra de ações no verso: WhatsApp · Compartilhar · Virar */
+/* Barra de ações no verso: WhatsApp · Compartilhar — caixas preenchidas até
+   a borda do card, como recortes. As linhas divisórias (entre comentários e
+   rodapé, e entre as duas caixas) usam a cor do fundo da tela (--bg-canvas)
+   para dar o aspecto de corte no cartão. */
 .pro-card__back-actions {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding-top: 6px;   /* igual ao padding-top do .pro-card__meta */
-  border-top: 1px solid var(--border-light);
+  align-items: stretch;
+  gap: 2px;                                  /* linha vertical entre as caixas */
+  border-top: 2px solid var(--bg-canvas);    /* linha entre comentários e rodapé */
+  background: var(--bg-canvas);              /* cor visível no gap */
   flex-shrink: 0;
 }
 
@@ -1145,7 +1149,8 @@
   justify-content: center;
   gap: 5px;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 0;
+  padding: 9px var(--space-xs);
   cursor: pointer;
   font-weight: 700;
   font-size: 0.72rem;   /* igual ao .pro-card__meta-item */
@@ -1154,19 +1159,15 @@
 }
 
 .pro-card__back-btn--whatsapp {
-  flex: 1;
-  padding: 5px var(--space-sm);
+  flex: 1.4;
   background: #25D366;
   color: #fff;
 }
 
-.pro-card__back-btn--icon {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  flex-shrink: 0;
-  background: var(--bg-soft);
-  color: var(--t-sub);
+.pro-card__back-btn--share {
+  flex: 1;
+  background: var(--info-blue);
+  color: #fff;
 }
 
 .pro-card__back-btn .material-symbols-rounded {
