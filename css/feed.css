@@ -930,21 +930,44 @@
 .agenda-filters__panel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-sm) 0 var(--space-xs);
+  gap: var(--space-xs);
+  padding: var(--space-xs) 0 var(--space-xs);
 }
 
-.agenda-filters__group {
+/* Sub-seções dentro do painel (Filtros / Ordenar) */
+.agenda-filters__sub {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
+.agenda-filters__sub-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.50);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  margin: 0;
+}
+
+/* Divisor horizontal entre as sub-seções */
+.agenda-filters__divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 2px 0;
+}
+
+.agenda-filters__group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 /* Rótulo dos grupos: branco semi-transparente sobre o verde */
 .agenda-filters__group-label {
-  font-size: 0.72rem;
+  font-size: 0.70rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.70);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin: 0;
@@ -954,14 +977,16 @@
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding-bottom: var(--space-xs);
+  padding-bottom: 2px;
+  scrollbar-width: none;
 }
+.agenda-filters__chips::-webkit-scrollbar { display: none; }
 
 /* Chips no painel de filtros (sobre fundo verde) */
 .agenda-filters__panel .chip {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.30);
-  color: var(--t-light);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .agenda-filters__panel .chip--active {
@@ -969,6 +994,28 @@
   color: var(--p-green);
   border-color: transparent;
 }
+
+/* ── Chips de IC (ícone colorido, tamanho quadrado compacto) ──────────── */
+.chip--ic {
+  padding: 5px 10px;
+  gap: 0;
+}
+
+.chip--ic .material-symbols-rounded {
+  font-size: 1.15rem;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+}
+
+/* Quando o chip de IC está inativo: ícone semi-transparente sem cor própria */
+.agenda-filters__panel .chip--ic:not(.chip--active) .material-symbols-rounded {
+  color: rgba(255, 255, 255, 0.50);
+}
+
+/* Quando ativo: fundo branco + ícone na cor do tier */
+.agenda-filters__panel .chip--ic.chip--active.chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
+.agenda-filters__panel .chip--ic.chip--active.chip--ic-warn  .material-symbols-rounded { color: var(--a-gold-text);  }
+.agenda-filters__panel .chip--ic.chip--active.chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
+.agenda-filters__panel .chip--ic.chip--active.chip--ic-bad   .material-symbols-rounded { color: var(--t-sub);        }
 
 /* Chips de filtro (fora do painel — estilo base preservado) */
 .chip {

@@ -158,6 +158,47 @@ document.addEventListener('DOMContentLoaded', () => {
   // IDs dos cards fixados no topo da lista (persistência em memória por sessão)
   const pinnedPros = new Set();
 
+  // Estado dos filtros e ordenação da lista de profissionais.
+  // Filtros: todos ativos por padrão (uncheck = exclui).
+  // Ordem: A-Z pelo nome; aplicada separadamente na lista de salvos e na lista comum.
+  const filterState = {
+    ic:        new Set(['ok', 'warn', 'alert', 'bad']),
+    avail:     new Set(['available', 'full', 'unavailable']),
+    pay:       new Set(['cash', 'card', 'pix', 'nf']),
+    savedOnly: false,
+    sort:      'name',
+  };
+
+  const applyFilters = (pros) => pros.filter(p => {
+    const tier = p.ic >= 75 ? 'ok' : p.ic >= 50 ? 'warn' : p.ic >= 25 ? 'alert' : 'bad';
+    if (!filterState.ic.has(tier)) return false;
+    if (!filterState.avail.has(p.avail)) return false;
+    if (filterState.savedOnly && !pinnedPros.has(p.id)) return false;
+    // Pagamento: OR — passa se tiver ao menos um método de pagamento marcado.
+    // Só aplica o filtro se ao menos uma opção foi desmarcada.
+    if (filterState.pay.size < 4) {
+      const ok =
+        (filterState.pay.has('cash') && p.pay?.cash) ||
+        (filterState.pay.has('pix')  && p.pay?.pix)  ||
+        (filterState.pay.has('card') && p.pay?.card && p.pay.card !== 0) ||
+        (filterState.pay.has('nf')   && p.nf === true);
+      if (!ok) return false;
+    }
+    return true;
+  });
+
+  const availOrder = { available: 0, full: 1, unavailable: 2 };
+  const sortPros = (pros) => [...pros].sort((a, b) => {
+    switch (filterState.sort) {
+      case 'ic':      return b.ic - a.ic;
+      case 'avail':   return (availOrder[a.avail] ?? 3) - (availOrder[b.avail] ?? 3);
+      case 'quality': return b.q - a.q;
+      case 'agility': return b.a - a.a;
+      case 'value':   return b.v - a.v;
+      default:        return a.name.localeCompare(b.name, 'pt-BR');
+    }
+  });
+
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Dados mockados de indicações por post
   const mockIndicatedByPost = {
     '0': [
@@ -427,27 +468,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Renderiza lista de contatos
-  // Fixados aparecem primeiro; dentro de cada grupo, a ordem original é preservada.
+  // Salvos e comuns são ordenados separadamente; filtros e ordem são lidos de filterState.
   const renderAgendaList = () => {
     const list = document.getElementById('agenda-list');
     if (!list) return;
 
     const query = document.getElementById('inp-agenda-search')?.value.trim().toLowerCase() || '';
-    const filtered = mockProfessionals.filter(p =>
+    const searched = mockProfessionals.filter(p =>
       p.name.toLowerCase().includes(query) || p.tags.toLowerCase().includes(query)
     );
-    const sorted = [...filtered].sort((a, b) =>
-      (pinnedPros.has(b.id) ? 1 : 0) - (pinnedPros.has(a.id) ? 1 : 0)
-    );
+    const filtered = applyFilters(searched);
+
+    const pinnedList = sortPros(filtered.filter(p =>  pinnedPros.has(p.id)));
+    const otherList  = sortPros(filtered.filter(p => !pinnedPros.has(p.id)));
+    const final = [...pinnedList, ...otherList];
 
     list.innerHTML = '';
 
-    if (sorted.length === 0) {
+    if (final.length === 0) {
       list.innerHTML = '<p style="text-align:center;color:var(--t-sub);padding:var(--space-xl) 0;font-size:0.9rem">Nenhum profissional encontrado.</p>';
       return;
     }
 
-    sorted.forEach(pro => {
+    final.forEach(pro => {
       const card = document.createElement('div');
       card.className = 'pro-card';
       card.id = pro.id;
@@ -456,9 +499,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  // Reordena os cards já existentes (fixados primeiro) com animação FLIP:
-  // mede a posição de cada card, move os nós no DOM e anima o deslocamento
-  // entre a posição antiga e a nova — sem reconstruir o HTML (sem piscada).
+  // Reordena os cards já existentes com animação FLIP:
+  // salvos e comuns são listas separadas, cada uma ordenada por filterState.sort.
   const reorderAgendaListAnimated = () => {
     const list = document.getElementById('agenda-list');
     if (!list) return;
@@ -467,16 +509,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const oldTops = new Map(cards.map(c => [c, c.getBoundingClientRect().top]));
 
-    const orderIndex = id => mockProfessionals.findIndex(p => p.id === id);
-    [...cards]
-      .sort((a, b) =>
-        ((pinnedPros.has(b.id) ? 1 : 0) - (pinnedPros.has(a.id) ? 1 : 0)) ||
-        (orderIndex(a.id) - orderIndex(b.id))
-      )
-      .forEach(c => {
-        c.style.animation = 'none'; // evita repetir o cardExpand ao reinserir o nó
-        list.appendChild(c);
-      });
+    const pinnedCards = cards.filter(c =>  pinnedPros.has(c.id));
+    const otherCards  = cards.filter(c => !pinnedPros.has(c.id));
+
+    const sortCards = (arr) => [...arr].sort((a, b) => {
+      const proA = mockProfessionals.find(p => p.id === a.id);
+      const proB = mockProfessionals.find(p => p.id === b.id);
+      if (!proA || !proB) return 0;
+      switch (filterState.sort) {
+        case 'ic':      return proB.ic - proA.ic;
+        case 'avail':   return (availOrder[proA.avail] ?? 3) - (availOrder[proB.avail] ?? 3);
+        case 'quality': return proB.q - proA.q;
+        case 'agility': return proB.a - proA.a;
+        case 'value':   return proB.v - proA.v;
+        default:        return proA.name.localeCompare(proB.name, 'pt-BR');
+      }
+    });
+
+    [...sortCards(pinnedCards), ...sortCards(otherCards)].forEach(c => {
+      c.style.animation = 'none'; // evita repetir cardExpand ao reinserir o nó
+      list.appendChild(c);
+    });
 
     cards.forEach(c => {
       const delta = oldTops.get(c) - c.getBoundingClientRect().top;
@@ -517,13 +570,59 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btn) btn.style.borderColor= nowVisible ? 'var(--info-blue)' : '';
   });
 
-  // Chips de filtro: toque seleciona dentro do grupo (mesmo chip-group)
+  // Chips do painel de filtros: cada tipo tem comportamento próprio.
   document.getElementById('panel-agenda-filters')?.addEventListener('click', e => {
     const chip = e.target.closest('.chip');
     if (!chip) return;
-    const group = chip.closest('.agenda-filters__group');
-    group?.querySelectorAll('.chip').forEach(c => c.classList.remove('chip--active'));
-    chip.classList.add('chip--active');
+
+    // Ordenação: seleção exclusiva (radio)
+    if (chip.dataset.sort !== undefined) {
+      document.querySelectorAll('#panel-agenda-filters [data-sort]').forEach(c => {
+        c.classList.remove('chip--active');
+        c.setAttribute('aria-pressed', 'false');
+      });
+      chip.classList.add('chip--active');
+      chip.setAttribute('aria-pressed', 'true');
+      filterState.sort = chip.dataset.sort;
+      renderAgendaList();
+      return;
+    }
+
+    // Apenas salvos: toggle
+    if (chip.hasAttribute('data-filter-saved')) {
+      filterState.savedOnly = !filterState.savedOnly;
+      chip.classList.toggle('chip--active', filterState.savedOnly);
+      chip.setAttribute('aria-pressed', String(filterState.savedOnly));
+      renderAgendaList();
+      return;
+    }
+
+    // Confiança (IC): toggle multi-seleção
+    if (chip.dataset.filterIc) {
+      const val = chip.dataset.filterIc;
+      if (filterState.ic.has(val)) { filterState.ic.delete(val); chip.classList.remove('chip--active'); chip.setAttribute('aria-pressed', 'false'); }
+      else                         { filterState.ic.add(val);    chip.classList.add('chip--active');    chip.setAttribute('aria-pressed', 'true');  }
+      renderAgendaList();
+      return;
+    }
+
+    // Disponibilidade: toggle multi-seleção
+    if (chip.dataset.filterAvail) {
+      const val = chip.dataset.filterAvail;
+      if (filterState.avail.has(val)) { filterState.avail.delete(val); chip.classList.remove('chip--active'); chip.setAttribute('aria-pressed', 'false'); }
+      else                            { filterState.avail.add(val);    chip.classList.add('chip--active');    chip.setAttribute('aria-pressed', 'true');  }
+      renderAgendaList();
+      return;
+    }
+
+    // Pagamento: toggle multi-seleção
+    if (chip.dataset.filterPay) {
+      const val = chip.dataset.filterPay;
+      if (filterState.pay.has(val)) { filterState.pay.delete(val); chip.classList.remove('chip--active'); chip.setAttribute('aria-pressed', 'false'); }
+      else                          { filterState.pay.add(val);    chip.classList.add('chip--active');    chip.setAttribute('aria-pressed', 'true');  }
+      renderAgendaList();
+      return;
+    }
   });
 
 
