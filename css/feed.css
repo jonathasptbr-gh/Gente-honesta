@@ -956,7 +956,12 @@
   max-height: 800px;
   opacity: 1;
   pointer-events: auto;
-  padding: var(--space-xs) 0 var(--space-xs);
+  /* Fundo um toque mais escuro para diferenciar da barra de busca acima */
+  background: rgba(0, 0, 0, 0.20);
+  /* Sangra até as bordas do .agenda-filters compensando seu padding lateral */
+  margin: 0 calc(-1 * var(--space-md));
+  padding: var(--space-xs) var(--space-md) var(--space-sm);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
 }
 
 .agenda-filters__group {
@@ -972,30 +977,32 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin: 0;
+  text-align: center;
 }
 
-/* Chips: quebra de linha — sem scroll horizontal */
+/* Chips: quebra de linha, centralizados horizontalmente */
 .agenda-filters__chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  justify-content: center;
 }
 
-/* Botão "Adicionar seus contatos como favoritos" */
+/* Botão "Adicionar seus contatos como favoritos" — dourado, centralizado */
 .agenda-filters__add-contacts-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  padding: 10px var(--space-sm);
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.10);
-  border: 1px solid rgba(255, 255, 255, 0.20);
-  color: rgba(255, 255, 255, 0.80);
+  padding: 10px var(--space-md);
+  border-radius: var(--radius-pill);
+  background: var(--a-gold);
+  border: none;
+  color: var(--p-green-dark);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  width: 100%;
-  margin-top: 2px;
+  align-self: center;
+  margin-top: 4px;
   margin-bottom: 2px;
 }
 
@@ -1023,6 +1030,12 @@
 /* Quando selecionado (chip--active): ícone verde do painel (fundo branco já garante legibilidade) */
 .agenda-filters__panel .chip--ic.chip--active .material-symbols-rounded {
   color: var(--p-green);
+}
+
+/* Chip "Apenas salvos": ícone no mesmo tamanho dos IC chips desta seção */
+.chip--saved .material-symbols-rounded {
+  font-size: 1.05rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
 }
 
 /* Chips de filtro (fora do painel — estilo base preservado) */
@@ -1266,6 +1279,7 @@
 /* Item de pagamento que o profissional não oferece — esmaecido */
 .pro-card__meta-item--inactive {
   opacity: 0.22;
+  text-decoration: line-through;
 }
 
 .pro-card:active .pro-card__front {

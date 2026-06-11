@@ -277,18 +277,21 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Rodapé do card: todos os 4 itens sempre visíveis.
-  // Ativos (profissional aceita/emite) = estilo normal; inativos = opacos.
+  // Ativos (profissional aceita/emite) = estilo normal; inativos = opacos + riscados.
   const proFooterHTML = (pro) => {
     const hasCash = !!pro.pay?.cash;
     const hasPix  = !!pro.pay?.pix;
     const hasCard = pro.pay?.card === 'debit' || pro.pay?.card > 0;
     const hasNF   = pro.nf === true;
-    const cardLabel = pro.pay?.card === 'debit' ? 'Débito' : hasCard ? `até ${pro.pay.card}x` : 'Cartão';
+    const cardLabel = pro.pay?.card === 'debit' ? 'Débito'
+      : pro.pay?.card === 1 ? 'À vista'
+      : hasCard ? `até ${pro.pay.card}x`
+      : 'Cartão';
     const cls = active => `pro-card__meta-item${active ? '' : ' pro-card__meta-item--inactive'}`;
     return `<div class="pro-card__meta">
       <span class="${cls(hasCash)}"><span class="material-symbols-rounded">attach_money</span>Dinheiro</span>
-      <span class="${cls(hasCard)}"><span class="material-symbols-rounded">credit_card</span>${cardLabel}</span>
       <span class="${cls(hasPix)}"><span class="material-symbols-rounded">qr_code_2</span>Pix</span>
+      <span class="${cls(hasCard)}"><span class="material-symbols-rounded">credit_card</span>${cardLabel}</span>
       <span class="${cls(hasNF)}"><span class="material-symbols-rounded">receipt_long</span>NF</span>
     </div>`;
   };
