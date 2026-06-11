@@ -213,13 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const proBackHTML = () => {
     const commentsHTML = mockComments.map(c => `
       <div class="comment">
-        <p class="comment__text">${c.text}</p>
-        <div class="comment__footer">
-          <span class="comment__author">— ${c.author}</span>
-          <span class="comment__ic ic-bar--${icTier(c.ic)}">
-            <span class="material-symbols-rounded" aria-hidden="true">${icShieldIcon(c.ic)}</span>${c.ic}%
-          </span>
-        </div>
+        <p class="comment__text">"${c.text}" <span class="comment__author">— ${c.author}</span> <span class="comment__ic ic-bar--${icTier(c.ic)}"><span class="material-symbols-rounded" aria-hidden="true">${icShieldIcon(c.ic)}</span>${c.ic}%</span></p>
       </div>`).join('');
     return `
       <div class="pro-card__back">

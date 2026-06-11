@@ -1092,22 +1092,14 @@
 
 .comment__text {
   font-size: 0.75rem;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--t-sub);
-  margin: 0 0 4px;
-}
-
-.comment__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  margin: 0;
 }
 
 .comment__author {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--t-sub);
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .comment__ic {
@@ -1116,7 +1108,7 @@
   gap: 2px;
   font-size: 0.7rem;
   font-weight: 700;
-  flex-shrink: 0;
+  vertical-align: middle;
 }
 
 .comment__ic .material-symbols-rounded {
