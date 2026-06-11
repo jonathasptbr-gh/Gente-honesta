@@ -158,33 +158,29 @@ document.addEventListener('DOMContentLoaded', () => {
   // IDs dos cards fixados no topo da lista (persistência em memória por sessão)
   const pinnedPros = new Set();
 
-  // Estado dos filtros e ordenação da lista de profissionais.
-  // Filtros: todos ativos por padrão (uncheck = exclui).
-  // Ordem: A-Z pelo nome; aplicada separadamente na lista de salvos e na lista comum.
-  // Filtros de exclusão: sets vazios = nenhuma exclusão = mostra todos.
-  // Clicar num chip adiciona ao set (exclui essa categoria da lista).
+  // Filtros inclusivos: sets vazios = sem filtro = mostra todos.
+  // Clicar num chip adiciona ao set (whitelist); clicar de novo remove.
   const filterState = {
-    excludeIc:    new Set(),
-    excludeAvail: new Set(),
-    excludePay:   new Set(),
+    includeIc:    new Set(),
+    includeAvail: new Set(),
+    includePay:   new Set(),
     savedOnly:    false,
     sort:         'name',
   };
 
   const applyFilters = (pros) => pros.filter(p => {
     const tier = p.ic >= 75 ? 'ok' : p.ic >= 50 ? 'warn' : p.ic >= 25 ? 'alert' : 'bad';
-    if (filterState.excludeIc.has(tier)) return false;
-    if (filterState.excludeAvail.has(p.avail)) return false;
+    if (filterState.includeIc.size > 0 && !filterState.includeIc.has(tier)) return false;
+    if (filterState.includeAvail.size > 0 && !filterState.includeAvail.has(p.avail)) return false;
     if (filterState.savedOnly && !pinnedPros.has(p.id)) return false;
-    // Pagamento: exclui o profissional se TODOS os seus métodos estão na lista de exclusão.
-    if (filterState.excludePay.size > 0) {
-      const hasNonExcluded =
-        (p.pay?.cash && !filterState.excludePay.has('cash')) ||
-        (p.pay?.pix  && !filterState.excludePay.has('pix'))  ||
-        (p.pay?.card && p.pay.card !== 0 && !filterState.excludePay.has('card')) ||
-        (p.nf === true && !filterState.excludePay.has('nf'));
-      const hasAnyPayment = p.pay?.cash || p.pay?.pix || (p.pay?.card && p.pay.card !== 0) || p.nf;
-      if (hasAnyPayment && !hasNonExcluded) return false;
+    // Pagamento: OR — passa se aceitar ao menos um dos métodos marcados.
+    if (filterState.includePay.size > 0) {
+      const hasMatch =
+        (filterState.includePay.has('cash') && p.pay?.cash) ||
+        (filterState.includePay.has('pix')  && p.pay?.pix)  ||
+        (filterState.includePay.has('card') && p.pay?.card && p.pay.card !== 0) ||
+        (filterState.includePay.has('nf')   && p.nf === true);
+      if (!hasMatch) return false;
     }
     return true;
   });
@@ -559,39 +555,35 @@ document.addEventListener('DOMContentLoaded', () => {
   // TELA - PRINCIPAL (FEED) - FILTROS DA BUSCA - Painel colapsável + chips
   // =========================================================================
 
-  // Toggle de mostrar/ocultar o painel de filtros (botão "tune")
+  // Toggle de mostrar/ocultar o painel de filtros
   document.getElementById('btn-toggle-filters')?.addEventListener('click', () => {
     const panel = document.getElementById('panel-agenda-filters');
     const btn   = document.getElementById('btn-toggle-filters');
-    const open  = panel?.classList.toggle('u-hidden') === false; // remove = false → hidden; add = true → visible
-    // toggle retorna true se a classe FOI adicionada (painel ficou oculto)
-    const nowVisible = !panel?.classList.contains('u-hidden');
-    btn?.setAttribute('aria-expanded', String(nowVisible));
-    if (btn) btn.style.background = nowVisible ? 'var(--info-blue)' : '';
-    if (btn) btn.style.color      = nowVisible ? 'var(--t-light)'   : '';
-    if (btn) btn.style.borderColor= nowVisible ? 'var(--info-blue)' : '';
+    const nowOpen = panel?.classList.toggle('agenda-filters__panel--open');
+    btn?.setAttribute('aria-expanded', String(!!nowOpen));
+    const icon = btn?.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = nowOpen ? 'expand_less' : 'tune';
   });
 
-  // Ordenação: linha permanente abaixo da busca, seleção exclusiva (radio)
-  document.getElementById('agenda-sort-row')?.addEventListener('click', e => {
-    const chip = e.target.closest('[data-sort]');
-    if (!chip) return;
-    document.querySelectorAll('#agenda-sort-row [data-sort]').forEach(c => {
-      c.classList.remove('chip--active');
-      c.setAttribute('aria-pressed', 'false');
-    });
-    chip.classList.add('chip--active');
-    chip.setAttribute('aria-pressed', 'true');
-    filterState.sort = chip.dataset.sort;
-    renderAgendaList();
-  });
-
-  // Filtros do painel: clicar = excluir (chip--exclude + vermelho). Novo clique = desfaz.
+  // Ordenação (dentro do painel) e filtros: um único handler delegado.
   document.getElementById('panel-agenda-filters')?.addEventListener('click', e => {
     const chip = e.target.closest('.chip');
     if (!chip) return;
 
-    // "Apenas salvos": toggle positivo (não é exclusão, mostra só salvos)
+    // Ordenação: seleção exclusiva (radio)
+    if (chip.dataset.sort !== undefined) {
+      document.querySelectorAll('#panel-agenda-filters [data-sort]').forEach(c => {
+        c.classList.remove('chip--active');
+        c.setAttribute('aria-pressed', 'false');
+      });
+      chip.classList.add('chip--active');
+      chip.setAttribute('aria-pressed', 'true');
+      filterState.sort = chip.dataset.sort;
+      renderAgendaList();
+      return;
+    }
+
+    // "Apenas salvos": toggle
     if (chip.hasAttribute('data-filter-saved')) {
       filterState.savedOnly = !filterState.savedOnly;
       chip.classList.toggle('chip--active', filterState.savedOnly);
@@ -600,29 +592,29 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Confiança (IC): toggle exclusão
+    // Confiança (IC): toggle inclusão (whitelist)
     if (chip.dataset.filterIc) {
       const val = chip.dataset.filterIc;
-      if (filterState.excludeIc.has(val)) { filterState.excludeIc.delete(val); chip.classList.remove('chip--exclude'); chip.setAttribute('aria-pressed', 'false'); }
-      else                                { filterState.excludeIc.add(val);    chip.classList.add('chip--exclude');    chip.setAttribute('aria-pressed', 'true');  }
+      if (filterState.includeIc.has(val)) { filterState.includeIc.delete(val); chip.classList.remove('chip--active'); chip.setAttribute('aria-pressed', 'false'); }
+      else                                { filterState.includeIc.add(val);    chip.classList.add('chip--active');    chip.setAttribute('aria-pressed', 'true');  }
       renderAgendaList();
       return;
     }
 
-    // Disponibilidade: toggle exclusão
+    // Disponibilidade: toggle inclusão (whitelist)
     if (chip.dataset.filterAvail) {
       const val = chip.dataset.filterAvail;
-      if (filterState.excludeAvail.has(val)) { filterState.excludeAvail.delete(val); chip.classList.remove('chip--exclude'); chip.setAttribute('aria-pressed', 'false'); }
-      else                                   { filterState.excludeAvail.add(val);    chip.classList.add('chip--exclude');    chip.setAttribute('aria-pressed', 'true');  }
+      if (filterState.includeAvail.has(val)) { filterState.includeAvail.delete(val); chip.classList.remove('chip--active'); chip.setAttribute('aria-pressed', 'false'); }
+      else                                   { filterState.includeAvail.add(val);    chip.classList.add('chip--active');    chip.setAttribute('aria-pressed', 'true');  }
       renderAgendaList();
       return;
     }
 
-    // Pagamento: toggle exclusão
+    // Pagamento: toggle inclusão (whitelist)
     if (chip.dataset.filterPay) {
       const val = chip.dataset.filterPay;
-      if (filterState.excludePay.has(val)) { filterState.excludePay.delete(val); chip.classList.remove('chip--exclude'); chip.setAttribute('aria-pressed', 'false'); }
-      else                                 { filterState.excludePay.add(val);    chip.classList.add('chip--exclude');    chip.setAttribute('aria-pressed', 'true');  }
+      if (filterState.includePay.has(val)) { filterState.includePay.delete(val); chip.classList.remove('chip--active'); chip.setAttribute('aria-pressed', 'false'); }
+      else                                 { filterState.includePay.add(val);    chip.classList.add('chip--active');    chip.setAttribute('aria-pressed', 'true');  }
       renderAgendaList();
       return;
     }

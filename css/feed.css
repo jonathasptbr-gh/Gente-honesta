@@ -926,17 +926,7 @@
   font-size: 1.25rem;
 }
 
-/* Linha de ordenação — permanente, abaixo da busca */
-.agenda-filters__sort-row {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
-}
-.agenda-filters__sort-row::-webkit-scrollbar { display: none; }
-
-/* Chips dentro de .agenda-filters (sort-row + painel): adaptados ao fundo verde */
+/* Chips dentro de .agenda-filters (painel): adaptados ao fundo verde */
 .agenda-filters .chip {
   background: rgba(255, 255, 255, 0.14);
   border-color: rgba(255, 255, 255, 0.25);
@@ -949,28 +939,24 @@
   border-color: transparent;
 }
 
-/* Chip de exclusão: vermelho + ícone ✕ antes do texto */
-.agenda-filters__panel .chip--exclude {
-  background: var(--danger);
-  color: var(--t-light);
-  border-color: var(--danger);
-}
-
-.agenda-filters__panel .chip--exclude:not(.chip--ic)::before {
-  content: 'close';
-  font-family: 'Material Symbols Rounded';
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 20;
-  font-size: 0.85rem;
-  margin-right: 2px;
-  line-height: 1;
-}
-
-/* Painel de filtros colapsável */
+/* Painel de filtros — animação de abertura via max-height */
 .agenda-filters__panel {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  padding: var(--space-xs) 0 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity    0.28s ease;
+}
+
+.agenda-filters__panel--open {
+  max-height: 800px;
+  opacity: 1;
+  pointer-events: auto;
+  padding: var(--space-xs) 0 var(--space-xs);
 }
 
 .agenda-filters__group {
@@ -988,14 +974,12 @@
   margin: 0;
 }
 
+/* Chips: quebra de linha — sem scroll horizontal */
 .agenda-filters__chips {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
 }
-.agenda-filters__chips::-webkit-scrollbar { display: none; }
 
 /* Botão "Adicionar seus contatos como favoritos" */
 .agenda-filters__add-contacts-btn {
@@ -1012,7 +996,7 @@
   cursor: pointer;
   width: 100%;
   margin-top: 2px;
-  margin-bottom: var(--space-xs);
+  margin-bottom: 2px;
 }
 
 .agenda-filters__add-contacts-btn .material-symbols-rounded {
@@ -1031,15 +1015,14 @@
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
 }
 
-/* Tier colors nos IC chips (estado padrão: tier visível, não excluído) */
+/* Tier colors: visíveis no estado padrão (não selecionado) */
 .agenda-filters__panel .chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
 .agenda-filters__panel .chip--ic-warn  .material-symbols-rounded { color: var(--a-gold-text);  }
 .agenda-filters__panel .chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
-.agenda-filters__panel .chip--ic-bad   .material-symbols-rounded { color: var(--t-sub);        }
 
-/* Quando excluído: ícone branco sobre fundo vermelho */
-.agenda-filters__panel .chip--ic.chip--exclude .material-symbols-rounded {
-  color: var(--t-light);
+/* Quando selecionado (chip--active): ícone verde do painel (fundo branco já garante legibilidade) */
+.agenda-filters__panel .chip--ic.chip--active .material-symbols-rounded {
+  color: var(--p-green);
 }
 
 /* Chips de filtro (fora do painel — estilo base preservado) */

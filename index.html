@@ -721,20 +721,23 @@
                     </button>
                 </div>
 
-                <!-- Ordenação: sempre visível abaixo da busca -->
-                <div id="agenda-sort-row" class="agenda-filters__sort-row">
-                    <button type="button" class="chip chip--active" data-sort="name"    aria-pressed="true">A-Z Nome</button>
-                    <button type="button" class="chip"              data-sort="ic"      aria-pressed="false">Confiança</button>
-                    <button type="button" class="chip"              data-sort="avail"   aria-pressed="false">Disponibilidade</button>
-                    <button type="button" class="chip"              data-sort="quality" aria-pressed="false">Qualidade</button>
-                    <button type="button" class="chip"              data-sort="agility" aria-pressed="false">Agilidade</button>
-                    <button type="button" class="chip"              data-sort="value"   aria-pressed="false">Valor</button>
-                </div>
+                <!-- Painel de filtros — animado, colapsado por padrão -->
+                <div id="panel-agenda-filters" class="agenda-filters__panel">
 
-                <!-- Painel de filtros — colapsado por padrão -->
-                <div id="panel-agenda-filters" class="agenda-filters__panel u-hidden">
+                    <!-- Ordenação: dentro do painel, no topo -->
+                    <div class="agenda-filters__group">
+                        <p class="agenda-filters__group-label">Ordenar</p>
+                        <div class="agenda-filters__chips">
+                            <button type="button" class="chip chip--active" data-sort="name"    aria-pressed="true">A-Z Nome</button>
+                            <button type="button" class="chip"              data-sort="ic"      aria-pressed="false">Confiança</button>
+                            <button type="button" class="chip"              data-sort="avail"   aria-pressed="false">Disponibilidade</button>
+                            <button type="button" class="chip"              data-sort="quality" aria-pressed="false">Qualidade</button>
+                            <button type="button" class="chip"              data-sort="agility" aria-pressed="false">Agilidade</button>
+                            <button type="button" class="chip"              data-sort="value"   aria-pressed="false">Valor</button>
+                        </div>
+                    </div>
 
-                    <!-- Confiança: selecione para excluir a faixa de IC -->
+                    <!-- Confiança: clique para filtrar apenas esta faixa de IC -->
                     <div class="agenda-filters__group">
                         <p class="agenda-filters__group-label">Confiança</p>
                         <div class="agenda-filters__chips">
@@ -746,9 +749,6 @@
                             </button>
                             <button type="button" class="chip chip--ic chip--ic-alert" data-filter-ic="alert" aria-pressed="false">
                                 <span class="material-symbols-rounded" aria-hidden="true">gpp_maybe</span>
-                            </button>
-                            <button type="button" class="chip chip--ic chip--ic-bad"   data-filter-ic="bad"   aria-pressed="false">
-                                <span class="material-symbols-rounded" aria-hidden="true">gpp_bad</span>
                             </button>
                         </div>
                     </div>
