@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tier = icTier(c.ic);
     const shield = icShieldIcon(c.ic);
     const text = c.text.length > MAX ? c.text.slice(0, MAX).trimEnd() + '...' : c.text;
-    return `<div class="comment"><p class="comment__text">"${text}"</p><p class="comment__meta"><span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span></p></div>`;
+    return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span></p></div>`;
   };
 
   const proBackHTML = () => {

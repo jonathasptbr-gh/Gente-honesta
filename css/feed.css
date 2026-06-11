@@ -1097,20 +1097,6 @@
   line-height: 1.4;
   color: var(--t-sub);
   margin: 0;
-  text-align: center;
-}
-
-/* Linha do autor + IC — fica abaixo do texto, centralizada */
-.comment__meta {
-  text-align: center;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--t-sub);
-  margin-top: 2px;
-}
-
-.comment__author {
-  white-space: nowrap;
 }
 
 .comment__ic {
