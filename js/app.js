@@ -84,7 +84,7 @@ window.appState = {
 // branco (sem top-bar) → barra branca. Centralizado aqui pois é o único ponto que
 // troca de tela.
 const THEME_COLOR_BY_VIEW = {
-  'view-feed': '#184e1b' // = var(--p-green), igual ao fundo da .top-bar
+  'view-feed': '#1e3d2c' // = var(--p-green), igual ao fundo da .top-bar
 };
 
 window.showView = function(viewId) {

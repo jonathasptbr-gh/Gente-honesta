@@ -3,24 +3,24 @@
    ======================================== */
 :root {
   /* Cores principais */
-  --p-green: #184e1b;
-  --p-green-dark: #032004;
-  --p-green-light: #e8f5e9;
+  --p-green: #1e3d2c;           /* Verde-Arósia Escuro — menos saturado que bandeira */
+  --p-green-dark: #0d1e16;
+  --p-green-light: #dce8e2;
 
   /* Cores de destaque */
-  --a-gold: #FFC107;
-  --a-gold-hover: #FFB300;
-  --a-gold-text: #E6A700;        /* amarelo levemente mais escuro p/ TEXTO colorido (substitui a sombra escura) */
-  --info-blue: #42a5f5;
-  --gold-soft: #fffdf0;          /* fundo creme (gatilho Pro) */
+  --a-gold: #c8a23a;            /* Amarelo-Ocre Suave — sofisticado */
+  --a-gold-hover: #b89030;
+  --a-gold-text: #9e7a20;       /* ocre levemente mais escuro p/ TEXTO colorido */
+  --info-blue: #3a6db5;         /* Azul-Cobalto Metálico — moderno e discreto */
+  --gold-soft: #fdf8ee;         /* fundo creme (gatilho Pro) */
 
   /* Estados semânticos — vermelho (perigo/erro), verde (sucesso), laranja (atenção) */
   --danger: #e53935;             /* denunciar, cancelar câmera, bordas de erro */
   --danger-hover: #b71c1c;       /* vermelho pressionado */
   --danger-text: #c62828;        /* texto de alerta (IC baixo) */
   --danger-soft: #fff5f5;        /* fundo de campo com erro */
-  --success: #2e7d32;            /* confirmar foto, texto verde positivo */
-  --success-fill: #43a047;       /* preenchimento de barra "bom" / ponto de status */
+  --success: #2c6e42;            /* confirmar foto, texto verde positivo */
+  --success-fill: #3d8a58;       /* preenchimento de barra "bom" / ponto de status */
   --warn-text: #f57c00;          /* laranja claro do IC (faixa alerta) — distinto do vermelho */
 
   /* Tiers de valor (medalhas) — ouro usa --a-gold; verde usa --p-green */
@@ -34,14 +34,14 @@
   --bg-white: #FFFFFF;
   --bg-soft: #F2F4F3;
   --bg-input: #ECEEED;
-  --bg-canvas: #cfe8d1; /* verde-claro do fundo das listas — contrasta com o verde escuro do cabeçalho e os cards brancos */
+  --bg-canvas: #c0d3ca; /* verde-arósia suave — fundo das listas, harmonioso com --p-green */
 
   /* Bordas */
   --border-light: #D4D8D5;
   --border-mid: #B0B8B2;
 
   /* Tipografia */
-  --t-main: #1A1A1A;
+  --t-main: #1c2a30;            /* Cinza-Petróleo Suave — mais legível que preto puro */
   --t-sub: #5A6360;
   --t-light: #FFFFFF;
   --t-disabled: #B8BFBC;
