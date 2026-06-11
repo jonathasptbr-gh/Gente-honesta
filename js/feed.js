@@ -201,20 +201,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Verso do card (flip): comentários em scroll + barra de ações.
   const mockComments = [
-    { text: 'Serviço impecável, chegou no horário e resolveu tudo rapidamente. Recomendo muito para qualquer serviço elétrico.', author: 'Ana Souza', ic: 88 },
-    { text: 'Profissional competente, porém demorou um pouco além do combinado. No geral, bom atendimento.', author: 'Marcos Lima', ic: 71 },
-    { text: 'Ótimo custo-benefício. Trabalho cuidadoso e deixou tudo limpo ao finalizar.', author: 'Júlia Ferreira', ic: 95 },
-    { text: 'Atendeu dentro do prazo e com boa comunicação durante o processo. Voltarei a contratar.', author: 'Pedro Alves', ic: 62 },
-    { text: 'Segunda vez que contrato e sempre entrega o combinado. Muito satisfeita com o resultado.', author: 'Carla Ramos', ic: 91 },
+    { text: 'Chegou na hora marcada e resolveu tudo sem complicação. Recomendo sem hesitar.', author: 'Ana Souza', ic: 88 },
+    { text: 'Profissional competente e comunicativo. Explicou cada etapa antes de executar, sem surpresas no valor final.', author: 'Marcos Lima', ic: 71 },
+    { text: 'Trabalho limpo e rápido. Excelente custo-benefício.', author: 'Júlia Ferreira', ic: 95 },
+    { text: 'Contratei para um conserto urgente e não me decepcionou. Além de resolver, deu dicas para evitar o problema no futuro.', author: 'Pedro Alves', ic: 62 },
+    { text: 'Segunda vez que contrato e o padrão continua o mesmo. Pode contratar sem medo, profissional exemplar.', author: 'Carla Ramos', ic: 91 },
   ];
   const icTier = ic => ic >= 75 ? 'ok' : ic >= 50 ? 'warn' : ic >= 25 ? 'alert' : 'bad';
   const icShieldIcon = ic => ic >= 75 ? 'gpp_good' : ic >= 50 ? 'shield_question' : ic >= 25 ? 'gpp_maybe' : 'gpp_bad';
 
+  const COMMENT_SNIPPET = 90;
+  const escAttr = s => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  const buildCommentHTML = (c) => {
+    const tier = icTier(c.ic);
+    const shield = icShieldIcon(c.ic);
+    const authorIC = `<span class="comment__author">— ${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span>`;
+    if (c.text.length <= COMMENT_SNIPPET) {
+      return `<div class="comment"><p class="comment__text">"${c.text}" ${authorIC}</p></div>`;
+    }
+    const snippet = c.text.slice(0, COMMENT_SNIPPET).trimEnd();
+    return `<div class="comment" data-full="${escAttr(c.text)}" data-author="${escAttr(c.author)}" data-ic="${c.ic}"><p class="comment__text">"${snippet}... <button type="button" class="comment__expand-btn">ver mais</button> ${authorIC}</p></div>`;
+  };
+
   const proBackHTML = () => {
-    const commentsHTML = mockComments.map(c => `
-      <div class="comment">
-        <p class="comment__text">"${c.text}" <span class="comment__author">— ${c.author}</span> <span class="comment__ic ic-bar--${icTier(c.ic)}"><span class="material-symbols-rounded" aria-hidden="true">${icShieldIcon(c.ic)}</span>${c.ic}%</span></p>
-      </div>`).join('');
+    const commentsHTML = mockComments.map(buildCommentHTML).join('');
     return `
       <div class="pro-card__back">
         <div class="pro-card__back-comments">
@@ -344,6 +354,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Expandir comentário resumido ("ver mais")
+    if (e.target.closest('.comment__expand-btn')) {
+      const commentEl = e.target.closest('.comment');
+      const p = commentEl.querySelector('.comment__text');
+      const full = commentEl.dataset.full;
+      const author = commentEl.dataset.author;
+      const ic = parseInt(commentEl.dataset.ic);
+      const tier = icTier(ic);
+      const shield = icShieldIcon(ic);
+      p.innerHTML = `"${full}" <span class="comment__author">— ${author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${ic}%</span>`;
+      return;
+    }
+
     // Botão WhatsApp no verso
     if (e.target.closest('.pro-card__back-btn--whatsapp')) {
       customAlert('Abrir WhatsApp — funcionalidade em breve.', 'WhatsApp', 'chat');
@@ -356,8 +379,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Clique dentro do verso (fora dos botões) não faz nada
-    if (e.target.closest('.pro-card__back')) return;
+    // Clique no verso (fora dos botões/comentários) → volta à frente
+    if (e.target.closest('.pro-card__back')) {
+      e.target.closest('.pro-card')?.classList.remove('pro-card--flipped');
+      return;
+    }
 
     const card = e.target.closest('.pro-card');
     if (!card) return;
