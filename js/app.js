@@ -1,6 +1,12 @@
 "use strict";
 
 // =========================================================================
+// NÚCLEO DO APP — Firebase, roteador SPA, diálogos e estado global.
+// Carregado ANTES de todos os outros módulos (session, auth, onboarding,
+// install, feed), que dependem dos globals definidos aqui.
+// =========================================================================
+
+// =========================================================================
 // ALTURA REAL DA VIEWPORT (--app-height)
 // Fonte mais confiável que 100vh/100dvh em PWAs instalados e webviews, onde esses
 // valores às vezes não batem com a área visível — era o que fazia a barra inferior
@@ -33,28 +39,6 @@ if ('serviceWorker' in navigator && window.IS_MOBILE) {
       .catch(err => console.warn('[SW] falha no registro:', err));
   });
 }
-
-// CONFIGURAÇÃO CORE DO ECOSSISTEMA - Instalação do PWA (beforeinstallprompt)
-// Capturado globalmente o quanto antes (o evento pode disparar bem cedo) e
-// guardado para a tela view-install usar depois do cadastro (auth.js).
-window.deferredInstallPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  window.deferredInstallPrompt = e;
-});
-
-window.addEventListener('appinstalled', () => {
-  window.deferredInstallPrompt = null;
-  console.log('[PWA] App instalado pelo usuário.');
-});
-
-// CONFIGURAÇÃO CORE DO ECOSSISTEMA - Detector de modo standalone (PWA instalado)
-// Função (e não constante) porque o estado pode mudar durante a sessão.
-window.isStandalone = function () {
-  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
-    || window.navigator.standalone === true;
-};
 
 // CONFIGURAÇÃO CORE DO ECOSSISTEMA - Credenciais e Conexão Firebase
 const firebaseConfig = {
@@ -210,14 +194,3 @@ window.customConfirm = function(message, title = "Confirmação", iconClass = "h
     btnCancel.addEventListener('click', cancelHandler);
   });
 };
-
-
-// =========================================================================
-// ESPAÇO FUTURO PARA SISTEMAS ASSÍNCRONOS GLOBAIS
-// =========================================================================
-
-// ESPAÇO FUTURO PARA SISTEMAS ASSÍNCRONOS GLOBAIS - Sincronização em Segundo Plano (Background Sync)
-
-// ESPAÇO FUTURO PARA SISTEMAS ASSÍNCRONOS GLOBAIS - Lifecycle de Service Workers e Cache PWA
-
-// ESPAÇO FUTURO PARA SISTEMAS ASSÍNCRONOS GLOBAIS - Notificações Push e Mensageria

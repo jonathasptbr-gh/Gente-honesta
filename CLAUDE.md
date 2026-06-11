@@ -55,19 +55,26 @@ CNAME                   — "gentehonesta.com.br"
 
 css/
   base.css              — Design tokens (:root), screen routing, utilitários, animações
-  components.css        — Botões, inputs, ic-bar, diálogos, onboarding components
-  auth.css              — Auth/OTP styles + TODOS os componentes do onboarding (câmera,
-                          tags, barras de serviço, pro-compare, ic-card, carrossel,
-                          tela de instalação, bloqueio desktop)
+  components.css        — Botões, inputs, ic-bar, diálogos, bloqueio desktop
+  auth.css              — Fluxo de login: auth-section, OTP grid, carrossel de intro
+  onboarding.css        — Formulário de perfil: câmera, tags, localização, barras de
+                          serviço, pro-note/pro-compare, ic-card
+  install.css           — Tela-guia de instalação do PWA (view-install)
   feed.css              — Feed, top/bottom bar, notificações, agenda sheet, cards de pro
 
-js/
-  app.js                — Firebase init, showView, navigateTo, customAlert/customConfirm,
-                          estado global (window.appState), registro do SW
-  auth.js               — Monitor de sessão (onAuthStateChanged), sendOTP, verifyOTP,
-                          cooldown, finishRegistration, todos os listeners do DOM de auth
-                          e onboarding, helpers: clearOTPFields, clearNameErrors,
-                          setButtonLoading, restoreButton
+js/   (a ordem de carga no index.html importa: app.js primeiro)
+  app.js                — NÚCLEO: Firebase init, showView/navigateTo, customAlert/
+                          customConfirm, estado global (window.appState), registro do SW
+  install.js            — Instalação do PWA: captura do beforeinstallprompt,
+                          isStandalone, prepareInstallView, tela view-install
+  session.js            — Monitor de sessão (onAuthStateChanged): decide a tela
+                          inicial em login/logout, chama resetAuthFlow no logout
+  auth.js               — Login: sendOTP (com whitelist), verifyOTP, cooldown,
+                          máscara de telefone, OTP grid, carrossel, resetAuthFlow,
+                          helpers: clearOTPFields, setButtonLoading, restoreButton
+  onboarding.js         — Formulário de perfil: finishRegistration, câmera, tags,
+                          localização, barras de serviço, diálogos de ajuda,
+                          resetOnboardingForm (chamado pelo resetAuthFlow)
   feed.js               — Comportamentos do feed: notificações, agenda sheet, modo
                           indicação, cards de profissional (dados mock), filtros, logout
 ```
@@ -90,7 +97,7 @@ Projeto: `gente-honesta` (console.firebase.google.com)
 - `testers`: `allow read: if true` — leitura antes do login para verificar whitelist
 - Demais coleções: autenticado obrigatório
 
-**Whitelist de testers** em `js/auth.js → sendOTP()`:
+**Whitelist de testers** em `js/auth.js → sendOTP()` (bloco `// WHITELIST DE TESTERS`):
 Documento na coleção `testers` com ID = número no formato `+5551XXXXXXXXX`.
 Remover o bloco marcado `// WHITELIST DE TESTERS` quando abrir ao público.
 

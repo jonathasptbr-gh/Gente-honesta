@@ -46,6 +46,8 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/onboarding.css">
+    <link rel="stylesheet" href="css/install.css">
     <link rel="stylesheet" href="css/feed.css">
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" defer></script>
@@ -898,8 +900,13 @@
         </div>
     </div>
 
+    <!-- Ordem importa: app.js define os globals (Firebase, roteador, diálogos)
+         que os módulos seguintes consomem. -->
     <script src="js/app.js" defer></script>
+    <script src="js/install.js" defer></script>
+    <script src="js/session.js" defer></script>
     <script src="js/auth.js" defer></script>
+    <script src="js/onboarding.js" defer></script>
     <script src="js/feed.js" defer></script>
 </body>
 </html>
