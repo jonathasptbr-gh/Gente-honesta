@@ -803,7 +803,8 @@
 }
 
 .qav__bar {
-  width: 34px;
+  flex: 1;
+  min-width: 0;
   height: 3px;
   border-radius: 2px;
   background: var(--border-light);
@@ -1257,6 +1258,7 @@
 
 /* Coluna esquerda: foto e, abaixo dela, os índices Q/A/V */
 .pro-card__col-left {
+  width: 48px;           /* igual à largura do avatar no compacto */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1281,6 +1283,9 @@
 }
 
 .pro-card__head-text {
+  display: flex;           /* espelha .pro-row__info: contexto flex para o .avail */
+  flex-direction: column;
+  gap: 2px;
   min-width: 0;
 }
 
