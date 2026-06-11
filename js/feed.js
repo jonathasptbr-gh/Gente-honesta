@@ -200,25 +200,46 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Verso do card (flip): comentários em scroll + barra de ações.
-  const proBackHTML = () => `
-    <div class="pro-card__back">
-      <div class="pro-card__back-comments">
-        <span class="material-symbols-rounded" aria-hidden="true">chat_bubble_outline</span>
-        <span>Nenhum comentário ainda.</span>
+  const mockComments = [
+    { text: 'Serviço impecável, chegou no horário e resolveu tudo rapidamente. Recomendo muito para qualquer serviço elétrico.', author: 'Ana Souza', ic: 88 },
+    { text: 'Profissional competente, porém demorou um pouco além do combinado. No geral, bom atendimento.', author: 'Marcos Lima', ic: 71 },
+    { text: 'Ótimo custo-benefício. Trabalho cuidadoso e deixou tudo limpo ao finalizar.', author: 'Júlia Ferreira', ic: 95 },
+    { text: 'Atendeu dentro do prazo e com boa comunicação durante o processo. Voltarei a contratar.', author: 'Pedro Alves', ic: 62 },
+    { text: 'Segunda vez que contrato e sempre entrega o combinado. Muito satisfeita com o resultado.', author: 'Carla Ramos', ic: 91 },
+  ];
+  const icTier = ic => ic >= 75 ? 'ok' : ic >= 50 ? 'warn' : ic >= 25 ? 'alert' : 'bad';
+  const icShieldIcon = ic => ic >= 75 ? 'gpp_good' : ic >= 50 ? 'shield_question' : ic >= 25 ? 'gpp_maybe' : 'gpp_bad';
+
+  const proBackHTML = () => {
+    const commentsHTML = mockComments.map(c => `
+      <div class="comment">
+        <p class="comment__text">${c.text}</p>
+        <div class="comment__footer">
+          <span class="comment__author">— ${c.author}</span>
+          <span class="comment__ic ic-bar--${icTier(c.ic)}">
+            <span class="material-symbols-rounded" aria-hidden="true">${icShieldIcon(c.ic)}</span>${c.ic}%
+          </span>
+        </div>
+      </div>`).join('');
+    return `
+      <div class="pro-card__back">
+        <div class="pro-card__back-comments">
+          <div class="pro-card__comments-list">${commentsHTML}</div>
+        </div>
+        <div class="pro-card__back-actions">
+          <button type="button" class="pro-card__back-btn pro-card__back-btn--whatsapp">
+            <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
+          </button>
+          <button type="button" class="pro-card__back-btn pro-card__back-btn--icon pro-card__back-btn--share" aria-label="Compartilhar">
+            <span class="material-symbols-rounded" aria-hidden="true">share</span>
+          </button>
+          <button type="button" class="pro-card__back-btn pro-card__back-btn--icon pro-card__back-btn--flip" aria-label="Virar">
+            <span class="material-symbols-rounded" aria-hidden="true">rotate_left</span>
+          </button>
+        </div>
       </div>
-      <div class="pro-card__back-actions">
-        <button type="button" class="pro-card__back-btn pro-card__back-btn--whatsapp">
-          <span class="material-symbols-rounded" aria-hidden="true">chat</span>WhatsApp
-        </button>
-        <button type="button" class="pro-card__back-btn pro-card__back-btn--icon pro-card__back-btn--share" aria-label="Compartilhar">
-          <span class="material-symbols-rounded" aria-hidden="true">share</span>
-        </button>
-        <button type="button" class="pro-card__back-btn pro-card__back-btn--icon pro-card__back-btn--flip" aria-label="Virar">
-          <span class="material-symbols-rounded" aria-hidden="true">flip_to_front</span>
-        </button>
-      </div>
-    </div>
-  `;
+    `;
+  };
 
   // Rodapé do card normal: formas de pagamento e NF em células de igual largura.
   const proFooterHTML = (pro) => {
