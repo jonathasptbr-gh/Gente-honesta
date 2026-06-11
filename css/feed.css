@@ -1263,6 +1263,11 @@
   font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 
+/* Item de pagamento que o profissional não oferece — esmaecido */
+.pro-card__meta-item--inactive {
+  opacity: 0.22;
+}
+
 .pro-card:active .pro-card__front {
   box-shadow: var(--shadow-sm);
 }
@@ -1403,31 +1408,12 @@
 }
 
 .pro-card__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin: 3px 0 4px;
-}
-
-/* Pílula de especialidade — inativa (profissional não faz) */
-.pro-card__tag {
-  font-size: 0.70rem;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border-light);
-  color: var(--t-disabled);
-  background: transparent;
+  font-size: 0.8rem;
+  color: var(--t-sub);
+  margin: 2px 0 2px;
   white-space: nowrap;
-  opacity: 0.55;
-}
-
-/* Ativa (profissional faz) — azul */
-.pro-card__tag--active {
-  background: var(--info-blue);
-  border-color: var(--info-blue);
-  color: var(--t-light);
-  opacity: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pro-card__bio {
