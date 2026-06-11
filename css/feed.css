@@ -794,14 +794,18 @@
 
 .qav__item {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  flex-direction: column;
+  gap: 2px;
   width: 100%;    /* cada linha ocupa toda a largura disponível */
 }
 
-.qav__item .material-symbols-rounded {
-  font-size: 0.85rem;
-  flex-shrink: 0;
+.qav__label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .qav__bar {
@@ -818,12 +822,12 @@
   border-radius: 2px;
 }
 
-.qav__item--quality .material-symbols-rounded { color: var(--p-green); }
-.qav__item--quality .qav__fill { background: var(--p-green); }
-.qav__item--agility .material-symbols-rounded { color: var(--info-blue); }
-.qav__item--agility .qav__fill { background: var(--info-blue); }
-.qav__item--value   .material-symbols-rounded { color: var(--tier-bronze); }
-.qav__item--value   .qav__fill { background: var(--tier-bronze); }
+.qav__item--quality .qav__label,
+.qav__item--quality .qav__fill { color: var(--p-green);      background: var(--p-green); }
+.qav__item--agility .qav__label,
+.qav__item--agility .qav__fill { color: var(--info-blue);    background: var(--info-blue); }
+.qav__item--value   .qav__label,
+.qav__item--value   .qav__fill { color: var(--tier-bronze);  background: var(--tier-bronze); }
 
 /* ── Disponibilidade do profissional (ponto + rótulo) — mesma lógica de cor da ic-bar ──
    available = verde · full = amarelo · unavailable = vermelho */
@@ -1321,7 +1325,7 @@
 
 .pro-card__head {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
   gap: var(--space-sm);
 }
@@ -1334,12 +1338,12 @@
   flex: 1;
 }
 
-/* Coluna direita do cabeçalho: botão fixar (topo) + índice de confiança (abaixo) */
+/* Coluna direita do cabeçalho: botão fixar (topo) + índice de confiança (base) */
 .pro-card__head-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  justify-content: space-between;
   flex-shrink: 0;
 }
 

@@ -179,12 +179,12 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<div class="ic-bar ic-bar--${tier}${vertical ? ' ic-bar--vertical' : ''}"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">${shield}</span><span class="ic-bar__value">${ic}%</span><span class="ic-bar__label">Confiável</span></div>`;
   };
 
-  // Índices Qualidade / Agilidade / Valor: ícone + barra colorida, empilhados
+  // Índices Qualidade / Agilidade / Valor: label colorido acima de barra colorida
   const qavHTML = (q, a, v) => `
     <div class="qav">
-      <div class="qav__item qav__item--quality"><span class="material-symbols-rounded" aria-hidden="true">verified</span><div class="qav__bar"><div class="qav__fill" style="width:${q * 10}%"></div></div></div>
-      <div class="qav__item qav__item--agility"><span class="material-symbols-rounded" aria-hidden="true">bolt</span><div class="qav__bar"><div class="qav__fill" style="width:${a * 10}%"></div></div></div>
-      <div class="qav__item qav__item--value"><span class="material-symbols-rounded" aria-hidden="true">payments</span><div class="qav__bar"><div class="qav__fill" style="width:${v * 10}%"></div></div></div>
+      <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:${q * 10}%"></div></div></div>
+      <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:${a * 10}%"></div></div></div>
+      <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:${v * 10}%"></div></div></div>
     </div>`;
 
   // Disponibilidade do profissional: ponto colorido + rótulo (mesma filosofia de cor da ic-bar).
@@ -199,61 +199,40 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<span class="avail avail--${m.cls}"><span class="avail__dot" aria-hidden="true"></span>${m.label}</span>`;
   };
 
-  // Seção expandida do card: QAV detalhado, IC, detalhes de pagamento/NF, comentários e ações.
-  const proExpandedHTML = (pro) => {
-    const qavRows = [
-      { cls: 'quality', icon: 'verified', label: 'Qualidade', val: pro.q },
-      { cls: 'agility', icon: 'bolt',     label: 'Agilidade', val: pro.a },
-      { cls: 'value',   icon: 'payments', label: 'Valor',     val: pro.v },
-    ].map(i => `
-      <div class="pro-card__exp-qav-item pro-card__exp-qav-item--${i.cls}">
-        <span class="material-symbols-rounded" aria-hidden="true">${i.icon}</span>
-        <span class="pro-card__exp-qav-label">${i.label}</span>
-        <div class="pro-card__exp-qav-bar"><div class="pro-card__exp-qav-fill" style="width:${i.val * 10}%"></div></div>
-        <span class="pro-card__exp-qav-value">${i.val * 10}%</span>
-      </div>`).join('');
-
-    const details = [];
-    if (pro.pay) {
-      if (pro.pay.cash) details.push(`<span class="pro-card__exp-detail"><span class="material-symbols-rounded">attach_money</span>Dinheiro</span>`);
-      if (pro.pay.pix)  details.push(`<span class="pro-card__exp-detail"><span class="material-symbols-rounded">qr_code_2</span>Pix</span>`);
-      if (pro.pay.card === 'debit') details.push(`<span class="pro-card__exp-detail"><span class="material-symbols-rounded">credit_card</span>Débito</span>`);
-      else if (pro.pay.card > 0)    details.push(`<span class="pro-card__exp-detail"><span class="material-symbols-rounded">credit_card</span>Até ${pro.pay.card}x</span>`);
-    }
-    if (typeof pro.nf === 'boolean') {
-      details.push(pro.nf
-        ? `<span class="pro-card__exp-detail"><span class="material-symbols-rounded">receipt_long</span>Emite NF</span>`
-        : `<span class="pro-card__exp-detail"><span class="icon-crossed material-symbols-rounded">receipt_long</span>Sem NF</span>`);
-    }
-
-    return `
-      <div class="pro-card__expanded">
-        <div class="pro-card__exp-section">
-          <div class="pro-card__exp-qav">${qavRows}</div>
-        </div>
-        <div class="pro-card__exp-section">
-          ${icBarHTML(pro.ic)}
-        </div>
-        <div class="pro-card__exp-section">
-          <div class="pro-card__exp-details">${details.join('')}</div>
-        </div>
-        <div class="pro-card__exp-section pro-card__exp-section--comments">
-          <span class="material-symbols-rounded" aria-hidden="true">chat_bubble_outline</span>
-          <span>Nenhum comentário ainda.</span>
-        </div>
-        <div class="pro-card__exp-actions">
-          <button type="button" class="pro-card__exp-btn pro-card__exp-btn--whatsapp">
-            <span class="material-symbols-rounded" aria-hidden="true">chat</span>WhatsApp
-          </button>
-          <button type="button" class="pro-card__exp-btn pro-card__exp-btn--icon pro-card__exp-btn--share" aria-label="Compartilhar">
-            <span class="material-symbols-rounded" aria-hidden="true">share</span>
-          </button>
-          <button type="button" class="pro-card__exp-btn pro-card__exp-btn--icon pro-card__exp-btn--collapse" aria-label="Colapsar">
-            <span class="material-symbols-rounded" aria-hidden="true">expand_less</span>
-          </button>
-        </div>
+  // Seção expandida do card: comentários e barra de ações (WhatsApp · Compartilhar · Colapsar).
+  const proExpandedHTML = (pro) => `
+    <div class="pro-card__expanded">
+      <div class="pro-card__exp-section pro-card__exp-section--comments">
+        <span class="material-symbols-rounded" aria-hidden="true">chat_bubble_outline</span>
+        <span>Nenhum comentário ainda.</span>
       </div>
-    `;
+      <div class="pro-card__exp-actions">
+        <button type="button" class="pro-card__exp-btn pro-card__exp-btn--whatsapp">
+          <span class="material-symbols-rounded" aria-hidden="true">chat</span>WhatsApp
+        </button>
+        <button type="button" class="pro-card__exp-btn pro-card__exp-btn--icon pro-card__exp-btn--share" aria-label="Compartilhar">
+          <span class="material-symbols-rounded" aria-hidden="true">share</span>
+        </button>
+        <button type="button" class="pro-card__exp-btn pro-card__exp-btn--icon pro-card__exp-btn--collapse" aria-label="Colapsar">
+          <span class="material-symbols-rounded" aria-hidden="true">expand_less</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Rodapé do card normal: formas de pagamento e NF em células de igual largura.
+  const proFooterHTML = (pro) => {
+    const items = [];
+    if (pro.pay?.cash) items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded">attach_money</span>Dinheiro</span>`);
+    if (pro.pay?.pix)  items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded">qr_code_2</span>Pix</span>`);
+    if (pro.pay?.card === 'debit') items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded">credit_card</span>Débito</span>`);
+    else if (pro.pay?.card > 0)   items.push(`<span class="pro-card__meta-item"><span class="material-symbols-rounded">credit_card</span>${pro.pay.card}x</span>`);
+    if (typeof pro.nf === 'boolean') {
+      items.push(pro.nf
+        ? `<span class="pro-card__meta-item"><span class="material-symbols-rounded">receipt_long</span>NF</span>`
+        : `<span class="pro-card__meta-item"><span class="icon-crossed material-symbols-rounded">receipt_long</span>Sem NF</span>`);
+    }
+    return items.length ? `<div class="pro-card__meta">${items.join('')}</div>` : '';
   };
 
   // Card padrão de profissional: coluna esquerda (foto + QAV) e coluna direita
@@ -287,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <p class="pro-card__bio">${pro.bio}</p>
       </div>
+      ${showPin ? proFooterHTML(pro) : ''}
     `;
   };
 
