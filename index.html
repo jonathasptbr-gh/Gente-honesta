@@ -710,7 +710,7 @@
 
             <!-- Barra de busca e filtros -->
             <div class="agenda-filters">
-                <!-- Linha única: [modo de exibição] [busca] [filtrar] [adicionar] -->
+                <!-- Linha única: [busca] [filtrar] -->
                 <div class="agenda-filters__search-row">
                     <div class="agenda-filters__search-wrap">
                         <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
@@ -719,84 +719,76 @@
                     <button type="button" id="btn-toggle-filters" class="agenda-filters__icon-btn" aria-label="Filtrar contatos" aria-expanded="false">
                         <span class="material-symbols-rounded" aria-hidden="true">tune</span>
                     </button>
-                    <button type="button" id="btn-sync-contacts" class="agenda-filters__icon-btn" aria-label="Importar contatos">
-                        <span class="material-symbols-rounded" aria-hidden="true">person_add</span>
-                    </button>
+                </div>
+
+                <!-- Ordenação: sempre visível abaixo da busca -->
+                <div id="agenda-sort-row" class="agenda-filters__sort-row">
+                    <button type="button" class="chip chip--active" data-sort="name"    aria-pressed="true">A-Z Nome</button>
+                    <button type="button" class="chip"              data-sort="ic"      aria-pressed="false">Confiança</button>
+                    <button type="button" class="chip"              data-sort="avail"   aria-pressed="false">Disponibilidade</button>
+                    <button type="button" class="chip"              data-sort="quality" aria-pressed="false">Qualidade</button>
+                    <button type="button" class="chip"              data-sort="agility" aria-pressed="false">Agilidade</button>
+                    <button type="button" class="chip"              data-sort="value"   aria-pressed="false">Valor</button>
                 </div>
 
                 <!-- Painel de filtros — colapsado por padrão -->
                 <div id="panel-agenda-filters" class="agenda-filters__panel u-hidden">
 
-                    <!-- ── Seção: Filtros ─────────────────────────────────── -->
-                    <div class="agenda-filters__sub">
-                        <p class="agenda-filters__sub-label">Filtros</p>
-
-                        <!-- Confiança: um chip por faixa de IC, com ícone colorido -->
-                        <div class="agenda-filters__group">
-                            <p class="agenda-filters__group-label">Confiança</p>
-                            <div class="agenda-filters__chips">
-                                <button type="button" class="chip chip--active chip--ic chip--ic-ok"    data-filter-ic="ok"    aria-pressed="true">
-                                    <span class="material-symbols-rounded" aria-hidden="true">gpp_good</span>
-                                </button>
-                                <button type="button" class="chip chip--active chip--ic chip--ic-warn"  data-filter-ic="warn"  aria-pressed="true">
-                                    <span class="material-symbols-rounded" aria-hidden="true">shield_question</span>
-                                </button>
-                                <button type="button" class="chip chip--active chip--ic chip--ic-alert" data-filter-ic="alert" aria-pressed="true">
-                                    <span class="material-symbols-rounded" aria-hidden="true">gpp_maybe</span>
-                                </button>
-                                <button type="button" class="chip chip--active chip--ic chip--ic-bad"   data-filter-ic="bad"   aria-pressed="true">
-                                    <span class="material-symbols-rounded" aria-hidden="true">gpp_bad</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Disponibilidade -->
-                        <div class="agenda-filters__group">
-                            <p class="agenda-filters__group-label">Disponibilidade</p>
-                            <div class="agenda-filters__chips">
-                                <button type="button" class="chip chip--active" data-filter-avail="available"   aria-pressed="true">Disponível</button>
-                                <button type="button" class="chip chip--active" data-filter-avail="full"        aria-pressed="true">Agenda cheia</button>
-                                <button type="button" class="chip chip--active" data-filter-avail="unavailable" aria-pressed="true">Indisponível</button>
-                            </div>
-                        </div>
-
-                        <!-- Pagamento -->
-                        <div class="agenda-filters__group">
-                            <p class="agenda-filters__group-label">Pagamento</p>
-                            <div class="agenda-filters__chips">
-                                <button type="button" class="chip chip--active" data-filter-pay="cash" aria-pressed="true">Dinheiro</button>
-                                <button type="button" class="chip chip--active" data-filter-pay="card" aria-pressed="true">Cartão</button>
-                                <button type="button" class="chip chip--active" data-filter-pay="pix"  aria-pressed="true">Pix</button>
-                                <button type="button" class="chip chip--active" data-filter-pay="nf"   aria-pressed="true">Nota fiscal</button>
-                            </div>
-                        </div>
-
-                        <!-- Apenas salvos -->
-                        <div class="agenda-filters__group">
-                            <div class="agenda-filters__chips">
-                                <button type="button" class="chip" data-filter-saved aria-pressed="false">
-                                    <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
-                                    Apenas salvos
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Divisor -->
-                    <div class="agenda-filters__divider"></div>
-
-                    <!-- ── Seção: Ordenar ──────────────────────────────────── -->
-                    <div class="agenda-filters__sub">
-                        <p class="agenda-filters__sub-label">Ordenar</p>
+                    <!-- Confiança: selecione para excluir a faixa de IC -->
+                    <div class="agenda-filters__group">
+                        <p class="agenda-filters__group-label">Confiança</p>
                         <div class="agenda-filters__chips">
-                            <button type="button" class="chip chip--active" data-sort="name"    aria-pressed="true">A-Z Nome</button>
-                            <button type="button" class="chip"              data-sort="ic"      aria-pressed="false">Confiança</button>
-                            <button type="button" class="chip"              data-sort="avail"   aria-pressed="false">Disponibilidade</button>
-                            <button type="button" class="chip"              data-sort="quality" aria-pressed="false">Qualidade</button>
-                            <button type="button" class="chip"              data-sort="agility" aria-pressed="false">Agilidade</button>
-                            <button type="button" class="chip"              data-sort="value"   aria-pressed="false">Valor</button>
+                            <button type="button" class="chip chip--ic chip--ic-ok"    data-filter-ic="ok"    aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">gpp_good</span>
+                            </button>
+                            <button type="button" class="chip chip--ic chip--ic-warn"  data-filter-ic="warn"  aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">shield_question</span>
+                            </button>
+                            <button type="button" class="chip chip--ic chip--ic-alert" data-filter-ic="alert" aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">gpp_maybe</span>
+                            </button>
+                            <button type="button" class="chip chip--ic chip--ic-bad"   data-filter-ic="bad"   aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">gpp_bad</span>
+                            </button>
                         </div>
                     </div>
+
+                    <!-- Disponibilidade -->
+                    <div class="agenda-filters__group">
+                        <p class="agenda-filters__group-label">Disponibilidade</p>
+                        <div class="agenda-filters__chips">
+                            <button type="button" class="chip" data-filter-avail="available"   aria-pressed="false">Disponível</button>
+                            <button type="button" class="chip" data-filter-avail="full"        aria-pressed="false">Agenda cheia</button>
+                            <button type="button" class="chip" data-filter-avail="unavailable" aria-pressed="false">Indisponível</button>
+                        </div>
+                    </div>
+
+                    <!-- Pagamento -->
+                    <div class="agenda-filters__group">
+                        <p class="agenda-filters__group-label">Pagamento</p>
+                        <div class="agenda-filters__chips">
+                            <button type="button" class="chip" data-filter-pay="cash" aria-pressed="false">Dinheiro</button>
+                            <button type="button" class="chip" data-filter-pay="card" aria-pressed="false">Cartão</button>
+                            <button type="button" class="chip" data-filter-pay="pix"  aria-pressed="false">Pix</button>
+                            <button type="button" class="chip" data-filter-pay="nf"   aria-pressed="false">Nota fiscal</button>
+                        </div>
+                    </div>
+
+                    <!-- Apenas salvos -->
+                    <div class="agenda-filters__group">
+                        <div class="agenda-filters__chips">
+                            <button type="button" class="chip" data-filter-saved aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
+                                Apenas salvos
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Adicionar contatos -->
+                    <button type="button" id="btn-sync-contacts" class="agenda-filters__add-contacts-btn">
+                        <span class="material-symbols-rounded" aria-hidden="true">person_add</span>
+                        Adicionar seus contatos como favoritos
+                    </button>
 
                 </div>
             </div>

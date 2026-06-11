@@ -926,35 +926,51 @@
   font-size: 1.25rem;
 }
 
-/* Painel de filtros colapsável — adapta labels e chips para o fundo verde */
+/* Linha de ordenação — permanente, abaixo da busca */
+.agenda-filters__sort-row {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.agenda-filters__sort-row::-webkit-scrollbar { display: none; }
+
+/* Chips dentro de .agenda-filters (sort-row + painel): adaptados ao fundo verde */
+.agenda-filters .chip {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.agenda-filters .chip--active {
+  background: var(--bg-white);
+  color: var(--p-green);
+  border-color: transparent;
+}
+
+/* Chip de exclusão: vermelho + ícone ✕ antes do texto */
+.agenda-filters__panel .chip--exclude {
+  background: var(--danger);
+  color: var(--t-light);
+  border-color: var(--danger);
+}
+
+.agenda-filters__panel .chip--exclude:not(.chip--ic)::before {
+  content: 'close';
+  font-family: 'Material Symbols Rounded';
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 20;
+  font-size: 0.85rem;
+  margin-right: 2px;
+  line-height: 1;
+}
+
+/* Painel de filtros colapsável */
 .agenda-filters__panel {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  padding: var(--space-xs) 0 var(--space-xs);
-}
-
-/* Sub-seções dentro do painel (Filtros / Ordenar) */
-.agenda-filters__sub {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.agenda-filters__sub-label {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.50);
-  text-transform: uppercase;
-  letter-spacing: 0.10em;
-  margin: 0;
-}
-
-/* Divisor horizontal entre as sub-seções */
-.agenda-filters__divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.15);
-  margin: 2px 0;
+  padding: var(--space-xs) 0 0;
 }
 
 .agenda-filters__group {
@@ -963,7 +979,6 @@
   gap: 4px;
 }
 
-/* Rótulo dos grupos: branco semi-transparente sobre o verde */
 .agenda-filters__group-label {
   font-size: 0.70rem;
   font-weight: 700;
@@ -982,20 +997,30 @@
 }
 .agenda-filters__chips::-webkit-scrollbar { display: none; }
 
-/* Chips no painel de filtros (sobre fundo verde) */
-.agenda-filters__panel .chip {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.25);
-  color: rgba(255, 255, 255, 0.65);
+/* Botão "Adicionar seus contatos como favoritos" */
+.agenda-filters__add-contacts-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 10px var(--space-sm);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  color: rgba(255, 255, 255, 0.80);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 2px;
+  margin-bottom: var(--space-xs);
 }
 
-.agenda-filters__panel .chip--active {
-  background: var(--bg-white);
-  color: var(--p-green);
-  border-color: transparent;
+.agenda-filters__add-contacts-btn .material-symbols-rounded {
+  font-size: 1.15rem;
+  flex-shrink: 0;
 }
 
-/* ── Chips de IC (ícone colorido, tamanho quadrado compacto) ──────────── */
+/* ── Chips de IC (ícone colorido, tamanho compacto) ──────────── */
 .chip--ic {
   padding: 5px 10px;
   gap: 0;
@@ -1006,16 +1031,16 @@
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
 }
 
-/* Quando o chip de IC está inativo: ícone semi-transparente sem cor própria */
-.agenda-filters__panel .chip--ic:not(.chip--active) .material-symbols-rounded {
-  color: rgba(255, 255, 255, 0.50);
-}
+/* Tier colors nos IC chips (estado padrão: tier visível, não excluído) */
+.agenda-filters__panel .chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
+.agenda-filters__panel .chip--ic-warn  .material-symbols-rounded { color: var(--a-gold-text);  }
+.agenda-filters__panel .chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
+.agenda-filters__panel .chip--ic-bad   .material-symbols-rounded { color: var(--t-sub);        }
 
-/* Quando ativo: fundo branco + ícone na cor do tier */
-.agenda-filters__panel .chip--ic.chip--active.chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
-.agenda-filters__panel .chip--ic.chip--active.chip--ic-warn  .material-symbols-rounded { color: var(--a-gold-text);  }
-.agenda-filters__panel .chip--ic.chip--active.chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
-.agenda-filters__panel .chip--ic.chip--active.chip--ic-bad   .material-symbols-rounded { color: var(--t-sub);        }
+/* Quando excluído: ícone branco sobre fundo vermelho */
+.agenda-filters__panel .chip--ic.chip--exclude .material-symbols-rounded {
+  color: var(--t-light);
+}
 
 /* Chips de filtro (fora do painel — estilo base preservado) */
 .chip {
