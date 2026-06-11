@@ -847,13 +847,13 @@
   flex-shrink: 0;
 }
 
-.avail--available   { color: var(--p-green); }
+.avail--available   { color: var(--t-sub); }
 .avail--available   .avail__dot { background: var(--p-green); }
 
-.avail--full        { color: var(--a-gold-text); }
+.avail--full        { color: var(--t-sub); }
 .avail--full        .avail__dot { background: var(--a-gold-text); }
 
-.avail--unavailable { color: var(--danger); }
+.avail--unavailable { color: var(--t-sub); }
 .avail--unavailable .avail__dot { background: var(--danger); }
 
 /* Filtros da agenda */
