@@ -20,6 +20,14 @@ Repositório: jonathasptbr-gh/gente-honesta
 
 **Sempre fazer deploy ao final de cada sessão de alterações.** O desenvolvedor usa https://gentehonesta.com.br diretamente como preview de testes, num Samsung S24 Ultra. Não há ambiente de staging separado.
 
+### Configuração obrigatória antes do primeiro commit de cada sessão
+
+```bash
+git config user.email noreply@anthropic.com && git config user.name Claude
+```
+
+Sem isso o stop-hook detecta commits "Unverified" e exige `git commit --amend`, que reescreve o hash. Se o commit já foi para `main`, os branches divergem e o próximo `git push origin HEAD:main` falha com non-fast-forward. Configurando antes do primeiro commit esse problema nunca ocorre.
+
 ---
 
 ## Arquitetura
