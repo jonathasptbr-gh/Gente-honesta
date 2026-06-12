@@ -33,10 +33,6 @@
       // MONITOR DE SESSÃO CENTRALIZADO - Verificação de Perfil Existente e Redirecionamento
       if (user.displayName && !isNewSignIn) {
         if (typeof showView === 'function') showView('view-feed');
-        const userImg = document.getElementById('img-user-avatar');
-        if (userImg && window.appState.photoBlob) {
-          userImg.src = window.appState.photoBlob;
-        }
       }
       // MONITOR DE SESSÃO CENTRALIZADO - Redirecionamento para Perfil Incompleto (Onboarding)
       else {

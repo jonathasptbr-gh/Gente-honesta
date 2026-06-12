@@ -137,10 +137,17 @@ window.customAlert = function(message, title = "Aviso", iconClass = "error") {
     const dialog = document.getElementById('dialog-global');
     const btnConfirm = document.getElementById('btn-dialog-confirm');
     const btnCancel = document.getElementById('btn-dialog-cancel');
+    const titleEl = document.getElementById('dialog-title');
+    const messageEl = document.getElementById('dialog-message');
+    const iconEl = document.getElementById('dialog-icon');
+    if (!dialog || !btnConfirm || !btnCancel || !titleEl || !messageEl || !iconEl) {
+      console.warn('[dialog] elementos ausentes');
+      return resolve(true);
+    }
 
-    document.getElementById('dialog-title').innerText = title;
-    document.getElementById('dialog-message').innerText = message;
-    document.getElementById('dialog-icon').innerHTML = `<span class="material-symbols-rounded">${iconClass}</span>`;
+    titleEl.innerText = title;
+    messageEl.innerText = message;
+    iconEl.innerHTML = `<span class="material-symbols-rounded">${iconClass}</span>`;
 
     btnCancel.classList.add('u-hidden'); // Alerta padrão não exibe opção de rejeição
     btnConfirm.innerText = "Ok";
@@ -163,10 +170,17 @@ window.customConfirm = function(message, title = "Confirmação", iconClass = "h
     const dialog = document.getElementById('dialog-global');
     const btnConfirm = document.getElementById('btn-dialog-confirm');
     const btnCancel = document.getElementById('btn-dialog-cancel');
+    const titleEl = document.getElementById('dialog-title');
+    const messageEl = document.getElementById('dialog-message');
+    const iconEl = document.getElementById('dialog-icon');
+    if (!dialog || !btnConfirm || !btnCancel || !titleEl || !messageEl || !iconEl) {
+      console.warn('[dialog] elementos ausentes');
+      return resolve(false); // default seguro: equivale a cancelar a ação
+    }
 
-    document.getElementById('dialog-title').innerText = title;
-    document.getElementById('dialog-message').innerText = message;
-    document.getElementById('dialog-icon').innerHTML = `<span class="material-symbols-rounded">${iconClass}</span>`;
+    titleEl.innerText = title;
+    messageEl.innerText = message;
+    iconEl.innerHTML = `<span class="material-symbols-rounded">${iconClass}</span>`;
 
     btnCancel.classList.remove('u-hidden'); // Exibe a opção de cancelamento/recusa
     btnConfirm.innerText = "Confirmar";

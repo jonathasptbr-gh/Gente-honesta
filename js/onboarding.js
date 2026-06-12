@@ -21,8 +21,11 @@ const clearNameErrors = () =>
 // TELA - PROCESSO DE ONBOARDING - Finalização do Fluxo - CONCLUSÃO DO CADASTRO (updateProfile)
 window.finishRegistration = async function() {
   const user = auth.currentUser;
-  const nome = document.getElementById('inp-name').value.trim();
-  const sobrenome = document.getElementById('inp-surname').value.trim();
+  if (!user) {
+    return await customAlert("Sua sessão expirou. Faça login novamente para concluir o cadastro.", "Sessão Expirada", "error");
+  }
+  const nome = document.getElementById('inp-name')?.value.trim() ?? '';
+  const sobrenome = document.getElementById('inp-surname')?.value.trim() ?? '';
 
   // Limpa erros anteriores
   clearNameErrors();
@@ -66,8 +69,6 @@ window.finishRegistration = async function() {
 
   try {
     await user.updateProfile({ displayName: `${nome} ${sobrenome}` });
-    const userImg = document.getElementById('img-user-avatar');
-    if (userImg) userImg.src = window.appState.photoBlob;
     // updateProfile não dispara onAuthStateChanged — removemos o loader manualmente aqui
     document.getElementById('loader-global')?.classList.add('u-hidden');
 
@@ -524,22 +525,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const price = Math.floor((serviceState.quality + serviceState.agility) / 2);
     const pool = TOTAL_POINTS - serviceState.quality - serviceState.agility;
 
-    document.getElementById('val-quality').innerText = serviceState.quality;
-    document.getElementById('val-agility').innerText = serviceState.agility;
-    document.getElementById('val-price').innerText = price;
-    document.getElementById('val-pool').innerText = pool;
-
-    document.getElementById('fill-quality').style.width = `${serviceState.quality * 10}%`;
-    document.getElementById('fill-agility').style.width = `${serviceState.agility * 10}%`;
-
+    const valQuality = document.getElementById('val-quality');
+    const valAgility = document.getElementById('val-agility');
+    const valPrice = document.getElementById('val-price');
+    const valPool = document.getElementById('val-pool');
+    const fillQuality = document.getElementById('fill-quality');
+    const fillAgility = document.getElementById('fill-agility');
     const priceFill = document.getElementById('fill-price');
+    const btnQualityMinus = document.getElementById('btn-quality-minus');
+    const btnQualityPlus = document.getElementById('btn-quality-plus');
+    const btnAgilityMinus = document.getElementById('btn-agility-minus');
+    const btnAgilityPlus = document.getElementById('btn-agility-plus');
+    if (!valQuality || !valAgility || !valPrice || !valPool || !fillQuality || !fillAgility ||
+        !priceFill || !btnQualityMinus || !btnQualityPlus || !btnAgilityMinus || !btnAgilityPlus) return;
+
+    valQuality.innerText = serviceState.quality;
+    valAgility.innerText = serviceState.agility;
+    valPrice.innerText = price;
+    valPool.innerText = pool;
+
+    fillQuality.style.width = `${serviceState.quality * 10}%`;
+    fillAgility.style.width = `${serviceState.agility * 10}%`;
+
     priceFill.style.width = `${price * 10}%`;
     priceFill.className = `service-bar__fill ${getValueTier(price)}`;
 
-    document.getElementById('btn-quality-minus').disabled = serviceState.quality === 0;
-    document.getElementById('btn-quality-plus').disabled  = pool === 0 || serviceState.quality === 10;
-    document.getElementById('btn-agility-minus').disabled = serviceState.agility === 0;
-    document.getElementById('btn-agility-plus').disabled  = pool === 0 || serviceState.agility === 10;
+    btnQualityMinus.disabled = serviceState.quality === 0;
+    btnQualityPlus.disabled  = pool === 0 || serviceState.quality === 10;
+    btnAgilityMinus.disabled = serviceState.agility === 0;
+    btnAgilityPlus.disabled  = pool === 0 || serviceState.agility === 10;
 
     window.appState.serviceProfile = { quality: serviceState.quality, agility: serviceState.agility, price };
   };
@@ -631,25 +645,29 @@ Importante: essa configuração é apenas um ponto de partida. Com o tempo, as a
       // Abre o diálogo padrão e adiciona classe de scroll após abrir
       const dialog = document.getElementById('dialog-global');
       const msgEl = document.getElementById('dialog-message');
+      const titleEl = document.getElementById('dialog-title');
+      const iconEl = document.getElementById('dialog-icon');
+      const btnCancel = document.getElementById('btn-dialog-cancel');
+      const btnConfirm = document.getElementById('btn-dialog-confirm');
       const box = dialog?.querySelector('.dialog-box');
+      if (!dialog || !msgEl || !titleEl || !iconEl || !btnCancel || !btnConfirm) return;
 
-      document.getElementById('dialog-title').innerText = title;
+      titleEl.innerText = title;
       msgEl.innerText = text;
-      document.getElementById('dialog-icon').innerHTML = `<span class="material-symbols-rounded">${icon}</span>`;
-      document.getElementById('btn-dialog-cancel').classList.add('u-hidden');
-      document.getElementById('btn-dialog-confirm').innerText = 'Entendi';
+      iconEl.innerHTML = `<span class="material-symbols-rounded">${icon}</span>`;
+      btnCancel.classList.add('u-hidden');
+      btnConfirm.innerText = 'Entendi';
       box?.classList.add('dialog-box--scrollable');
-      dialog?.classList.remove('u-hidden');
+      dialog.classList.remove('u-hidden');
 
       await new Promise(resolve => {
-        const btn = document.getElementById('btn-dialog-confirm');
         const handler = () => {
           dialog.classList.add('u-hidden');
           box?.classList.remove('dialog-box--scrollable');
-          btn.removeEventListener('click', handler);
+          btnConfirm.removeEventListener('click', handler);
           resolve();
         };
-        btn.addEventListener('click', handler);
+        btnConfirm.addEventListener('click', handler);
       });
     });
   });

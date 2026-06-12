@@ -138,7 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
     feedTopBar?.classList.remove('u-hidden');       // restaura a top-bar verde
     feedBottomBar?.classList.remove('u-hidden');    // restaura a barra de abas inferior
     themeMeta?.setAttribute('content', FEED_THEME_COLOR);
-    document.getElementById('indicate-post-ref').innerHTML = ''; // limpa referência
+    const postRef = document.getElementById('indicate-post-ref');
+    if (postRef) postRef.innerHTML = ''; // limpa referência
     document.querySelectorAll('.pro-card--selected').forEach(el => {
       el.classList.remove('pro-card--selected');
     });

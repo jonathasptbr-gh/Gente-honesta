@@ -26,6 +26,8 @@ let cooldownVisibilityHandler = null;
 const clearOTPFields = () =>
   document.querySelectorAll('.otp-grid__input').forEach(f => f.value = '');
 
+const onlyDigits = (value) => value.replace(/\D/g, "");
+
 function setButtonLoading(btn, label) {
   btn.disabled = true;
   btn.innerHTML = `<span class="material-symbols-rounded" style="display:inline-block;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px;font-size:22px">autorenew</span> ${label}`;
@@ -50,11 +52,13 @@ window.sendOTP = async function(isResend = false) {
     return await customAlert("Aguarde o tempo de segurança expirar antes de tentar um novo envio.", "Aguarde", "schedule");
   }
 
-  const rawPhone = document.getElementById('inp-phone').value;
+  const phoneEl = document.getElementById('inp-phone');
   const btn = document.getElementById('btn-send-sms');
+  if (!phoneEl || !btn) return;
+  const rawPhone = phoneEl.value;
   const originalText = btn.innerHTML;
 
-  const cleanPhone = "+55" + rawPhone.replace(/\D/g, "");
+  const cleanPhone = "+55" + onlyDigits(rawPhone);
 
   if (cleanPhone.length < 13) {
     return await customAlert("Insira um telefone válido com DDD para podermos enviar o código.", "Número Inválido", "phone_disabled");
@@ -413,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     phoneInput.addEventListener('input', (e) => {
-      let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+      let v = onlyDigits(e.target.value).slice(0, 11);
 
       if (v.length === 0) {
         e.target.value = "";
@@ -440,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const otpFields = document.querySelectorAll('.otp-grid__input');
   otpFields.forEach((input, index) => {
     input.addEventListener('input', (e) => {
-      const val = e.target.value.replace(/\D/g, "");
+      const val = onlyDigits(e.target.value);
       e.target.value = val.slice(0, 1);
 
       if (e.target.value && index < otpFields.length - 1) {
@@ -461,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     input.addEventListener('paste', (e) => {
-      const data = e.clipboardData.getData('text').replace(/\D/g, "");
+      const data = onlyDigits(e.clipboardData.getData('text'));
       if (data.length === 6) {
         otpFields.forEach((field, i) => field.value = data[i] || "");
         otpFields[5].focus();
