@@ -950,7 +950,9 @@
   flex-direction: column;
   gap: var(--space-xs);
   /* Estilo fixo do card — sempre presente */
-  background: var(--p-green-dark);
+  background: rgba(13, 30, 22, 0.82); /* --p-green-dark com transparência */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border-radius: var(--radius-md);
   padding: var(--space-xs) var(--space-sm) var(--space-sm);
   border: 1px solid rgba(255, 255, 255, 0.10);
