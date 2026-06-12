@@ -1,0 +1,8 @@
+{
+  "name": "gente-honesta-tools",
+  "private": true,
+  "description": "Ferramentas de desenvolvimento (preview visual headless) — não fazem parte do app publicado",
+  "dependencies": {
+    "playwright": "1.56.1"
+  }
+}

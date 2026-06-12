@@ -146,6 +146,40 @@ Font-variation filled médio (blocos Pro): `'FILL' 1, 'wght' 600, 'GRAD' 25, 'op
 
 ---
 
+## Preview Visual — fluxo padrão para decisões estéticas
+
+O desenvolvedor trabalha exclusivamente pelo smartphone. **Experimentos puramente
+estéticos (cores, tipografia, espaçamento, variações de design) são decididos por
+screenshot ANTES de qualquer deploy:** gerar as variantes com `tools/preview.js`,
+enviar os PNGs no chat (SendUserFile), iterar até a aprovação, e fazer **um único
+deploy** com a versão escolhida. Não usar produção como bancada de testes visuais.
+
+**Setup (uma vez por sessão web):**
+```bash
+cd tools && npm install --no-audit --no-fund && npx playwright install chromium
+```
+> `.claude/hooks/session-start.sh` já faz isso automaticamente quando registrado
+> como hook de SessionStart no `.claude/settings.json`.
+
+**Uso:**
+```bash
+node tools/preview.js '{"view":"view-feed","shots":[
+  {"file":"/tmp/v1.png","css":":root{--bg-canvas:#124014 !important}","label":"1 · verde escuro"},
+  {"file":"/tmp/v2.png","css":":root{--bg-canvas:#e8eae9 !important}","label":"2 · cinza claro"}
+]}'
+```
+- `view`: qualquer tela (`view-feed`, `view-auth`, `view-onboarding`, `view-install`).
+- `css`: qualquer override (tokens do `:root` são o caso típico, com `!important`).
+- O script sobe servidor próprio, emula um Galaxy (412×915 @2x), trata as
+  particularidades do ambiente (proxy/CA, service worker, stub do Firebase,
+  carregamento explícito de webfonts) — tudo comentado no próprio arquivo.
+- Se o stdout mostrar `AVISO ... ícones não renderizaram`, o screenshot é
+  inválido (fontes não carregaram) — repetir a captura.
+- Ressalva ao usuário quando relevante: a renderização headless não é o AMOLED
+  do aparelho; a conferência final de cor é no S24 após o deploy aprovado.
+
+---
+
 ## O que ainda é mock (dados de exemplo)
 
 - Lista de profissionais em `js/feed.js → mockProfessionals[]`
