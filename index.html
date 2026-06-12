@@ -722,10 +722,10 @@
              A barra inferior flutua por cima. -->
         <main class="feed-body">
 
-            <!-- Barra de busca e filtros -->
-            <div class="agenda-filters">
-                <!-- Linha única: [busca] [filtrar] -->
-                <div class="agenda-filters__search-row">
+            <!-- Barra de busca / ação — muda de estado conforme a aba ativa -->
+            <div class="agenda-filters" id="feed-action-bar">
+                <!-- Estado 1: busca (Profissionais / Vagas) -->
+                <div class="agenda-filters__search-row" id="bar-search-state">
                     <div class="agenda-filters__search-wrap">
                         <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
                         <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar profissional...">
@@ -733,6 +733,17 @@
                     <button type="button" id="btn-toggle-filters" class="agenda-filters__icon-btn" aria-label="Filtrar contatos" aria-expanded="false">
                         <span class="material-symbols-rounded" aria-hidden="true">tune</span>
                     </button>
+                </div>
+                <!-- Estado 2: ação de pedido (Pedidos) -->
+                <div class="agenda-filters__pedidos-row u-hidden" id="bar-pedidos-state">
+                    <button type="button" id="btn-my-pedido" class="btn btn--primary pedido-action__btn">
+                        <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">add</span>
+                        <span id="btn-my-pedido-label">Fazer um pedido</span>
+                    </button>
+                    <div id="my-pedido-info" class="post-card__indicate-info u-hidden" aria-label="Indicações recebidas no meu pedido">
+                        <span id="my-pedido-count" class="post-card__indicate-count">0/3</span>
+                        <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                    </div>
                 </div>
 
                 <!-- Painel de filtros — animado, colapsado por padrão -->
@@ -801,9 +812,75 @@
                 </div>
             </div>
 
-            <!-- Lista de profissionais — preenchida via JS (renderAgendaList) -->
-            <div id="agenda-list" class="agenda-list">
-                <!-- Cards/linhas de profissionais inseridos dinamicamente -->
+            <!-- Painéis deslizantes: Profissionais (esq.) ↔ Pedidos (dir.) -->
+            <div class="feed-panels" id="feed-panels">
+
+                <!-- Painel 1 — lista de profissionais (preenchida via JS) -->
+                <div class="feed-panel feed-panel--pros">
+                    <div id="agenda-list" class="agenda-list">
+                        <!-- Cards inseridos dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Painel 2 — pedidos de indicação -->
+                <div class="feed-panel feed-panel--pedidos">
+                    <div class="scroll-area" id="pedidos-scroll">
+                        <div id="list-feed">
+
+                            <!-- ── Card de post (mock) ── -->
+                            <article id="post-card-0" class="post-card">
+                                <div class="post-card__header">
+                                    <div class="post-card__author">
+                                        <img class="post-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do autor">
+                                        <div class="post-card__author-info">
+                                            <span class="post-card__author-name">João Silva</span>
+                                            <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">95%</span><span class="ic-bar__label">Confiável</span></div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
+                                </div>
+                                <div class="post-card__body">
+                                    <p class="post-card__text">Preciso de um eletricista de confiança para instalação de tomadas e revisão do quadro de luz. Apartamento no centro.</p>
+                                </div>
+                                <div class="post-card__footer">
+                                    <button type="button" class="btn btn--primary post-card__indicate-btn" id="btn-indicate-0" data-post-id="0"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
+                                    <div class="post-card__indicate-info" aria-label="1 de 3 indicados"><span class="post-card__indicate-count">1/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
+                                    <button type="button" class="btn btn--outline post-card__share-btn" aria-label="Compartilhar">
+                                        <span class="material-symbols-rounded" aria-hidden="true">share</span>
+                                        Compartilhar
+                                    </button>
+                                </div>
+                            </article>
+
+                            <!-- ── Card de post (mock) ── -->
+                            <article id="post-card-1" class="post-card">
+                                <div class="post-card__header">
+                                    <div class="post-card__author">
+                                        <img class="post-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do autor">
+                                        <div class="post-card__author-info">
+                                            <span class="post-card__author-name">Maria Souza</span>
+                                            <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">88%</span><span class="ic-bar__label">Confiável</span></div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
+                                </div>
+                                <div class="post-card__body">
+                                    <p class="post-card__text">Alguém conhece uma diarista de confiança para limpeza semanal? Zona Sul. Boa remuneração garantida.</p>
+                                </div>
+                                <div class="post-card__footer">
+                                    <button type="button" class="btn btn--primary post-card__indicate-btn" id="btn-indicate-1" data-post-id="1"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
+                                    <div class="post-card__indicate-info" aria-label="0 de 3 indicados"><span class="post-card__indicate-count">0/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
+                                    <button type="button" class="btn btn--outline post-card__share-btn" aria-label="Compartilhar">
+                                        <span class="material-symbols-rounded" aria-hidden="true">share</span>
+                                        Compartilhar
+                                    </button>
+                                </div>
+                            </article>
+
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </main>
@@ -829,102 +906,6 @@
         </div>
 
     </section>
-
-    <!-- =====================================================================
-         OVERLAY GLOBAL — Agenda / Indicação
-         Contrato: visibilidade controlada por u-hidden + .agenda-sheet--open
-         ===================================================================== -->
-    <div id="overlay-agenda-backdrop" class="agenda-backdrop u-hidden"></div>
-    <div id="sheet-agenda" class="agenda-sheet u-hidden">
-
-        <!-- Cabeçalho fixo do popup — tratado como UM bloco único:
-             linha 1: título + Fechar · linha 2: botão de pedido + indicador de
-             indicações recebidas (badge separado, no mesmo sistema dos cards). -->
-        <div class="pedidos-head">
-            <div class="agenda-sheet__header">
-                <span id="agenda-sheet-title" class="agenda-sheet__title">Pedidos de indicação</span>
-                <button type="button" id="btn-close-agenda" class="btn btn--outline btn--close" aria-label="Fechar pedidos">
-                    <span class="material-symbols-rounded" aria-hidden="true">close</span>
-                    Fechar
-                </button>
-            </div>
-
-            <div class="pedidos-head__action">
-                <!-- Alterna "Fazer um pedido" / "Detalhes do meu pedido" -->
-                <button type="button" id="btn-my-pedido" class="btn btn--primary pedido-action__btn">
-                    <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">add</span>
-                    <span id="btn-my-pedido-label" class="pedido-action__label">Fazer um pedido</span>
-                </button>
-                <!-- Indicador SEPARADO das indicações recebidas — mesmo sistema dos cards (X/3 + grupo) -->
-                <div id="my-pedido-info" class="post-card__indicate-info u-hidden" aria-label="Indicações recebidas no meu pedido">
-                    <span id="my-pedido-count" class="post-card__indicate-count">0/3</span>
-                    <span class="material-symbols-rounded" aria-hidden="true">groups</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Scroll dos cards de pedido (movidos da antiga tela principal) -->
-        <div class="scroll-area">
-            <div id="list-feed">
-
-                <!-- ── Card de post (mock) ── -->
-                <article id="post-card-0" class="post-card">
-                    <div class="post-card__header">
-                        <div class="post-card__author">
-                            <img class="post-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do autor">
-                            <div class="post-card__author-info">
-                                <span class="post-card__author-name">João Silva</span>
-                                <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">95%</span><span class="ic-bar__label">Confiável</span></div>
-                            </div>
-                        </div>
-                        <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
-                    </div>
-
-                    <div class="post-card__body">
-                        <p class="post-card__text">Preciso de um eletricista de confiança para instalação de tomadas e revisão do quadro de luz. Apartamento no centro.</p>
-                    </div>
-
-                    <div class="post-card__footer">
-                        <button type="button" class="btn btn--primary post-card__indicate-btn" id="btn-indicate-0" data-post-id="0"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
-                        <div class="post-card__indicate-info" aria-label="1 de 3 indicados"><span class="post-card__indicate-count">1/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
-                        <button type="button" class="btn btn--outline post-card__share-btn" aria-label="Compartilhar">
-                            <span class="material-symbols-rounded" aria-hidden="true">share</span>
-                            Compartilhar
-                        </button>
-                    </div>
-                </article>
-
-                <!-- ── Card de post sem imagem (mock) ── -->
-                <article id="post-card-1" class="post-card">
-                    <div class="post-card__header">
-                        <div class="post-card__author">
-                            <img class="post-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do autor">
-                            <div class="post-card__author-info">
-                                <span class="post-card__author-name">Maria Souza</span>
-                                <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">88%</span><span class="ic-bar__label">Confiável</span></div>
-                            </div>
-                        </div>
-                        <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
-                    </div>
-
-                    <div class="post-card__body">
-                        <p class="post-card__text">Alguém conhece uma diarista de confiança para limpeza semanal? Zona Sul. Boa remuneração garantida.</p>
-                    </div>
-
-                    <div class="post-card__footer">
-                        <button type="button" class="btn btn--primary post-card__indicate-btn" id="btn-indicate-1" data-post-id="1"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
-                        <div class="post-card__indicate-info" aria-label="0 de 3 indicados"><span class="post-card__indicate-count">0/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
-                        <button type="button" class="btn btn--outline post-card__share-btn" aria-label="Compartilhar">
-                            <span class="material-symbols-rounded" aria-hidden="true">share</span>
-                            Compartilhar
-                        </button>
-                    </div>
-                </article>
-
-            </div>
-        </div>
-
-    </div>
 
     <!-- Confirmação de indicação — dock fixo na base durante o modo indicação (na home) -->
     <div id="agenda-indicate-confirm" class="agenda-confirm u-hidden">

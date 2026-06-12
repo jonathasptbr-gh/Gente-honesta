@@ -35,40 +35,35 @@ document.addEventListener('DOMContentLoaded', () => {
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Abertura, Fechamento e Modos
   // =========================================================================
 
-  const sheetAgenda      = document.getElementById('sheet-agenda');
-  const backdropAgenda   = document.getElementById('overlay-agenda-backdrop');
-  const btnCloseAgenda   = document.getElementById('btn-close-agenda');
-  const btnOpenPedidos   = null; // botão independente removido — acesso via aba "Pedidos" na bottom-bar
-  const agendaTitle      = document.getElementById('agenda-sheet-title');
-  const indicatedBlock   = document.getElementById('agenda-indicated-block');
-  const confirmBlock     = document.getElementById('agenda-indicate-confirm');
+  const feedPanels     = document.getElementById('feed-panels');
+  const feedActionBar  = document.getElementById('feed-action-bar');
+  const barSearchState = document.getElementById('bar-search-state');
+  const barPedidosState = document.getElementById('bar-pedidos-state');
+  const indicatedBlock = document.getElementById('agenda-indicated-block');
+  const confirmBlock   = document.getElementById('agenda-indicate-confirm');
 
-  // TELA - PRINCIPAL (FEED) - SHEET DE PEDIDOS (antiga sheet de contatos)
-  // TROCA: os contatos viraram a tela principal e os PEDIDOS passaram para este popup.
-  // Abrir/fechar é simples — os cards de pedido são estáticos dentro da sheet.
-  const openPedidosSheet = () => {
-    exitIndicateMode();            // abre sempre limpo (sai de um modo indicação pendente)
-    agendaTitle.innerText = 'Pedidos de indicação';
-    backdropAgenda?.classList.remove('u-hidden');
-    sheetAgenda?.classList.remove('u-hidden');
-    sheetAgenda?.offsetHeight; // leitura deliberada para acionar reflow (anima a entrada)
-    sheetAgenda?.classList.add('agenda-sheet--open');
+  // TELA - PRINCIPAL (FEED) - PAINÉIS DESLIZANTES
+  // showPedidosPanel / showProsPanel: deslizam o container e alternam o estado da action bar.
+  const showPedidosPanel = () => {
+    feedPanels?.classList.add('feed-panels--pedidos');
+    feedActionBar?.classList.add('agenda-filters--pedidos');
+    barSearchState?.classList.add('u-hidden');
+    barPedidosState?.classList.remove('u-hidden');
+    // fecha painel de filtros se estiver aberto
+    document.getElementById('panel-agenda-filters')?.classList.remove('agenda-filters__panel--open');
+    document.getElementById('btn-toggle-filters')?.setAttribute('aria-expanded', 'false');
   };
 
-  const closePedidosSheet = () => {
-    sheetAgenda?.classList.remove('agenda-sheet--open');
-    setTimeout(() => {
-      sheetAgenda?.classList.add('u-hidden');
-      backdropAgenda?.classList.add('u-hidden');
-    }, 350);
+  const showProsPanel = () => {
+    feedPanels?.classList.remove('feed-panels--pedidos');
+    feedActionBar?.classList.remove('agenda-filters--pedidos');
+    barSearchState?.classList.remove('u-hidden');
+    barPedidosState?.classList.add('u-hidden');
   };
 
-  btnOpenPedidos?.addEventListener('click', openPedidosSheet);
-  btnCloseAgenda?.addEventListener('click', closePedidosSheet);
-  backdropAgenda?.addEventListener('click', () => {
-    // No modo indicação o backdrop não está ativo; só fecha o popup de pedidos.
-    closePedidosSheet();
-  });
+  // Atalhos para compatibilidade interna (indicação vem de dentro dos pedidos)
+  const openPedidosSheet  = showPedidosPanel;
+  const closePedidosSheet = showProsPanel;
 
   // TELA - PRINCIPAL (FEED) - MODO INDICAÇÃO (roda na tela principal de contatos)
   // Ao tocar "Indicar alguém" num pedido (dentro do popup), fechamos o popup e
@@ -122,9 +117,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderIndicatedBlock(postId);
     setIndicatedExpanded(false);                   // inicia colapsada a cada indicação
+    showProsPanel();                               // mostra lista de pros para seleção
     feedTopBar?.classList.add('u-hidden');         // esconde a top-bar verde
     feedBottomBar?.classList.add('u-hidden');      // esconde a barra de abas inferior
-    indicatedBlock?.classList.remove('u-hidden');  // mostra a top-bar azul provisória
+    indicatedBlock?.classList.remove('u-hidden');  // mostra a top-bar provisória
     themeMeta?.setAttribute('content', INDICATE_THEME_COLOR);
     confirmBlock?.classList.add('u-hidden'); // só aparece após escolher um profissional
   };
@@ -659,12 +655,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.feed-tabs-pill__tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      if (tab.dataset.tab === 'pedidos') {
-        openPedidosSheet();
-        return;
-      }
       document.querySelectorAll('.feed-tabs-pill__tab').forEach(t => t.classList.remove('feed-tabs-pill__tab--active'));
       tab.classList.add('feed-tabs-pill__tab--active');
+      if (tab.dataset.tab === 'pedidos') {
+        showPedidosPanel();
+      } else {
+        showProsPanel();
+      }
     });
   });
 

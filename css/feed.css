@@ -298,6 +298,67 @@
 }
 
 /* ===========================================
+   PAINÉIS DESLIZANTES — Profissionais ↔ Pedidos
+   O .feed-body é o viewport de recorte (overflow:hidden já declarado acima).
+   .feed-panels tem largura dupla e desliza via transform.
+   ======================================== */
+.feed-panels {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  width: 200%;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Slide para a direita: mostra o painel de Pedidos */
+.feed-panels--pedidos {
+  transform: translateX(-50%);
+}
+
+/* Cada painel ocupa exatamente a largura visível (50% do container de 200%) */
+.feed-panel {
+  flex: 0 0 50%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* O scroll do painel de pedidos herda o mesmo visual da lista principal */
+.feed-panel--pedidos .scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-canvas);
+  padding: var(--space-md);
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  scrollbar-width: thin;
+  scrollbar-color: var(--info-blue) transparent;
+}
+
+.feed-panel--pedidos .scroll-area::-webkit-scrollbar { width: 3px; }
+.feed-panel--pedidos .scroll-area::-webkit-scrollbar-track { background: transparent; }
+.feed-panel--pedidos .scroll-area::-webkit-scrollbar-thumb { background: var(--info-blue); border-radius: 3px; }
+
+/* ===========================================
+   ACTION BAR — estado Pedidos
+   A barra verde exibe o botão "Fazer um pedido" no lugar da busca
+   ======================================== */
+
+/* Linha do botão de pedido (oculta por padrão, aparece na view Pedidos) */
+.agenda-filters__pedidos-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-sm);
+}
+
+/* Quando a action bar está no modo pedidos: oculta busca e painel de filtros */
+.agenda-filters--pedidos .agenda-filters__search-row,
+.agenda-filters--pedidos .agenda-filters__panel {
+  display: none !important;
+}
+
+/* ===========================================
    BARRA INFERIOR — controles flutuantes (FAB) sobre o feed
    transparente: o feed rola por baixo; só os controles capturam toque
    ======================================== */
