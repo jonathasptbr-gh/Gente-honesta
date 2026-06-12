@@ -645,16 +645,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // =========================================================================
   // TELA - PRINCIPAL (FEED) - FEED TABS PÍLULA - Navegação por seção
+  // Comportamento extra: ao rolar para baixo em qualquer painel, o ícone e
+  // label da aba ativa mudam para "Voltar ao topo". Clicar na aba ativa rola
+  // de volta ao início. Trocar de aba restaura a aparência padrão da aba
+  // anterior; ao retornar, a aba reflete o estado real do scroll da lista.
   // =========================================================================
+
+  const TAB_DEFAULTS = {
+    vagas:   { icon: 'work',          label: 'Vagas'         },
+    home:    { icon: 'person_search', label: 'Profissionais' },
+    pedidos: { icon: 'view_agenda',   label: 'Pedidos'       },
+  };
+  const SCROLL_TOP_STATE = { icon: 'arrow_upward', label: 'Voltar ao topo' };
+  const SCROLL_THRESHOLD = 80; // px a partir do qual mostra "Voltar ao topo"
+
+  const scrolledState = { vagas: false, home: false, pedidos: false };
+  let activeTab = 'home';
+
+  const agendaListEl  = document.getElementById('agenda-list');
+  const pedidosScrollEl = document.getElementById('pedidos-scroll');
+
+  const setTabButton = (tabName, scrolled) => {
+    const btn = document.querySelector(`.feed-tabs-pill__tab[data-tab="${tabName}"]`);
+    if (!btn) return;
+    const d = scrolled ? SCROLL_TOP_STATE : (TAB_DEFAULTS[tabName] ?? { icon: 'work', label: tabName });
+    btn.querySelector('.material-symbols-rounded').textContent = d.icon;
+    btn.querySelector('.feed-tabs-pill__tab-label').textContent = d.label;
+  };
+
+  const switchToTab = (tabName) => {
+    if (tabName === activeTab) return;
+    // Volta o botão da aba anterior ao padrão
+    setTabButton(activeTab, false);
+    activeTab = tabName;
+    // Marca visualmente a nova aba ativa
+    document.querySelectorAll('.feed-tabs-pill__tab').forEach(t => {
+      t.classList.toggle('feed-tabs-pill__tab--active', t.dataset.tab === tabName);
+    });
+    // Restaura o estado de scroll da nova aba no botão
+    setTabButton(tabName, scrolledState[tabName] ?? false);
+    // Desliza o painel correto
+    if (tabName === 'pedidos') showPedidosPanel();
+    else showProsPanel();
+  };
 
   document.querySelectorAll('.feed-tabs-pill__tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.feed-tabs-pill__tab').forEach(t => t.classList.remove('feed-tabs-pill__tab--active'));
-      tab.classList.add('feed-tabs-pill__tab--active');
-      if (tab.dataset.tab === 'pedidos') {
-        showPedidosPanel();
+      const clickedTab = tab.dataset.tab;
+      if (clickedTab === activeTab) {
+        // Toque na aba já ativa: rola ao topo se estiver scrollada
+        if (scrolledState[clickedTab]) {
+          if (clickedTab === 'home')    agendaListEl?.scrollTo({ top: 0, behavior: 'smooth' });
+          if (clickedTab === 'pedidos') pedidosScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
+          scrolledState[clickedTab] = false;
+          setTabButton(clickedTab, false);
+        }
       } else {
-        showProsPanel();
+        switchToTab(clickedTab);
       }
     });
   });
@@ -667,12 +714,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let swipeTouchStartX = 0;
   let swipeTouchStartY = 0;
 
-  const setActiveTab = (tabName) => {
-    document.querySelectorAll('.feed-tabs-pill__tab').forEach(t => {
-      t.classList.toggle('feed-tabs-pill__tab--active', t.dataset.tab === tabName);
-    });
-  };
-
   feedPanels?.addEventListener('touchstart', (e) => {
     swipeTouchStartX = e.touches[0].clientX;
     swipeTouchStartY = e.touches[0].clientY;
@@ -683,14 +724,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const dx = e.changedTouches[0].clientX - swipeTouchStartX;
     const dy = e.changedTouches[0].clientY - swipeTouchStartY;
     if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
-    if (dx < 0) {
-      showPedidosPanel();
-      setActiveTab('pedidos');
-    } else {
-      showProsPanel();
-      setActiveTab('home');
+    if (dx < 0) switchToTab('pedidos');
+    else switchToTab('home');
+  }, { passive: true });
+
+
+  // =========================================================================
+  // SCROLL-TO-TOP — detecta scroll nos painéis e atualiza o botão da aba ativa
+  // =========================================================================
+
+  agendaListEl?.addEventListener('scroll', () => {
+    const scrolled = agendaListEl.scrollTop > SCROLL_THRESHOLD;
+    if (scrolledState.home !== scrolled) {
+      scrolledState.home = scrolled;
+      if (activeTab === 'home') setTabButton('home', scrolled);
     }
   }, { passive: true });
+
+  pedidosScrollEl?.addEventListener('scroll', () => {
+    const scrolled = pedidosScrollEl.scrollTop > SCROLL_THRESHOLD;
+    if (scrolledState.pedidos !== scrolled) {
+      scrolledState.pedidos = scrolled;
+      if (activeTab === 'pedidos') setTabButton('pedidos', scrolled);
+    }
+  }, { passive: true });
+
 
 
   // =========================================================================
