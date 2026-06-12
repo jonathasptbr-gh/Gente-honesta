@@ -350,6 +350,7 @@
   display: flex;
   align-items: stretch;
   gap: var(--space-sm);
+  height: 40px; /* mesma altura da caixa de busca — garante animação coerente */
 }
 
 /* Quando a action bar está no modo pedidos: oculta busca e painel de filtros */
