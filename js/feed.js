@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const sheetAgenda      = document.getElementById('sheet-agenda');
   const backdropAgenda   = document.getElementById('overlay-agenda-backdrop');
   const btnCloseAgenda   = document.getElementById('btn-close-agenda');
-  const btnOpenPedidos   = document.getElementById('btn-open-agenda'); // botão "Pedidos" da barra inferior
+  const btnOpenPedidos   = null; // botão independente removido — acesso via aba "Pedidos" na bottom-bar
   const agendaTitle      = document.getElementById('agenda-sheet-title');
   const indicatedBlock   = document.getElementById('agenda-indicated-block');
   const confirmBlock     = document.getElementById('agenda-indicate-confirm');
@@ -659,9 +659,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('.feed-tabs-pill__tab').forEach(tab => {
     tab.addEventListener('click', () => {
+      if (tab.dataset.tab === 'pedidos') {
+        openPedidosSheet();
+        return;
+      }
       document.querySelectorAll('.feed-tabs-pill__tab').forEach(t => t.classList.remove('feed-tabs-pill__tab--active'));
       tab.classList.add('feed-tabs-pill__tab--active');
-      // Futura integração: carregar conteúdo conforme tab ativa
     });
   });
 
