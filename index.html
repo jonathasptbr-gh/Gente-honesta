@@ -72,6 +72,20 @@
     </div>
 
     <!-- =====================================================================
+         CAMADA GLOBAL — Bloqueio de orientação paisagem
+         Visível APENAS em celular deitado, via media query (components.css).
+         No PWA instalado o manifest trava a rotação e esta tela nunca aparece.
+         ===================================================================== -->
+    <div id="screen-rotate-block" class="rotate-block" aria-hidden="true">
+        <span class="material-symbols-rounded rotate-block__icon" aria-hidden="true">screen_rotation</span>
+        <h1 class="rotate-block__title">Gire o celular</h1>
+        <p class="rotate-block__text">
+            O Gente Honesta foi feito para o modo retrato.
+            Volte o aparelho para a vertical para continuar.
+        </p>
+    </div>
+
+    <!-- =====================================================================
          CAMADA GLOBAL — Dialog da câmera de perfil (usa o padrão overlay-dialog)
          Contrato: visibilidade controlada EXCLUSIVAMENTE por u-hidden
          ===================================================================== -->
