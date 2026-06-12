@@ -716,21 +716,19 @@
 .ic-card__shield {
   font-size: 4.5rem;
   line-height: 1;
-  color: var(--success-fill);
+  color: var(--a-gold);
   font-variation-settings: 'FILL' 1;
 }
 
 .ic-gauge__label {
   font-size: 1.1rem;
   font-weight: 800;
-  color: var(--success);
+  color: var(--a-gold-text);
   line-height: 1;
 }
 
-/* Variante AMARELA — estado inicial do cadastro (IC 70, em construção):
-   escudo com interrogação + amarelo de texto levemente escurecido */
 .ic-card__shield--warn {
-  color: var(--a-gold-text);
+  color: var(--a-gold);
 }
 
 .ic-gauge__label--warn {

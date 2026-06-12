@@ -821,12 +821,12 @@
   border-radius: 2px;
 }
 
-.qav__item--quality .qav__label { color: var(--success-fill); }
-.qav__item--quality .qav__fill  { background: var(--success-fill); }
-.qav__item--agility .qav__label { color: var(--info-blue); }
-.qav__item--agility .qav__fill  { background: var(--info-blue); }
-.qav__item--value   .qav__label { color: var(--tier-bronze); }
-.qav__item--value   .qav__fill  { background: var(--tier-bronze); }
+.qav__item--quality .qav__label { color: var(--a-gold-text); }
+.qav__item--quality .qav__fill  { background: var(--a-gold); }
+.qav__item--agility .qav__label { color: var(--a-gold-text); }
+.qav__item--agility .qav__fill  { background: var(--a-gold); }
+.qav__item--value   .qav__label { color: var(--a-gold-text); }
+.qav__item--value   .qav__fill  { background: var(--a-gold); }
 
 /* ── Disponibilidade do profissional (ponto + rótulo) — mesma lógica de cor da ic-bar ──
    available = verde · full = amarelo · unavailable = vermelho */
