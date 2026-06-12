@@ -3,9 +3,9 @@
    ======================================== */
 :root {
   /* Cores principais */
-  --p-green: #1e3d2c;           /* Verde-Arósia Escuro — menos saturado que bandeira */
-  --p-green-dark: #0d1e16;
-  --p-green-light: #dce8e2;
+  --p-green: #184e1b;           /* Verde-Floresta Profundo — tom dos focos do bloqueio desktop */
+  --p-green-dark: #0a1f0b;      /* mesmo matiz, quase preto — também é o fundo do bloqueio desktop */
+  --p-green-light: #dde9dd;     /* tint claro no mesmo matiz */
 
   /* Cores de destaque */
   --a-gold: #e0a81c;            /* Amarelo-Ouro Vivo — mais saturado, evita aparência inativa */
@@ -36,7 +36,7 @@
   --bg-white: #FFFFFF;
   --bg-soft: #F2F4F3;
   --bg-input: #ECEEED;
-  --bg-canvas: #c0d3ca; /* verde-arósia suave — fundo das listas, harmonioso com --p-green */
+  --bg-canvas: #c0d3c1; /* verde suave — fundo das listas, harmonioso com --p-green */
 
   /* Bordas */
   --border-light: #D4D8D5;

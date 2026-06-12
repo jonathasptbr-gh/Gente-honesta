@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // "Profissionais já indicados:" (com o X para cancelar) e a cor da barra de
   // status do sistema passa a azul. Ao escolher um profissional na lista, o bloco
   // de confirmação aparece fixo na base.
-  const FEED_THEME_COLOR     = '#1e3d2c'; // = var(--p-green)
+  const FEED_THEME_COLOR     = '#184e1b'; // = var(--p-green)
   const INDICATE_THEME_COLOR = '#c8a23a'; // = var(--a-gold)
   const feedTopBar    = document.querySelector('#feed-top-bar');
   const feedBottomBar = document.querySelector('#feed-bottom-bar');
