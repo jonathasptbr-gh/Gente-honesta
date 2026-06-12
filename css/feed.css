@@ -937,16 +937,25 @@
   border-color: transparent;
 }
 
-/* Painel de filtros — flutua abaixo da barra, sem expandir ela */
+/* Painel de filtros — flutua fora da barra do topo, sempre estilizado como card.
+   Só max-height/opacity/pointer-events mudam na classe --open para evitar
+   snap de múltiplas propriedades que causa deslocamento durante a animação. */
 .agenda-filters__panel {
   position: absolute;
-  top: calc(100% + 4px);   /* 4px de respiro abaixo da barra */
+  top: calc(100% + 4px);
   left: var(--space-md);
   right: var(--space-md);
   z-index: 10;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+  /* Estilo fixo do card — sempre presente */
+  background: var(--p-green-dark);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-sm) var(--space-sm);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: var(--shadow-lg);
+  /* Estado fechado */
   max-height: 0;
   overflow: hidden;
   opacity: 0;
@@ -959,11 +968,6 @@
   max-height: 700px;
   opacity: 1;
   pointer-events: auto;
-  background: var(--p-green-dark);
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) var(--space-sm) var(--space-sm);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: var(--shadow-lg);
 }
 
 .agenda-filters__group {
