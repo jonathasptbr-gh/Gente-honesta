@@ -322,8 +322,8 @@ document.addEventListener('DOMContentLoaded', () => {
             ${availHTML(pro.avail)}
           </div>
           <div class="pro-card__head-right">
-            ${pinBtn}
             ${icBarHTML(pro.ic)}
+            ${pinBtn}
           </div>
         </div>
         <p class="pro-card__bio">${pro.bio}</p>
