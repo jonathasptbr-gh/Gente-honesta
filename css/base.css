@@ -8,9 +8,9 @@
   --p-green-light: #dce8e2;
 
   /* Cores de destaque */
-  --a-gold: #c8a23a;            /* Amarelo-Ocre Suave — sofisticado */
-  --a-gold-hover: #b89030;
-  --a-gold-text: #9e7a20;       /* ocre levemente mais escuro p/ TEXTO colorido */
+  --a-gold: #e0a81c;            /* Amarelo-Ouro Vivo — mais saturado, evita aparência inativa */
+  --a-gold-hover: #c89210;
+  --a-gold-text: #a87808;       /* ocre mais escuro p/ TEXTO colorido */
   --info-blue: #2e5898;         /* Azul-Cobalto Metálico escuro — discreto */
   --gold-soft: #fdf8ee;         /* fundo creme (gatilho Pro) */
 

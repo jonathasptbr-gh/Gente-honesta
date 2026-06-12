@@ -977,15 +977,13 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin: 0;
-  text-align: center;
 }
 
-/* Chips: quebra de linha, centralizados horizontalmente */
+/* Chips: quebra de linha, alinhados à esquerda */
 .agenda-filters__chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  justify-content: center;
 }
 
 /* Botão "Adicionar seus contatos como favoritos" — dourado, centralizado */
@@ -1002,7 +1000,7 @@
   font-weight: 700;
   cursor: pointer;
   align-self: center;
-  margin-top: 4px;
+  margin-top: var(--space-sm);
   margin-bottom: 2px;
 }
 
@@ -1263,6 +1261,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;   /* centraliza ícone + texto dentro da célula */
+  font-weight: 600;
   gap: 5px;
   font-size: 0.72rem;
   font-weight: 600;

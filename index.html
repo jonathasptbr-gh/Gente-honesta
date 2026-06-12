@@ -726,7 +726,7 @@
 
                     <!-- Ordenação: dentro do painel, no topo -->
                     <div class="agenda-filters__group">
-                        <p class="agenda-filters__group-label">Ordenar</p>
+                        <p class="agenda-filters__group-label">Ordenar por:</p>
                         <div class="agenda-filters__chips">
                             <button type="button" class="chip chip--active" data-sort="name"    aria-pressed="true">A-Z Nome</button>
                             <button type="button" class="chip"              data-sort="ic"      aria-pressed="false">Confiança</button>
@@ -741,6 +741,10 @@
                     <div class="agenda-filters__group">
                         <p class="agenda-filters__group-label">Confiança</p>
                         <div class="agenda-filters__chips">
+                            <button type="button" class="chip chip--saved" data-filter-saved aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
+                                Apenas salvos
+                            </button>
                             <button type="button" class="chip chip--ic chip--ic-ok"    data-filter-ic="ok"    aria-pressed="false">
                                 <span class="material-symbols-rounded" aria-hidden="true">gpp_good</span>
                             </button>
@@ -749,10 +753,6 @@
                             </button>
                             <button type="button" class="chip chip--ic chip--ic-alert" data-filter-ic="alert" aria-pressed="false">
                                 <span class="material-symbols-rounded" aria-hidden="true">gpp_maybe</span>
-                            </button>
-                            <button type="button" class="chip chip--saved" data-filter-saved aria-pressed="false">
-                                <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
-                                Apenas salvos
                             </button>
                         </div>
                     </div>
