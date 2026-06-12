@@ -1832,7 +1832,7 @@
 
 /* Faixa verde do topo: nome da empresa em destaque */
 .vaga-card__company-strip {
-  background: #2c2c2e;
+  background: #555558;
   padding: var(--space-sm) var(--space-md);
   display: flex;
   align-items: center;
