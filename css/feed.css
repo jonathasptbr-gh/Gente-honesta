@@ -1095,34 +1095,6 @@
   letter-spacing: 0.01em;
 }
 
-/* Indicador de pull-to-refresh — acima da lista, fora do scroll */
-.agenda-ptr {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 0;
-  overflow: hidden;
-  background: var(--bg-canvas);
-  color: var(--t-sub);
-  font-size: 0.82rem;
-  flex-shrink: 0;
-  transition: height 0.18s ease;
-}
-
-.agenda-ptr--visible {
-  height: 44px;
-}
-
-.agenda-ptr .material-symbols-rounded {
-  font-size: 1.1rem;
-  transition: transform 0.1s linear;
-}
-
-.agenda-ptr--loading .material-symbols-rounded {
-  animation: spin 0.65s linear infinite;
-}
-
 /* Base do card de contato — container de perspectiva para o flip 3D */
 .pro-card {
   cursor: pointer;

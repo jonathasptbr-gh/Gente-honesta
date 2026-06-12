@@ -564,53 +564,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('inp-agenda-search')?.addEventListener('input', renderAgendaList);
   renderAgendaList();
 
-  // ── Pull-to-refresh na lista de profissionais ────────────────────────────
-  {
-    const listEl  = document.getElementById('agenda-list');
-    const ptrEl   = document.getElementById('agenda-ptr');
-    const PTR_THRESHOLD = 55;
-    let startY = 0, moveY = 0, active = false;
-
-    listEl?.addEventListener('touchstart', (e) => {
-      if (listEl.scrollTop === 0) {
-        startY = e.touches[0].clientY;
-        moveY  = startY;
-        active = true;
-      }
-    }, { passive: true });
-
-    listEl?.addEventListener('touchmove', (e) => {
-      if (!active || !ptrEl) return;
-      moveY = e.touches[0].clientY;
-      const dy = moveY - startY;
-      if (dy > 8) {
-        ptrEl.classList.add('agenda-ptr--visible');
-        const icon = ptrEl.querySelector('.material-symbols-rounded');
-        if (icon) icon.style.transform = `rotate(${Math.min((dy / PTR_THRESHOLD) * 360, 360)}deg)`;
-      }
-    }, { passive: true });
-
-    listEl?.addEventListener('touchend', () => {
-      if (!active || !ptrEl) { active = false; return; }
-      active = false;
-      const dy = moveY - startY;
-      if (dy > PTR_THRESHOLD) {
-        const icon = ptrEl.querySelector('.material-symbols-rounded');
-        if (icon) icon.style.transform = '';
-        ptrEl.classList.add('agenda-ptr--loading');
-        setTimeout(() => {
-          ptrEl.classList.remove('agenda-ptr--visible', 'agenda-ptr--loading');
-          renderAgendaList();
-          listEl.scrollTo({ top: 0, behavior: 'instant' });
-        }, 700);
-      } else {
-        ptrEl.classList.remove('agenda-ptr--visible');
-        const icon = ptrEl.querySelector('.material-symbols-rounded');
-        if (icon) icon.style.transform = '';
-      }
-    });
-  }
-
   // ── Clique na busca já focada → volta ao topo da lista ───────────────────
   {
     const searchEl = document.getElementById('inp-agenda-search');
