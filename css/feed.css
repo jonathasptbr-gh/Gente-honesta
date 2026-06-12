@@ -1018,15 +1018,10 @@
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
 }
 
-/* Tier colors: visíveis no estado padrão (não selecionado) */
+/* Tier colors: mantidas em ambos os estados (padrão e selecionado) */
 .agenda-filters__panel .chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
 .agenda-filters__panel .chip--ic-warn  .material-symbols-rounded { color: var(--a-gold-text);  }
 .agenda-filters__panel .chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
-
-/* Quando selecionado (chip--active): ícone verde do painel (fundo branco já garante legibilidade) */
-.agenda-filters__panel .chip--ic.chip--active .material-symbols-rounded {
-  color: var(--p-green);
-}
 
 /* Chip "Apenas salvos": ícone no mesmo tamanho dos IC chips desta seção */
 .chip--saved .material-symbols-rounded {
