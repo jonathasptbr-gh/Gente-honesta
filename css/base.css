@@ -36,7 +36,7 @@
   --bg-white: #FFFFFF;
   --bg-soft: #F2F4F3;
   --bg-input: #ECEEED;
-  --bg-canvas: #c0d3c1; /* verde suave — fundo das listas, harmonioso com --p-green */
+  --bg-canvas: #0c270e; /* verde-escuro (mesmo tom do painel de filtros) — fundo das listas, atrás dos cards */
 
   /* Bordas */
   --border-light: #D4D8D5;

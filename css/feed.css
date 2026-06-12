@@ -445,8 +445,8 @@
 }
 
 /* Dentro da sheet de pedidos não há barra inferior flutuante por cima:
-   remove o espaço extra reservado para ela. O fundo cinza (--bg-canvas) dá
-   contraste entre o topo fixo branco e os cards brancos de pedido. */
+   remove o espaço extra reservado para ela. O fundo verde-escuro (--bg-canvas)
+   dá contraste entre o topo fixo branco e os cards brancos de pedido. */
 .agenda-sheet .scroll-area {
   padding-bottom: var(--space-md);
   background: var(--bg-canvas);
@@ -1072,7 +1072,7 @@
 
 /* Na home a lista de contatos é o conteúdo principal e a barra inferior flutua
    por cima — reserva espaço no fim para o último card não ficar coberto.
-   Fundo cinza (--bg-canvas) dá o mesmo contraste do popup: topo branco x lista. */
+   Fundo verde-escuro (--bg-canvas) dá o mesmo contraste do popup: topo branco x lista. */
 #view-feed .agenda-list {
   padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
   background: var(--bg-canvas);
@@ -1088,7 +1088,7 @@
 .agenda-list__region-label {
   text-align: center;
   font-size: var(--fs-4);
-  color: var(--t-sub);
+  color: rgba(255, 255, 255, 0.75); /* legível sobre o --bg-canvas escuro */
   padding: var(--space-xs) 0 var(--space-sm);
   font-weight: 500;
   letter-spacing: 0.01em;

@@ -497,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (final.length === 0) {
       const empty = document.createElement('p');
-      empty.style.cssText = 'text-align:center;color:var(--t-sub);padding:var(--space-xl) 0;font-size:var(--fs-6)';
+      empty.style.cssText = 'text-align:center;color:rgba(255,255,255,0.75);padding:var(--space-xl) 0;font-size:var(--fs-6)';
       empty.textContent = 'Nenhum profissional encontrado.';
       list.appendChild(empty);
       return;
