@@ -800,7 +800,7 @@
 }
 
 .qav__label {
-  font-size: var(--fs-1);
+  font-size: 0.55rem; /* exceção abaixo de --fs-1: com 0.6rem o rótulo trunca na coluna de 48px */
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
