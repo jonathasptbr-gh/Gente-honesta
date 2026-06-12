@@ -602,26 +602,29 @@
 }
 
 .pedido-item .ic-bar--ok .ic-bar__shield,
-.pedido-item .ic-bar--ok .ic-bar__value { color: rgba(255, 255, 255, 0.65); }
+.pedido-item .ic-bar--ok .ic-bar__value { color: var(--t-light); }
 
 .pedido-item .ic-bar--warn .ic-bar__shield,
 .pedido-item .ic-bar--warn .ic-bar__value { color: var(--a-gold); }
 
-/* Botão de denúncia: apenas o ícone, discreto */
+/* Botão de denúncia: chip sutil, mesmo estilo do contexto verde */
 .pedido-item .post-card__report {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.35);
-  padding: 2px;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--t-light);
+  padding: 4px 10px;
   flex-shrink: 0;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  border-radius: var(--radius-xs);
+  gap: 4px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-2);
+  font-weight: 600;
 }
 
 .pedido-item .post-card__report .material-symbols-rounded {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
 }
 
@@ -629,7 +632,7 @@
 .pedido-item__text {
   font-size: var(--fs-6);
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--t-light);
 }
 
 /* Ações: botão indicar + badge de contagem */
@@ -648,7 +651,7 @@
 
 .pedido-item__actions .post-card__indicate-info {
   background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--t-light);
   border-radius: var(--radius-md);
   padding: 0 10px;
   height: 36px;
