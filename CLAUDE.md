@@ -84,7 +84,7 @@ css/
   onboarding.css        — Formulário de perfil: câmera, tags, localização, barras de
                           serviço, pro-note/pro-compare, ic-card
   install.css           — Tela-guia de instalação do PWA (view-install)
-  feed.css              — Feed, top/bottom bar, notificações, agenda sheet, cards de pro
+  feed.css              — Feed, top/bottom bar, painéis deslizantes, pedidos, cards de pro
 
 js/   (a ordem de carga no index.html importa)
   app.js                — 1º CARREGADO. NÚCLEO: Firebase init, showView/navigateTo,
@@ -98,8 +98,8 @@ js/   (a ordem de carga no index.html importa)
   onboarding.js         — 5º. Formulário de perfil: finishRegistration, câmera, tags,
                           localização, barras de serviço, diálogos de ajuda,
                           resetOnboardingForm (chamado pelo resetAuthFlow)
-  feed.js               — 6º. Feed: notificações, agenda sheet, modo indicação,
-                          cards de profissional (mock), filtros, logout
+  feed.js               — 6º. Feed: notificações, painéis deslizantes, modo indicação,
+                          cards de profissional (mock), filtros, pedidos, scroll-to-top, logout
 
 tools/
   preview.js            — Ferramenta de screenshot headless (Playwright) para decisões estéticas
@@ -143,7 +143,7 @@ Cada arquivo JS expõe funções/objetos em `window` para acesso cross-module.
 - `window.isStandalone()` — retorna `true` se rodando como PWA instalado
 - `window.prepareInstallView()` — exibe bloco de instalação correto (Android/iOS/genérico)
 
-**session.js** e **feed.js**: sem exports (todo o código é encapsulado em listeners).
+**session.js** e **feed.js**: sem exports (todo o código é encapsulado em listeners e DOMContentLoaded).
 
 ---
 
@@ -219,7 +219,7 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 
 **Diálogos:** sempre usar `await customAlert(...)` e `await customConfirm(...)` — nunca `alert()` ou `confirm()` nativos.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache (ex: `gentehonesta-v87`). Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v94`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Estado global:** `window.appState` em `app.js`:
 - `confirmationResult` — objeto de confirmação SMS do Firebase
@@ -266,6 +266,64 @@ node tools/preview.js '{"view":"view-feed","shots":[
 
 ---
 
+## Arquitetura do Feed (`#view-feed`)
+
+### Bottom bar — 3 abas
+
+| `data-tab` | Ícone | Label |
+|---|---|---|
+| `vagas` | `work` | Vagas |
+| `home` | `person_search` | Profissionais |
+| `pedidos` | `view_agenda` | Pedidos |
+
+Navegação por clique ou swipe horizontal. A aba ativa pode exibir `arrow_upward` / "Voltar ao topo" quando o painel está scrollado (ver abaixo).
+
+### Painéis deslizantes
+
+```
+.feed-body (overflow:hidden)
+  └─ .feed-panels (width:200%, flex, transition transform)
+       ├─ .feed-panel.feed-panel--pros   (50%)  → #agenda-list (scroll de profissionais)
+       └─ .feed-panel.feed-panel--pedidos (50%) → #pedidos-scroll (scroll de pedidos)
+```
+
+- Painel visível controlado por `.feed-panels--pedidos` (adiciona `transform: translateX(-50%)`)
+- `showPedidosPanel()` / `showProsPanel()` em `feed.js` — adicionam/removem a classe e alternam o estado da action bar
+
+### Action bar (barra de busca / ação)
+
+Fica abaixo da top-bar verde, muda de estado conforme a aba ativa:
+
+```
+#feed-action-bar (.agenda-filters)
+  └─ .agenda-filters__action-row  ← slot de altura fixa (40px), position:relative
+       ├─ #bar-search-state        ← campo de busca + botão de filtros (default)
+       └─ #bar-pedidos-state       ← botão "Fazer um pedido" (pedidos)
+  └─ #panel-agenda-filters         ← painel colapsável de filtros (position:absolute)
+```
+
+As duas linhas são `position: absolute; inset: 0` sobrepostas no slot. A alternância é feita **exclusivamente por CSS** via `opacity + pointer-events + transition: 0.25s ease` — a classe `.agenda-filters--pedidos` no `#feed-action-bar` controla qual linha é visível. **Nunca usar `u-hidden` / `display: none`** nessas linhas, pois quebraria a animação de fade.
+
+### Lista de Pedidos
+
+Estilo flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas` (verde escuro), texto puro branco (`--t-light`). Avatar discreto (28px). "Denunciar" como chip-botão. "Indicar alguém" como `btn--accent` (amarelo sobre verde).
+
+### Scroll-to-top nas abas
+
+Quando o usuário rola para baixo em qualquer painel (threshold: 80px), o ícone e label da aba ativa mudam para `arrow_upward` / "Voltar ao topo". Tocar na aba ativa enquanto scrollada executa `scrollTo({ top:0, behavior:'smooth' })` e restaura o botão imediatamente.
+
+Estado relevante em `feed.js`:
+- `scrolledState` — `{ vagas, home, pedidos }` (booleans, persistem ao trocar de aba)
+- `activeTab` — string com a aba corrente
+- `setTabButton(tabName, scrolled)` — atualiza ícone/label do botão
+- `switchToTab(tabName)` — ponto único de troca de aba; reseta botão anterior, restaura estado do novo; também usado pelo swipe
+
+### Regras de scrollbar
+
+Todos os elementos scrolláveis do feed usam `scrollbar-width: none` + `::-webkit-scrollbar { display: none }`. Nunca adicionar scrollbar colorida ou visível em componentes do feed.
+
+---
+
 ## O que ainda é mock (dados de exemplo)
 
 Dentro de `DOMContentLoaded` em `js/feed.js`:
@@ -276,6 +334,7 @@ Dentro de `DOMContentLoaded` em `js/feed.js`:
 Comportamentos placeholder:
 - Botões "Contratar", "WhatsApp", "Compartilhar" exibem alertas placeholder
 - Botão "Fazer um pedido" simula criação sem persistência no Firestore
+- Lista de pedidos (`#list-feed`) com 2 pedidos mockados hardcoded no HTML
 
 ---
 
@@ -284,4 +343,5 @@ Comportamentos placeholder:
 - Edição de perfil (reaproveitar formulário do onboarding)
 - Persistência de profissionais no Firestore
 - Firebase Cloud Messaging para notificações push
-- Tela de criação de pedido real
+- Tela de criação de pedido real (substituir o mock atual)
+- Aba "Vagas" (conteúdo ainda não implementado)
