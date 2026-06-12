@@ -1030,7 +1030,7 @@
 
 /* Tier colors: mantidas em ambos os estados (padrão e selecionado) */
 .agenda-filters__panel .chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
-.agenda-filters__panel .chip--ic-warn  .material-symbols-rounded { color: var(--a-gold-text);  }
+.agenda-filters__panel .chip--ic-warn  .material-symbols-rounded { color: var(--a-gold);      }
 .agenda-filters__panel .chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
 
 /* Chip "Apenas salvos": ícone no mesmo tamanho dos IC chips desta seção */
@@ -1232,7 +1232,7 @@
 }
 
 .comment__ic.ic-bar--ok    { color: var(--success-fill); }
-.comment__ic.ic-bar--warn  { color: var(--a-gold-text); }
+.comment__ic.ic-bar--warn  { color: var(--a-gold); }
 .comment__ic.ic-bar--alert { color: var(--danger); }
 .comment__ic.ic-bar--bad   { color: var(--t-main); }
 

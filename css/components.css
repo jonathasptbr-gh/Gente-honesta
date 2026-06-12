@@ -280,11 +280,10 @@
 .ic-bar--ok .ic-bar__value,
 .ic-bar--ok .ic-bar__label { color: var(--success-fill); }
 
-/* 50–74: amarelo — em construção (shield_question)
-   Amarelo de texto levemente mais escuro: sem sombra, legível sobre fundo claro */
+/* 50–74: amarelo principal do tema */
 .ic-bar--warn .ic-bar__shield,
 .ic-bar--warn .ic-bar__value,
-.ic-bar--warn .ic-bar__label { color: var(--a-gold-text); }
+.ic-bar--warn .ic-bar__label { color: var(--a-gold); }
 
 /* 25–49: vermelho — alerta (gpp_maybe) */
 .ic-bar--alert .ic-bar__shield,
