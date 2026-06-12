@@ -37,8 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const feedPanels     = document.getElementById('feed-panels');
   const feedActionBar  = document.getElementById('feed-action-bar');
-  const barSearchState = document.getElementById('bar-search-state');
-  const barPedidosState = document.getElementById('bar-pedidos-state');
   const indicatedBlock = document.getElementById('agenda-indicated-block');
   const confirmBlock   = document.getElementById('agenda-indicate-confirm');
 
@@ -47,8 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const showPedidosPanel = () => {
     feedPanels?.classList.add('feed-panels--pedidos');
     feedActionBar?.classList.add('agenda-filters--pedidos');
-    barSearchState?.classList.add('u-hidden');
-    barPedidosState?.classList.remove('u-hidden');
     // fecha painel de filtros se estiver aberto
     document.getElementById('panel-agenda-filters')?.classList.remove('agenda-filters__panel--open');
     document.getElementById('btn-toggle-filters')?.setAttribute('aria-expanded', 'false');
@@ -57,8 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const showProsPanel = () => {
     feedPanels?.classList.remove('feed-panels--pedidos');
     feedActionBar?.classList.remove('agenda-filters--pedidos');
-    barSearchState?.classList.remove('u-hidden');
-    barPedidosState?.classList.add('u-hidden');
   };
 
   // Atalhos para compatibilidade interna (indicação vem de dentro dos pedidos)

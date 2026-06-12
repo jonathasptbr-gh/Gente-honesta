@@ -724,6 +724,7 @@
 
             <!-- Barra de busca / ação — muda de estado conforme a aba ativa -->
             <div class="agenda-filters" id="feed-action-bar">
+                <div class="agenda-filters__action-row">
                 <!-- Estado 1: busca (Profissionais / Vagas) -->
                 <div class="agenda-filters__search-row" id="bar-search-state">
                     <div class="agenda-filters__search-wrap">
@@ -735,7 +736,7 @@
                     </button>
                 </div>
                 <!-- Estado 2: ação de pedido (Pedidos) -->
-                <div class="agenda-filters__pedidos-row u-hidden" id="bar-pedidos-state">
+                <div class="agenda-filters__pedidos-row" id="bar-pedidos-state">
                     <button type="button" id="btn-my-pedido" class="btn btn--accent pedido-action__btn">
                         <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">add</span>
                         <span id="btn-my-pedido-label">Fazer um pedido</span>
@@ -745,6 +746,7 @@
                         <span class="material-symbols-rounded" aria-hidden="true">groups</span>
                     </div>
                 </div>
+                </div><!-- /.agenda-filters__action-row -->
 
                 <!-- Painel de filtros — animado, colapsado por padrão -->
                 <div id="panel-agenda-filters" class="agenda-filters__panel">

@@ -342,16 +342,51 @@
    A barra verde exibe o botão "Fazer um pedido" no lugar da busca
    ======================================== */
 
-/* Linha do botão de pedido (oculta por padrão, aparece na view Pedidos) */
+/* Slot de altura fixa: search-row e pedidos-row são sobrepostos via position:absolute,
+   alternados com fade (opacity + pointer-events), nunca com display:none. */
+.agenda-filters__action-row {
+  position: relative;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+/* Ambas as linhas preenchem o slot e têm transição de fade */
+.agenda-filters__search-row,
+.agenda-filters__pedidos-row {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.25s ease;
+}
+
+/* Linha de busca: visível por padrão */
+.agenda-filters__search-row {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Linha do botão de pedido: oculta por padrão */
 .agenda-filters__pedidos-row {
   display: flex;
   align-items: stretch;
   gap: var(--space-sm);
-  height: 40px; /* mesma altura da caixa de busca — garante animação coerente */
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* Quando a action bar está no modo pedidos: oculta busca e painel de filtros */
-.agenda-filters--pedidos .agenda-filters__search-row,
+/* Quando a action bar está no modo pedidos: troca o estado das linhas */
+.agenda-filters--pedidos .agenda-filters__search-row {
+  opacity: 0;
+  pointer-events: none;
+}
+.agenda-filters--pedidos .agenda-filters__pedidos-row {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Painel de filtros: oculto no modo pedidos */
 .agenda-filters--pedidos .agenda-filters__panel {
   display: none !important;
 }
@@ -1258,13 +1293,10 @@
 #view-feed .agenda-list {
   padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
   background: var(--bg-canvas);
-  scrollbar-width: thin;
-  scrollbar-color: var(--info-blue) transparent;
+  scrollbar-width: none;
 }
 
-#view-feed .agenda-list::-webkit-scrollbar { width: 3px; }
-#view-feed .agenda-list::-webkit-scrollbar-track { background: transparent; }
-#view-feed .agenda-list::-webkit-scrollbar-thumb { background: var(--info-blue); border-radius: 3px; }
+#view-feed .agenda-list::-webkit-scrollbar { display: none; }
 
 /* Label "Estes são os profissionais na sua região" */
 .agenda-list__region-label {
@@ -1339,15 +1371,12 @@
   flex: 1;
   overflow-y: scroll;   /* sempre visível */
   min-height: 0;
-  scrollbar-width: thin;
-  scrollbar-color: var(--info-blue) var(--bg-soft);
+  scrollbar-width: none;
   padding-bottom: var(--space-xs);
   padding-right: 4px;
 }
 
-.pro-card__back-comments::-webkit-scrollbar { width: 3px; }
-.pro-card__back-comments::-webkit-scrollbar-track { background: var(--bg-soft); border-radius: 3px; }
-.pro-card__back-comments::-webkit-scrollbar-thumb { background: var(--info-blue); border-radius: 3px; }
+.pro-card__back-comments::-webkit-scrollbar { display: none; }
 
 .pro-card__comments-list {
   display: flex;
