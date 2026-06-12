@@ -858,13 +858,12 @@
 
 /* Filtros da agenda */
 .agenda-filters {
-  /* Integrado à top-bar: mesmo fundo verde, sem gap visual entre os dois. */
-  padding: var(--space-sm) var(--space-md) var(--space-xs);
+  padding: var(--space-sm) var(--space-md) var(--space-sm);
   background: var(--p-green);
   flex-shrink: 0;
+  position: relative; /* ancora o painel absoluto */
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
 }
 
 .agenda-filters__search-row {
@@ -938,8 +937,13 @@
   border-color: transparent;
 }
 
-/* Painel de filtros — animação de abertura via max-height */
+/* Painel de filtros — flutua abaixo da barra, sem expandir ela */
 .agenda-filters__panel {
+  position: absolute;
+  top: calc(100% + 4px);   /* 4px de respiro abaixo da barra */
+  left: var(--space-md);
+  right: var(--space-md);
+  z-index: 10;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
@@ -952,14 +956,14 @@
 }
 
 .agenda-filters__panel--open {
-  max-height: 800px;
+  max-height: 700px;
   opacity: 1;
   pointer-events: auto;
-  /* Caixa centralizada dentro da barra verde — sem sangria negativa */
-  background: rgba(0, 0, 0, 0.22);
+  background: var(--p-green-dark);
   border-radius: var(--radius-md);
   padding: var(--space-xs) var(--space-sm) var(--space-sm);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: var(--shadow-lg);
 }
 
 .agenda-filters__group {
