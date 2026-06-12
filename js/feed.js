@@ -488,8 +488,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     list.innerHTML = '';
 
+    // Label regional — sempre exibida no topo da lista
+    const regionLabel = document.createElement('p');
+    regionLabel.className = 'agenda-list__region-label';
+    regionLabel.textContent = 'Estes são os profissionais na sua região';
+    list.appendChild(regionLabel);
+
     if (final.length === 0) {
-      list.innerHTML = '<p style="text-align:center;color:var(--t-sub);padding:var(--space-xl) 0;font-size:0.9rem">Nenhum profissional encontrado.</p>';
+      const empty = document.createElement('p');
+      empty.style.cssText = 'text-align:center;color:var(--t-sub);padding:var(--space-xl) 0;font-size:0.9rem';
+      empty.textContent = 'Nenhum profissional encontrado.';
+      list.appendChild(empty);
       return;
     }
 
@@ -554,6 +563,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('inp-agenda-search')?.addEventListener('input', renderAgendaList);
   renderAgendaList();
+
+  // ── Pull-to-refresh na lista de profissionais ────────────────────────────
+  {
+    const listEl  = document.getElementById('agenda-list');
+    const ptrEl   = document.getElementById('agenda-ptr');
+    const PTR_THRESHOLD = 55;
+    let startY = 0, moveY = 0, active = false;
+
+    listEl?.addEventListener('touchstart', (e) => {
+      if (listEl.scrollTop === 0) {
+        startY = e.touches[0].clientY;
+        moveY  = startY;
+        active = true;
+      }
+    }, { passive: true });
+
+    listEl?.addEventListener('touchmove', (e) => {
+      if (!active || !ptrEl) return;
+      moveY = e.touches[0].clientY;
+      const dy = moveY - startY;
+      if (dy > 8) {
+        ptrEl.classList.add('agenda-ptr--visible');
+        const icon = ptrEl.querySelector('.material-symbols-rounded');
+        if (icon) icon.style.transform = `rotate(${Math.min((dy / PTR_THRESHOLD) * 360, 360)}deg)`;
+      }
+    }, { passive: true });
+
+    listEl?.addEventListener('touchend', () => {
+      if (!active || !ptrEl) { active = false; return; }
+      active = false;
+      const dy = moveY - startY;
+      if (dy > PTR_THRESHOLD) {
+        const icon = ptrEl.querySelector('.material-symbols-rounded');
+        if (icon) icon.style.transform = '';
+        ptrEl.classList.add('agenda-ptr--loading');
+        setTimeout(() => {
+          ptrEl.classList.remove('agenda-ptr--visible', 'agenda-ptr--loading');
+          renderAgendaList();
+          listEl.scrollTo({ top: 0, behavior: 'instant' });
+        }, 700);
+      } else {
+        ptrEl.classList.remove('agenda-ptr--visible');
+        const icon = ptrEl.querySelector('.material-symbols-rounded');
+        if (icon) icon.style.transform = '';
+      }
+    });
+  }
+
+  // ── Clique na busca já focada → volta ao topo da lista ───────────────────
+  {
+    const searchEl = document.getElementById('inp-agenda-search');
+    let wasFocused = false;
+    searchEl?.addEventListener('touchstart', () => {
+      wasFocused = document.activeElement === searchEl;
+    }, { passive: true });
+    searchEl?.addEventListener('mousedown', () => {
+      wasFocused = document.activeElement === searchEl;
+    });
+    searchEl?.addEventListener('click', () => {
+      if (wasFocused) {
+        document.getElementById('agenda-list')?.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
 
 
   // =========================================================================
