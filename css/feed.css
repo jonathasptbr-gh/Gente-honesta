@@ -858,9 +858,8 @@
 
 /* Filtros da agenda */
 .agenda-filters {
-  /* Integrado à top-bar: mesmo fundo verde, sem gap visual entre os dois.
-     Padding inferior adicionado — estava faltando após a última atualização. */
-  padding: var(--space-sm) var(--space-md) var(--space-sm);
+  /* Integrado à top-bar: mesmo fundo verde, sem gap visual entre os dois. */
+  padding: var(--space-sm) var(--space-md) var(--space-xs);
   background: var(--p-green);
   flex-shrink: 0;
   display: flex;
@@ -956,12 +955,11 @@
   max-height: 800px;
   opacity: 1;
   pointer-events: auto;
-  /* Fundo um toque mais escuro para diferenciar da barra de busca acima */
-  background: rgba(0, 0, 0, 0.20);
-  /* Sangra até as bordas do .agenda-filters compensando seu padding lateral */
-  margin: 0 calc(-1 * var(--space-md));
-  padding: var(--space-xs) var(--space-md) var(--space-sm);
-  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  /* Caixa centralizada dentro da barra verde — sem sangria negativa */
+  background: rgba(0, 0, 0, 0.22);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-sm) var(--space-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .agenda-filters__group {
