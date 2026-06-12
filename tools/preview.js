@@ -77,9 +77,13 @@ const server = http.createServer((req, res) => {
     });
     await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'load' });
     await page.waitForTimeout(1600); // MINIMUM_LOADER_TIME do session.js + folga
-    await page.evaluate(({ view, label }) => {
+    await page.evaluate(({ view, label, tab }) => {
       document.getElementById('loader-global')?.classList.add('u-hidden');
       if (typeof showView === 'function') showView(view);
+      // Clica na aba correta dentro do feed (ex: "vagas", "pedidos", "home")
+      if (tab) {
+        document.querySelector(`.feed-tabs-pill__tab[data-tab="${tab}"]`)?.click();
+      }
       if (label) {
         const tag = document.createElement('div');
         tag.textContent = label;
@@ -87,7 +91,7 @@ const server = http.createServer((req, res) => {
           'background:#000c;color:#fff;padding:6px 14px;border-radius:20px;font:600 13px Inter,sans-serif;z-index:999999';
         document.body.appendChild(tag);
       }
-    }, { view: cfg.view, label: shot.label });
+    }, { view: cfg.view, label: shot.label, tab: shot.tab });
     if (shot.css) await page.addStyleTag({ content: shot.css });
     await page.evaluate(() => Promise.all([
       document.fonts.load("400 16px Inter"),
