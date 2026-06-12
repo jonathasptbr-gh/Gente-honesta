@@ -30,7 +30,7 @@
 .media-capture__display {
   width: 90px;
   height: 120px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--bg-input);
   border: 3px dashed var(--t-disabled);
   display: flex;
@@ -57,7 +57,7 @@
 }
 
 .media-capture__placeholder-text {
-  font-size: 0.58rem;
+  font-size: var(--fs-1);
   font-weight: 600;
   line-height: 1.15;
 }
@@ -86,13 +86,13 @@
   border: 1.5px solid var(--p-green);
   border-radius: var(--radius-pill);
   color: var(--p-green);
-  font-size: 0.85rem;
+  font-size: var(--fs-5);
   font-weight: 600;
   cursor: default;
 }
 
 .tag-pill__remove {
-  font-size: 1rem;
+  font-size: var(--fs-8);
   cursor: pointer;
   color: var(--p-green);
   line-height: 1;
@@ -123,7 +123,7 @@
 
 .area-search__results li {
   padding: 12px 14px;
-  font-size: 0.9rem;
+  font-size: var(--fs-6);
   color: var(--t-main);
   cursor: pointer;
   transition: background 0.15s ease;
@@ -202,7 +202,7 @@
 
 .location-check__content strong {
   color: var(--p-green-dark);
-  font-size: 1rem;
+  font-size: var(--fs-8);
   font-weight: 700;
 }
 
@@ -283,8 +283,8 @@
   border: 2px solid var(--border-light);
   border-radius: var(--radius-md);
   color: var(--p-green-dark);
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 800;
+  font-size: var(--fs-7);
   cursor: pointer;
   transition: var(--transition);
   text-align: left;
@@ -363,13 +363,13 @@
 
 .service-bar__label {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: var(--fs-6);
   color: var(--t-main);
 }
 
 .service-bar__value {
   font-weight: 800;
-  font-size: 1rem;
+  font-size: var(--fs-8);
   color: var(--p-green);
   min-width: 24px;
   text-align: center;
@@ -445,7 +445,7 @@
   border: 2px solid var(--border-light);
   background: var(--bg-white);
   color: var(--p-green);
-  font-size: 1.3rem;
+  font-size: var(--fs-11);
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -466,7 +466,7 @@
 }
 
 .service-bar__auto-hint {
-  font-size: 0.75rem;
+  font-size: var(--fs-3);
   color: var(--t-sub);
   font-style: italic;
   text-align: center;
@@ -480,7 +480,7 @@
   padding: var(--space-sm) var(--space-md);
   background: var(--p-green-light);
   border-radius: var(--radius-md);
-  font-size: 0.9rem;
+  font-size: var(--fs-6);
   color: var(--p-green-dark);
 }
 
@@ -490,7 +490,7 @@
 }
 
 .service-bar__pool strong {
-  font-size: 1.1rem;
+  font-size: var(--fs-9);
   font-weight: 800;
 }
 
@@ -525,7 +525,7 @@
 }
 
 .pro-note__text {
-  font-size: 0.85rem;
+  font-size: var(--fs-5);
   line-height: 1.5;
   color: var(--t-main);
 }
@@ -555,11 +555,15 @@
   background: var(--gold-soft);
   border-bottom: 1px solid var(--a-gold);
   color: var(--p-green-dark);
-  font-size: 0.95rem;
+  font-size: var(--fs-7);
 }
 
 .pro-compare__header .material-symbols-rounded {
   color: var(--a-gold);
+}
+
+.pro-compare__header strong {
+  font-weight: 800; /* explícito: Inter não carrega 700; 'bolder' do <strong> já resolvia p/ 800 */
 }
 
 .pro-compare__grid {
@@ -570,7 +574,7 @@
 .pro-compare__head {
   padding: 10px 8px;
   text-align: center;
-  font-size: 0.85rem;
+  font-size: var(--fs-5);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -601,7 +605,7 @@
   align-items: flex-start;
   gap: 6px;
   padding: 10px 10px;
-  font-size: 0.8rem;
+  font-size: var(--fs-4);
   line-height: 1.35;
   text-align: left;
 }
@@ -617,7 +621,7 @@
   background: var(--gold-soft);
   color: var(--t-main);
   font-weight: 600;
-  border-bottom: 1px solid #f3e8c0;
+  border-bottom: 1px solid var(--gold-soft-border);
   border-left: 1px solid var(--a-gold);
 }
 
@@ -637,7 +641,7 @@
   justify-content: center;
   gap: 6px;
   padding: var(--space-sm) var(--space-md);
-  font-size: 0.85rem;
+  font-size: var(--fs-5);
   font-style: italic;
   color: var(--t-sub);
 }
@@ -658,14 +662,14 @@
 
 .pro-price {
   text-align: center;
-  font-size: 2rem;
+  font-size: var(--fs-13);
   font-weight: 800;
   color: var(--p-green-dark);
   margin-bottom: var(--space-md);
 }
 
 .pro-price span {
-  font-size: 1rem;
+  font-size: var(--fs-8);
   font-weight: 400;
   color: var(--t-sub);
 }
@@ -721,7 +725,7 @@
 }
 
 .ic-gauge__label {
-  font-size: 1.1rem;
+  font-size: var(--fs-9);
   font-weight: 800;
   color: var(--a-gold-text);
   line-height: 1;
@@ -742,20 +746,20 @@
 
 .ic-card__title {
   display: block;
-  font-size: 0.95rem;
+  font-size: var(--fs-7);
   font-weight: 800;
   color: var(--p-green-dark);
   margin-bottom: 6px;
 }
 
 .ic-card__text {
-  font-size: 0.8rem;
+  font-size: var(--fs-4);
   color: var(--t-sub);
   line-height: 1.45;
 }
 
 .ic-card__quote {
-  font-size: 0.78rem;
+  font-size: var(--fs-4);
   font-style: italic;
   color: var(--t-sub);
   line-height: 1.4;
@@ -811,7 +815,7 @@
   justify-content: center;
   gap: 8px;
   padding: 14px;
-  font-size: 1rem;
+  font-size: var(--fs-8);
   font-weight: 600;
 }
 

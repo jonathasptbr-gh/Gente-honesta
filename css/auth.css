@@ -26,7 +26,7 @@
 
 .auth-section__title {
   color: var(--p-green);
-  font-size: 2.2rem;
+  font-size: var(--fs-13);
   font-weight: 800;
   line-height: 1.1;
 }
@@ -34,7 +34,7 @@
 .auth-section__text {
   max-width: 420px;
   color: var(--t-sub);
-  font-size: 1.05rem;
+  font-size: var(--fs-9);
   line-height: 1.5;
 }
 
@@ -50,7 +50,7 @@
   margin-top: 15px;
   padding: 0 10px;
   color: var(--t-sub);
-  font-size: 0.75rem;
+  font-size: var(--fs-3);
   line-height: 1.4;
 }
 
@@ -63,7 +63,7 @@
 .auth-section__cooldown {
   margin-top: var(--space-md);
   color: var(--t-sub);
-  font-size: 0.9rem;
+  font-size: var(--fs-6);
 }
 
 /* OTP Grid */
@@ -81,7 +81,7 @@
   border-radius: var(--radius-md);
   background: var(--bg-soft);
   text-align: center;
-  font-size: 24px;
+  font-size: var(--fs-12);
   font-weight: 800;
   transition: var(--transition);
 }

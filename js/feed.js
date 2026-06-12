@@ -341,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const indicated = mockIndicatedByPost[postId] || [];
 
     if (indicated.length === 0) {
-      list.innerHTML = '<span style="font-size:0.82rem;color:rgba(255,255,255,0.75);grid-column:1/-1">Nenhuma indicação ainda.</span>';
+      list.innerHTML = '<span style="font-size:var(--fs-4);color:rgba(255,255,255,0.75);grid-column:1/-1">Nenhuma indicação ainda.</span>';
       return;
     }
 
@@ -497,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (final.length === 0) {
       const empty = document.createElement('p');
-      empty.style.cssText = 'text-align:center;color:var(--t-sub);padding:var(--space-xl) 0;font-size:0.9rem';
+      empty.style.cssText = 'text-align:center;color:var(--t-sub);padding:var(--space-xl) 0;font-size:var(--fs-6)';
       empty.textContent = 'Nenhum profissional encontrado.';
       list.appendChild(empty);
       return;

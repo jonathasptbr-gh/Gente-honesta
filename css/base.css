@@ -13,6 +13,8 @@
   --a-gold-text: #a87808;       /* ocre mais escuro p/ TEXTO colorido */
   --info-blue: #2e5898;         /* Azul-Cobalto Metálico escuro — discreto */
   --gold-soft: #fdf8ee;         /* fundo creme (gatilho Pro) */
+  --gold-soft-border: #f3e8c0;  /* borda das células Pro do comparativo */
+  --whatsapp: #25D366;          /* verde oficial do botão WhatsApp */
 
   /* Estados semânticos — vermelho (perigo/erro), verde (sucesso), laranja (atenção) */
   --danger: #e53935;             /* denunciar, cancelar câmera, bordas de erro */
@@ -46,13 +48,36 @@
   --t-light: #FFFFFF;
   --t-disabled: #B8BFBC;
 
+  /* Escala tipográfica — do menor ao maior (px aproximado @16px root).
+     Todo font-size de TEXTO usa um token; exceções: clamp() responsivos
+     e ícones Material Symbols (dimensionam glifo, não texto). */
+  --fs-1: 0.6rem;    /* ~10px — micro-rótulos: tabs, QAV, badges */
+  --fs-2: 0.7rem;    /* ~11px — meta de cards, labels pequenos */
+  --fs-3: 0.75rem;   /*  12px — hints, legal, timestamps */
+  --fs-4: 0.8rem;    /* ~13px — bio, tags, células de comparativo */
+  --fs-5: 0.85rem;   /* ~14px — labels de form, chips, botões compactos */
+  --fs-6: 0.9rem;    /* ~14px — busca, botões de card, barras de serviço */
+  --fs-7: 0.95rem;   /* ~15px — corpo: posts, nomes, subtítulos */
+  --fs-8: 1rem;      /*  16px — inputs e botões (≥16px evita zoom iOS) */
+  --fs-9: 1.1rem;    /* ~18px — títulos de painel/sheet, botão grande */
+  --fs-10: 1.2rem;   /* ~19px — marca, títulos de confirmação */
+  --fs-11: 1.3rem;   /* ~21px — título de diálogo */
+  --fs-12: 1.5rem;   /*  24px — título de tela, dígitos OTP */
+  --fs-13: 2.2rem;   /* ~35px — hero (título auth / bloqueio desktop) */
+
   /* Raios */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
   --radius-md: 12px;
   --radius-pill: 28px;
 
   /* Sombras */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.07);
   --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.13);
+
+  /* Overlays (backdrops de diálogos, sheets e painéis) */
+  --overlay: rgba(3, 32, 4, 0.45);
+  --overlay-soft: rgba(3, 32, 4, 0.35);
 
   /* Transição padrão */
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -197,14 +222,14 @@ input, textarea {
 }
 
 .screen__title {
-  font-size: 1.5rem;
+  font-size: var(--fs-12);
   font-weight: 800;
   color: var(--p-green-dark);
 }
 
 .screen__subtitle {
   margin-top: 4px;
-  font-size: 0.95rem;
+  font-size: var(--fs-7);
   color: var(--t-sub);
 }
 

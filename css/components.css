@@ -12,7 +12,7 @@
   gap: 10px;
   padding: 16px;
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--fs-8);
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -58,7 +58,7 @@
 /* Botão "Fechar" / dispensar — caixa compacta para cabeçalhos de painéis */
 .btn--close {
   padding: 7px 12px;
-  font-size: 0.82rem;
+  font-size: var(--fs-4);
   gap: 5px;
   border-radius: var(--radius-md);
 }
@@ -71,13 +71,13 @@
 .btn--large {
   width: 100%;
   border-radius: var(--radius-pill);
-  font-size: 18px;
+  font-size: var(--fs-9);
 }
 
 .btn--pill {
   padding: 10px 20px;
   border-radius: var(--radius-pill);
-  font-size: 14px;
+  font-size: var(--fs-6);
 }
 
 /* FAB: posicionamento gerenciado pelo .fab-group no feed */
@@ -119,26 +119,26 @@
 
 .form-group__label {
   color: var(--p-green);
-  font-size: 0.85rem;
+  font-size: var(--fs-5);
   font-weight: 700;
   text-transform: uppercase;
 }
 
 .form-group__hint {
   text-align: right;
-  font-size: 0.75rem;
+  font-size: var(--fs-3);
   color: var(--t-sub);
 }
 
 .form-group__optional {
-  font-size: 0.75rem;
+  font-size: var(--fs-3);
   font-weight: 400;
   color: var(--t-sub);
   text-transform: none;
 }
 
 .form-group__description {
-  font-size: 0.82rem;
+  font-size: var(--fs-4);
   color: var(--t-sub);
   line-height: 1.4;
   margin-bottom: var(--space-xs);
@@ -147,7 +147,7 @@
 .input-text {
   width: 100%;
   padding: 14px;
-  font-size: 16px;
+  font-size: var(--fs-8);
   border: 2px solid var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-white);
@@ -166,7 +166,7 @@
 /* Hint (placeholder) um pouco menor: evita corte em campos de 1 linha
    e reduz o volume do placeholder longo no textarea de habilidades */
 .input-text::placeholder {
-  font-size: 0.875rem;
+  font-size: var(--fs-5);
 }
 
 .input-text--center {
@@ -218,7 +218,7 @@
   pointer-events: none;
   transition: all 0.2s ease;
   transform-origin: left top;
-  font-size: 1rem;
+  font-size: var(--fs-8);
   font-weight: 400;
   color: var(--t-disabled);
   text-transform: none;
@@ -252,12 +252,12 @@
 }
 
 .ic-bar__value {
-  font-size: 0.78rem;
+  font-size: var(--fs-4);
   font-weight: 700;
 }
 
 .ic-bar__label {
-  font-size: 0.78rem;
+  font-size: var(--fs-4);
   font-weight: 700;
 }
 
@@ -325,7 +325,7 @@
 
 .overlay-dialog {
   padding: var(--space-lg);
-  background: rgba(3, 32, 4, 0.45);
+  background: var(--overlay);
   backdrop-filter: blur(5px);
 }
 
@@ -351,7 +351,7 @@
 
 .dialog-box__title {
   margin-bottom: 10px;
-  font-size: 1.3rem;
+  font-size: var(--fs-11);
   font-weight: 800;
   color: var(--p-green-dark);
 }
@@ -416,14 +416,14 @@ html.is-desktop .desktop-block__icon {
 }
 
 .desktop-block__title {
-  font-size: 2.2rem;
+  font-size: var(--fs-13);
   font-weight: 800;
   line-height: 1.1;
 }
 
 .desktop-block__text {
   max-width: 480px;
-  font-size: 1.05rem;
+  font-size: var(--fs-9);
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.85);
 }

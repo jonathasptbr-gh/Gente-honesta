@@ -16,7 +16,7 @@
   background: var(--bg-soft);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
-  font-size: 0.85rem;
+  font-size: var(--fs-5);
   line-height: 1.5;
   color: var(--t-sub);
   text-align: left;
@@ -32,7 +32,7 @@
 /* Botão de retry: deliberadamente discreto (só aparece se algo der errado) */
 .install-retry {
   margin-top: var(--space-sm);
-  font-size: 0.8rem;
+  font-size: var(--fs-4);
   font-weight: 600;
   color: var(--t-sub);
   text-decoration: underline;
@@ -57,7 +57,7 @@
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   text-align: left;
-  font-size: 0.95rem;
+  font-size: var(--fs-7);
   color: var(--t-main, #1a1a1a);
   counter-increment: install-step;
 }
@@ -73,7 +73,7 @@
   border-radius: 50%;
   background: var(--p-green);
   color: #fff;
-  font-size: 0.8rem;
+  font-size: var(--fs-4);
   font-weight: 800;
 }
 
