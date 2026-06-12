@@ -825,55 +825,35 @@
                 <!-- Painel 2 — pedidos de indicação -->
                 <div class="feed-panel feed-panel--pedidos">
                     <div class="scroll-area" id="pedidos-scroll">
-                        <div id="list-feed">
+                        <div id="list-feed" class="pedidos-list">
 
-                            <!-- ── Card de post (mock) ── -->
-                            <article id="post-card-0" class="post-card">
-                                <div class="post-card__header">
-                                    <div class="post-card__author">
-                                        <img class="post-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do autor">
-                                        <div class="post-card__author-info">
-                                            <span class="post-card__author-name">João Silva</span>
-                                            <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">95%</span><span class="ic-bar__label">Confiável</span></div>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
+                            <!-- ── Pedido (mock) ── -->
+                            <article id="post-card-0" class="pedido-item" data-post-id="0">
+                                <div class="pedido-item__meta">
+                                    <img class="pedido-item__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
+                                    <span class="pedido-item__name">João Silva</span>
+                                    <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">95%</span></div>
+                                    <button type="button" class="post-card__report" aria-label="Denunciar"><span class="material-symbols-rounded" aria-hidden="true">flag</span></button>
                                 </div>
-                                <div class="post-card__body">
-                                    <p class="post-card__text">Preciso de um eletricista de confiança para instalação de tomadas e revisão do quadro de luz. Apartamento no centro.</p>
-                                </div>
-                                <div class="post-card__footer">
+                                <p class="pedido-item__text">Preciso de um eletricista de confiança para instalação de tomadas e revisão do quadro de luz. Apartamento no centro.</p>
+                                <div class="pedido-item__actions">
                                     <button type="button" class="btn btn--primary post-card__indicate-btn" id="btn-indicate-0" data-post-id="0"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
                                     <div class="post-card__indicate-info" aria-label="1 de 3 indicados"><span class="post-card__indicate-count">1/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
-                                    <button type="button" class="btn btn--outline post-card__share-btn" aria-label="Compartilhar">
-                                        <span class="material-symbols-rounded" aria-hidden="true">share</span>
-                                        Compartilhar
-                                    </button>
                                 </div>
                             </article>
 
-                            <!-- ── Card de post (mock) ── -->
-                            <article id="post-card-1" class="post-card">
-                                <div class="post-card__header">
-                                    <div class="post-card__author">
-                                        <img class="post-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do autor">
-                                        <div class="post-card__author-info">
-                                            <span class="post-card__author-name">Maria Souza</span>
-                                            <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">88%</span><span class="ic-bar__label">Confiável</span></div>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
+                            <!-- ── Pedido (mock) ── -->
+                            <article id="post-card-1" class="pedido-item" data-post-id="1">
+                                <div class="pedido-item__meta">
+                                    <img class="pedido-item__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
+                                    <span class="pedido-item__name">Maria Souza</span>
+                                    <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">88%</span></div>
+                                    <button type="button" class="post-card__report" aria-label="Denunciar"><span class="material-symbols-rounded" aria-hidden="true">flag</span></button>
                                 </div>
-                                <div class="post-card__body">
-                                    <p class="post-card__text">Alguém conhece uma diarista de confiança para limpeza semanal? Zona Sul. Boa remuneração garantida.</p>
-                                </div>
-                                <div class="post-card__footer">
+                                <p class="pedido-item__text">Alguém conhece uma diarista de confiança para limpeza semanal? Zona Sul. Boa remuneração garantida.</p>
+                                <div class="pedido-item__actions">
                                     <button type="button" class="btn btn--primary post-card__indicate-btn" id="btn-indicate-1" data-post-id="1"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
                                     <div class="post-card__indicate-info" aria-label="0 de 3 indicados"><span class="post-card__indicate-count">0/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
-                                    <button type="button" class="btn btn--outline post-card__share-btn" aria-label="Compartilhar">
-                                        <span class="material-symbols-rounded" aria-hidden="true">share</span>
-                                        Compartilhar
-                                    </button>
                                 </div>
                             </article>
 
