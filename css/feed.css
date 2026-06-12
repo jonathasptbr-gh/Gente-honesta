@@ -306,18 +306,25 @@
   flex: 1;
   min-height: 0;
   display: flex;
-  width: 200%;
+  width: 300%;
+  /* Default: mostra o painel central (Profissionais) */
+  transform: translateX(-33.3333%);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Slide para a esquerda: mostra o painel de Vagas */
+.feed-panels--vagas {
+  transform: translateX(0);
 }
 
 /* Slide para a direita: mostra o painel de Pedidos */
 .feed-panels--pedidos {
-  transform: translateX(-50%);
+  transform: translateX(-66.6667%);
 }
 
-/* Cada painel ocupa exatamente a largura visível (50% do container de 200%) */
+/* Cada painel ocupa exatamente a largura visível (33.333% do container de 300%) */
 .feed-panel {
-  flex: 0 0 50%;
+  flex: 0 0 33.3333%;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -367,6 +374,18 @@
   pointer-events: auto;
 }
 
+/* Linha de vagas: oculta por padrão */
+.agenda-filters__vagas-row {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
 /* Linha do botão de pedido: oculta por padrão */
 .agenda-filters__pedidos-row {
   display: flex;
@@ -374,6 +393,61 @@
   gap: var(--space-sm);
   opacity: 0;
   pointer-events: none;
+}
+
+/* Quando a action bar está no modo vagas */
+.agenda-filters--vagas .agenda-filters__search-row {
+  opacity: 0;
+  pointer-events: none;
+}
+.agenda-filters--vagas .agenda-filters__vagas-row {
+  opacity: 1;
+  pointer-events: auto;
+}
+.agenda-filters--vagas .agenda-filters__panel {
+  display: none !important;
+}
+
+/* Botões da linha de vagas */
+.agenda-filters__vagas-btn {
+  flex: 1;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-4);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  white-space: nowrap;
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.agenda-filters__vagas-btn--criar {
+  background: var(--bg-white);
+  color: var(--p-green);
+}
+
+.agenda-filters__vagas-btn--criar:active {
+  background: var(--bg-soft);
+}
+
+.agenda-filters__vagas-btn--ajudante {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.agenda-filters__vagas-btn--ajudante:active {
+  opacity: 0.88;
+}
+
+.agenda-filters__vagas-btn .material-symbols-rounded {
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
 /* Quando a action bar está no modo pedidos: troca o estado das linhas */
@@ -1715,4 +1789,320 @@
   display: flex;
   flex-direction: row;
   gap: var(--space-xs);
+}
+
+
+/* ===========================================
+   PAINEL DE VAGAS — scroll area e lista
+   ======================================== */
+.vagas-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-sm) var(--space-md);
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-soft);
+  scrollbar-width: none;
+}
+
+.vagas-scroll::-webkit-scrollbar { display: none; }
+
+.vagas-list {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ===========================================
+   CARD DE VAGA — estilo cartaz/documento A4
+   ======================================== */
+.vaga-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  margin-bottom: var(--space-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10), 0 6px 20px rgba(0, 0, 0, 0.06);
+  animation: cardExpand 0.2s ease-out;
+}
+
+/* Faixa verde do topo: nome da empresa em destaque */
+.vaga-card__company-strip {
+  background: var(--p-green);
+  padding: var(--space-sm) var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.vaga-card__company-icon {
+  font-size: 1.6rem;
+  color: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.vaga-card__company-name {
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--t-light);
+  flex: 1;
+  line-height: 1.15;
+}
+
+/* Linha do divulgador — bem discreta, fundo levemente off-white */
+.vaga-card__poster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--space-md);
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.vaga-card__poster-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--border-light);
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
+.vaga-card__poster-name {
+  font-size: var(--fs-3);
+  color: var(--t-sub);
+  flex: 1;
+}
+
+.vaga-card__poster-name strong {
+  font-weight: 700;
+  color: var(--t-main);
+}
+
+/* IC compacto do divulgador */
+.vaga-card__poster-ic {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--fs-2);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.vaga-card__poster-ic .material-symbols-rounded {
+  font-size: 0.85rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+}
+
+.vaga-card__poster-ic.ic-bar--ok    { color: var(--success-fill); }
+.vaga-card__poster-ic.ic-bar--warn  { color: var(--a-gold-text);  }
+.vaga-card__poster-ic.ic-bar--alert { color: var(--danger);       }
+.vaga-card__poster-ic.ic-bar--bad   { color: var(--t-sub);        }
+
+/* Corpo do card: informações da vaga */
+.vaga-card__body {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.vaga-card__role-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vaga-card__role {
+  font-size: var(--fs-10);
+  font-weight: 800;
+  color: var(--p-green-dark);
+  line-height: 1.15;
+  margin: 0;
+}
+
+/* Badge de vagas disponíveis */
+.vaga-card__vacancies {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--p-green-light);
+  color: var(--p-green);
+  font-size: var(--fs-4);
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  align-self: flex-start;
+}
+
+.vaga-card__vacancies .material-symbols-rounded {
+  font-size: 1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Seção genérica: label + conteúdo */
+.vaga-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vaga-card__section-label {
+  font-size: var(--fs-2);
+  font-weight: 700;
+  color: var(--t-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* Lista de requisitos */
+.vaga-card__requirements {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vaga-card__req {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--fs-5);
+  color: var(--t-main);
+  line-height: 1.35;
+}
+
+.vaga-card__req .material-symbols-rounded {
+  font-size: 0.95rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Metadados: carga e salário */
+.vaga-card__meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vaga-card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-5);
+  color: var(--t-main);
+}
+
+.vaga-card__meta-item .material-symbols-rounded {
+  font-size: 1.05rem;
+  color: var(--t-sub);
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Salário com destaque */
+.vaga-card__salary {
+  font-size: var(--fs-7);
+  font-weight: 800;
+  color: var(--p-green-dark);
+}
+
+.vaga-card__salary .material-symbols-rounded {
+  color: var(--p-green);
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Chips de benefícios */
+.vaga-card__benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vaga-card__benefit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  font-size: var(--fs-3);
+  color: var(--t-sub);
+  font-weight: 600;
+}
+
+.vaga-card__benefit .material-symbols-rounded {
+  font-size: 0.9rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Rodapé de ações */
+.vaga-card__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-light);
+}
+
+/* Botão "Me candidatar" — preto/dark, pílula */
+.vaga-card__btn-apply {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px var(--space-md);
+  background: #1c1c1e;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-6);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s;
+}
+
+.vaga-card__btn-apply:active {
+  opacity: 0.82;
+}
+
+.vaga-card__btn-apply .material-symbols-rounded {
+  font-size: 1.05rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Botão "Compartilhar" — ícone circular sutil */
+.vaga-card__btn-share {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-soft);
+  color: var(--t-sub);
+  border: 1px solid var(--border-light);
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  transition: background 0.15s;
+}
+
+.vaga-card__btn-share:active {
+  background: var(--border-light);
+}
+
+.vaga-card__btn-share .material-symbols-rounded {
+  font-size: 1.2rem;
 }

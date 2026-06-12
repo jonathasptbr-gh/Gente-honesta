@@ -41,9 +41,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const confirmBlock   = document.getElementById('agenda-indicate-confirm');
 
   // TELA - PRINCIPAL (FEED) - PAINÉIS DESLIZANTES
-  // showPedidosPanel / showProsPanel: deslizam o container e alternam o estado da action bar.
+  // showVagasPanel / showProsPanel / showPedidosPanel: deslizam o container 3-painéis e
+  // alternam o estado da action bar (vagas | busca | pedidos).
+  const showVagasPanel = () => {
+    feedPanels?.classList.add('feed-panels--vagas');
+    feedPanels?.classList.remove('feed-panels--pedidos');
+    feedActionBar?.classList.add('agenda-filters--vagas');
+    feedActionBar?.classList.remove('agenda-filters--pedidos');
+    document.getElementById('panel-agenda-filters')?.classList.remove('agenda-filters__panel--open');
+    document.getElementById('btn-toggle-filters')?.setAttribute('aria-expanded', 'false');
+  };
+
   const showPedidosPanel = () => {
+    feedPanels?.classList.remove('feed-panels--vagas');
     feedPanels?.classList.add('feed-panels--pedidos');
+    feedActionBar?.classList.remove('agenda-filters--vagas');
     feedActionBar?.classList.add('agenda-filters--pedidos');
     // fecha painel de filtros se estiver aberto
     document.getElementById('panel-agenda-filters')?.classList.remove('agenda-filters__panel--open');
@@ -51,7 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const showProsPanel = () => {
+    feedPanels?.classList.remove('feed-panels--vagas');
     feedPanels?.classList.remove('feed-panels--pedidos');
+    feedActionBar?.classList.remove('agenda-filters--vagas');
     feedActionBar?.classList.remove('agenda-filters--pedidos');
   };
 
@@ -555,6 +569,175 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('inp-agenda-search')?.addEventListener('input', renderAgendaList);
   renderAgendaList();
 
+
+  // =========================================================================
+  // TELA - PRINCIPAL (FEED) - ABA VAGAS - Dados mock e renderização
+  // =========================================================================
+
+  const mockVagas = [
+    {
+      id: 'vaga-0',
+      empresa: 'Restaurante da Esquina',
+      poster: { name: 'Marcos Freitas', ic: 91 },
+      cargo: 'Auxiliar de Cozinha',
+      vagas: 2,
+      requisitos: [
+        'Ensino médio completo',
+        'Experiência básica com culinária',
+        'Disponibilidade imediata',
+        'Trabalho em equipe',
+      ],
+      cargaHoraria: '44h semanais · Seg–Sáb',
+      salario: 'R$ 1.600/mês + benefícios',
+      beneficios: [
+        { icon: 'lunch_dining',     label: 'Alimentação'     },
+        { icon: 'directions_bus',   label: 'Vale-transporte'  },
+        { icon: 'health_and_safety', label: 'Plano de saúde'  },
+      ],
+    },
+    {
+      id: 'vaga-1',
+      empresa: 'Construtora Barreto',
+      poster: { name: 'Roberto Nunes', ic: 75 },
+      cargo: 'Pedreiro / Servente',
+      vagas: 3,
+      requisitos: [
+        'Experiência comprovada em alvenaria',
+        'Disponibilidade para horas extras',
+        'Trabalho em altura (EPI fornecido)',
+        'Comprometimento com prazo de obra',
+        'CNH A ou B (diferencial)',
+      ],
+      cargaHoraria: '44h semanais · Seg–Sáb',
+      salario: 'R$ 2.100/mês',
+      beneficios: [
+        { icon: 'directions_bus',   label: 'Vale-transporte'      },
+        { icon: 'restaurant',       label: 'Vale-refeição'        },
+        { icon: 'receipt_long',     label: 'Carteira assinada'    },
+        { icon: 'medical_services', label: 'Seguro de vida'       },
+      ],
+    },
+    {
+      id: 'vaga-2',
+      empresa: 'Salão Belle Arte',
+      poster: { name: 'Fernanda Lima', ic: 88 },
+      cargo: 'Auxiliar de Cabeleireiro',
+      vagas: 1,
+      requisitos: [
+        'Curso técnico em cabeleireiro (em andamento ou concluído)',
+        'Boa comunicação com clientes',
+        'Organização e cuidado com o espaço',
+      ],
+      cargaHoraria: '30h semanais · Ter–Dom',
+      salario: 'R$ 1.300/mês + comissões',
+      beneficios: [
+        { icon: 'spa',            label: 'Treinamento incluído' },
+        { icon: 'directions_bus', label: 'Vale-transporte'      },
+      ],
+    },
+  ];
+
+  const renderVagasList = () => {
+    const list = document.getElementById('vagas-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    mockVagas.forEach(vaga => {
+      const card = document.createElement('article');
+      card.className = 'vaga-card';
+      card.id = vaga.id;
+
+      const posterTier   = icTier(vaga.poster.ic);
+      const posterShield = icShieldIcon(vaga.poster.ic);
+
+      const reqHTML = vaga.requisitos.map(r =>
+        `<li class="vaga-card__req"><span class="material-symbols-rounded" aria-hidden="true">check_small</span>${r}</li>`
+      ).join('');
+
+      const benefitHTML = vaga.beneficios.map(b =>
+        `<span class="vaga-card__benefit"><span class="material-symbols-rounded" aria-hidden="true">${b.icon}</span>${b.label}</span>`
+      ).join('');
+
+      const vagasLabel = vaga.vagas === 1 ? '1 vaga disponível' : `${vaga.vagas} vagas disponíveis`;
+
+      card.innerHTML = `
+        <div class="vaga-card__company-strip">
+          <span class="material-symbols-rounded vaga-card__company-icon" aria-hidden="true">domain</span>
+          <span class="vaga-card__company-name">${vaga.empresa}</span>
+        </div>
+        <div class="vaga-card__poster">
+          <img class="vaga-card__poster-avatar" src="${avatarSvg}" alt="">
+          <span class="vaga-card__poster-name">Divulgado por <strong>${vaga.poster.name}</strong></span>
+          <span class="vaga-card__poster-ic ic-bar--${posterTier}">
+            <span class="material-symbols-rounded" aria-hidden="true">${posterShield}</span>${vaga.poster.ic}%
+          </span>
+        </div>
+        <div class="vaga-card__body">
+          <div class="vaga-card__role-row">
+            <h3 class="vaga-card__role">${vaga.cargo}</h3>
+            <span class="vaga-card__vacancies">
+              <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+              ${vagasLabel}
+            </span>
+          </div>
+          <div class="vaga-card__section">
+            <p class="vaga-card__section-label">Requisitos</p>
+            <ul class="vaga-card__requirements">${reqHTML}</ul>
+          </div>
+          <div class="vaga-card__section">
+            <p class="vaga-card__section-label">Detalhes</p>
+            <div class="vaga-card__meta-row">
+              <span class="vaga-card__meta-item">
+                <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+                ${vaga.cargaHoraria}
+              </span>
+              <span class="vaga-card__meta-item vaga-card__salary">
+                <span class="material-symbols-rounded" aria-hidden="true">payments</span>
+                ${vaga.salario}
+              </span>
+            </div>
+          </div>
+          <div class="vaga-card__section">
+            <p class="vaga-card__section-label">Benefícios</p>
+            <div class="vaga-card__benefits">${benefitHTML}</div>
+          </div>
+          <div class="vaga-card__actions">
+            <button type="button" class="vaga-card__btn-apply">
+              <span class="material-symbols-rounded" aria-hidden="true">send</span>
+              Me candidatar
+            </button>
+            <button type="button" class="vaga-card__btn-share" aria-label="Compartilhar vaga">
+              <span class="material-symbols-rounded" aria-hidden="true">share</span>
+            </button>
+          </div>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  };
+
+  // Delegação de cliques nos cards de vaga
+  document.getElementById('vagas-list')?.addEventListener('click', (e) => {
+    if (e.target.closest('.vaga-card__btn-apply')) {
+      customAlert('Funcionalidade de candidatura em breve!', 'Me Candidatar', 'send');
+      return;
+    }
+    if (e.target.closest('.vaga-card__btn-share')) {
+      customAlert('Compartilhar vaga — funcionalidade em breve.', 'Compartilhar', 'share');
+    }
+  });
+
+  // Botões da action bar de vagas
+  document.getElementById('btn-criar-vaga')?.addEventListener('click', () => {
+    customAlert('Criar nova vaga — funcionalidade em breve.', 'Criar Vaga', 'post_add');
+  });
+
+  document.getElementById('btn-chamar-ajudante')?.addEventListener('click', () => {
+    customAlert('Chamar ajudante do dia — funcionalidade em breve.', 'Ajudante do Dia', 'handshake');
+  });
+
+  renderVagasList();
+
   // ── Clique na busca já focada → volta ao topo da lista ───────────────────
   {
     const searchEl = document.getElementById('inp-agenda-search');
@@ -662,8 +845,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const scrolledState = { vagas: false, home: false, pedidos: false };
   let activeTab = 'home';
 
-  const agendaListEl  = document.getElementById('agenda-list');
+  const agendaListEl    = document.getElementById('agenda-list');
   const pedidosScrollEl = document.getElementById('pedidos-scroll');
+  const vagasScrollEl   = document.getElementById('vagas-scroll');
 
   const setTabButton = (tabName, scrolled) => {
     const btn = document.querySelector(`.feed-tabs-pill__tab[data-tab="${tabName}"]`);
@@ -686,6 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTabButton(tabName, scrolledState[tabName] ?? false);
     // Desliza o painel correto
     if (tabName === 'pedidos') showPedidosPanel();
+    else if (tabName === 'vagas') showVagasPanel();
     else showProsPanel();
   };
 
@@ -697,6 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (scrolledState[clickedTab]) {
           if (clickedTab === 'home')    agendaListEl?.scrollTo({ top: 0, behavior: 'smooth' });
           if (clickedTab === 'pedidos') pedidosScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
+          if (clickedTab === 'vagas')   vagasScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
           scrolledState[clickedTab] = false;
           setTabButton(clickedTab, false);
         }
@@ -724,8 +910,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const dx = e.changedTouches[0].clientX - swipeTouchStartX;
     const dy = e.changedTouches[0].clientY - swipeTouchStartY;
     if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
-    if (dx < 0) switchToTab('pedidos');
-    else switchToTab('home');
+    // Ordem dos painéis: vagas ← home → pedidos
+    if (dx < 0) {
+      if (activeTab === 'vagas')   switchToTab('home');
+      else if (activeTab === 'home') switchToTab('pedidos');
+    } else {
+      if (activeTab === 'pedidos') switchToTab('home');
+      else if (activeTab === 'home') switchToTab('vagas');
+    }
   }, { passive: true });
 
 
@@ -746,6 +938,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (scrolledState.pedidos !== scrolled) {
       scrolledState.pedidos = scrolled;
       if (activeTab === 'pedidos') setTabButton('pedidos', scrolled);
+    }
+  }, { passive: true });
+
+  vagasScrollEl?.addEventListener('scroll', () => {
+    const scrolled = vagasScrollEl.scrollTop > SCROLL_THRESHOLD;
+    if (scrolledState.vagas !== scrolled) {
+      scrolledState.vagas = scrolled;
+      if (activeTab === 'vagas') setTabButton('vagas', scrolled);
     }
   }, { passive: true });
 

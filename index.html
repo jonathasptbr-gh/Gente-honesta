@@ -725,7 +725,7 @@
             <!-- Barra de busca / ação — muda de estado conforme a aba ativa -->
             <div class="agenda-filters" id="feed-action-bar">
                 <div class="agenda-filters__action-row">
-                <!-- Estado 1: busca (Profissionais / Vagas) -->
+                <!-- Estado 1: busca (Profissionais) -->
                 <div class="agenda-filters__search-row" id="bar-search-state">
                     <div class="agenda-filters__search-wrap">
                         <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
@@ -735,7 +735,18 @@
                         <span class="material-symbols-rounded" aria-hidden="true">tune</span>
                     </button>
                 </div>
-                <!-- Estado 2: ação de pedido (Pedidos) -->
+                <!-- Estado 2: ações de vagas (Vagas) -->
+                <div class="agenda-filters__vagas-row" id="bar-vagas-state">
+                    <button type="button" id="btn-criar-vaga" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--criar">
+                        <span class="material-symbols-rounded" aria-hidden="true">post_add</span>
+                        Criar vaga
+                    </button>
+                    <button type="button" id="btn-chamar-ajudante" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--ajudante">
+                        <span class="material-symbols-rounded" aria-hidden="true">handshake</span>
+                        Chamar ajudante do dia
+                    </button>
+                </div>
+                <!-- Estado 3: ação de pedido (Pedidos) -->
                 <div class="agenda-filters__pedidos-row" id="bar-pedidos-state">
                     <button type="button" id="btn-my-pedido" class="btn btn--accent pedido-action__btn">
                         <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">add</span>
@@ -814,8 +825,17 @@
                 </div>
             </div>
 
-            <!-- Painéis deslizantes: Profissionais (esq.) ↔ Pedidos (dir.) -->
+            <!-- Painéis deslizantes: Vagas (esq.) ↔ Profissionais (centro) ↔ Pedidos (dir.) -->
             <div class="feed-panels" id="feed-panels">
+
+                <!-- Painel 0 — vagas de emprego (preenchido via JS) -->
+                <div class="feed-panel feed-panel--vagas">
+                    <div class="vagas-scroll" id="vagas-scroll">
+                        <div id="vagas-list" class="vagas-list">
+                            <!-- Cards inseridos dinamicamente -->
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Painel 1 — lista de profissionais (preenchida via JS) -->
                 <div class="feed-panel feed-panel--pros">
