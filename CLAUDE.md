@@ -115,11 +115,16 @@ Remover o bloco marcado `// WHITELIST DE TESTERS` quando abrir ao público.
 ## Design System
 
 Variáveis em `css/base.css :root`:
-- Cores: `--p-green`, `--p-green-dark`, `--p-green-light`, `--a-gold`, `--info-blue`, `--danger`
+- Cores: `--p-green`, `--p-green-dark`, `--p-green-light`, `--a-gold`, `--info-blue`, `--danger`, `--whatsapp`, `--gold-soft-border`
+- Overlays (backdrops de diálogos/sheets/painéis): `--overlay`, `--overlay-soft`
 - Espaçamento: `--space-xs` (8px) → `--space-xl` (48px)
-- `--radius-md` (12px), `--radius-pill` (99px)
+- Raios: `--radius-xs` (6px), `--radius-sm` (8px), `--radius-md` (12px), `--radius-pill` (28px)
 - `--shadow-sm`, `--shadow-lg`
 - `--transition` (padrão para todos os `transition:`)
+
+**Escala tipográfica:** `--fs-1` (0.6rem) → `--fs-13` (2.2rem). Todo `font-size` de TEXTO usa um token da escala; exceções: os `clamp()` responsivos (auth.css) e ícones Material Symbols (dimensionam glifo, não texto).
+
+**Pesos de fonte:** títulos de tela/diálogo/painel/seção = 800; nomes de pessoas em cards = 700; labels/botões/chips = 600/700. Nota: a Inter é carregada apenas nos pesos 400/600/800 (`index.html`) — `font-weight: 700` declarado renderiza com a face 800.
 
 Ícones: Material Symbols Rounded (Google CDN), carregados no `<head>`.
 Font-variation padrão filled: `'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48`
