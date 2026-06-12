@@ -332,13 +332,10 @@
   background: var(--bg-canvas);
   padding: var(--space-md);
   padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
-  scrollbar-width: thin;
-  scrollbar-color: var(--info-blue) transparent;
+  scrollbar-width: none;
 }
 
-.feed-panel--pedidos .scroll-area::-webkit-scrollbar { width: 3px; }
-.feed-panel--pedidos .scroll-area::-webkit-scrollbar-track { background: transparent; }
-.feed-panel--pedidos .scroll-area::-webkit-scrollbar-thumb { background: var(--info-blue); border-radius: 3px; }
+.feed-panel--pedidos .scroll-area::-webkit-scrollbar { display: none; }
 
 /* ===========================================
    ACTION BAR — estado Pedidos

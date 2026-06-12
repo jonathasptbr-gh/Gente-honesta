@@ -667,6 +667,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // =========================================================================
+  // SWIPE HORIZONTAL — desliza entre o painel de Profissionais e de Pedidos
+  // Só ativa em arrasto predominantemente horizontal (dx > dy) e fora do modo indicação.
+  // =========================================================================
+  let swipeTouchStartX = 0;
+  let swipeTouchStartY = 0;
+
+  const setActiveTab = (tabName) => {
+    document.querySelectorAll('.feed-tabs-pill__tab').forEach(t => {
+      t.classList.toggle('feed-tabs-pill__tab--active', t.dataset.tab === tabName);
+    });
+  };
+
+  feedPanels?.addEventListener('touchstart', (e) => {
+    swipeTouchStartX = e.touches[0].clientX;
+    swipeTouchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  feedPanels?.addEventListener('touchend', (e) => {
+    if (indicateMode) return;
+    const dx = e.changedTouches[0].clientX - swipeTouchStartX;
+    const dy = e.changedTouches[0].clientY - swipeTouchStartY;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) {
+      showPedidosPanel();
+      setActiveTab('pedidos');
+    } else {
+      showProsPanel();
+      setActiveTab('home');
+    }
+  }, { passive: true });
+
+
+  // =========================================================================
   // POPUP DE PEDIDOS - Botão "Fazer um pedido" / "Detalhes do meu pedido"
   // =========================================================================
   // Fixo no topo do popup de pedidos. Alterna o rótulo conforme o usuário já tem
