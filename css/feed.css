@@ -408,17 +408,16 @@
   display: none !important;
 }
 
-/* Botões da linha de vagas */
+/* Botões da linha de vagas — mesma altura e cantos do btn padrão (.btn = radius-md) */
 .agenda-filters__vagas-btn {
-  flex: 1;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
   border: none;
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-4);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-5);
   font-weight: 700;
   cursor: pointer;
   touch-action: manipulation;
@@ -427,7 +426,10 @@
   overflow: hidden;
 }
 
+/* "Criar vaga" — proporcional ao próprio texto */
 .agenda-filters__vagas-btn--criar {
+  flex: 0 0 auto;
+  padding: 0 var(--space-md);
   background: var(--bg-white);
   color: var(--p-green);
 }
@@ -436,7 +438,9 @@
   background: var(--bg-soft);
 }
 
+/* "Chamar ajudante do dia" — ocupa o espaço restante */
 .agenda-filters__vagas-btn--ajudante {
+  flex: 1;
   background: var(--a-gold);
   color: var(--p-green-dark);
 }
@@ -1801,7 +1805,7 @@
   -webkit-overflow-scrolling: touch;
   padding: var(--space-sm) var(--space-md);
   padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
-  background: var(--bg-soft);
+  background: var(--bg-canvas);
   scrollbar-width: none;
 }
 
@@ -2045,16 +2049,16 @@
   font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
 }
 
-/* Rodapé de ações */
+/* Rodapé de ações — stretch garante mesma altura para os dois botões */
 .vaga-card__actions {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: var(--space-xs);
   padding-top: var(--space-sm);
   border-top: 1px solid var(--border-light);
 }
 
-/* Botão "Me candidatar" — preto/dark, pílula */
+/* Botão "Me candidatar" — preto/dark, cantos padrão do feed (radius-md) */
 .vaga-card__btn-apply {
   flex: 1;
   display: flex;
@@ -2065,7 +2069,7 @@
   background: #1c1c1e;
   color: #fff;
   border: none;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   font-size: var(--fs-6);
   font-weight: 700;
   cursor: pointer;
@@ -2082,17 +2086,16 @@
   font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
 }
 
-/* Botão "Compartilhar" — ícone circular sutil */
+/* Botão "Compartilhar" — mesmo radius-md, padding lateral para ocupar espaço equilibrado */
 .vaga-card__btn-share {
-  width: 46px;
-  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 var(--space-md);
   background: var(--bg-soft);
   color: var(--t-sub);
   border: 1px solid var(--border-light);
-  border-radius: 50%;
+  border-radius: var(--radius-md);
   cursor: pointer;
   flex-shrink: 0;
   touch-action: manipulation;
