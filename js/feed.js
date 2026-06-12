@@ -587,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Disponibilidade imediata',
         'Trabalho em equipe',
       ],
-      cargaHoraria: '44h semanais · Seg–Sáb',
+      cargaHoraria: '08:00 às 18:00 · Seg–Sáb',
       salario: 'R$ 1.600/mês + benefícios',
       beneficios: [
         { icon: 'lunch_dining',     label: 'Alimentação'     },
@@ -608,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Comprometimento com prazo de obra',
         'CNH A ou B (diferencial)',
       ],
-      cargaHoraria: '44h semanais · Seg–Sáb',
+      cargaHoraria: '07:00 às 17:00 · Seg–Sáb',
       salario: 'R$ 2.100/mês',
       beneficios: [
         { icon: 'directions_bus',   label: 'Vale-transporte'      },
@@ -628,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Boa comunicação com clientes',
         'Organização e cuidado com o espaço',
       ],
-      cargaHoraria: '30h semanais · Ter–Dom',
+      cargaHoraria: '09:00 às 15:00 · Ter–Dom',
       salario: 'R$ 1.300/mês + comissões',
       beneficios: [
         { icon: 'spa',            label: 'Treinamento incluído' },
