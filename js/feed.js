@@ -732,9 +732,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderVagasList();
 
-  // Posiciona o slider na aba ativa inicial (home = índice 1 = translateX(100%))
-  updateSlider(activeTab);
-
   // ── Clique na busca já focada → volta ao topo da lista ───────────────────
   {
     const searchEl = document.getElementById('inp-agenda-search');
