@@ -255,6 +255,7 @@ node tools/preview.js '{"view":"view-feed","shots":[
 ]}'
 ```
 - `view`: qualquer tela (`view-feed`, `view-auth`, `view-onboarding`, `view-install`).
+- `tab`: aba do feed a ativar (`vagas`, `home`, `pedidos`). **OBRIGATÓRIO quando a mudança é numa aba específica** — o SPA começa sempre na aba `home`, então sem `tab` o screenshot mostra a tela errada.
 - `css`: qualquer override (tokens do `:root` são o caso típico, com `!important`).
 - O script sobe servidor próprio na porta 8077, emula um Galaxy (412×915 @2x), trata as
   particularidades do ambiente (proxy/CA, service worker, stub do Firebase,
@@ -263,6 +264,18 @@ node tools/preview.js '{"view":"view-feed","shots":[
   inválido (fontes não carregaram) — repetir a captura.
 - Ressalva ao usuário quando relevante: a renderização headless não é o AMOLED
   do aparelho; a conferência final de cor é no S24 após o deploy aprovado.
+
+**Regra obrigatória de navegação no preview:**
+O app é um SPA — cada tela e sub-estado só existe após interação JS. O script
+simula essas interações via `showView()` e clique na aba (`shot.tab`). Antes de
+gerar qualquer screenshot, identificar EXATAMENTE qual tela e qual estado precisa
+estar visível para refletir a mudança feita, e passar os parâmetros corretos:
+- Mudança na aba Vagas → `"view":"view-feed", "tab":"vagas"`
+- Mudança na aba Pedidos → `"view":"view-feed", "tab":"pedidos"`
+- Mudança na aba Profissionais → `"view":"view-feed", "tab":"home"`
+- Mudança no onboarding → `"view":"view-onboarding"`
+- Mudança no auth → `"view":"view-auth"`
+Screenshot na tela errada é inválido — não enviar ao usuário.
 
 ---
 
