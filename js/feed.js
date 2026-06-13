@@ -493,12 +493,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     list.innerHTML = '';
 
-    // Label regional — sempre exibida no topo da lista
-    const regionLabel = document.createElement('p');
-    regionLabel.className = 'agenda-list__region-label';
-    regionLabel.textContent = 'Estes são os profissionais na sua região';
-    list.appendChild(regionLabel);
-
     if (final.length === 0) {
       const empty = document.createElement('p');
       empty.style.cssText = 'text-align:center;color:rgba(255,255,255,0.75);padding:var(--space-xl) 0;font-size:var(--fs-6)';
