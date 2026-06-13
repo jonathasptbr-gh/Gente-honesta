@@ -732,6 +732,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderVagasList();
 
+  // Posiciona o slider na aba ativa inicial (home = índice 1 = translateX(100%))
+  updateSlider(activeTab);
+
   // ── Clique na busca já focada → volta ao topo da lista ───────────────────
   {
     const searchEl = document.getElementById('inp-agenda-search');
@@ -836,6 +839,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const SCROLL_TOP_STATE = { icon: 'arrow_upward', label: 'Voltar ao topo' };
   const SCROLL_THRESHOLD = 80; // px a partir do qual mostra "Voltar ao topo"
 
+  // Ordem fixa dos painéis (esq → dir): define o translateX do slider
+  const TAB_ORDER = ['vagas', 'home', 'pedidos'];
+
+  const updateSlider = (tabName) => {
+    const slider = document.querySelector('.feed-tabs-pill__slider');
+    if (!slider) return;
+    const idx = TAB_ORDER.indexOf(tabName);
+    slider.style.transform = `translateX(${idx * 100}%)`;
+  };
+
   const scrolledState = { vagas: false, home: false, pedidos: false };
   let activeTab = 'home';
 
@@ -862,6 +875,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // Restaura o estado de scroll da nova aba no botão
     setTabButton(tabName, scrolledState[tabName] ?? false);
+    // Move o slider amarelo para a nova aba
+    updateSlider(tabName);
     // Desliza o painel correto
     if (tabName === 'pedidos') showPedidosPanel();
     else if (tabName === 'vagas') showVagasPanel();
