@@ -676,18 +676,19 @@
 .pedidos-list {
   display: flex;
   flex-direction: column;
+  padding: 12px 16px;
+  gap: 12px;
 }
 
 .pedido-item {
-  padding: var(--space-sm) 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12); /* divider sutil sobre --bg-canvas */
+  padding: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  border-radius: 18px 18px 18px 4px;
+  background: rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.pedido-item:last-child {
-  border-bottom: none;
+  gap: 10px;
+  position: relative;
 }
 
 /* Linha de meta: avatar pequeno + nome + IC + flag */
