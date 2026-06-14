@@ -2035,41 +2035,76 @@
   font-weight: 700;
 }
 
-/* Grid de meios de transporte */
-.candid-transport-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
+/* Flexibilidade + Transporte lado a lado */
+.candid-two-col {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
 }
 
-/* Campo de observação por requisito */
+.candid-two-col > .candid-section {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Observações por requisito — colapsáveis via <details> */
 .candid-req-obs {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.candid-req-obs[open] {
+  border-color: var(--p-green);
+  background: var(--bg-white);
 }
 
 .candid-req-obs-label {
-  font-size: var(--fs-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  font-size: var(--fs-4);
   color: var(--t-main);
   line-height: 1.3;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  gap: 8px;
 }
 
-.candid-req-obs-label::before {
-  content: '·  ';
-  color: var(--p-green);
-  font-weight: 700;
+.candid-req-obs-label::-webkit-details-marker { display: none; }
+
+.candid-req-obs-label::after {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid var(--p-green);
+  border-bottom: 2px solid var(--p-green);
+  transform: rotate(45deg);
+  transition: transform 0.2s;
+  margin-top: -3px;
+}
+
+.candid-req-obs[open] > .candid-req-obs-label::after {
+  transform: rotate(225deg);
+  margin-top: 3px;
 }
 
 .candid-req-obs-input {
+  display: block;
   width: 100%;
   box-sizing: border-box;
   padding: 7px 10px;
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
+  border: none;
+  border-top: 1px solid var(--border-light);
+  border-radius: 0;
   font-size: var(--fs-4);
   color: var(--t-main);
-  background: var(--bg-soft);
+  background: transparent;
   resize: none;
   outline: none;
   font-family: inherit;

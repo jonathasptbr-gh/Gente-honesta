@@ -663,8 +663,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(vaga.mapsQuery)}`;
 
       const reqObsHTML = vaga.requisitos.map((r, i) => `
-        <div class="candid-req-obs">
-          <span class="candid-req-obs-label">${r}</span>
+        <details class="candid-req-obs">
+          <summary class="candid-req-obs-label">${r}</summary>
           <textarea
             class="candid-req-obs-input"
             name="obs-${vaga.id}-${i}"
@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholder="Observação (opcional)"
             aria-label="Observação sobre: ${r}"
           ></textarea>
-        </div>
+        </details>
       `).join('');
 
       card.innerHTML = `
@@ -774,27 +774,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               </div>
 
-              <!-- 3. Flexibilidade -->
-              <div class="candid-section">
-                <p class="candid-section-label">Flexibilidade</p>
-                <label class="candid-check">
-                  <input type="checkbox" name="flex-${vaga.id}" value="horas-extras">
-                  <span>Horas extras</span>
-                </label>
-                <label class="candid-check">
-                  <input type="checkbox" name="flex-${vaga.id}" value="sabados">
-                  <span>Sábados</span>
-                </label>
-                <label class="candid-check">
-                  <input type="checkbox" name="flex-${vaga.id}" value="feriados">
-                  <span>Feriados</span>
-                </label>
-              </div>
-
-              <!-- 4. Transporte -->
-              <div class="candid-section">
-                <p class="candid-section-label">Meio de transporte</p>
-                <div class="candid-transport-grid">
+              <!-- 3+4. Flexibilidade e Transporte lado a lado -->
+              <div class="candid-two-col">
+                <div class="candid-section">
+                  <p class="candid-section-label">Flexibilidade</p>
+                  <label class="candid-check">
+                    <input type="checkbox" name="flex-${vaga.id}" value="horas-extras">
+                    <span>Horas extras</span>
+                  </label>
+                  <label class="candid-check">
+                    <input type="checkbox" name="flex-${vaga.id}" value="sabados">
+                    <span>Sábados</span>
+                  </label>
+                  <label class="candid-check">
+                    <input type="checkbox" name="flex-${vaga.id}" value="feriados">
+                    <span>Feriados</span>
+                  </label>
+                </div>
+                <div class="candid-section">
+                  <p class="candid-section-label">Transporte</p>
                   <label class="candid-check">
                     <input type="checkbox" name="transp-${vaga.id}" value="pe">
                     <span>A pé</span>
