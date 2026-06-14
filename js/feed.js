@@ -135,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     indicateMode = false;
     activePostId = null;
     selectedProId = null;
-    confirmBlock?.classList.add('u-hidden');
     indicatedBlock?.classList.add('u-hidden');
     feedTopBar?.classList.remove('u-hidden');
     feedBottomBar?.classList.remove('u-hidden');
@@ -143,8 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
     themeMeta?.setAttribute('content', FEED_THEME_COLOR);
     const postRef = document.getElementById('indicate-post-ref');
     if (postRef) postRef.innerHTML = '';
-    document.querySelectorAll('.pro-card--selected').forEach(el => {
-      el.classList.remove('pro-card--selected');
+    document.querySelectorAll('.pro-card--selected, .pro-card--indicate-mode').forEach(el => {
+      el.classList.remove('pro-card--selected', 'pro-card--indicate-mode', 'pro-card--flipped');
     });
   };
 
@@ -278,6 +277,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" class="pro-card__back-btn pro-card__back-btn--share" aria-label="Compartilhar">
             <span class="material-symbols-rounded" aria-hidden="true">share</span>
           </button>
+          <button type="button" class="pro-card__back-btn pro-card__back-btn--cancel-indicate">Cancelar</button>
+          <button type="button" class="pro-card__back-btn pro-card__back-btn--confirm-indicate">
+            <span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar
+          </button>
         </div>
       </div>
     `;
@@ -401,6 +404,27 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const agendaList = document.getElementById('agenda-list');
+    const flipCard = (c, add) => {
+      if (agendaList) { agendaList.style.overflow = 'visible'; setTimeout(() => { agendaList.style.overflow = ''; }, 600); }
+      if (add) { c.classList.add('pro-card--flipped'); setTimeout(() => c.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100); }
+      else c.classList.remove('pro-card--flipped');
+    };
+
+    // Botão Cancelar (modo indicação) → desflipa sem sair do modo
+    if (e.target.closest('.pro-card__back-btn--cancel-indicate')) {
+      const c = e.target.closest('.pro-card');
+      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); selectedProId = null; flipCard(c, false); }
+      return;
+    }
+
+    // Botão Indicar (modo indicação) → confirma e sai
+    if (e.target.closest('.pro-card__back-btn--confirm-indicate')) {
+      exitIndicateMode();
+      customAlert('Indicação registrada com sucesso!', 'Indicação Feita', 'check_circle').then(openPedidosSheet);
+      return;
+    }
+
     // Botão WhatsApp no verso
     if (e.target.closest('.pro-card__back-btn--whatsapp')) {
       customAlert('Abrir WhatsApp — funcionalidade em breve.', 'WhatsApp', 'chat');
@@ -413,9 +437,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Clique no verso (fora dos botões/comentários) → volta à frente
+    // Botão Voltar no verso → desflipa (e limpa modo indicação se estava ativo)
+    if (e.target.closest('.pro-card__back-btn--back')) {
+      const c = e.target.closest('.pro-card');
+      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); selectedProId = null; flipCard(c, false); }
+      return;
+    }
+
+    // Clique no resto do verso (fora dos botões) → fecha
     if (e.target.closest('.pro-card__back')) {
-      e.target.closest('.pro-card')?.classList.remove('pro-card--flipped');
+      const c = e.target.closest('.pro-card');
+      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); flipCard(c, false); }
       return;
     }
 
@@ -423,55 +455,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!card) return;
 
     if (indicateMode) {
-      // ── Modo indicação: seleciona o profissional para indicar ──
-      document.querySelectorAll('.pro-card--selected').forEach(el => {
-        el.classList.remove('pro-card--selected');
+      // ── Modo indicação: desseleciona anterior e flipa o novo com botões de indicação ──
+      document.querySelectorAll('.pro-card--selected, .pro-card--indicate-mode').forEach(el => {
+        el.classList.remove('pro-card--selected', 'pro-card--indicate-mode', 'pro-card--flipped');
       });
-      card.classList.add('pro-card--selected');
+      card.classList.add('pro-card--selected', 'pro-card--indicate-mode');
       selectedProId = card.id;
-      renderConfirmBlock(card);
-      confirmBlock?.classList.remove('u-hidden');
-      confirmBlock?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      flipCard(card, true);
     } else {
       // ── Navegação normal: flip para o verso ──
       const isFlipped = card.classList.contains('pro-card--flipped');
       document.querySelectorAll('.pro-card--flipped').forEach(el => el.classList.remove('pro-card--flipped'));
-      // Libera o scroll container temporariamente para que os cantos 3D não sejam cortados
-      const agendaList = document.getElementById('agenda-list');
-      if (agendaList) {
-        agendaList.style.overflow = 'visible';
-        setTimeout(() => { agendaList.style.overflow = ''; }, 600);
-      }
-      if (!isFlipped) {
-        card.classList.add('pro-card--flipped');
-        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
-      }
+      flipCard(card, !isFlipped);
     }
   });
 
-  // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Monta o preview do profissional selecionado antes de confirmar
-  const renderConfirmBlock = (proEl) => {
-    const preview = document.getElementById('agenda-selected-pro');
-    if (!preview) return;
-    const pro = mockProfessionals.find(p => p.id === proEl.id);
-    if (!pro) return;
-    preview.innerHTML = `<div class="pro-card"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div></div></div>`;
-  };
-
-  // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Confirmação da indicação
-  // Ao confirmar ou cancelar, sai do modo indicação E volta para o popup de pedidos
-  // (de onde o usuário veio ao tocar "Indicar alguém").
-  document.getElementById('btn-confirm-indicate')?.addEventListener('click', async () => {
-    if (!selectedProId) return;
-    exitIndicateMode();
-    await customAlert('Indicação registrada com sucesso!', 'Indicação Feita', 'check_circle');
-    openPedidosSheet();
-  });
-
-  document.getElementById('btn-cancel-indicate')?.addEventListener('click', () => {
-    exitIndicateMode();
-    openPedidosSheet();
-  });
 
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Dados mockados de profissionais

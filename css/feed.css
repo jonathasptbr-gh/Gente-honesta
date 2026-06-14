@@ -1023,7 +1023,7 @@
 }
 
 .agenda-indicated__title {
-  font-size: var(--fs-8);
+  font-size: var(--fs-6);
   font-weight: 800;
   color: var(--t-light);
   margin: 0;
@@ -1079,11 +1079,14 @@
   justify-content: flex-end;
   pointer-events: none;
   visibility: hidden;
+  /* Mantém visível durante a animação de fechamento */
+  transition: visibility 0s linear 0.35s;
 }
 
 .indicated-popup--open {
   pointer-events: auto;
   visibility: visible;
+  transition: visibility 0s linear 0s;
 }
 
 .indicated-popup__backdrop {
@@ -1629,7 +1632,7 @@
 .pro-card__back-btn--whatsapp {
   flex: 1;
   padding: 10px var(--space-sm);
-  background: var(--whatsapp);
+  background: var(--p-green);
   color: #fff;
 }
 
@@ -1649,6 +1652,34 @@
   background: var(--bg-soft);
   color: var(--t-sub);
   border: 1px solid var(--border-light);
+}
+
+/* Botões de modo indicação — ocultos por padrão, visíveis quando o card está em modo indicação */
+.pro-card__back-btn--cancel-indicate,
+.pro-card__back-btn--confirm-indicate {
+  display: none;
+}
+
+.pro-card--indicate-mode .pro-card__back-btn--whatsapp,
+.pro-card--indicate-mode .pro-card__back-btn--share {
+  display: none;
+}
+
+.pro-card--indicate-mode .pro-card__back-btn--cancel-indicate {
+  display: inline-flex;
+  flex: 1;
+  padding: 10px var(--space-sm);
+  background: var(--bg-soft);
+  color: var(--t-main);
+  border: 1px solid var(--border-light);
+}
+
+.pro-card--indicate-mode .pro-card__back-btn--confirm-indicate {
+  display: inline-flex;
+  flex: 1;
+  padding: 10px var(--space-sm);
+  background: var(--p-green);
+  color: #fff;
 }
 
 .pro-card__back-btn .material-symbols-rounded {
