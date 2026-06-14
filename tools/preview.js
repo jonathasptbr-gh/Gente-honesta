@@ -9,9 +9,18 @@
 //
 // JSON: {
 //   "view":  "view-feed" | "view-auth" | "view-onboarding" | "view-install",
-//   "shots": [{ "file": "/tmp/x.png",
-//               "css":  ":root{--bg-canvas:#124014 !important}",   // qualquer override
-//               "label": "1 · texto do selo" }]
+//   "tab":   "vagas" | "home" | "pedidos",   // aba do feed a ativar
+//   "shots": [{
+//     "file":    "/tmp/x.png",
+//     "css":     ":root{--bg-canvas:#124014 !important}",  // CSS override
+//     "label":   "1 · texto do selo",
+//     "scrollY": 300,                          // pixels a rolar antes do screenshot
+//     "actions": [                             // sequência de interações após carregar
+//       { "click": ".vaga-card__btn-apply" },  // clica num seletor CSS
+//       { "wait":  700 },                      // espera N ms (ex: aguardar animação)
+//       { "scroll": "#vagas-scroll", "top": 200 }  // rola um elemento scrollável
+//     ]
+//   }]
 // }
 //
 // Particularidades DESTE ambiente (descobertas na sessão de 12/06/2026 — não remover):
@@ -92,6 +101,26 @@ const server = http.createServer((req, res) => {
         document.body.appendChild(tag);
       }
     }, { view: cfg.view, label: shot.label, tab: shot.tab });
+    // Executa sequência de ações (cliques, esperas, scroll) antes do screenshot
+    for (const action of (shot.actions || [])) {
+      if (action.click) {
+        await page.click(action.click).catch(() => {});
+      }
+      if (action.wait) {
+        await page.waitForTimeout(action.wait);
+      }
+      if (action.scroll) {
+        await page.evaluate(({ sel, top }) => {
+          const el = document.querySelector(sel);
+          if (el) el.scrollTop = top || 0;
+        }, { sel: action.scroll, top: action.top ?? 0 });
+      }
+    }
+    // Scroll global da página (shorthand para rolar o viewport inteiro)
+    if (shot.scrollY) {
+      await page.evaluate(y => window.scrollBy(0, y), shot.scrollY);
+      await page.waitForTimeout(200);
+    }
     if (shot.css) await page.addStyleTag({ content: shot.css });
     await page.evaluate(() => Promise.all([
       document.fonts.load("400 16px Inter"),
