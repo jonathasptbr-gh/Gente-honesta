@@ -144,8 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
     themeMeta?.setAttribute('content', FEED_THEME_COLOR);
     const postRef = document.getElementById('indicate-post-ref');
     if (postRef) postRef.innerHTML = '';
-    document.querySelectorAll('.pro-card--selected, .pro-card--indicate-mode').forEach(el => {
-      el.classList.remove('pro-card--selected', 'pro-card--indicate-mode', 'pro-card--flipped');
+    document.querySelectorAll('.pro-card--selected, .pro-card--indicate-mode, .pro-card--flipped, .pro-card--expanded').forEach(el => {
+      proCardForceReset(el);
     });
   };
 
@@ -175,9 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Reseta lista de profissionais: desvira cards, limpa filtros, vai ao topo
   const resetAgendaList = () => {
-    // Desvira qualquer card virado
-    document.querySelectorAll('#agenda-list .pro-card--flipped, #agenda-list .pro-card--indicate-mode, #agenda-list .pro-card--selected').forEach(el => {
-      el.classList.remove('pro-card--flipped', 'pro-card--indicate-mode', 'pro-card--selected');
+    // Desvira qualquer card virado e limpa estilos inline residuais
+    document.querySelectorAll('#agenda-list .pro-card--flipped, #agenda-list .pro-card--expanded, #agenda-list .pro-card--indicate-mode, #agenda-list .pro-card--selected').forEach(el => {
+      proCardForceReset(el);
     });
     // Limpa estado dos filtros
     filterState.includeIc.clear();
@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const card = document.createElement('div');
       card.className = 'pro-card';
       card.style.cursor = 'default';
-      card.innerHTML = `<div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div></div>`;
+      card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div></div></div>`;
       list.appendChild(card);
     });
   };
@@ -437,17 +437,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const agendaList = document.getElementById('agenda-list');
-    const flipCard = (c, add) => {
-      if (agendaList) { agendaList.style.overflow = 'visible'; setTimeout(() => { agendaList.style.overflow = ''; }, 600); }
-      if (add) { c.classList.add('pro-card--flipped'); setTimeout(() => c.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100); }
-      else c.classList.remove('pro-card--flipped');
-    };
-
     // Botão Cancelar (modo indicação) → desflipa sem sair do modo
     if (e.target.closest('.pro-card__back-btn--cancel-indicate')) {
       const c = e.target.closest('.pro-card');
-      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); selectedProId = null; flipCard(c, false); }
+      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); selectedProId = null; proCardFlipToFront(c); }
       return;
     }
 
@@ -470,17 +463,17 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Botão Voltar no verso → desflipa (e limpa modo indicação se estava ativo)
+    // Botão Voltar no verso → desflipa
     if (e.target.closest('.pro-card__back-btn--back')) {
       const c = e.target.closest('.pro-card');
-      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); selectedProId = null; flipCard(c, false); }
+      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); selectedProId = null; proCardFlipToFront(c); }
       return;
     }
 
     // Clique no resto do verso (fora dos botões) → fecha
     if (e.target.closest('.pro-card__back')) {
       const c = e.target.closest('.pro-card');
-      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); flipCard(c, false); }
+      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); proCardFlipToFront(c); }
       return;
     }
 
@@ -490,16 +483,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (indicateMode) {
       // ── Modo indicação: desseleciona anterior e flipa o novo com botões de indicação ──
       document.querySelectorAll('.pro-card--selected, .pro-card--indicate-mode').forEach(el => {
-        el.classList.remove('pro-card--selected', 'pro-card--indicate-mode', 'pro-card--flipped');
+        el.classList.remove('pro-card--selected', 'pro-card--indicate-mode');
+        proCardFlipToFront(el);
       });
       card.classList.add('pro-card--selected', 'pro-card--indicate-mode');
       selectedProId = card.id;
-      flipCard(card, true);
+      proCardFlipToBack(card);
+      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
     } else {
-      // ── Navegação normal: flip para o verso ──
+      // ── Navegação normal: flip para o verso ou fecha se já estava aberto ──
       const isFlipped = card.classList.contains('pro-card--flipped');
-      document.querySelectorAll('.pro-card--flipped').forEach(el => el.classList.remove('pro-card--flipped'));
-      flipCard(card, !isFlipped);
+      document.querySelectorAll('#agenda-list .pro-card--flipped').forEach(el => {
+        if (el !== card) proCardFlipToFront(el);
+      });
+      if (isFlipped) proCardFlipToFront(card);
+      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100); }
     }
   });
 
@@ -550,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const card = document.createElement('div');
       card.className = 'pro-card';
       card.id = pro.id;
-      card.innerHTML = `<div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro)}</div>${proBackHTML()}</div>`;
+      card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro)}</div>${proBackHTML()}</div></div>`;
       list.appendChild(card);
     });
   };
@@ -1017,6 +1015,97 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // ── Animações do card de profissional (flip + expansão, igual ao vaga-card) ──
+  const PRO_FLIP_MS   = 500;
+  const PRO_EXPAND_MS = 380;
+  const PRO_COLL_MS   = 300;
+
+  function proCardFlipToBack(card) {
+    const frontH = card.offsetHeight;
+    card.dataset.frontH = frontH;
+    card.style.transition = 'none';
+    card.style.height = frontH + 'px';
+    card.style.overflow = 'visible';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        card.classList.add('pro-card--flipped');
+
+        setTimeout(() => {
+          card.style.overflow = '';
+          card.classList.add('pro-card--expanded');
+          const backH  = card.querySelector('.pro-card__back').scrollHeight;
+          const delta  = backH - frontH;
+          const footer = card.querySelector('.pro-card__back-actions');
+
+          if (footer) { footer.style.transition = 'none'; footer.style.transform = `translateY(-${delta}px)`; }
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              const timing = `${PRO_EXPAND_MS}ms cubic-bezier(0.4,0,0.2,1)`;
+              card.style.transition = `height ${timing}`;
+              card.style.height     = backH + 'px';
+              if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = ''; }
+
+              setTimeout(() => {
+                card.style.height    = 'auto';
+                card.style.transition = '';
+                if (footer) footer.style.transition = '';
+              }, PRO_EXPAND_MS + 20);
+            });
+          });
+        }, PRO_FLIP_MS);
+      });
+    });
+  }
+
+  function proCardFlipToFront(card, onComplete) {
+    const frontH   = parseInt(card.dataset.frontH || 200);
+    const currentH = card.offsetHeight;
+    const delta    = currentH - frontH;
+    const footer   = card.querySelector('.pro-card__back-actions');
+
+    card.style.transition = 'none';
+    card.style.height     = currentH + 'px';
+    if (footer) footer.style.transition = 'none';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const timing = `${PRO_COLL_MS}ms cubic-bezier(0.4,0,0.2,1)`;
+        card.style.transition = `height ${timing}`;
+        card.style.height     = frontH + 'px';
+        if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = `translateY(-${delta}px)`; }
+
+        setTimeout(() => {
+          if (footer) { footer.style.transition = 'none'; footer.style.transform = ''; }
+          card.classList.remove('pro-card--expanded');
+          card.style.transition = 'none';
+          card.style.overflow   = 'visible';
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              card.classList.remove('pro-card--flipped');
+
+              setTimeout(() => {
+                card.style.height    = '';
+                card.style.transition = '';
+                card.style.overflow  = '';
+                if (onComplete) onComplete();
+              }, PRO_FLIP_MS + 30);
+            });
+          });
+        }, PRO_COLL_MS + 10);
+      });
+    });
+  }
+
+  const proCardForceReset = (card) => {
+    card.classList.remove('pro-card--flipped', 'pro-card--expanded', 'pro-card--selected', 'pro-card--indicate-mode');
+    card.style.height = card.style.overflow = card.style.transition = '';
+    const footer = card.querySelector('.pro-card__back-actions');
+    if (footer) { footer.style.transform = footer.style.transition = ''; }
+  };
 
   // Delegação de cliques nos cards de vaga
   document.getElementById('vagas-list')?.addEventListener('click', (e) => {

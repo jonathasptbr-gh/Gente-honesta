@@ -1495,16 +1495,23 @@
   letter-spacing: 0.01em;
 }
 
-/* Base do card de contato — container de perspectiva para o flip 3D */
+/* Base do card — overflow:hidden para animação de altura; sem perspective aqui
+   (overflow:hidden + preserve-3d no mesmo ancestral quebra o flip em WebKit/Blink). */
 .pro-card {
   cursor: pointer;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+/* Wrapper de perspectiva separado do overflow */
+.pro-card__3d {
   perspective: 1800px;
 }
 
 /* ===========================================
    FLIP DO CARD
-   Ao clicar, o card gira 180° revelando o verso
-   com comentários em scroll e barra de ações.
+   Ao clicar, o card gira 180° e expande para
+   mostrar todo o conteúdo do verso.
    ======================================== */
 
 .pro-card__flipper {
@@ -1515,6 +1522,24 @@
 
 .pro-card--flipped .pro-card__flipper {
   transform: rotateY(180deg);
+}
+
+/* Estado expandido — frente some, verso sai do absolute */
+.pro-card--expanded .pro-card__front {
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.pro-card--expanded .pro-card__back {
+  position: relative;
+  inset: auto;
+  overflow: visible;
+}
+
+.pro-card--expanded .pro-card__back-comments {
+  overflow: visible;
+  flex: none;
 }
 
 /* Frente: layout normal do card (foto + QAV + cabeçalho + bio + rodapé) */
@@ -1553,10 +1578,10 @@
   overflow: hidden;
 }
 
-/* Área de comentários em scroll */
+/* Área de comentários */
 .pro-card__back-comments {
   flex: 1;
-  overflow-y: scroll;   /* sempre visível */
+  overflow-y: auto;
   min-height: 0;
   scrollbar-width: none;
   padding-bottom: var(--space-xs);
@@ -1657,6 +1682,11 @@
 /* Botões de modo indicação — ocultos por padrão, visíveis quando o card está em modo indicação */
 .pro-card__back-btn--cancel-indicate,
 .pro-card__back-btn--confirm-indicate {
+  display: none;
+}
+
+/* Em modo indicação: esconde botão voltar, exibe apenas Cancelar + Indicar */
+.pro-card--indicate-mode .pro-card__back-btn--back {
   display: none;
 }
 
