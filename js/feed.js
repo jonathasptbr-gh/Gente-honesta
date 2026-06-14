@@ -815,11 +815,14 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
 
               <!-- 5. Currículo -->
-              <label class="candid-upload-btn" data-vaga="${vaga.id}">
-                <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
-                <span class="candid-upload-text">Adicionar currículo</span>
-                <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
-              </label>
+              <div class="candid-section">
+                <p class="candid-section-label">Currículo completo</p>
+                <label class="candid-upload-btn" data-vaga="${vaga.id}">
+                  <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
+                  <span class="candid-upload-text">Adicionar currículo em foto ou PDF</span>
+                  <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
+                </label>
+              </div>
 
             </div><!-- /back-form -->
             <div class="vaga-card__back-footer">
