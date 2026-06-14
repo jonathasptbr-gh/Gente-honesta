@@ -704,9 +704,9 @@
   height: 28px;
   border-radius: 50%;
   object-fit: cover;
-  background: rgba(255, 255, 255, 0.15);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
   flex-shrink: 0;
-  opacity: 0.75;
 }
 
 .pedido-item__name {
