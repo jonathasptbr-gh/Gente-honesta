@@ -87,10 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const openIndicatedPopup = (postId) => {
     renderIndicatedBlock(postId);
-    document.getElementById('indicated-popup')?.classList.remove('u-hidden');
+    document.getElementById('indicated-popup')?.classList.add('indicated-popup--open');
   };
   const closeIndicatedPopup = () => {
-    document.getElementById('indicated-popup')?.classList.add('u-hidden');
+    document.getElementById('indicated-popup')?.classList.remove('indicated-popup--open');
   };
   document.getElementById('btn-close-indicated-popup')?.addEventListener('click', closeIndicatedPopup);
   document.getElementById('indicated-popup-backdrop')?.addEventListener('click', closeIndicatedPopup);

@@ -623,11 +623,11 @@
         <!-- ── Top-bar PROVISÓRIA do modo indicação (substitui a top-bar acima) ── -->
         <header id="agenda-indicated-block" class="agenda-indicated u-hidden">
             <div class="agenda-indicated__header">
-                <p class="agenda-indicated__title">Quem você quer indicar para este serviço?</p>
                 <div id="indicate-count-badge" class="indicate-count-badge">
                     <span id="indicate-count-value">0/3</span>
                     <span class="material-symbols-rounded" aria-hidden="true">groups</span>
                 </div>
+                <p class="agenda-indicated__title">Quem você quer indicar para este serviço?</p>
                 <button type="button" id="btn-cancel-indicate-mode" class="agenda-indicated__cancel" aria-label="Cancelar indicação">
                     <span class="material-symbols-rounded" aria-hidden="true">close</span>
                     Fechar
@@ -638,7 +638,7 @@
         </header>
 
         <!-- ── Popup: profissionais já indicados ── -->
-        <div id="indicated-popup" class="indicated-popup u-hidden" role="dialog" aria-modal="true">
+        <div id="indicated-popup" class="indicated-popup" role="dialog" aria-modal="true">
             <div class="indicated-popup__backdrop" id="indicated-popup-backdrop"></div>
             <div class="indicated-popup__sheet">
                 <div class="indicated-popup__header">
