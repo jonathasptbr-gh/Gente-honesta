@@ -1882,12 +1882,11 @@
   -webkit-backface-visibility: hidden;
 }
 
-/* Cabeçalho do verso */
+/* Cabeçalho do verso — apenas o botão voltar, sem título */
 .vaga-card__back-header {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  padding: 10px var(--space-md);
+  padding: 6px var(--space-md);
   background: var(--p-green-light);
   border-bottom: 1px solid rgba(0,0,0,0.08);
   flex-shrink: 0;
@@ -1897,8 +1896,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   background: rgba(255,255,255,0.7);
   border: none;
   border-radius: var(--radius-sm);
@@ -1909,14 +1908,7 @@
 }
 
 .vaga-card__btn-back .material-symbols-rounded {
-  font-size: 1.1rem;
-}
-
-.vaga-card__back-title {
-  font-size: var(--fs-7);
-  font-weight: 800;
-  color: var(--p-green-dark);
-  flex: 1;
+  font-size: 1rem;
 }
 
 /* Área de scroll do formulário */
@@ -2116,23 +2108,34 @@
   background: var(--bg-white);
 }
 
-/* Upload de currículo */
+/* Checkbox de confirmação destacado (dentro da seção de observações) */
+.candid-check--confirm {
+  padding: 8px 10px;
+  background: var(--p-green-light);
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+/* Upload de currículo — botão compacto */
 .candid-upload-btn {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  padding: 11px var(--space-md);
-  border: 2px dashed var(--border-light);
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-soft);
   cursor: pointer;
   color: var(--t-sub);
-  font-size: var(--fs-5);
+  font-size: var(--fs-4);
   font-family: inherit;
   transition: border-color 0.15s, background 0.15s;
   width: 100%;
   box-sizing: border-box;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .candid-upload-btn:active {
@@ -2141,17 +2144,16 @@
 }
 
 .candid-upload-btn .material-symbols-rounded {
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   color: var(--p-green);
   flex-shrink: 0;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20;
 }
 
-.candid-upload-name {
-  font-size: var(--fs-3);
-  color: var(--p-green);
-  font-weight: 600;
-  word-break: break-all;
+.candid-upload-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 /* Faixa cinza do topo: nome da empresa em destaque */

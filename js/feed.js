@@ -743,19 +743,10 @@ document.addEventListener('DOMContentLoaded', () => {
               <button type="button" class="vaga-card__btn-back" aria-label="Voltar para a vaga">
                 <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
               </button>
-              <span class="vaga-card__back-title">Candidatura · ${vaga.cargo}</span>
             </div>
             <div class="vaga-card__back-form">
 
-              <!-- 1. Confirmação de requisitos -->
-              <div class="candid-section">
-                <label class="candid-check">
-                  <input type="checkbox" name="confirm-req-${vaga.id}">
-                  <span>Confirmo que possuo todos os requisitos obrigatórios desta vaga</span>
-                </label>
-              </div>
-
-              <!-- 2. Disponibilidade -->
+              <!-- 1. Disponibilidade -->
               <div class="candid-section">
                 <p class="candid-section-label">Disponibilidade</p>
                 <div class="candid-radio-group">
@@ -774,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               </div>
 
-              <!-- 3+4. Flexibilidade e Transporte lado a lado -->
+              <!-- 2+3. Flexibilidade e Transporte lado a lado -->
               <div class="candid-two-col">
                 <div class="candid-section">
                   <p class="candid-section-label">Flexibilidade</p>
@@ -794,12 +785,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="candid-section">
                   <p class="candid-section-label">Transporte</p>
                   <label class="candid-check">
-                    <input type="checkbox" name="transp-${vaga.id}" value="pe">
-                    <span>A pé</span>
-                  </label>
-                  <label class="candid-check">
-                    <input type="checkbox" name="transp-${vaga.id}" value="bicicleta">
-                    <span>Bicicleta</span>
+                    <input type="checkbox" name="transp-${vaga.id}" value="pe-bicicleta">
+                    <span>A pé / Bicicleta</span>
                   </label>
                   <label class="candid-check">
                     <input type="checkbox" name="transp-${vaga.id}" value="onibus">
@@ -816,22 +803,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               </div>
 
-              <!-- 5. Observações por requisito -->
+              <!-- 4. Confirmação + Observações por requisito -->
               <div class="candid-section">
                 <p class="candid-section-label">Observações por requisito</p>
+                <label class="candid-check candid-check--confirm">
+                  <input type="checkbox" name="confirm-req-${vaga.id}">
+                  <span>Confirmo que possuo todos os requisitos obrigatórios</span>
+                </label>
                 ${reqObsHTML}
               </div>
 
-              <!-- 6. Currículo -->
-              <div class="candid-section">
-                <p class="candid-section-label">Currículo (opcional)</p>
-                <button type="button" class="candid-upload-btn" data-vaga="${vaga.id}">
-                  <span class="material-symbols-rounded" aria-hidden="true">upload_file</span>
-                  <span class="candid-upload-text">PDF ou foto do currículo</span>
-                </button>
-                <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
-                <span class="candid-upload-name" id="upload-name-${vaga.id}"></span>
-              </div>
+              <!-- 5. Currículo -->
+              <button type="button" class="candid-upload-btn" data-vaga="${vaga.id}">
+                <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
+                <span class="candid-upload-text">Currículo (PDF ou foto)</span>
+              </button>
+              <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
 
             </div><!-- /back-form -->
             <div class="vaga-card__back-footer">
@@ -885,17 +872,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Exibir nome do arquivo selecionado
+  // Exibir nome do arquivo no botão de upload
   document.getElementById('vagas-list')?.addEventListener('change', (e) => {
     const input = e.target.closest('.candid-upload-input');
     if (!input) return;
     const vagaId = input.dataset.vaga;
-    const nameEl = document.getElementById(`upload-name-${vagaId}`);
     const btn = document.querySelector(`.candid-upload-btn[data-vaga="${vagaId}"]`);
     const file = input.files?.[0];
-    if (file && nameEl) {
-      nameEl.textContent = file.name;
-      if (btn) btn.querySelector('.candid-upload-text').textContent = 'Trocar arquivo';
+    if (file && btn) {
+      btn.querySelector('.candid-upload-text').textContent = file.name;
     }
   });
 
