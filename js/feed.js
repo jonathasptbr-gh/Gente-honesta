@@ -301,6 +301,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentsHTML = mockComments.map(buildCommentHTML).join('');
     return `
       <div class="pro-card__back">
+        <div class="pro-card__comments-header">
+          <span class="material-symbols-rounded" aria-hidden="true">chat_bubble</span>
+          Comentários
+        </div>
         <div class="pro-card__back-comments">
           <div class="pro-card__comments-list">${commentsHTML}</div>
         </div>
@@ -916,7 +920,8 @@ document.addEventListener('DOMContentLoaded', () => {
           // Restaura overflow antes da expansão (a animação de altura precisa dele)
           card.style.overflow = '';
           card.classList.add('vaga-card--expanded');
-          const backH  = card.querySelector('.vaga-card__back').scrollHeight;
+          const back   = card.querySelector('.vaga-card__back');
+          const backH  = back.offsetHeight;
           const delta  = backH - frontH;
           const footer = card.querySelector('.vaga-card__back-footer');
 
@@ -924,6 +929,9 @@ document.addEventListener('DOMContentLoaded', () => {
             footer.style.transition = 'none';
             footer.style.transform  = `translateY(-${delta}px)`;
           }
+
+          // clip-path contém filhos 3D que escapam de overflow:hidden durante expansão
+          card.style.clipPath = 'inset(0 0 0 0)';
 
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -940,6 +948,7 @@ document.addEventListener('DOMContentLoaded', () => {
               setTimeout(() => {
                 card.style.height    = 'auto';
                 card.style.transition = '';
+                card.style.clipPath  = '';
                 if (footer) footer.style.transition = '';
               }, VAGA_EXPAND_MS + 20);
             });
@@ -959,6 +968,8 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.transition = 'none';
     card.style.height     = currentH + 'px';
     if (footer) footer.style.transition = 'none';
+    // clip-path contém filhos 3D durante o colapso
+    card.style.clipPath = 'inset(0 0 0 0)';
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -983,6 +994,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           card.classList.remove('vaga-card--expanded');
           card.style.transition = 'none';
+          card.style.clipPath   = '';
           // Libera overflow durante o flip de volta
           card.style.overflow = 'visible';
 
@@ -1045,7 +1057,8 @@ document.addEventListener('DOMContentLoaded', () => {
           // Restaura overflow antes da expansão (a animação de altura precisa dele)
           card.style.overflow = '';
           card.classList.add('pro-card--expanded');
-          const backH  = card.querySelector('.pro-card__back').scrollHeight;
+          const back   = card.querySelector('.pro-card__back');
+          const backH  = back.offsetHeight;
           const delta  = backH - frontH;
           const footer = card.querySelector('.pro-card__back-actions');
 
@@ -1053,6 +1066,9 @@ document.addEventListener('DOMContentLoaded', () => {
             footer.style.transition = 'none';
             footer.style.transform  = `translateY(-${delta}px)`;
           }
+
+          // clip-path contém filhos 3D que escapam de overflow:hidden durante expansão
+          card.style.clipPath = 'inset(0 0 0 0)';
 
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
@@ -1069,6 +1085,7 @@ document.addEventListener('DOMContentLoaded', () => {
               setTimeout(() => {
                 card.style.height    = 'auto';
                 card.style.transition = '';
+                card.style.clipPath  = '';
                 if (footer) footer.style.transition = '';
               }, PRO_EXPAND_MS + 20);
             });
@@ -1088,6 +1105,8 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.transition = 'none';
     card.style.height     = currentH + 'px';
     if (footer) footer.style.transition = 'none';
+    // clip-path contém filhos 3D durante o colapso
+    card.style.clipPath = 'inset(0 0 0 0)';
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -1111,6 +1130,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           card.classList.remove('pro-card--expanded');
           card.style.transition = 'none';
+          card.style.clipPath   = '';
           // Libera overflow durante o flip de volta
           card.style.overflow = 'visible';
 
@@ -1133,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const proCardForceReset = (card) => {
     card.classList.remove('pro-card--flipped', 'pro-card--expanded', 'pro-card--selected');
-    card.style.height = card.style.overflow = card.style.transition = '';
+    card.style.height = card.style.overflow = card.style.transition = card.style.clipPath = '';
     const footer = card.querySelector('.pro-card__back-actions');
     if (footer) { footer.style.transform = footer.style.transition = ''; }
   };

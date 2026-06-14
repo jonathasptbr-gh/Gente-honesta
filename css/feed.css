@@ -1576,6 +1576,23 @@
   overflow: hidden;
 }
 
+/* Cabeçalho da seção de comentários */
+.pro-card__comments-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-2);
+  font-weight: 700;
+  color: var(--p-green);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: var(--space-xs);
+  flex-shrink: 0;
+}
+.pro-card__comments-header .material-symbols-rounded {
+  font-size: 0.9rem;
+}
+
 /* Área de comentários */
 .pro-card__back-comments {
   flex: 1;
