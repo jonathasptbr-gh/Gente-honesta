@@ -809,11 +809,11 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
 
               <!-- 5. Currículo -->
-              <button type="button" class="candid-upload-btn" data-vaga="${vaga.id}">
+              <label class="candid-upload-btn" data-vaga="${vaga.id}">
                 <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
                 <span class="candid-upload-text">Adicionar currículo</span>
-              </button>
-              <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
+                <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
+              </label>
 
             </div><!-- /back-form -->
             <div class="vaga-card__back-footer">
@@ -848,15 +848,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Abre seletor de arquivo ao clicar no botão de upload
-    const btnUpload = e.target.closest('.candid-upload-btn');
-    if (btnUpload) {
-      const vagaId = btnUpload.dataset.vaga;
-      const input = document.querySelector(`.candid-upload-input[data-vaga="${vagaId}"]`);
-      input?.click();
-      return;
-    }
-
     // Enviar candidatura
     const btnSubmit = e.target.closest('.vaga-card__btn-submit');
     if (btnSubmit) {
@@ -870,15 +861,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Exibir nome do arquivo no botão de upload
+  // Exibir nome do arquivo no label após seleção
   document.getElementById('vagas-list')?.addEventListener('change', (e) => {
     const input = e.target.closest('.candid-upload-input');
     if (!input) return;
-    const vagaId = input.dataset.vaga;
-    const btn = document.querySelector(`.candid-upload-btn[data-vaga="${vagaId}"]`);
+    const label = input.closest('.candid-upload-btn');
     const file = input.files?.[0];
-    if (file && btn) {
-      btn.querySelector('.candid-upload-text').textContent = file.name;
+    if (file && label) {
+      label.querySelector('.candid-upload-text').textContent = file.name;
     }
   });
 

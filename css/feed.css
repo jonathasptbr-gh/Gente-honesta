@@ -2151,6 +2151,10 @@
   min-width: 0;
 }
 
+.candid-upload-input {
+  display: none;
+}
+
 /* Faixa cinza do topo: nome da empresa em destaque */
 .vaga-card__company-strip {
   background: #555558;
