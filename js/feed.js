@@ -94,6 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   document.getElementById('btn-close-indicated-popup')?.addEventListener('click', closeIndicatedPopup);
   document.getElementById('indicated-popup-backdrop')?.addEventListener('click', closeIndicatedPopup);
+  document.getElementById('indicate-count-badge')?.addEventListener('click', () => {
+    if (activePostId != null) openIndicatedPopup(activePostId);
+  });
 
   let indicateMode = false;
   let activePostId = null;
@@ -109,17 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (refContainer && sourceCard) {
       const cloned = sourceCard.cloneNode(true);
       cloned.removeAttribute('id');
-      const actions = cloned.querySelector('.pedido-item__actions');
-      const countInfo = actions?.querySelector('.post-card__indicate-info');
-      const textEl = cloned.querySelector('.pedido-item__text');
-      if (textEl && countInfo) {
-        const row = document.createElement('div');
-        row.className = 'indicate-ref__body-row';
-        textEl.parentNode.insertBefore(row, textEl);
-        row.appendChild(textEl);
-        row.appendChild(countInfo);
-      }
-      actions?.remove();
+      cloned.querySelector('.pedido-item__actions')?.remove();
       refContainer.innerHTML = '';
       refContainer.appendChild(cloned);
     }
