@@ -2010,6 +2010,16 @@
   margin-top: -4px;
 }
 
+/* Carro + Moto lado a lado */
+.candid-check-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.candid-check-row .candid-check {
+  flex: 1;
+}
+
 /* Checkbox genérico */
 .candid-check {
   display: flex;

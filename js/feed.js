@@ -801,14 +801,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <input type="checkbox" name="transp-${vaga.id}" value="onibus">
                     <span>Ônibus</span>
                   </label>
-                  <label class="candid-check">
-                    <input type="checkbox" name="transp-${vaga.id}" value="carro">
-                    <span>Carro</span>
-                  </label>
-                  <label class="candid-check">
-                    <input type="checkbox" name="transp-${vaga.id}" value="moto">
-                    <span>Moto</span>
-                  </label>
+                  <div class="candid-check-row">
+                    <label class="candid-check">
+                      <input type="checkbox" name="transp-${vaga.id}" value="carro">
+                      <span>Carro</span>
+                    </label>
+                    <label class="candid-check">
+                      <input type="checkbox" name="transp-${vaga.id}" value="moto">
+                      <span>Moto</span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
