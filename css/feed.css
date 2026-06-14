@@ -1519,13 +1519,10 @@
   transform: rotateY(180deg);
 }
 
-/* Estado expandido — frente some, verso sai do absolute.
-   transform:none no flipper e no verso cancela o contexto 3D após o flip,
-   permitindo que overflow:hidden no .pro-card clips normalmente durante a expansão. */
-.pro-card--expanded .pro-card__flipper {
-  transform: none;
-}
-
+/* Estado expandido — frente colapsa (já invisível pelo backface-hidden),
+   verso sai do absolute e ocupa o fluxo normal. Mesmo padrão do vaga-card:
+   o verso MANTÉM rotateY(180deg) dentro do flipper rotateY(180deg) (net 0 =
+   legível), e a clipagem fica por conta do overflow:hidden do .pro-card. */
 .pro-card--expanded .pro-card__front {
   height: 0;
   overflow: hidden;
@@ -1533,7 +1530,6 @@
 }
 
 .pro-card--expanded .pro-card__back {
-  transform: none;
   position: relative;
   inset: auto;
   overflow: visible;
@@ -1688,17 +1684,16 @@
   display: none;
 }
 
-/* Em modo indicação: esconde botão voltar, exibe apenas Cancelar + Indicar */
-.pro-card--indicate-mode .pro-card__back-btn--back {
+/* Em modo indicação (classe na LISTA, não no card): esconde voltar/whatsapp/
+   share e exibe Cancelar + Indicar. Dirigir pela lista evita que um flip-back
+   individual troque os botões no meio da animação. */
+.agenda-list--indicate-mode .pro-card__back-btn--back,
+.agenda-list--indicate-mode .pro-card__back-btn--whatsapp,
+.agenda-list--indicate-mode .pro-card__back-btn--share {
   display: none;
 }
 
-.pro-card--indicate-mode .pro-card__back-btn--whatsapp,
-.pro-card--indicate-mode .pro-card__back-btn--share {
-  display: none;
-}
-
-.pro-card--indicate-mode .pro-card__back-btn--cancel-indicate {
+.agenda-list--indicate-mode .pro-card__back-btn--cancel-indicate {
   display: inline-flex;
   flex: 1;
   padding: 10px var(--space-sm);
@@ -1707,7 +1702,7 @@
   border: 1px solid var(--border-light);
 }
 
-.pro-card--indicate-mode .pro-card__back-btn--confirm-indicate {
+.agenda-list--indicate-mode .pro-card__back-btn--confirm-indicate {
   display: inline-flex;
   flex: 1;
   padding: 10px var(--space-sm);

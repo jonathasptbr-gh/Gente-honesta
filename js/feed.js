@@ -125,6 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reseta a lista de profissionais ao estado original antes de mostrar
     resetAgendaList();
 
+    // Classe na lista controla os botões Cancelar/Indicar dos versos
+    document.getElementById('agenda-list')?.classList.add('agenda-list--indicate-mode');
+
     showProsPanel();
     feedTopBar?.classList.add('u-hidden');
     feedBottomBar?.classList.add('u-hidden');
@@ -142,9 +145,10 @@ document.addEventListener('DOMContentLoaded', () => {
     feedBottomBar?.classList.remove('u-hidden');
     screenBorder?.classList.remove('indicate-screen-border--active');
     themeMeta?.setAttribute('content', FEED_THEME_COLOR);
+    document.getElementById('agenda-list')?.classList.remove('agenda-list--indicate-mode');
     const postRef = document.getElementById('indicate-post-ref');
     if (postRef) postRef.innerHTML = '';
-    document.querySelectorAll('.pro-card--selected, .pro-card--indicate-mode, .pro-card--flipped, .pro-card--expanded').forEach(el => {
+    document.querySelectorAll('.pro-card--selected, .pro-card--flipped, .pro-card--expanded').forEach(el => {
       proCardForceReset(el);
     });
   };
@@ -176,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Reseta lista de profissionais: desvira cards, limpa filtros, vai ao topo
   const resetAgendaList = () => {
     // Desvira qualquer card virado e limpa estilos inline residuais
-    document.querySelectorAll('#agenda-list .pro-card--flipped, #agenda-list .pro-card--expanded, #agenda-list .pro-card--indicate-mode, #agenda-list .pro-card--selected').forEach(el => {
+    document.querySelectorAll('#agenda-list .pro-card--flipped, #agenda-list .pro-card--expanded, #agenda-list .pro-card--selected').forEach(el => {
       proCardForceReset(el);
     });
     // Limpa estado dos filtros
@@ -438,14 +442,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Botão Cancelar (modo indicação) → desflipa sem sair do modo.
-    // Remove --indicate-mode só no callback para não trocar os botões durante a animação.
+    // Os botões são controlados pela classe da LISTA, então o card volta à
+    // frente sem trocar Cancelar/Indicar por WhatsApp durante a animação.
     if (e.target.closest('.pro-card__back-btn--cancel-indicate')) {
       const c = e.target.closest('.pro-card');
-      if (c) {
-        c.classList.remove('pro-card--selected');
-        selectedProId = null;
-        proCardFlipToFront(c, () => c.classList.remove('pro-card--indicate-mode'));
-      }
+      if (c) { c.classList.remove('pro-card--selected'); selectedProId = null; proCardFlipToFront(c); }
       return;
     }
 
@@ -471,14 +472,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botão Voltar no verso → desflipa
     if (e.target.closest('.pro-card__back-btn--back')) {
       const c = e.target.closest('.pro-card');
-      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); selectedProId = null; proCardFlipToFront(c); }
+      if (c) { c.classList.remove('pro-card--selected'); selectedProId = null; proCardFlipToFront(c); }
       return;
     }
 
     // Clique no resto do verso (fora dos botões) → fecha
     if (e.target.closest('.pro-card__back')) {
       const c = e.target.closest('.pro-card');
-      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); proCardFlipToFront(c); }
+      if (c) { c.classList.remove('pro-card--selected'); proCardFlipToFront(c); }
       return;
     }
 
@@ -486,13 +487,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!card) return;
 
     if (indicateMode) {
-      // ── Modo indicação: desseleciona anterior e flipa o novo com botões de indicação ──
-      // Remove --indicate-mode no callback para não trocar os botões durante a animação.
-      document.querySelectorAll('.pro-card--selected, .pro-card--indicate-mode').forEach(el => {
+      // ── Modo indicação: desseleciona anterior e flipa o novo ──
+      // (os botões Cancelar/Indicar vêm da classe da lista, não do card)
+      document.querySelectorAll('#agenda-list .pro-card--selected').forEach(el => {
         el.classList.remove('pro-card--selected');
-        proCardFlipToFront(el, () => el.classList.remove('pro-card--indicate-mode'));
+        proCardFlipToFront(el);
       });
-      card.classList.add('pro-card--selected', 'pro-card--indicate-mode');
+      card.classList.add('pro-card--selected');
       selectedProId = card.id;
       proCardFlipToBack(card);
       setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
@@ -1028,11 +1029,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const PRO_COLL_MS   = 300;
 
   function proCardFlipToBack(card) {
-    const frontH  = card.offsetHeight;
-    const flipper = card.querySelector('.pro-card__flipper');
+    const frontH = card.offsetHeight;
     card.dataset.frontH = frontH;
+
     card.style.transition = 'none';
     card.style.height = frontH + 'px';
+    // Libera overflow durante o flip para que os cantos 3D não sejam cortados
     card.style.overflow = 'visible';
 
     requestAnimationFrame(() => {
@@ -1040,33 +1042,34 @@ document.addEventListener('DOMContentLoaded', () => {
         card.classList.add('pro-card--flipped');
 
         setTimeout(() => {
-          // Restaura overflow ANTES de suprimir a transição do flipper,
-          // para que overflow:hidden possa clipar durante a expansão.
+          // Restaura overflow antes da expansão (a animação de altura precisa dele)
           card.style.overflow = '';
-          // Suprime a transição do flipper: o CSS --expanded vai mudar
-          // transform:rotateY(180deg) → none (snap visual invisível porque
-          // o verso continua visível ao viewer nos dois estados).
-          if (flipper) flipper.style.transition = 'none';
           card.classList.add('pro-card--expanded');
-
           const backH  = card.querySelector('.pro-card__back').scrollHeight;
           const delta  = backH - frontH;
           const footer = card.querySelector('.pro-card__back-actions');
 
-          if (footer) { footer.style.transition = 'none'; footer.style.transform = `translateY(-${delta}px)`; }
+          if (footer) {
+            footer.style.transition = 'none';
+            footer.style.transform  = `translateY(-${delta}px)`;
+          }
 
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               const timing = `${PRO_EXPAND_MS}ms cubic-bezier(0.4,0,0.2,1)`;
+
               card.style.transition = `height ${timing}`;
               card.style.height     = backH + 'px';
-              if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = ''; }
+
+              if (footer) {
+                footer.style.transition = `transform ${timing}`;
+                footer.style.transform  = '';
+              }
 
               setTimeout(() => {
                 card.style.height    = 'auto';
                 card.style.transition = '';
                 if (footer) footer.style.transition = '';
-                if (flipper) flipper.style.transition = '';
               }, PRO_EXPAND_MS + 20);
             });
           });
@@ -1078,11 +1081,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function proCardFlipToFront(card, onComplete) {
     const frontH   = parseInt(card.dataset.frontH || 200);
     const currentH = card.offsetHeight;
-    const delta    = currentH - frontH;
+    const delta    = currentH - frontH;   // quanto o card vai encolher
     const footer   = card.querySelector('.pro-card__back-actions');
-    const flipper  = card.querySelector('.pro-card__flipper');
 
-    // Fase 1: colapsa altura de backH → frontH
+    // Trava sem transição
     card.style.transition = 'none';
     card.style.height     = currentH + 'px';
     if (footer) footer.style.transition = 'none';
@@ -1090,34 +1092,36 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const timing = `${PRO_COLL_MS}ms cubic-bezier(0.4,0,0.2,1)`;
-        card.style.transition = `height ${timing}`;
-        card.style.height     = frontH + 'px';
-        if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = `translateY(-${delta}px)`; }
+
+        // Altura diminui pelo delta (topo fixo, borda inferior sobe).
+        // Footer sobe pelo mesmo delta → fica sempre colado à borda do card.
+        card.style.transition  = `height ${timing}`;
+        card.style.height      = frontH + 'px';
+
+        if (footer) {
+          footer.style.transition = `transform ${timing}`;
+          footer.style.transform  = `translateY(-${delta}px)`;
+        }
 
         setTimeout(() => {
-          // Fase 2: restaura contexto 3D para o flip de volta
-          if (footer) { footer.style.transition = 'none'; footer.style.transform = ''; }
-
-          // Suprime a transição do flipper: remover --expanded faz o flipper
-          // voltar a rotateY(180deg) (de --flipped) de forma instantânea.
-          // O verso continua visível ao viewer antes e depois do snap.
-          if (flipper) flipper.style.transition = 'none';
+          // Zera o translateY antes do flip (a rotação 3D cobre o reset)
+          if (footer) {
+            footer.style.transition = 'none';
+            footer.style.transform  = '';
+          }
           card.classList.remove('pro-card--expanded');
-
           card.style.transition = 'none';
-          card.style.overflow   = 'visible'; // libera overflow para os cantos 3D
+          // Libera overflow durante o flip de volta
+          card.style.overflow = 'visible';
 
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              // Restaura a transição CSS do flipper e dispara o flip de volta
-              if (flipper) flipper.style.transition = '';
               card.classList.remove('pro-card--flipped');
 
               setTimeout(() => {
                 card.style.height    = '';
                 card.style.transition = '';
                 card.style.overflow  = '';
-                if (flipper) flipper.style.transition = '';
                 if (onComplete) onComplete();
               }, PRO_FLIP_MS + 30);
             });
@@ -1128,10 +1132,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const proCardForceReset = (card) => {
-    card.classList.remove('pro-card--flipped', 'pro-card--expanded', 'pro-card--selected', 'pro-card--indicate-mode');
+    card.classList.remove('pro-card--flipped', 'pro-card--expanded', 'pro-card--selected');
     card.style.height = card.style.overflow = card.style.transition = '';
-    const flipper = card.querySelector('.pro-card__flipper');
-    if (flipper) flipper.style.transition = '';
     const footer = card.querySelector('.pro-card__back-actions');
     if (footer) { footer.style.transform = footer.style.transition = ''; }
   };
