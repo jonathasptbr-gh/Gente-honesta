@@ -1559,6 +1559,7 @@
   flex-shrink: 0;
   background: var(--bg-soft);
   color: var(--t-sub);
+  border: 1px solid var(--border-light);
 }
 
 .pro-card__back-btn .material-symbols-rounded {
