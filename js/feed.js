@@ -1002,6 +1002,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (e.target.closest('.vaga-card__btn-share')) {
       customAlert('Compartilhar vaga — funcionalidade em breve.', 'Compartilhar', 'share');
+      return;
+    }
+
+    // Clique em qualquer parte da frente do card (exceto link de endereço) → flip
+    const front = e.target.closest('.vaga-card__front');
+    if (front && !e.target.closest('.vaga-card__company-address')) {
+      const card = front.closest('.vaga-card');
+      if (card && !card.classList.contains('vaga-card--flipped')) {
+        document.querySelectorAll('#vagas-list .vaga-card--flipped').forEach(other => {
+          if (other !== card) vagaCardFlipToFront(other);
+        });
+        vagaCardFlipToBack(card);
+      }
+      return;
     }
   });
 
