@@ -879,19 +879,36 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function vagaCardFlipToFront(card, onComplete) {
-    const frontH = parseInt(card.dataset.frontH || 200);
+    const frontH  = parseInt(card.dataset.frontH || 200);
+    const currentH = card.offsetHeight;
+    const delta    = currentH - frontH;          // quanto o card vai encolher
+    const inner    = card.querySelector('.vaga-card__3d');
 
-    // Trava altura atual e colapsa até a altura da frente
-    card.style.transition = 'none';
-    card.style.height = card.offsetHeight + 'px';
+    // Trava sem transição
+    card.style.transition  = 'none';
+    card.style.height      = currentH + 'px';
+    if (inner) inner.style.transition = 'none';
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        card.style.transition = `height ${VAGA_COLL_MS}ms cubic-bezier(0.4,0,0.2,1)`;
-        card.style.height = frontH + 'px';
+        const timing = `${VAGA_COLL_MS}ms cubic-bezier(0.4,0,0.2,1)`;
+
+        // Altura diminui E o conteúdo sobe pelo mesmo delta —
+        // a base fica ancorada e o topo sai pelo topo.
+        card.style.transition  = `height ${timing}`;
+        card.style.height      = frontH + 'px';
+
+        if (inner) {
+          inner.style.transition = `transform ${timing}`;
+          inner.style.transform  = `translateY(-${delta}px)`;
+        }
 
         setTimeout(() => {
-          // Retorna ao modo normal (back volta para absolute, front volta ao fluxo)
+          // Zera o translateY instantaneamente (o flip cobre a transição)
+          if (inner) {
+            inner.style.transition = 'none';
+            inner.style.transform  = '';
+          }
           card.classList.remove('vaga-card--expanded');
           card.style.transition = 'none';
 
@@ -901,7 +918,7 @@ document.addEventListener('DOMContentLoaded', () => {
               card.classList.remove('vaga-card--flipped');
 
               setTimeout(() => {
-                card.style.height = '';
+                card.style.height    = '';
                 card.style.transition = '';
                 if (onComplete) onComplete();
               }, VAGA_FLIP_MS + 30);
