@@ -572,6 +572,8 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 'vaga-0',
       empresa: 'Restaurante da Esquina',
+      endereco: 'Rua das Acácias, 142 - Centro',
+      mapsQuery: 'Rua das Acácias, 142, Centro',
       poster: { name: 'Marcos Freitas', ic: 91 },
       cargo: 'Auxiliar de Cozinha',
       vagas: 2,
@@ -584,14 +586,16 @@ document.addEventListener('DOMContentLoaded', () => {
       cargaHoraria: '08:00 às 18:00 · Seg–Sáb',
       salario: 'R$ 1.600/mês + benefícios',
       beneficios: [
-        { icon: 'lunch_dining',     label: 'Alimentação'     },
-        { icon: 'directions_bus',   label: 'Vale-transporte'  },
+        { icon: 'lunch_dining',      label: 'Alimentação'     },
+        { icon: 'directions_bus',    label: 'Vale-transporte'  },
         { icon: 'health_and_safety', label: 'Plano de saúde'  },
       ],
     },
     {
       id: 'vaga-1',
       empresa: 'Construtora Barreto',
+      endereco: 'Av. Industrial, 890 - Distrito Industrial',
+      mapsQuery: 'Av. Industrial, 890, Distrito Industrial',
       poster: { name: 'Roberto Nunes', ic: 75 },
       cargo: 'Pedreiro / Servente',
       vagas: 3,
@@ -605,15 +609,17 @@ document.addEventListener('DOMContentLoaded', () => {
       cargaHoraria: '07:00 às 17:00 · Seg–Sáb',
       salario: 'R$ 2.100/mês',
       beneficios: [
-        { icon: 'directions_bus',   label: 'Vale-transporte'      },
-        { icon: 'restaurant',       label: 'Vale-refeição'        },
-        { icon: 'receipt_long',     label: 'Carteira assinada'    },
-        { icon: 'medical_services', label: 'Seguro de vida'       },
+        { icon: 'directions_bus',   label: 'Vale-transporte'   },
+        { icon: 'restaurant',       label: 'Vale-refeição'     },
+        { icon: 'receipt_long',     label: 'Carteira assinada' },
+        { icon: 'medical_services', label: 'Seguro de vida'    },
       ],
     },
     {
       id: 'vaga-2',
       empresa: 'Salão Belle Arte',
+      endereco: 'Rua das Flores, 57 - Jardim Europa',
+      mapsQuery: 'Rua das Flores, 57, Jardim Europa',
       poster: { name: 'Fernanda Lima', ic: 88 },
       cargo: 'Auxiliar de Cabeleireiro',
       vagas: 1,
@@ -654,57 +660,190 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const vagasLabel = vaga.vagas === 1 ? '1 vaga disponível' : `${vaga.vagas} vagas disponíveis`;
 
+      const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(vaga.mapsQuery)}`;
+
+      const reqObsHTML = vaga.requisitos.map((r, i) => `
+        <div class="candid-req-obs">
+          <span class="candid-req-obs-label">${r}</span>
+          <textarea
+            class="candid-req-obs-input"
+            name="obs-${vaga.id}-${i}"
+            rows="2"
+            placeholder="Observação (opcional)"
+            aria-label="Observação sobre: ${r}"
+          ></textarea>
+        </div>
+      `).join('');
+
       card.innerHTML = `
-        <div class="vaga-card__company-strip">
-          <span class="material-symbols-rounded vaga-card__company-icon" aria-hidden="true">domain</span>
-          <span class="vaga-card__company-name">${vaga.empresa}</span>
-        </div>
-        <div class="vaga-card__poster">
-          <img class="vaga-card__poster-avatar" src="${avatarSvg}" alt="">
-          <span class="vaga-card__poster-name">Divulgado por <strong>${vaga.poster.name}</strong></span>
-          <span class="vaga-card__poster-ic ic-bar--${posterTier}">
-            <span class="material-symbols-rounded" aria-hidden="true">${posterShield}</span>${vaga.poster.ic}%
-          </span>
-        </div>
-        <div class="vaga-card__body">
-          <div class="vaga-card__role-row">
-            <h3 class="vaga-card__role">${vaga.cargo}</h3>
-            <span class="vaga-card__vacancies">
-              <span class="material-symbols-rounded" aria-hidden="true">groups</span>
-              ${vagasLabel}
-            </span>
-          </div>
-          <div class="vaga-card__section">
-            <p class="vaga-card__section-label">Requisitos</p>
-            <ul class="vaga-card__requirements">${reqHTML}</ul>
-          </div>
-          <div class="vaga-card__section">
-            <p class="vaga-card__section-label">Detalhes</p>
-            <div class="vaga-card__meta-row">
-              <span class="vaga-card__meta-item">
-                <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
-                ${vaga.cargaHoraria}
-              </span>
-              <span class="vaga-card__meta-item vaga-card__salary">
-                <span class="material-symbols-rounded" aria-hidden="true">payments</span>
-                ${vaga.salario}
+        <div class="vaga-card__flipper">
+          <!-- FRENTE -->
+          <div class="vaga-card__front">
+            <div class="vaga-card__company-strip">
+              <span class="material-symbols-rounded vaga-card__company-icon" aria-hidden="true">domain</span>
+              <div class="vaga-card__company-info">
+                <span class="vaga-card__company-name">${vaga.empresa}</span>
+                <a class="vaga-card__company-address" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver no Google Maps: ${vaga.endereco}">
+                  <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                  ${vaga.endereco}
+                </a>
+              </div>
+            </div>
+            <div class="vaga-card__poster">
+              <img class="vaga-card__poster-avatar" src="${avatarSvg}" alt="">
+              <span class="vaga-card__poster-name">Divulgado por <strong>${vaga.poster.name}</strong></span>
+              <span class="vaga-card__poster-ic ic-bar--${posterTier}">
+                <span class="material-symbols-rounded" aria-hidden="true">${posterShield}</span>${vaga.poster.ic}%
               </span>
             </div>
-          </div>
-          <div class="vaga-card__section">
-            <p class="vaga-card__section-label">Benefícios</p>
-            <div class="vaga-card__benefits">${benefitHTML}</div>
-          </div>
-          <div class="vaga-card__actions">
-            <button type="button" class="vaga-card__btn-apply">
-              <span class="material-symbols-rounded" aria-hidden="true">send</span>
-              Me candidatar
-            </button>
-            <button type="button" class="vaga-card__btn-share" aria-label="Compartilhar vaga">
-              <span class="material-symbols-rounded" aria-hidden="true">share</span>
-            </button>
-          </div>
-        </div>
+            <div class="vaga-card__body">
+              <div class="vaga-card__role-row">
+                <h3 class="vaga-card__role">${vaga.cargo}</h3>
+                <span class="vaga-card__vacancies">
+                  <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                  ${vagasLabel}
+                </span>
+              </div>
+              <div class="vaga-card__section">
+                <p class="vaga-card__section-label">Requisitos</p>
+                <ul class="vaga-card__requirements">${reqHTML}</ul>
+              </div>
+              <div class="vaga-card__section">
+                <p class="vaga-card__section-label">Detalhes</p>
+                <div class="vaga-card__meta-row">
+                  <span class="vaga-card__meta-item">
+                    <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+                    ${vaga.cargaHoraria}
+                  </span>
+                  <span class="vaga-card__meta-item vaga-card__salary">
+                    <span class="material-symbols-rounded" aria-hidden="true">payments</span>
+                    ${vaga.salario}
+                  </span>
+                </div>
+              </div>
+              <div class="vaga-card__section">
+                <p class="vaga-card__section-label">Benefícios</p>
+                <div class="vaga-card__benefits">${benefitHTML}</div>
+              </div>
+              <div class="vaga-card__actions">
+                <button type="button" class="vaga-card__btn-apply">
+                  <span class="material-symbols-rounded" aria-hidden="true">send</span>
+                  Me candidatar
+                </button>
+                <button type="button" class="vaga-card__btn-share" aria-label="Compartilhar vaga">
+                  <span class="material-symbols-rounded" aria-hidden="true">share</span>
+                </button>
+              </div>
+            </div>
+          </div><!-- /front -->
+
+          <!-- VERSO: formulário de candidatura -->
+          <div class="vaga-card__back">
+            <div class="vaga-card__back-header">
+              <button type="button" class="vaga-card__btn-back" aria-label="Voltar para a vaga">
+                <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+              </button>
+              <span class="vaga-card__back-title">Candidatura · ${vaga.cargo}</span>
+            </div>
+            <div class="vaga-card__back-form">
+
+              <!-- 1. Confirmação de requisitos -->
+              <div class="candid-section">
+                <label class="candid-check">
+                  <input type="checkbox" name="confirm-req-${vaga.id}">
+                  <span>Confirmo que possuo todos os requisitos obrigatórios desta vaga</span>
+                </label>
+              </div>
+
+              <!-- 2. Disponibilidade -->
+              <div class="candid-section">
+                <p class="candid-section-label">Disponibilidade</p>
+                <div class="candid-radio-group">
+                  <label class="candid-radio">
+                    <input type="radio" name="disponib-${vaga.id}" value="imediata">
+                    <span>Imediata</span>
+                  </label>
+                  <label class="candid-radio">
+                    <input type="radio" name="disponib-${vaga.id}" value="7dias">
+                    <span>7 dias</span>
+                  </label>
+                  <label class="candid-radio">
+                    <input type="radio" name="disponib-${vaga.id}" value="30dias">
+                    <span>30 dias</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 3. Flexibilidade -->
+              <div class="candid-section">
+                <p class="candid-section-label">Flexibilidade</p>
+                <label class="candid-check">
+                  <input type="checkbox" name="flex-${vaga.id}" value="horas-extras">
+                  <span>Horas extras</span>
+                </label>
+                <label class="candid-check">
+                  <input type="checkbox" name="flex-${vaga.id}" value="sabados">
+                  <span>Sábados</span>
+                </label>
+                <label class="candid-check">
+                  <input type="checkbox" name="flex-${vaga.id}" value="feriados">
+                  <span>Feriados</span>
+                </label>
+              </div>
+
+              <!-- 4. Transporte -->
+              <div class="candid-section">
+                <p class="candid-section-label">Meio de transporte</p>
+                <div class="candid-transport-grid">
+                  <label class="candid-check">
+                    <input type="checkbox" name="transp-${vaga.id}" value="pe">
+                    <span>A pé</span>
+                  </label>
+                  <label class="candid-check">
+                    <input type="checkbox" name="transp-${vaga.id}" value="bicicleta">
+                    <span>Bicicleta</span>
+                  </label>
+                  <label class="candid-check">
+                    <input type="checkbox" name="transp-${vaga.id}" value="onibus">
+                    <span>Ônibus</span>
+                  </label>
+                  <label class="candid-check">
+                    <input type="checkbox" name="transp-${vaga.id}" value="carro">
+                    <span>Carro</span>
+                  </label>
+                  <label class="candid-check">
+                    <input type="checkbox" name="transp-${vaga.id}" value="moto">
+                    <span>Moto</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 5. Observações por requisito -->
+              <div class="candid-section">
+                <p class="candid-section-label">Observações por requisito</p>
+                ${reqObsHTML}
+              </div>
+
+              <!-- 6. Currículo -->
+              <div class="candid-section">
+                <p class="candid-section-label">Currículo (opcional)</p>
+                <button type="button" class="candid-upload-btn" data-vaga="${vaga.id}">
+                  <span class="material-symbols-rounded" aria-hidden="true">upload_file</span>
+                  <span class="candid-upload-text">PDF ou foto do currículo</span>
+                </button>
+                <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
+                <span class="candid-upload-name" id="upload-name-${vaga.id}"></span>
+              </div>
+
+            </div><!-- /back-form -->
+            <div class="vaga-card__back-footer">
+              <button type="button" class="vaga-card__btn-submit" data-vaga="${vaga.id}">
+                <span class="material-symbols-rounded" aria-hidden="true">send</span>
+                Enviar candidatura
+              </button>
+            </div>
+          </div><!-- /back -->
+        </div><!-- /flipper -->
       `;
       list.appendChild(card);
     });
@@ -712,12 +851,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Delegação de cliques nos cards de vaga
   document.getElementById('vagas-list')?.addEventListener('click', (e) => {
-    if (e.target.closest('.vaga-card__btn-apply')) {
-      customAlert('Funcionalidade de candidatura em breve!', 'Me Candidatar', 'send');
+    // Flip para o verso (candidatura)
+    const btnApply = e.target.closest('.vaga-card__btn-apply');
+    if (btnApply) {
+      btnApply.closest('.vaga-card')?.classList.add('vaga-card--flipped');
       return;
     }
+
+    // Volta para a frente
+    const btnBack = e.target.closest('.vaga-card__btn-back');
+    if (btnBack) {
+      btnBack.closest('.vaga-card')?.classList.remove('vaga-card--flipped');
+      return;
+    }
+
+    // Abre seletor de arquivo ao clicar no botão de upload
+    const btnUpload = e.target.closest('.candid-upload-btn');
+    if (btnUpload) {
+      const vagaId = btnUpload.dataset.vaga;
+      const input = document.querySelector(`.candid-upload-input[data-vaga="${vagaId}"]`);
+      input?.click();
+      return;
+    }
+
+    // Enviar candidatura
+    const btnSubmit = e.target.closest('.vaga-card__btn-submit');
+    if (btnSubmit) {
+      customAlert('Candidatura enviada com sucesso! Você será notificado quando houver retorno.', 'Candidatura Enviada', 'check_circle');
+      btnSubmit.closest('.vaga-card')?.classList.remove('vaga-card--flipped');
+      return;
+    }
+
     if (e.target.closest('.vaga-card__btn-share')) {
       customAlert('Compartilhar vaga — funcionalidade em breve.', 'Compartilhar', 'share');
+    }
+  });
+
+  // Exibir nome do arquivo selecionado
+  document.getElementById('vagas-list')?.addEventListener('change', (e) => {
+    const input = e.target.closest('.candid-upload-input');
+    if (!input) return;
+    const vagaId = input.dataset.vaga;
+    const nameEl = document.getElementById(`upload-name-${vagaId}`);
+    const btn = document.querySelector(`.candid-upload-btn[data-vaga="${vagaId}"]`);
+    const file = input.files?.[0];
+    if (file && nameEl) {
+      nameEl.textContent = file.name;
+      if (btn) btn.querySelector('.candid-upload-text').textContent = 'Trocar arquivo';
     }
   });
 
@@ -727,7 +907,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('btn-chamar-ajudante')?.addEventListener('click', () => {
-    customAlert('Chamar ajudante do dia — funcionalidade em breve.', 'Ajudante do Dia', 'handshake');
+    customAlert('Serviço de ajudantes — funcionalidade em breve.', 'Serviço de Ajudantes', 'handshake');
   });
 
   renderVagasList();

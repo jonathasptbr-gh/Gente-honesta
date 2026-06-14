@@ -416,6 +416,7 @@
   justify-content: center;
   border: none;
   border-radius: var(--radius-md);
+  font-size: var(--fs-8);
   font-weight: 700;
   cursor: pointer;
   touch-action: manipulation;
@@ -1836,22 +1837,294 @@
 /* ===========================================
    CARD DE VAGA — estilo cartaz/documento A4
    ======================================== */
+
+/* Container externo: apenas perspectiva e espaçamento */
 .vaga-card {
+  margin-bottom: var(--space-md);
+  perspective: 900px;
+}
+
+/* Flipper: carrega a animação 3D */
+.vaga-card__flipper {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vaga-card--flipped .vaga-card__flipper {
+  transform: rotateY(180deg);
+}
+
+/* Frente: visual original do card */
+.vaga-card__front {
   background: var(--bg-white);
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
   overflow: hidden;
-  margin-bottom: var(--space-md);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10), 0 6px 20px rgba(0, 0, 0, 0.06);
   animation: cardExpand 0.2s ease-out;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
-/* Faixa verde do topo: nome da empresa em destaque */
+/* Verso: formulário de candidatura */
+.vaga-card__back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  background: var(--bg-white);
+  border: 1.5px solid var(--p-green);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Cabeçalho do verso */
+.vaga-card__back-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 10px var(--space-md);
+  background: var(--p-green-light);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  flex-shrink: 0;
+}
+
+.vaga-card__btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: rgba(255,255,255,0.7);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--p-green-dark);
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+.vaga-card__btn-back .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
+.vaga-card__back-title {
+  font-size: var(--fs-7);
+  font-weight: 800;
+  color: var(--p-green-dark);
+  flex: 1;
+}
+
+/* Área de scroll do formulário */
+.vaga-card__back-form {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: var(--space-sm) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vaga-card__back-form::-webkit-scrollbar { display: none; }
+
+/* Footer fixo com botão de enviar */
+.vaga-card__back-footer {
+  padding: var(--space-sm) var(--space-md);
+  border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
+  background: var(--bg-white);
+}
+
+.vaga-card__btn-submit {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  background: var(--p-green);
+  color: var(--t-light);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-8);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s;
+}
+
+.vaga-card__btn-submit:active { opacity: 0.88; }
+
+.vaga-card__btn-submit .material-symbols-rounded {
+  font-size: 1.05rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Seção genérica do formulário de candidatura */
+.candid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.candid-section-label {
+  font-size: var(--fs-2);
+  font-weight: 700;
+  color: var(--t-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* Checkbox genérico */
+.candid-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--fs-5);
+  color: var(--t-main);
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.candid-check input[type="checkbox"] {
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--p-green);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Grupo de radio (disponibilidade) */
+.candid-radio-group {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.candid-radio {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-5);
+  color: var(--t-main);
+  cursor: pointer;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.candid-radio input[type="radio"] {
+  accent-color: var(--p-green);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.candid-radio:has(input:checked) {
+  border-color: var(--p-green);
+  background: var(--p-green-light);
+  color: var(--p-green-dark);
+  font-weight: 700;
+}
+
+/* Grid de meios de transporte */
+.candid-transport-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+/* Campo de observação por requisito */
+.candid-req-obs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.candid-req-obs-label {
+  font-size: var(--fs-3);
+  color: var(--t-main);
+  line-height: 1.3;
+}
+
+.candid-req-obs-label::before {
+  content: '·  ';
+  color: var(--p-green);
+  font-weight: 700;
+}
+
+.candid-req-obs-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-4);
+  color: var(--t-main);
+  background: var(--bg-soft);
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.candid-req-obs-input:focus {
+  border-color: var(--p-green);
+  background: var(--bg-white);
+}
+
+/* Upload de currículo */
+.candid-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 11px var(--space-md);
+  border: 2px dashed var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-soft);
+  cursor: pointer;
+  color: var(--t-sub);
+  font-size: var(--fs-5);
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.candid-upload-btn:active {
+  border-color: var(--p-green);
+  background: var(--p-green-light);
+}
+
+.candid-upload-btn .material-symbols-rounded {
+  font-size: 1.4rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.candid-upload-name {
+  font-size: var(--fs-3);
+  color: var(--p-green);
+  font-weight: 600;
+  word-break: break-all;
+}
+
+/* Faixa cinza do topo: nome da empresa em destaque */
 .vaga-card__company-strip {
   background: #555558;
   padding: var(--space-sm) var(--space-md);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-sm);
 }
 
@@ -1859,15 +2132,41 @@
   font-size: 1.6rem;
   color: rgba(255, 255, 255, 0.7);
   flex-shrink: 0;
+  margin-top: 1px;
   font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.vaga-card__company-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
 }
 
 .vaga-card__company-name {
   font-size: var(--fs-9);
   font-weight: 800;
   color: var(--t-light);
-  flex: 1;
   line-height: 1.15;
+}
+
+.vaga-card__company-address {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-3);
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.vaga-card__company-address:active {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.vaga-card__company-address .material-symbols-rounded {
+  font-size: 0.8rem;
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20;
 }
 
 /* Linha do divulgador — bem discreta, fundo levemente off-white */
