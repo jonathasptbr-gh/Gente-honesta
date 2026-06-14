@@ -741,7 +741,18 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="vaga-card__back">
             <div class="vaga-card__back-form">
 
-              <!-- 1. Disponibilidade -->
+              <!-- 1. Observações por requisito + Confirmação -->
+              <div class="candid-section">
+                <p class="candid-section-label">Observações por requisito</p>
+                <p class="candid-section-hint">Opcional — abra um requisito para adicionar contexto</p>
+                ${reqObsHTML}
+                <label class="candid-check candid-check--confirm">
+                  <input type="checkbox" name="confirm-req-${vaga.id}">
+                  <span>Confirmo que possuo todos os requisitos obrigatórios</span>
+                </label>
+              </div>
+
+              <!-- 2. Disponibilidade -->
               <div class="candid-section">
                 <p class="candid-section-label">Disponibilidade</p>
                 <div class="candid-radio-group">
@@ -760,7 +771,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               </div>
 
-              <!-- 2+3. Flexibilidade e Transporte lado a lado -->
+              <!-- 3+4. Flexibilidade e Transporte lado a lado -->
               <div class="candid-two-col">
                 <div class="candid-section">
                   <p class="candid-section-label">Flexibilidade</p>
@@ -796,17 +807,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span>Moto</span>
                   </label>
                 </div>
-              </div>
-
-              <!-- 4. Observações por requisito + Confirmação -->
-              <div class="candid-section">
-                <p class="candid-section-label">Observações por requisito</p>
-                <p class="candid-section-hint">Opcional — abra um requisito para adicionar contexto</p>
-                ${reqObsHTML}
-                <label class="candid-check candid-check--confirm">
-                  <input type="checkbox" name="confirm-req-${vaga.id}">
-                  <span>Confirmo que possuo todos os requisitos obrigatórios</span>
-                </label>
               </div>
 
               <!-- 5. Currículo -->
