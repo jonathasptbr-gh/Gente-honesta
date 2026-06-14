@@ -728,7 +728,6 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
               <div class="vaga-card__actions">
                 <button type="button" class="vaga-card__btn-apply">
-                  <span class="material-symbols-rounded" aria-hidden="true">send</span>
                   Me candidatar
                 </button>
                 <button type="button" class="vaga-card__btn-share" aria-label="Compartilhar vaga">
@@ -823,8 +822,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
               </button>
               <button type="button" class="vaga-card__btn-submit" data-vaga="${vaga.id}">
-                <span class="material-symbols-rounded" aria-hidden="true">send</span>
-                Enviar candidatura
+                Confirmar
               </button>
             </div>
           </div><!-- /back -->
