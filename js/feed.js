@@ -80,29 +80,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // status do sistema passa a azul. Ao escolher um profissional na lista, o bloco
   // de confirmação aparece fixo na base.
   const FEED_THEME_COLOR     = '#184e1b'; // = var(--p-green)
-  const INDICATE_THEME_COLOR = '#c8a23a'; // = var(--a-gold)
   const feedTopBar    = document.querySelector('#feed-top-bar');
   const feedBottomBar = document.querySelector('#feed-bottom-bar');
   const themeMeta     = document.querySelector('meta[name="theme-color"]');
-  const btnToggleIndicated = document.getElementById('btn-toggle-indicated');
-  const indicatedList      = document.getElementById('agenda-indicated-list');
+  const screenBorder  = document.getElementById('indicate-screen-border');
 
-  // Expande/colapsa a lista de "já indicados" dentro da top-bar provisória.
-  const setIndicatedExpanded = (expanded) => {
-    indicatedList?.classList.toggle('u-hidden', !expanded);
-    btnToggleIndicated?.setAttribute('aria-expanded', String(expanded));
-    const chevron = btnToggleIndicated?.querySelector('.agenda-indicated__chevron');
-    if (chevron) chevron.innerText = expanded ? 'expand_less' : 'expand_more';
-    const label = btnToggleIndicated?.querySelector('.agenda-indicated__label');
-    if (label) label.innerText = expanded
-      ? 'Ocultar profissionais já indicados'
-      : 'Ver profissionais já indicados';
+  const openIndicatedPopup = (postId) => {
+    renderIndicatedBlock(postId);
+    document.getElementById('indicated-popup')?.classList.remove('u-hidden');
   };
-
-  btnToggleIndicated?.addEventListener('click', () => {
-    const expanded = btnToggleIndicated.getAttribute('aria-expanded') === 'true';
-    setIndicatedExpanded(!expanded);
-  });
+  const closeIndicatedPopup = () => {
+    document.getElementById('indicated-popup')?.classList.add('u-hidden');
+  };
+  document.getElementById('btn-close-indicated-popup')?.addEventListener('click', closeIndicatedPopup);
+  document.getElementById('indicated-popup-backdrop')?.addEventListener('click', closeIndicatedPopup);
 
   let indicateMode = false;
   let activePostId = null;
@@ -112,25 +103,39 @@ document.addEventListener('DOMContentLoaded', () => {
     indicateMode = true;
     activePostId = postId;
 
-    // Injeta o card do pedido (sem os botões) como referência no topo azul
+    // Injeta o card do pedido como referência no topo — sem botões, count à direita do texto
     const refContainer = document.getElementById('indicate-post-ref');
     const sourceCard   = document.getElementById(`post-card-${postId}`);
     if (refContainer && sourceCard) {
       const cloned = sourceCard.cloneNode(true);
-      cloned.removeAttribute('id'); // evita id duplicado
-      cloned.querySelectorAll('.post-card__footer').forEach(el => el.remove());
+      cloned.removeAttribute('id');
+      const actions = cloned.querySelector('.pedido-item__actions');
+      const countInfo = actions?.querySelector('.post-card__indicate-info');
+      const textEl = cloned.querySelector('.pedido-item__text');
+      if (textEl && countInfo) {
+        const row = document.createElement('div');
+        row.className = 'indicate-ref__body-row';
+        textEl.parentNode.insertBefore(row, textEl);
+        row.appendChild(textEl);
+        row.appendChild(countInfo);
+      }
+      actions?.remove();
       refContainer.innerHTML = '';
       refContainer.appendChild(cloned);
     }
 
-    renderIndicatedBlock(postId);
-    setIndicatedExpanded(false);                   // inicia colapsada a cada indicação
-    showProsPanel();                               // mostra lista de pros para seleção
-    feedTopBar?.classList.add('u-hidden');         // esconde a top-bar verde
-    feedBottomBar?.classList.add('u-hidden');      // esconde a barra de abas inferior
-    indicatedBlock?.classList.remove('u-hidden');  // mostra a top-bar provisória
-    themeMeta?.setAttribute('content', INDICATE_THEME_COLOR);
-    confirmBlock?.classList.add('u-hidden'); // só aparece após escolher um profissional
+    // Atualiza badge de contagem no header
+    const indicated = mockIndicatedByPost[postId] || [];
+    const countEl = document.getElementById('indicate-count-value');
+    if (countEl) countEl.textContent = `${indicated.length}/3`;
+
+    showProsPanel();
+    feedTopBar?.classList.add('u-hidden');
+    feedBottomBar?.classList.add('u-hidden');
+    indicatedBlock?.classList.remove('u-hidden');
+    screenBorder?.classList.add('indicate-screen-border--active');
+    themeMeta?.setAttribute('content', FEED_THEME_COLOR);
+    confirmBlock?.classList.add('u-hidden');
   };
 
   const exitIndicateMode = () => {
@@ -138,12 +143,13 @@ document.addEventListener('DOMContentLoaded', () => {
     activePostId = null;
     selectedProId = null;
     confirmBlock?.classList.add('u-hidden');
-    indicatedBlock?.classList.add('u-hidden');     // esconde a top-bar azul
-    feedTopBar?.classList.remove('u-hidden');       // restaura a top-bar verde
-    feedBottomBar?.classList.remove('u-hidden');    // restaura a barra de abas inferior
+    indicatedBlock?.classList.add('u-hidden');
+    feedTopBar?.classList.remove('u-hidden');
+    feedBottomBar?.classList.remove('u-hidden');
+    screenBorder?.classList.remove('indicate-screen-border--active');
     themeMeta?.setAttribute('content', FEED_THEME_COLOR);
     const postRef = document.getElementById('indicate-post-ref');
-    if (postRef) postRef.innerHTML = ''; // limpa referência
+    if (postRef) postRef.innerHTML = '';
     document.querySelectorAll('.pro-card--selected').forEach(el => {
       el.classList.remove('pro-card--selected');
     });
@@ -367,10 +373,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
 
   document.getElementById('list-feed')?.addEventListener('click', (e) => {
+    // Badge de contagem → popup de indicados
+    const badge = e.target.closest('.post-card__indicate-info');
+    if (badge) {
+      const postId = badge.closest('[data-post-id]')?.dataset.postId;
+      if (postId != null) openIndicatedPopup(postId);
+      return;
+    }
+    // Botão "Indicar alguém" → entra no modo indicação
     const btn = e.target.closest('.post-card__indicate-btn');
     if (!btn) return;
-    // Os pedidos agora vivem no popup; indicar fecha o popup e ativa o modo
-    // indicação na lista de profissionais da home.
     closePedidosSheet();
     enterIndicateMode(btn.dataset.postId);
   });

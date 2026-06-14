@@ -1002,23 +1002,18 @@
   border-color: var(--a-gold);
 }
 
-/* Top-bar PROVISÓRIA do modo indicação — substitui a top-bar verde da home.
-   Fundo ouro p/ sinalizar o processo de indicação; ocupa o slot da
-   top-bar (flex-shrink:0) e rola internamente se a lista de indicados crescer. */
+/* Top-bar PROVISÓRIA do modo indicação — substitui a top-bar verde. */
 .agenda-indicated {
   flex-shrink: 0;
   z-index: 10;
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  max-height: 60dvh;             /* aumentado: garante espaço para os cards */
-  overflow: hidden;              /* o scroll fica na lista, não no container todo */
-  background: var(--a-gold);
+  overflow: hidden;
+  background: var(--p-green);
   padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
 }
 
-/* Cabeçalho da top-bar provisória: toggle "Ver profissionais já indicados"
-   (expande/colapsa a lista) + botão "Fechar" (ícone + texto). */
 .agenda-indicated__header {
   display: flex;
   align-items: center;
@@ -1027,40 +1022,38 @@
   min-height: 40px;
 }
 
-/* Título em destaque: "Quem você quer indicar para esse serviço?" */
 .agenda-indicated__title {
-  font-size: var(--fs-10);
+  font-size: var(--fs-8);
   font-weight: 800;
-  color: var(--p-green-dark);   /* verde-escuro sobre ouro — alto contraste */
+  color: var(--t-light);
   margin: 0;
   flex: 1;
 }
 
-/* Toggle de expandir/colapsar a lista de indicados — linha autônoma abaixo do título */
-.agenda-indicated__toggle {
-  display: flex;
-  width: 100%;
+/* Badge de contagem de indicados no header */
+.indicate-count-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  border: none;
-  background: rgba(0, 0, 0, 0.08);  /* leve destaque para separar do título */
-  color: var(--p-green-dark);
-  cursor: pointer;
-  padding: 7px var(--space-xs);
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-md);
-}
-
-.agenda-indicated__chevron {
-  font-size: 1.4rem;
+  padding: 5px 10px;
+  font-size: var(--fs-6);
+  font-weight: 700;
+  color: var(--t-light);
   flex-shrink: 0;
 }
 
-/* Botão "Fechar" (cancela a indicação): ícone + texto, retangular com cantos arredondados —
-   mesmo formato que o "Fechar" do popup de pedidos (radius-md, não pílula). */
+.indicate-count-badge .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
+/* Botão "Fechar" no modo indicação e no popup */
 .agenda-indicated__cancel {
   border: none;
-  background: rgba(0, 0, 0, 0.12);
-  color: var(--p-green-dark);
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--t-light);
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -1076,24 +1069,104 @@
   font-size: 1.1rem;
 }
 
-.agenda-indicated__label {
-  font-size: var(--fs-7);
-  font-weight: 800;
-  color: var(--p-green-dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Popup de profissionais já indicados */
+.indicated-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-.agenda-indicated__list {
-  /* Grid responsivo: 1 card = coluna única; 2 cards = lado a lado em telas maiores.
-     minmax 200px garante espaço suficiente para IC bar e badge de disponibilidade. */
+.indicated-popup.u-hidden {
+  display: none;
+}
+
+.indicated-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.indicated-popup__sheet {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-white);
+  border-radius: 20px 20px 0 0;
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-height: 75dvh;
+}
+
+.indicated-popup__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.indicated-popup__title {
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--p-green-dark);
+  margin: 0;
+}
+
+.indicated-popup__header .agenda-indicated__cancel {
+  background: var(--bg-soft);
+  color: var(--t-sub);
+}
+
+.indicated-popup__list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--space-xs);
-  overflow-y: auto;              /* só esta parte rola */
-  min-height: 0;                 /* essencial para flex filho poder scrollar */
+  overflow-y: auto;
+  min-height: 0;
   flex: 1;
+  scrollbar-width: none;
+}
+
+.indicated-popup__list::-webkit-scrollbar { display: none; }
+
+/* Borda azul gradiente nas bordas da tela durante modo indicação */
+.indicate-screen-border {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 200;
+  background:
+    linear-gradient(to bottom, rgba(30, 100, 220, 0.22) 0%, transparent 14%),
+    linear-gradient(to top,    rgba(30, 100, 220, 0.22) 0%, transparent 14%),
+    linear-gradient(to right,  rgba(30, 100, 220, 0.18) 0%, transparent 10%),
+    linear-gradient(to left,   rgba(30, 100, 220, 0.18) 0%, transparent 10%);
+  box-shadow: inset 0 0 0 2px rgba(74, 149, 240, 0.65);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.indicate-screen-border--active {
+  opacity: 1;
+}
+
+/* Card de referência: text + badge de contagem lado a lado */
+.indicate-ref__body-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 4px var(--space-sm) 10px;
+}
+
+.indicate-ref__body-row .pedido-item__text {
+  flex: 1;
+  padding: 0;
+}
+
+.indicate-ref__body-row .post-card__indicate-info {
+  flex-shrink: 0;
 }
 
 /* Componente QAV (Qualidade / Agilidade / Valor) — ícone + barra colorida,

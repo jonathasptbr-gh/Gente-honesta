@@ -620,13 +620,14 @@
             </button>
         </header>
 
-        <!-- ── Top-bar PROVISÓRIA do modo indicação (substitui a top-bar acima) ──
-             1ª linha: título "Quem você quer indicar para esse serviço?" + "Fechar".
-             2ª linha: toggle colapsável "Ver profissionais já indicados".
-             Inicia recolhida; a lista expande ao tocar no toggle. -->
+        <!-- ── Top-bar PROVISÓRIA do modo indicação (substitui a top-bar acima) ── -->
         <header id="agenda-indicated-block" class="agenda-indicated u-hidden">
             <div class="agenda-indicated__header">
                 <p class="agenda-indicated__title">Quem você quer indicar para este serviço?</p>
+                <div id="indicate-count-badge" class="indicate-count-badge">
+                    <span id="indicate-count-value">0/3</span>
+                    <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                </div>
                 <button type="button" id="btn-cancel-indicate-mode" class="agenda-indicated__cancel" aria-label="Cancelar indicação">
                     <span class="material-symbols-rounded" aria-hidden="true">close</span>
                     Fechar
@@ -634,14 +635,26 @@
             </div>
             <!-- Card do pedido que está sendo indicado (sem botões) — injetado via JS -->
             <div id="indicate-post-ref" class="indicate-post-ref"></div>
-            <button type="button" id="btn-toggle-indicated" class="agenda-indicated__toggle" aria-expanded="false">
-                <span class="material-symbols-rounded agenda-indicated__chevron" aria-hidden="true">expand_more</span>
-                <span class="agenda-indicated__label">Ver profissionais já indicados</span>
-            </button>
-            <div id="agenda-indicated-list" class="agenda-indicated__list u-hidden">
-                <!-- Preenchido via JS: cards dos já indicados (oculto até expandir) -->
-            </div>
         </header>
+
+        <!-- ── Popup: profissionais já indicados ── -->
+        <div id="indicated-popup" class="indicated-popup u-hidden" role="dialog" aria-modal="true">
+            <div class="indicated-popup__backdrop" id="indicated-popup-backdrop"></div>
+            <div class="indicated-popup__sheet">
+                <div class="indicated-popup__header">
+                    <p class="indicated-popup__title">Profissionais indicados</p>
+                    <button type="button" id="btn-close-indicated-popup" class="agenda-indicated__cancel" aria-label="Fechar">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
+                    </button>
+                </div>
+                <div id="agenda-indicated-list" class="indicated-popup__list">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Borda azul de tela durante modo indicação ── -->
+        <div id="indicate-screen-border" class="indicate-screen-border" aria-hidden="true"></div>
 
         <!-- ── Painel de Notificações (desliza da esquerda) ─────────────── -->
         <!-- Contrato: visibilidade controlada por .notif-panel--open -->
