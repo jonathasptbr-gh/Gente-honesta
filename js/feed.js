@@ -799,14 +799,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               </div>
 
-              <!-- 4. Confirmação + Observações por requisito -->
+              <!-- 4. Observações por requisito + Confirmação -->
               <div class="candid-section">
                 <p class="candid-section-label">Observações por requisito</p>
+                ${reqObsHTML}
                 <label class="candid-check candid-check--confirm">
                   <input type="checkbox" name="confirm-req-${vaga.id}">
                   <span>Confirmo que possuo todos os requisitos obrigatórios</span>
                 </label>
-                ${reqObsHTML}
               </div>
 
               <!-- 5. Currículo -->
