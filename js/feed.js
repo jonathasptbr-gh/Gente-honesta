@@ -270,6 +270,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="pro-card__comments-list">${commentsHTML}</div>
         </div>
         <div class="pro-card__back-actions">
+          <button type="button" class="pro-card__back-btn pro-card__back-btn--back" aria-label="Voltar">
+            <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+          </button>
           <button type="button" class="pro-card__back-btn pro-card__back-btn--whatsapp">
             <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
           </button>

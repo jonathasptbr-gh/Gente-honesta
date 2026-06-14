@@ -1544,6 +1544,15 @@
   color: #fff;
 }
 
+.pro-card__back-btn--back {
+  width: 44px;
+  padding: 0;
+  flex-shrink: 0;
+  background: var(--bg-soft);
+  color: var(--t-sub);
+  border: 1px solid var(--border-light);
+}
+
 .pro-card__back-btn--share {
   width: 44px;
   padding: 0;
