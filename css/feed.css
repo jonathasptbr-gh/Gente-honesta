@@ -1495,7 +1495,7 @@
 /* Base do card de contato — container de perspectiva para o flip 3D */
 .pro-card {
   cursor: pointer;
-  perspective: 700px;
+  perspective: 1800px;
 }
 
 /* ===========================================
@@ -1948,7 +1948,7 @@
 
 /* Container 3D: perspective isolada, sem overflow */
 .vaga-card__3d {
-  perspective: 900px;
+  perspective: 1800px;
 }
 
 /* Flipper: carrega a animação 3D */
