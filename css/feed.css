@@ -502,7 +502,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  background: linear-gradient(to top, rgba(10, 31, 11, 0.55), rgba(10, 31, 11, 0));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   -webkit-mask-image: linear-gradient(to top, #000 60%, transparent);
