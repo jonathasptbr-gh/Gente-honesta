@@ -859,16 +859,35 @@ document.addEventListener('DOMContentLoaded', () => {
         // Após o flip completar, muda para layout em fluxo e expande
         setTimeout(() => {
           card.classList.add('vaga-card--expanded');
-          const backH = card.querySelector('.vaga-card__back').scrollHeight;
+          const backH  = card.querySelector('.vaga-card__back').scrollHeight;
+          const delta  = backH - frontH;
+          const footer = card.querySelector('.vaga-card__back-footer');
+
+          // Footer parte da base do card pequeno (espelho do colapso):
+          // translateY(-delta) o posiciona em frontH - footerH, ou seja,
+          // colado à borda inferior do card antes de expandir.
+          if (footer) {
+            footer.style.transition = 'none';
+            footer.style.transform  = `translateY(-${delta}px)`;
+          }
 
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              card.style.transition = `height ${VAGA_EXPAND_MS}ms cubic-bezier(0.4,0,0.2,1)`;
-              card.style.height = backH + 'px';
+              const timing = `${VAGA_EXPAND_MS}ms cubic-bezier(0.4,0,0.2,1)`;
+
+              // Card cresce e footer retorna à posição natural em sincronia
+              card.style.transition = `height ${timing}`;
+              card.style.height     = backH + 'px';
+
+              if (footer) {
+                footer.style.transition = `transform ${timing}`;
+                footer.style.transform  = '';
+              }
 
               setTimeout(() => {
-                card.style.height = 'auto';
+                card.style.height    = 'auto';
                 card.style.transition = '';
+                if (footer) footer.style.transition = '';
               }, VAGA_EXPAND_MS + 20);
             });
           });
