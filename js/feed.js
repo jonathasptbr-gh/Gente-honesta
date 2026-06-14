@@ -437,10 +437,15 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Botão Cancelar (modo indicação) → desflipa sem sair do modo
+    // Botão Cancelar (modo indicação) → desflipa sem sair do modo.
+    // Remove --indicate-mode só no callback para não trocar os botões durante a animação.
     if (e.target.closest('.pro-card__back-btn--cancel-indicate')) {
       const c = e.target.closest('.pro-card');
-      if (c) { c.classList.remove('pro-card--selected', 'pro-card--indicate-mode'); selectedProId = null; proCardFlipToFront(c); }
+      if (c) {
+        c.classList.remove('pro-card--selected');
+        selectedProId = null;
+        proCardFlipToFront(c, () => c.classList.remove('pro-card--indicate-mode'));
+      }
       return;
     }
 
@@ -482,9 +487,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (indicateMode) {
       // ── Modo indicação: desseleciona anterior e flipa o novo com botões de indicação ──
+      // Remove --indicate-mode no callback para não trocar os botões durante a animação.
       document.querySelectorAll('.pro-card--selected, .pro-card--indicate-mode').forEach(el => {
-        el.classList.remove('pro-card--selected', 'pro-card--indicate-mode');
-        proCardFlipToFront(el);
+        el.classList.remove('pro-card--selected');
+        proCardFlipToFront(el, () => el.classList.remove('pro-card--indicate-mode'));
       });
       card.classList.add('pro-card--selected', 'pro-card--indicate-mode');
       selectedProId = card.id;
@@ -1022,7 +1028,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const PRO_COLL_MS   = 300;
 
   function proCardFlipToBack(card) {
-    const frontH = card.offsetHeight;
+    const frontH  = card.offsetHeight;
+    const flipper = card.querySelector('.pro-card__flipper');
     card.dataset.frontH = frontH;
     card.style.transition = 'none';
     card.style.height = frontH + 'px';
@@ -1033,8 +1040,15 @@ document.addEventListener('DOMContentLoaded', () => {
         card.classList.add('pro-card--flipped');
 
         setTimeout(() => {
+          // Restaura overflow ANTES de suprimir a transição do flipper,
+          // para que overflow:hidden possa clipar durante a expansão.
           card.style.overflow = '';
+          // Suprime a transição do flipper: o CSS --expanded vai mudar
+          // transform:rotateY(180deg) → none (snap visual invisível porque
+          // o verso continua visível ao viewer nos dois estados).
+          if (flipper) flipper.style.transition = 'none';
           card.classList.add('pro-card--expanded');
+
           const backH  = card.querySelector('.pro-card__back').scrollHeight;
           const delta  = backH - frontH;
           const footer = card.querySelector('.pro-card__back-actions');
@@ -1052,6 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.style.height    = 'auto';
                 card.style.transition = '';
                 if (footer) footer.style.transition = '';
+                if (flipper) flipper.style.transition = '';
               }, PRO_EXPAND_MS + 20);
             });
           });
@@ -1065,7 +1080,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentH = card.offsetHeight;
     const delta    = currentH - frontH;
     const footer   = card.querySelector('.pro-card__back-actions');
+    const flipper  = card.querySelector('.pro-card__flipper');
 
+    // Fase 1: colapsa altura de backH → frontH
     card.style.transition = 'none';
     card.style.height     = currentH + 'px';
     if (footer) footer.style.transition = 'none';
@@ -1078,19 +1095,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = `translateY(-${delta}px)`; }
 
         setTimeout(() => {
+          // Fase 2: restaura contexto 3D para o flip de volta
           if (footer) { footer.style.transition = 'none'; footer.style.transform = ''; }
+
+          // Suprime a transição do flipper: remover --expanded faz o flipper
+          // voltar a rotateY(180deg) (de --flipped) de forma instantânea.
+          // O verso continua visível ao viewer antes e depois do snap.
+          if (flipper) flipper.style.transition = 'none';
           card.classList.remove('pro-card--expanded');
+
           card.style.transition = 'none';
-          card.style.overflow   = 'visible';
+          card.style.overflow   = 'visible'; // libera overflow para os cantos 3D
 
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
+              // Restaura a transição CSS do flipper e dispara o flip de volta
+              if (flipper) flipper.style.transition = '';
               card.classList.remove('pro-card--flipped');
 
               setTimeout(() => {
                 card.style.height    = '';
                 card.style.transition = '';
                 card.style.overflow  = '';
+                if (flipper) flipper.style.transition = '';
                 if (onComplete) onComplete();
               }, PRO_FLIP_MS + 30);
             });
@@ -1103,6 +1130,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const proCardForceReset = (card) => {
     card.classList.remove('pro-card--flipped', 'pro-card--expanded', 'pro-card--selected', 'pro-card--indicate-mode');
     card.style.height = card.style.overflow = card.style.transition = '';
+    const flipper = card.querySelector('.pro-card__flipper');
+    if (flipper) flipper.style.transition = '';
     const footer = card.querySelector('.pro-card__back-actions');
     if (footer) { footer.style.transform = footer.style.transition = ''; }
   };

@@ -1524,7 +1524,13 @@
   transform: rotateY(180deg);
 }
 
-/* Estado expandido — frente some, verso sai do absolute */
+/* Estado expandido — frente some, verso sai do absolute.
+   transform:none no flipper e no verso cancela o contexto 3D após o flip,
+   permitindo que overflow:hidden no .pro-card clips normalmente durante a expansão. */
+.pro-card--expanded .pro-card__flipper {
+  transform: none;
+}
+
 .pro-card--expanded .pro-card__front {
   height: 0;
   overflow: hidden;
@@ -1532,6 +1538,7 @@
 }
 
 .pro-card--expanded .pro-card__back {
+  transform: none;
   position: relative;
   inset: auto;
   overflow: visible;
@@ -1638,6 +1645,7 @@
   padding-top: var(--space-sm);
   border-top: 1px solid var(--border-light);
   flex-shrink: 0;
+  background: var(--bg-white);
 }
 
 .pro-card__back-btn {
