@@ -868,8 +868,8 @@
 }
 
 .post-card__report:active {
-  color: var(--danger);
-  background: var(--danger-soft);
+  color: #fff;
+  background: var(--danger);
   border-color: var(--danger);
 }
 
