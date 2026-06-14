@@ -1011,7 +1011,7 @@
   gap: var(--space-sm);
   overflow: hidden;
   background: var(--p-green);
-  padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
+  padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) 0;
 }
 
 .agenda-indicated__header {
