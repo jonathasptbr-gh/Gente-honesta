@@ -772,7 +772,8 @@
 
 .pedido-item__actions .post-card__indicate-btn {
   flex: 1;
-  padding: 9px var(--space-sm);
+  height: 36px;
+  padding: 0 var(--space-sm);
   font-size: var(--fs-5);
 }
 
