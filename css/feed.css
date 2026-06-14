@@ -685,7 +685,7 @@
   padding: 14px;
   border: 1.5px solid rgba(255, 255, 255, 0.75);
   border-radius: 18px 18px 18px 4px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--p-green);
   display: flex;
   flex-direction: column;
   gap: 10px;
