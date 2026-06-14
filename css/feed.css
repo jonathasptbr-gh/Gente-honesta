@@ -1104,7 +1104,7 @@
 .indicated-popup__sheet {
   position: relative;
   z-index: 1;
-  background: var(--bg-white);
+  background: var(--p-green);
   border-radius: 20px 20px 0 0;
   padding: var(--space-md);
   display: flex;
@@ -1129,13 +1129,8 @@
 .indicated-popup__title {
   font-size: var(--fs-9);
   font-weight: 800;
-  color: var(--p-green-dark);
+  color: var(--t-light);
   margin: 0;
-}
-
-.indicated-popup__header .agenda-indicated__cancel {
-  background: var(--bg-soft);
-  color: var(--t-sub);
 }
 
 .indicated-popup__list {
@@ -2158,7 +2153,7 @@
 .candid-section-label {
   font-size: var(--fs-2);
   font-weight: 700;
-  color: var(--t-sub);
+  color: var(--p-green);
   text-transform: uppercase;
   letter-spacing: 0.07em;
 }
