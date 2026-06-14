@@ -122,13 +122,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const countEl = document.getElementById('indicate-count-value');
     if (countEl) countEl.textContent = `${indicated.length}/3`;
 
+    // Reseta a lista de profissionais ao estado original antes de mostrar
+    resetAgendaList();
+
     showProsPanel();
     feedTopBar?.classList.add('u-hidden');
     feedBottomBar?.classList.add('u-hidden');
     indicatedBlock?.classList.remove('u-hidden');
     screenBorder?.classList.add('indicate-screen-border--active');
     themeMeta?.setAttribute('content', FEED_THEME_COLOR);
-    confirmBlock?.classList.add('u-hidden');
   };
 
   const exitIndicateMode = () => {
@@ -169,6 +171,37 @@ document.addEventListener('DOMContentLoaded', () => {
     includePay:   new Set(),
     savedOnly:    false,
     sort:         'name',
+  };
+
+  // Reseta lista de profissionais: desvira cards, limpa filtros, vai ao topo
+  const resetAgendaList = () => {
+    // Desvira qualquer card virado
+    document.querySelectorAll('#agenda-list .pro-card--flipped, #agenda-list .pro-card--indicate-mode, #agenda-list .pro-card--selected').forEach(el => {
+      el.classList.remove('pro-card--flipped', 'pro-card--indicate-mode', 'pro-card--selected');
+    });
+    // Limpa estado dos filtros
+    filterState.includeIc.clear();
+    filterState.includeAvail.clear();
+    filterState.includePay.clear();
+    filterState.savedOnly = false;
+    filterState.sort = 'name';
+    // Limpa chips visuais no painel de filtros
+    document.querySelectorAll('#panel-agenda-filters .chip--active').forEach(c => {
+      c.classList.remove('chip--active');
+      c.setAttribute('aria-pressed', 'false');
+    });
+    // Restaura chip de ordenação padrão (nome)
+    const defaultSort = document.querySelector('#panel-agenda-filters [data-sort="name"]');
+    if (defaultSort) { defaultSort.classList.add('chip--active'); defaultSort.setAttribute('aria-pressed', 'true'); }
+    // Limpa campo de busca
+    const search = document.getElementById('inp-agenda-search');
+    if (search) search.value = '';
+    // Fecha painel de filtros se aberto
+    document.getElementById('panel-agenda-filters')?.classList.remove('agenda-filters__panel--open');
+    document.getElementById('btn-toggle-filters')?.setAttribute('aria-expanded', 'false');
+    // Re-renderiza e volta ao topo
+    renderAgendaList();
+    document.getElementById('agenda-list')?.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const applyFilters = (pros) => pros.filter(p => {
