@@ -746,8 +746,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
               <!-- 1. Observações por requisito + Confirmação -->
               <div class="candid-section">
-                <p class="candid-section-label">Observações por requisito</p>
-                <p class="candid-section-hint">Opcional — abra um requisito para adicionar contexto</p>
+                <p class="candid-section-label">Observações dos requisitos</p>
+                <p class="candid-section-hint">Abra o(s) requisito(s) que quiser comentar</p>
                 ${reqObsHTML}
                 <label class="candid-check candid-check--confirm">
                   <input type="checkbox" name="confirm-req-${vaga.id}">
