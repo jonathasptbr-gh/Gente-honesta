@@ -1994,6 +1994,12 @@
   letter-spacing: 0.07em;
 }
 
+.candid-section-hint {
+  font-size: var(--fs-3);
+  color: var(--t-sub);
+  margin-top: -4px;
+}
+
 /* Checkbox genérico */
 .candid-check {
   display: flex;

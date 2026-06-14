@@ -669,7 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
             class="candid-req-obs-input"
             name="obs-${vaga.id}-${i}"
             rows="2"
-            placeholder="Observação (opcional)"
+            placeholder="Escreva uma observação…"
             aria-label="Observação sobre: ${r}"
           ></textarea>
         </details>
@@ -802,6 +802,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <!-- 4. Observações por requisito + Confirmação -->
               <div class="candid-section">
                 <p class="candid-section-label">Observações por requisito</p>
+                <p class="candid-section-hint">Opcional — abra um requisito para adicionar contexto</p>
                 ${reqObsHTML}
                 <label class="candid-check candid-check--confirm">
                   <input type="checkbox" name="confirm-req-${vaga.id}">
