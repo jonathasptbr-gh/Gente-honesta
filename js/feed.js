@@ -951,11 +951,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Delegação de cliques nos cards de vaga
   document.getElementById('vagas-list')?.addEventListener('click', (e) => {
-    // Flip para o verso — inicia animação flip → expand
+    // Flip para o verso — recolhe qualquer outro card aberto em paralelo
     const btnApply = e.target.closest('.vaga-card__btn-apply');
     if (btnApply) {
       const card = btnApply.closest('.vaga-card');
-      if (card) vagaCardFlipToBack(card);
+      if (!card) return;
+      document.querySelectorAll('#vagas-list .vaga-card--flipped').forEach(other => {
+        if (other !== card) vagaCardFlipToFront(other);
+      });
+      vagaCardFlipToBack(card);
       return;
     }
 
