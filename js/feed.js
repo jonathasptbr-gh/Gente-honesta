@@ -737,13 +737,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div><!-- /front -->
 
-          <!-- VERSO: formulário de candidatura -->
+          <!-- VERSO: formulário de candidatura (sem header) -->
           <div class="vaga-card__back">
-            <div class="vaga-card__back-header">
-              <button type="button" class="vaga-card__btn-back" aria-label="Voltar para a vaga">
-                <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
-              </button>
-            </div>
             <div class="vaga-card__back-form">
 
               <!-- 1. Disponibilidade -->
@@ -816,12 +811,15 @@ document.addEventListener('DOMContentLoaded', () => {
               <!-- 5. Currículo -->
               <button type="button" class="candid-upload-btn" data-vaga="${vaga.id}">
                 <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
-                <span class="candid-upload-text">Currículo (PDF ou foto)</span>
+                <span class="candid-upload-text">Adicionar currículo</span>
               </button>
               <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
 
             </div><!-- /back-form -->
             <div class="vaga-card__back-footer">
+              <button type="button" class="vaga-card__btn-back" aria-label="Voltar para a vaga">
+                <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+              </button>
               <button type="button" class="vaga-card__btn-submit" data-vaga="${vaga.id}">
                 <span class="material-symbols-rounded" aria-hidden="true">send</span>
                 Enviar candidatura
