@@ -878,35 +878,36 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function vagaCardFlipToFront(card, onComplete) {
-    const frontH  = parseInt(card.dataset.frontH || 200);
+    const frontH   = parseInt(card.dataset.frontH || 200);
     const currentH = card.offsetHeight;
-    const delta    = currentH - frontH;          // quanto o card vai encolher
-    const inner    = card.querySelector('.vaga-card__3d');
+    const delta    = currentH - frontH;   // quanto o card vai encolher
+    const footer   = card.querySelector('.vaga-card__back-footer');
 
     // Trava sem transição
-    card.style.transition  = 'none';
-    card.style.height      = currentH + 'px';
-    if (inner) inner.style.transition = 'none';
+    card.style.transition = 'none';
+    card.style.height     = currentH + 'px';
+    if (footer) footer.style.transition = 'none';
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         const timing = `${VAGA_COLL_MS}ms cubic-bezier(0.4,0,0.2,1)`;
 
-        // Altura diminui E o conteúdo sobe pelo mesmo delta —
-        // a base fica ancorada e o topo sai pelo topo.
+        // Altura diminui pelo delta (topo fixo, borda inferior sobe).
+        // Footer sobe pelo mesmo delta → fica sempre colado à borda do card,
+        // cobrindo o conteúdo do formulário de baixo para cima.
         card.style.transition  = `height ${timing}`;
         card.style.height      = frontH + 'px';
 
-        if (inner) {
-          inner.style.transition = `transform ${timing}`;
-          inner.style.transform  = `translateY(-${delta}px)`;
+        if (footer) {
+          footer.style.transition = `transform ${timing}`;
+          footer.style.transform  = `translateY(-${delta}px)`;
         }
 
         setTimeout(() => {
-          // Zera o translateY instantaneamente (o flip cobre a transição)
-          if (inner) {
-            inner.style.transition = 'none';
-            inner.style.transform  = '';
+          // Zera o translateY antes do flip (a rotação 3D cobre o reset)
+          if (footer) {
+            footer.style.transition = 'none';
+            footer.style.transform  = '';
           }
           card.classList.remove('vaga-card--expanded');
           card.style.transition = 'none';
