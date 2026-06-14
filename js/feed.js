@@ -676,6 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `).join('');
 
       card.innerHTML = `
+        <div class="vaga-card__3d">
         <div class="vaga-card__flipper">
           <!-- FRENTE -->
           <div class="vaga-card__front">
@@ -827,32 +828,135 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div><!-- /back -->
         </div><!-- /flipper -->
+        </div><!-- /3d -->
       `;
+
+      // Atualiza altura do card quando um <details> abre/fecha
+      card.querySelectorAll('.candid-req-obs').forEach(det => {
+        det.addEventListener('toggle', () => vagaCardUpdateHeight(card));
+      });
+
       list.appendChild(card);
     });
   };
 
+  // ── Animações do card de vaga ───────────────────────────────────────────
+  const VAGA_FLIP_MS   = 560;
+  const VAGA_EXPAND_MS = 450;
+  const VAGA_COLL_MS  = 370;
+
+  function vagaCardFlipToBack(card) {
+    const frontH = card.offsetHeight;
+    card.dataset.frontH = frontH;
+
+    // Trava altura sem transição, depois dispara o flip 3D
+    card.style.transition = 'none';
+    card.style.height = frontH + 'px';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        card.classList.add('vaga-card--flipped');
+
+        // Após o flip completar, muda para layout em fluxo e expande
+        setTimeout(() => {
+          card.classList.add('vaga-card--expanded');
+          const backH = card.querySelector('.vaga-card__back').scrollHeight;
+
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              card.style.transition = `height ${VAGA_EXPAND_MS}ms cubic-bezier(0.4,0,0.2,1)`;
+              card.style.height = backH + 'px';
+
+              setTimeout(() => {
+                card.style.height = 'auto';
+                card.style.transition = '';
+              }, VAGA_EXPAND_MS + 20);
+            });
+          });
+        }, VAGA_FLIP_MS);
+      });
+    });
+  }
+
+  function vagaCardFlipToFront(card, onComplete) {
+    const frontH = parseInt(card.dataset.frontH || 200);
+
+    // Trava altura atual e colapsa até a altura da frente
+    card.style.transition = 'none';
+    card.style.height = card.offsetHeight + 'px';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        card.style.transition = `height ${VAGA_COLL_MS}ms cubic-bezier(0.4,0,0.2,1)`;
+        card.style.height = frontH + 'px';
+
+        setTimeout(() => {
+          // Retorna ao modo normal (back volta para absolute, front volta ao fluxo)
+          card.classList.remove('vaga-card--expanded');
+          card.style.transition = 'none';
+
+          // Flip de volta para a frente
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              card.classList.remove('vaga-card--flipped');
+
+              setTimeout(() => {
+                card.style.height = '';
+                card.style.transition = '';
+                if (onComplete) onComplete();
+              }, VAGA_FLIP_MS + 30);
+            });
+          });
+        }, VAGA_COLL_MS + 10);
+      });
+    });
+  }
+
+  function vagaCardUpdateHeight(card) {
+    if (!card.classList.contains('vaga-card--expanded')) return;
+    const backH = card.querySelector('.vaga-card__back').scrollHeight;
+
+    card.style.transition = 'none';
+    card.style.height = card.offsetHeight + 'px';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        card.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
+        card.style.height = backH + 'px';
+
+        setTimeout(() => {
+          card.style.height = 'auto';
+          card.style.transition = '';
+        }, 320);
+      });
+    });
+  }
+
   // Delegação de cliques nos cards de vaga
   document.getElementById('vagas-list')?.addEventListener('click', (e) => {
-    // Flip para o verso (candidatura)
+    // Flip para o verso — inicia animação flip → expand
     const btnApply = e.target.closest('.vaga-card__btn-apply');
     if (btnApply) {
-      btnApply.closest('.vaga-card')?.classList.add('vaga-card--flipped');
+      const card = btnApply.closest('.vaga-card');
+      if (card) vagaCardFlipToBack(card);
       return;
     }
 
-    // Volta para a frente
+    // Volta para a frente — colapsa → flip back
     const btnBack = e.target.closest('.vaga-card__btn-back');
     if (btnBack) {
-      btnBack.closest('.vaga-card')?.classList.remove('vaga-card--flipped');
+      const card = btnBack.closest('.vaga-card');
+      if (card) vagaCardFlipToFront(card);
       return;
     }
 
-    // Enviar candidatura
+    // Enviar candidatura — colapsa → flip back → alerta
     const btnSubmit = e.target.closest('.vaga-card__btn-submit');
     if (btnSubmit) {
-      customAlert('Candidatura enviada com sucesso! Você será notificado quando houver retorno.', 'Candidatura Enviada', 'check_circle');
-      btnSubmit.closest('.vaga-card')?.classList.remove('vaga-card--flipped');
+      const card = btnSubmit.closest('.vaga-card');
+      if (card) vagaCardFlipToFront(card, () => {
+        customAlert('Candidatura enviada com sucesso! Você será notificado quando houver retorno.', 'Candidatura Enviada', 'check_circle');
+      });
       return;
     }
 
