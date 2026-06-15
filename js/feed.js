@@ -616,7 +616,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('inp-agenda-search')?.addEventListener('input', renderAgendaList);
   renderAgendaList();
-  updateSlider('home'); // posiciona o slider na aba ativa inicial
 
 
   // =========================================================================
@@ -1200,6 +1199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const idx = TAB_ORDER.indexOf(tabName);
     slider.style.transform = `translateX(${idx * 100}%)`;
   };
+  updateSlider('home'); // posiciona o slider na aba ativa inicial
 
   const scrolledState = { vagas: false, home: false, pedidos: false };
   let activeTab = 'home';
