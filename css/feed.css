@@ -1456,6 +1456,16 @@
 
 .pedido-detail-indicated__header .material-symbols-rounded { font-size: 1.2rem; }
 
+.pedido-detail-indicated__fraction {
+  margin-left: auto;
+  font-size: var(--fs-5);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Preview do pedido no formato balão — igual ao feed, sem botões */
+.pedido-detail-preview { pointer-events: none; }
+
 .pedido-detail-indicated__list {
   display: flex;
   flex-direction: column;

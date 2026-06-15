@@ -1401,16 +1401,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Preenche o estado de detalhes (somente leitura) a partir de myPedido.
   const renderPedidoDetails = () => {
-    const textEl = document.getElementById('pedido-detail-text');
-    if (textEl) textEl.textContent = myPedido.text;
-
+    // Card no formato "como outros veem" — pedido-item sem Denunciar e sem ações
+    const avatarSrc = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>`;
+    const displayName = window.auth?.currentUser?.displayName || 'Você';
     const urgent = myPedido.urgency === 'urgent';
-    const meta = document.getElementById('pedido-detail-meta');
-    if (meta) {
-      meta.innerHTML = `
-        <span class="pedido-detail-tag${urgent ? ' pedido-detail-tag--urgent' : ''}"><span class="material-symbols-rounded" aria-hidden="true">${urgent ? 'bolt' : 'schedule'}</span>${urgent ? 'Urgente' : 'Normal'}</span>
-        <span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">timer</span>${myPedido.duration}h online</span>
-        ${myPedido.neighbors ? '<span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">travel_explore</span>Cidades vizinhas</span>' : ''}
+    const tagsHTML = [
+      `<span class="pedido-detail-tag${urgent ? ' pedido-detail-tag--urgent' : ''}"><span class="material-symbols-rounded" aria-hidden="true">${urgent ? 'bolt' : 'schedule'}</span>${urgent ? 'Urgente' : 'Normal'}</span>`,
+      `<span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">timer</span>${myPedido.duration}h online</span>`,
+      myPedido.neighbors ? `<span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">travel_explore</span>Cidades vizinhas</span>` : '',
+    ].join('');
+    const container = document.getElementById('pedido-detail-card-container');
+    if (container) {
+      container.innerHTML = `
+        <article class="pedido-item pedido-detail-preview">
+          <div class="pedido-item__meta">
+            <img class="pedido-item__avatar" src="${avatarSrc}" alt="">
+            <span class="pedido-item__name">${displayName}</span>
+          </div>
+          <p class="pedido-item__text">${myPedido.text}</p>
+          <div class="pedido-detail-meta">${tagsHTML}</div>
+        </article>
       `;
     }
 
