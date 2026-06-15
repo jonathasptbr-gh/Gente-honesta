@@ -179,6 +179,8 @@ Variáveis em `css/base.css :root`:
 - `--info-blue`, `--danger`, `--success`, `--whatsapp`, `--gold-soft-border`
 - `--bg-white`, `--bg-soft` — superfícies claras
 - `--bg-canvas: #124014` — verde escuro atrás dos cards de profissional nas listas
+- `--surface-company: #555558` — faixa cinza de empresa nos cards de vaga
+- `--surface-dark: #1c1c1e` — superfície escura (botão "Candidatar-se")
 - `--overlay`, `--overlay-soft` — backdrops de diálogos/sheets/painéis
 
 **Espaçamento:** `--space-xs` (8px) → `--space-xl` (48px)
@@ -218,6 +220,8 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 **Loader global:** `#loader-global` — mostrado/ocultado com `u-hidden`. O `onAuthStateChanged` é o único responsável por ocultá-lo em transições normais. Em erros onde o estado de auth não muda, remover manualmente.
 
 **Diálogos:** sempre usar `await customAlert(...)` e `await customConfirm(...)` — nunca `alert()` ou `confirm()` nativos.
+
+**TDZ em DOMContentLoaded:** dentro do callback de `DOMContentLoaded` em `feed.js`, todas as variáveis declaradas com `const`/`let` ficam na temporal dead zone até sua linha de declaração. Chamar uma função `const` antes de ela ser declarada lança `ReferenceError` silencioso que interrompe TODO o callback — os event listeners abaixo do ponto de erro nunca são registrados. Sempre declare `const` helpers/funções ANTES da linha que os chama, ou mova a chamada para depois da declaração.
 
 **Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v105`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
