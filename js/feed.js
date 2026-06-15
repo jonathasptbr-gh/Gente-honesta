@@ -388,7 +388,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Renderiza cards de profissional flipáveis (com verso de comentários + WhatsApp)
   // numa lista arbitrária. Reutilizado no popup de indicados e nos detalhes do pedido.
-  const renderFlippableProCards = (listEl, pros) => {
+  // function declaration (hoisted): pode ser chamada antes da sua linha no callback.
+  function renderFlippableProCards(listEl, pros) {
     listEl.innerHTML = '';
     if (!pros || pros.length === 0) {
       listEl.innerHTML = '<span style="font-size:var(--fs-4);color:rgba(255,255,255,0.75)">Nenhuma indicação ainda.</span>';
@@ -400,11 +401,13 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div>${proBackHTML()}</div></div>`;
       listEl.appendChild(card);
     });
-  };
+  }
 
   // Registra delegação de cliques de flip num container de pro-cards.
   // Chamar uma vez por container estático; não chamar dentro de funções de render.
-  const bindProCardFlip = (containerEl) => {
+  // function declaration (hoisted): o bind em #agenda-indicated-list ocorre acima
+  // desta linha; só é seguro porque funções declaradas são içadas no callback.
+  function bindProCardFlip(containerEl) {
     if (!containerEl) return;
     containerEl.addEventListener('click', (e) => {
       if (e.target.closest('.pro-card__back-btn--whatsapp')) {
@@ -427,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isFlipped) proCardFlipToFront(card);
       else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100); }
     });
-  };
+  }
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Monta os mini-cards dos já indicados
   const renderIndicatedBlock = (postId) => {
