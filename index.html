@@ -653,6 +653,87 @@
             </div>
         </div>
 
+        <!-- ── Sheet: criar / gerenciar meu pedido ── -->
+        <!-- Contrato: visibilidade controlada por .pedido-sheet--open (slide-up, padrão indicated-popup). -->
+        <div id="pedido-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
+            <div class="pedido-sheet__backdrop" id="pedido-sheet-backdrop"></div>
+            <div class="pedido-sheet__panel">
+                <div class="pedido-sheet__header">
+                    <p class="pedido-sheet__title" id="pedido-sheet-title">Fazer um pedido</p>
+                    <button type="button" id="btn-close-pedido-sheet" class="agenda-indicated__cancel" aria-label="Fechar">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
+                    </button>
+                </div>
+
+                <div class="pedido-sheet__body">
+
+                    <!-- ESTADO: CRIAÇÃO (formulário) -->
+                    <div id="pedido-form-state" class="pedido-sheet__state">
+                        <div class="pedido-field">
+                            <label class="pedido-field__label" for="inp-pedido-text">O que você precisa?</label>
+                            <textarea id="inp-pedido-text" class="input-text input-text--multiline pedido-textarea" rows="4" maxlength="280" placeholder="Descreva o serviço que você procura, com o máximo de detalhes…"></textarea>
+                            <span class="pedido-field__hint"><span id="pedido-char-count">0</span>/280</span>
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Urgência</span>
+                            <div class="pedido-chip-row" id="pedido-urgency">
+                                <button type="button" class="pedido-chip pedido-chip--active" data-urgency="normal">
+                                    <span class="material-symbols-rounded" aria-hidden="true">schedule</span>Normal
+                                </button>
+                                <button type="button" class="pedido-chip" data-urgency="urgent">
+                                    <span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Deixar online por</span>
+                            <div class="pedido-chip-row" id="pedido-duration">
+                                <button type="button" class="pedido-chip pedido-chip--active" data-duration="12">12h</button>
+                                <button type="button" class="pedido-chip" data-duration="24">24h</button>
+                                <button type="button" class="pedido-chip" data-duration="36">36h</button>
+                                <button type="button" class="pedido-chip" data-duration="48">48h</button>
+                            </div>
+                        </div>
+
+                        <button type="button" class="pedido-toggle" id="pedido-neighbors" aria-pressed="false">
+                            <span class="pedido-toggle__info">
+                                <span class="material-symbols-rounded" aria-hidden="true">travel_explore</span>
+                                <span class="pedido-toggle__text">
+                                    <span class="pedido-toggle__title">Buscar em cidades vizinhas</span>
+                                    <span class="pedido-toggle__sub">Amplia o alcance do seu pedido</span>
+                                </span>
+                            </span>
+                            <span class="pedido-switch" aria-hidden="true"><span class="pedido-switch__knob"></span></span>
+                        </button>
+
+                        <div class="pedido-sheet__actions">
+                            <button type="button" id="btn-pedido-cancel" class="btn btn--outline pedido-btn-cancel">Cancelar</button>
+                            <button type="button" id="btn-pedido-publish" class="btn btn--accent">Publicar pedido</button>
+                        </div>
+                    </div>
+
+                    <!-- ESTADO: DETALHES (somente leitura) -->
+                    <div id="pedido-details-state" class="pedido-sheet__state u-hidden">
+                        <div class="pedido-detail-card">
+                            <p class="pedido-detail-card__text" id="pedido-detail-text"></p>
+                            <div class="pedido-detail-meta" id="pedido-detail-meta"></div>
+                        </div>
+                        <p class="pedido-detail-note">
+                            <span class="material-symbols-rounded" aria-hidden="true">lock</span>
+                            Pedidos publicados não podem ser editados.
+                        </p>
+                        <button type="button" id="btn-view-indicated-from-details" class="btn btn--accent">
+                            <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                            Ver profissionais indicados (<span id="pedido-detail-count">0</span>)
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
         <!-- ── Borda azul de tela durante modo indicação ── -->
         <div id="indicate-screen-border" class="indicate-screen-border" aria-hidden="true"></div>
 

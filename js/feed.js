@@ -1315,12 +1315,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // POPUP DE PEDIDOS - Botão "Fazer um pedido" / "Detalhes do meu pedido"
   // =========================================================================
-  // Fixo no topo do popup de pedidos. Alterna o rótulo conforme o usuário já tem
-  // um pedido aberto e exibe o contador de indicações recebidas (X/3), no padrão
-  // do botão "Indicar alguém" dos cards. MOCK: o primeiro toque simula a criação
-  // do pedido; o fluxo real de criação virá em outra tela.
+  // O botão da action-bar (pedidos) é a entrada do fluxo de pedido próprio:
+  //   - sem pedido → abre o sheet de CRIAÇÃO (formulário)
+  //   - com pedido → abre o sheet de DETALHES (somente leitura)
+  // O badge ao lado (#my-pedido-info) mostra X/3 indicações e, quando há pedido,
+  // abre a lista de profissionais já indicados (reaproveita o indicated-popup).
+  // MOCK: nada persiste no Firestore; as indicações são semeadas na publicação
+  // só para o fluxo ficar demonstrável.
   let hasPedido = false;
   let pedidoIndications = 0; // indicações recebidas no pedido (mock)
+  const myPedido = { text: '', urgency: 'normal', duration: '12', neighbors: false };
 
   const btnMyPedido      = document.getElementById('btn-my-pedido');
   const btnMyPedidoLabel = document.getElementById('btn-my-pedido-label');
@@ -1341,15 +1345,111 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  btnMyPedido?.addEventListener('click', async () => {
-    if (!hasPedido) {
-      // MOCK: simula a criação do pedido (a tela de criação virá depois)
-      hasPedido = true;
-      pedidoIndications = 2;
-      renderMyPedidoButton();
-    } else {
-      await customAlert('Os detalhes do seu pedido aparecerão aqui.', 'Meu Pedido', 'receipt_long');
+  // ── Sheet de criação / detalhes ──
+  const pedidoSheet        = document.getElementById('pedido-sheet');
+  const pedidoSheetTitle   = document.getElementById('pedido-sheet-title');
+  const pedidoFormState    = document.getElementById('pedido-form-state');
+  const pedidoDetailsState = document.getElementById('pedido-details-state');
+  const inpPedidoText      = document.getElementById('inp-pedido-text');
+  const pedidoCharCount    = document.getElementById('pedido-char-count');
+  const pedidoNeighbors    = document.getElementById('pedido-neighbors');
+
+  const closePedidoSheet = () => pedidoSheet?.classList.remove('pedido-sheet--open');
+
+  // Preenche o estado de detalhes (somente leitura) a partir de myPedido.
+  const renderPedidoDetails = () => {
+    const textEl = document.getElementById('pedido-detail-text');
+    if (textEl) textEl.textContent = myPedido.text;
+
+    const urgent = myPedido.urgency === 'urgent';
+    const meta = document.getElementById('pedido-detail-meta');
+    if (meta) {
+      meta.innerHTML = `
+        <span class="pedido-detail-tag${urgent ? ' pedido-detail-tag--urgent' : ''}"><span class="material-symbols-rounded" aria-hidden="true">${urgent ? 'bolt' : 'schedule'}</span>${urgent ? 'Urgente' : 'Normal'}</span>
+        <span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">timer</span>${myPedido.duration}h online</span>
+        ${myPedido.neighbors ? '<span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">travel_explore</span>Cidades vizinhas</span>' : ''}
+      `;
     }
+
+    const cnt = document.getElementById('pedido-detail-count');
+    if (cnt) cnt.textContent = pedidoIndications;
+  };
+
+  // mode: 'form' (criação) | 'details' (somente leitura).
+  const openPedidoSheet = (mode) => {
+    const isForm = mode === 'form';
+    if (pedidoSheetTitle) pedidoSheetTitle.textContent = isForm ? 'Fazer um pedido' : 'Detalhes do pedido';
+    pedidoFormState?.classList.toggle('u-hidden', !isForm);
+    pedidoDetailsState?.classList.toggle('u-hidden', isForm);
+    if (!isForm) renderPedidoDetails();
+    pedidoSheet?.classList.add('pedido-sheet--open');
+  };
+
+  document.getElementById('btn-close-pedido-sheet')?.addEventListener('click', closePedidoSheet);
+  document.getElementById('pedido-sheet-backdrop')?.addEventListener('click', closePedidoSheet);
+  document.getElementById('btn-pedido-cancel')?.addEventListener('click', closePedidoSheet);
+
+  // Contador de caracteres do texto do pedido
+  inpPedidoText?.addEventListener('input', () => {
+    if (pedidoCharCount) pedidoCharCount.textContent = inpPedidoText.value.length;
+    inpPedidoText.classList.remove('input-text--error');
+  });
+
+  // Seleção única dentro de um grupo de chips (urgência / duração)
+  const wirePedidoChipGroup = (groupId, dataKey, onPick) => {
+    const group = document.getElementById(groupId);
+    group?.addEventListener('click', (e) => {
+      const chip = e.target.closest('.pedido-chip');
+      if (!chip) return;
+      group.querySelectorAll('.pedido-chip').forEach(c => c.classList.remove('pedido-chip--active'));
+      chip.classList.add('pedido-chip--active');
+      onPick(chip.dataset[dataKey]);
+    });
+  };
+  wirePedidoChipGroup('pedido-urgency', 'urgency', v => { myPedido.urgency = v; });
+  wirePedidoChipGroup('pedido-duration', 'duration', v => { myPedido.duration = v; });
+
+  // Toggle "cidades vizinhas"
+  pedidoNeighbors?.addEventListener('click', () => {
+    myPedido.neighbors = !myPedido.neighbors;
+    pedidoNeighbors.setAttribute('aria-pressed', String(myPedido.neighbors));
+  });
+
+  // Publicar
+  document.getElementById('btn-pedido-publish')?.addEventListener('click', async () => {
+    const text = inpPedidoText?.value.trim() || '';
+    if (text.length < 10) {
+      inpPedidoText?.classList.add('input-text--error');
+      await customAlert('Descreva seu pedido com pelo menos 10 caracteres para os profissionais entenderem o que você precisa.', 'Pedido incompleto', 'edit_note');
+      return;
+    }
+    myPedido.text = text;
+    hasPedido = true;
+    // MOCK: semeia indicações para o fluxo "ver indicados" ficar demonstrável.
+    mockIndicatedByPost['my'] = [
+      { name: 'Carlos Almeida', tags: 'Eletricista · Encanador', ic: 78, q: 7, a: 5, v: 6, avail: 'available', pay: { cash: true, pix: true, card: 6 }, nf: true, bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
+      { name: 'Fernanda Lima',  tags: 'Costureira · Designer',   ic: 91, q: 9, a: 5, v: 7, avail: 'available', pay: { cash: false, pix: true, card: 12 }, nf: true, bio: 'Costura sob medida e ajustes de roupas. Não trabalha com couro nem com grandes lotes.' },
+    ];
+    pedidoIndications = mockIndicatedByPost['my'].length;
+    renderMyPedidoButton();
+    closePedidoSheet();
+    await customAlert('Seu pedido está no ar! Você será avisado quando alguém indicar um profissional de confiança.', 'Pedido publicado', 'check_circle');
+  });
+
+  // Botão "ver profissionais indicados" dentro do estado de detalhes
+  document.getElementById('btn-view-indicated-from-details')?.addEventListener('click', () => {
+    closePedidoSheet();
+    openIndicatedPopup('my');
+  });
+
+  // Botão principal da barra: criação ou detalhes conforme o estado
+  btnMyPedido?.addEventListener('click', () => {
+    openPedidoSheet(hasPedido ? 'details' : 'form');
+  });
+
+  // Badge ao lado → profissionais já indicados (só faz sentido com pedido ativo)
+  myPedidoInfo?.addEventListener('click', () => {
+    if (hasPedido) openIndicatedPopup('my');
   });
 
   renderMyPedidoButton();

@@ -17,6 +17,7 @@
 //     "scrollY": 300,                          // pixels a rolar antes do screenshot
 //     "actions": [                             // sequência de interações após carregar
 //       { "click": ".vaga-card__btn-apply" },  // clica num seletor CSS
+//       { "fill":  "#inp-pedido-text", "value": "texto" }, // preenche input/textarea
 //       { "wait":  700 },                      // espera N ms (ex: aguardar animação)
 //       { "scroll": "#vagas-scroll", "top": 200 }  // rola um elemento scrollável
 //     ]
@@ -105,6 +106,10 @@ const server = http.createServer((req, res) => {
     for (const action of (shot.actions || [])) {
       if (action.click) {
         await page.click(action.click).catch(() => {});
+      }
+      if (action.fill) {
+        // Preenche input/textarea e dispara 'input' (o app reage a esse evento)
+        await page.fill(action.fill, action.value ?? '').catch(() => {});
       }
       if (action.wait) {
         await page.waitForTimeout(action.wait);

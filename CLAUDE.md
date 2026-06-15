@@ -223,7 +223,7 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 
 **TDZ em DOMContentLoaded:** dentro do callback de `DOMContentLoaded` em `feed.js`, todas as variáveis declaradas com `const`/`let` ficam na temporal dead zone até sua linha de declaração. Chamar uma função `const` antes de ela ser declarada lança `ReferenceError` silencioso que interrompe TODO o callback — os event listeners abaixo do ponto de erro nunca são registrados. Sempre declare `const` helpers/funções ANTES da linha que os chama, ou mova a chamada para depois da declaração.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v105`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v106`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Estado global:** `window.appState` em `app.js`:
 - `confirmationResult` — objeto de confirmação SMS do Firebase
@@ -330,6 +330,19 @@ As três linhas são `position: absolute; inset: 0` sobrepostas no slot. A alter
 
 Estilo flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas` (verde escuro), texto puro branco (`--t-light`). Avatar discreto (28px). "Denunciar" como chip-botão. "Indicar alguém" como `btn--accent` (amarelo sobre verde).
 
+### Sheet "Fazer um pedido" / "Detalhes do meu pedido" (`#pedido-sheet`)
+
+Bottom sheet verde (mesmo padrão slide-up + backdrop do `indicated-popup`), acionado pelo `#btn-my-pedido` da action bar (estado pedidos). Dois estados internos alternados por `u-hidden`:
+- `#pedido-form-state` — **criação**: textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botões Cancelar/Publicar.
+- `#pedido-details-state` — **somente leitura** (pós-publicação): texto do pedido + tags (urgência, duração, alcance), aviso "pedidos publicados não podem ser editados", botão "Ver profissionais indicados".
+
+Lógica em `feed.js` (bloco "POPUP DE PEDIDOS"):
+- `myPedido` — `{text, urgency, duration, neighbors}` (mock, sem persistência no Firestore)
+- `hasPedido` / `pedidoIndications` — estado do pedido atual e nº de indicações
+- `openPedidoSheet('form'|'details')` — abre o sheet no estado certo; `renderPedidoDetails()` preenche a leitura
+- `#btn-my-pedido` → form (sem pedido) ou details (com pedido); badge `#my-pedido-info` ao lado → abre os profissionais indicados (reaproveita `openIndicatedPopup('my')`, com `mockIndicatedByPost['my']`)
+- Chips de seleção única via `wirePedidoChipGroup(groupId, dataKey, onPick)`; toggle via `aria-pressed`
+
 ### Scroll-to-top nas abas
 
 Quando o usuário rola para baixo em qualquer painel (threshold: 80px), o ícone e label da aba ativa mudam para `arrow_upward` / "Voltar ao topo". Tocar na aba ativa enquanto scrollada executa `scrollTo({ top:0, behavior:'smooth' })` e restaura o botão imediatamente.
@@ -392,7 +405,7 @@ Dentro de `DOMContentLoaded` em `js/feed.js`:
 
 Comportamentos placeholder:
 - Botões "Contratar", "WhatsApp", "Compartilhar" exibem alertas placeholder
-- Botão "Fazer um pedido" simula criação sem persistência no Firestore
+- Sheet "Fazer um pedido" (`#pedido-sheet`): formulário de criação e tela de detalhes (leitura) já existem, mas sem persistência no Firestore. As indicações do próprio pedido (`mockIndicatedByPost['my']`) são semeadas na publicação só para o fluxo ficar demonstrável.
 - Lista de pedidos (`#list-feed`) com 2 pedidos mockados hardcoded no HTML
 - Cards de vaga já têm flip 3D com formulário de candidatura, mas sem persistência no Firestore
 
@@ -403,5 +416,5 @@ Comportamentos placeholder:
 - Edição de perfil (reaproveitar formulário do onboarding)
 - Persistência de profissionais no Firestore
 - Firebase Cloud Messaging para notificações push
-- Tela de criação de pedido real (substituir o mock atual)
+- Persistência do pedido no Firestore (formulário e detalhes já existem — falta backend)
 - Candidatura em vagas com persistência no Firestore (flip de candidatura já existe — falta backend)

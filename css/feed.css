@@ -1145,6 +1145,286 @@
 
 .indicated-popup__list::-webkit-scrollbar { display: none; }
 
+/* =========================================================================
+   PEDIDO SHEET — criar / gerenciar meu pedido (bottom sheet verde)
+   Mesmo padrão de slide-up + backdrop do indicated-popup.
+   ========================================================================= */
+.pedido-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none;
+  visibility: hidden;
+  /* Mantém visível durante a animação de fechamento */
+  transition: visibility 0s linear 0.35s;
+}
+
+.pedido-sheet--open {
+  pointer-events: auto;
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+.pedido-sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.pedido-sheet--open .pedido-sheet__backdrop { opacity: 1; }
+
+.pedido-sheet__panel {
+  position: relative;
+  z-index: 1;
+  background: var(--p-green);
+  border-radius: 20px 20px 0 0;
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-height: 92dvh;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.pedido-sheet--open .pedido-sheet__panel { transform: translateY(0); }
+
+.pedido-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.pedido-sheet__title {
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--t-light);
+  margin: 0;
+}
+
+.pedido-sheet__body {
+  overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: none;
+  /* respiro para o último controle não colar na borda inferior do aparelho */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pedido-sheet__body::-webkit-scrollbar { display: none; }
+
+.pedido-sheet__state {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Campo: label + controle */
+.pedido-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.pedido-field__label {
+  font-size: var(--fs-5);
+  font-weight: 700;
+  color: var(--t-light);
+}
+
+.pedido-field__hint {
+  align-self: flex-end;
+  font-size: var(--fs-2);
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: -4px;
+}
+
+.pedido-textarea { resize: none; }
+
+/* Linha de chips de seleção única (urgência / duração) */
+.pedido-chip-row {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.pedido-chip {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 14px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-5);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: var(--t-light);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+}
+
+.pedido-chip .material-symbols-rounded {
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.pedido-chip:active { transform: scale(0.96); }
+
+.pedido-chip--active {
+  background: var(--a-gold);
+  border-color: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+/* Toggle (cidades vizinhas) */
+.pedido-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.pedido-toggle__info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.pedido-toggle__info > .material-symbols-rounded {
+  color: var(--a-gold);
+  font-size: 1.5rem;
+}
+
+.pedido-toggle__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pedido-toggle__title {
+  font-size: var(--fs-5);
+  font-weight: 700;
+  color: var(--t-light);
+}
+
+.pedido-toggle__sub {
+  font-size: var(--fs-2);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.pedido-switch {
+  flex-shrink: 0;
+  width: 46px;
+  height: 27px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.22);
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.pedido-switch__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.pedido-toggle[aria-pressed="true"] .pedido-switch { background: var(--a-gold); }
+.pedido-toggle[aria-pressed="true"] .pedido-switch__knob { transform: translateX(19px); }
+
+/* Ações (Cancelar / Publicar) */
+.pedido-sheet__actions {
+  display: flex;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.pedido-sheet__actions .btn { flex: 1; }
+
+.pedido-btn-cancel {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--t-light);
+}
+
+/* Detalhes (somente leitura) */
+.pedido-detail-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.pedido-detail-card__text {
+  margin: 0;
+  font-size: var(--fs-7);
+  color: var(--t-light);
+  line-height: 1.4;
+}
+
+.pedido-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.pedido-detail-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-3);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--t-light);
+}
+
+.pedido-detail-tag .material-symbols-rounded {
+  font-size: 1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.pedido-detail-tag--urgent {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.pedido-detail-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-3);
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.pedido-detail-note .material-symbols-rounded { font-size: 1.05rem; }
+
+/* Badge de indicações na barra fica clicável quando há pedido publicado */
+#my-pedido-info { cursor: pointer; }
+
 /* Borda dourada nas bordas da tela durante modo indicação */
 .indicate-screen-border {
   position: fixed;
