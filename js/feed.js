@@ -898,264 +898,119 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  // ── Animações do card de vaga ───────────────────────────────────────────
-  const VAGA_FLIP_MS   = 560;
-  const VAGA_EXPAND_MS = 450;
-  const VAGA_COLL_MS  = 370;
+  // ── Motor genérico de animação flip+expansão ─────────────────────────────
+  const VAGA_CARD_CFG = {
+    flipMs: 560, expandMs: 450, collMs: 370,
+    flippedClass: 'vaga-card--flipped', expandedClass: 'vaga-card--expanded',
+    backSel:   '.vaga-card__back',
+    footerSel: '.vaga-card__back-footer',
+  };
+  const PRO_CARD_CFG = {
+    flipMs: 500, expandMs: 380, collMs: 300,
+    flippedClass: 'pro-card--flipped', expandedClass: 'pro-card--expanded',
+    backSel:   '.pro-card__back',
+    footerSel: '.pro-card__back-actions',
+  };
 
-  function vagaCardFlipToBack(card) {
+  function flipCardToBack(card, cfg) {
     const frontH = card.offsetHeight;
     card.dataset.frontH = frontH;
-
     card.style.transition = 'none';
-    card.style.height = frontH + 'px';
-    // Libera overflow durante o flip para que os cantos 3D não sejam cortados
-    card.style.overflow = 'visible';
-
+    card.style.height     = frontH + 'px';
+    card.style.overflow   = 'visible';
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        card.classList.add('vaga-card--flipped');
-
+        card.classList.add(cfg.flippedClass);
         setTimeout(() => {
-          // Restaura overflow antes da expansão (a animação de altura precisa dele)
           card.style.overflow = '';
-          card.classList.add('vaga-card--expanded');
-          const back   = card.querySelector('.vaga-card__back');
+          card.classList.add(cfg.expandedClass);
+          const back   = card.querySelector(cfg.backSel);
           const backH  = back.offsetHeight;
           const delta  = backH - frontH;
-          const footer = card.querySelector('.vaga-card__back-footer');
-
-          if (footer) {
-            footer.style.transition = 'none';
-            footer.style.transform  = `translateY(-${delta}px)`;
-          }
-
-          // clip-path contém filhos 3D que escapam de overflow:hidden durante expansão
+          const footer = card.querySelector(cfg.footerSel);
+          if (footer) { footer.style.transition = 'none'; footer.style.transform = `translateY(-${delta}px)`; }
           card.style.clipPath = 'inset(0 0 0 0)';
-
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              const timing = `${VAGA_EXPAND_MS}ms cubic-bezier(0.4,0,0.2,1)`;
-
+              const timing = `${cfg.expandMs}ms cubic-bezier(0.4,0,0.2,1)`;
               card.style.transition = `height ${timing}`;
               card.style.height     = backH + 'px';
-
-              if (footer) {
-                footer.style.transition = `transform ${timing}`;
-                footer.style.transform  = '';
-              }
-
+              if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = ''; }
               setTimeout(() => {
-                card.style.height    = 'auto';
-                card.style.transition = '';
-                card.style.clipPath  = '';
+                card.style.height = 'auto'; card.style.transition = ''; card.style.clipPath = '';
                 if (footer) footer.style.transition = '';
-              }, VAGA_EXPAND_MS + 20);
+              }, cfg.expandMs + 20);
             });
           });
-        }, VAGA_FLIP_MS);
+        }, cfg.flipMs);
       });
     });
   }
 
-  function vagaCardFlipToFront(card, onComplete) {
+  function flipCardToFront(card, cfg, onComplete) {
     const frontH   = parseInt(card.dataset.frontH || 200);
     const currentH = card.offsetHeight;
-    const delta    = currentH - frontH;   // quanto o card vai encolher
-    const footer   = card.querySelector('.vaga-card__back-footer');
-
-    // Trava sem transição
+    const delta    = currentH - frontH;
+    const footer   = card.querySelector(cfg.footerSel);
     card.style.transition = 'none';
     card.style.height     = currentH + 'px';
     if (footer) footer.style.transition = 'none';
-    // clip-path contém filhos 3D durante o colapso
     card.style.clipPath = 'inset(0 0 0 0)';
-
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const timing = `${VAGA_COLL_MS}ms cubic-bezier(0.4,0,0.2,1)`;
-
-        // Altura diminui pelo delta (topo fixo, borda inferior sobe).
-        // Footer sobe pelo mesmo delta → fica sempre colado à borda do card,
-        // cobrindo o conteúdo do formulário de baixo para cima.
-        card.style.transition  = `height ${timing}`;
-        card.style.height      = frontH + 'px';
-
-        if (footer) {
-          footer.style.transition = `transform ${timing}`;
-          footer.style.transform  = `translateY(-${delta}px)`;
-        }
-
+        const timing = `${cfg.collMs}ms cubic-bezier(0.4,0,0.2,1)`;
+        card.style.transition = `height ${timing}`;
+        card.style.height     = frontH + 'px';
+        if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = `translateY(-${delta}px)`; }
         setTimeout(() => {
-          // Zera o translateY antes do flip (a rotação 3D cobre o reset)
-          if (footer) {
-            footer.style.transition = 'none';
-            footer.style.transform  = '';
-          }
-          card.classList.remove('vaga-card--expanded');
-          card.style.transition = 'none';
-          card.style.clipPath   = '';
-          // Libera overflow durante o flip de volta
-          card.style.overflow = 'visible';
-
+          if (footer) { footer.style.transition = 'none'; footer.style.transform = ''; }
+          card.classList.remove(cfg.expandedClass);
+          card.style.transition = 'none'; card.style.clipPath = ''; card.style.overflow = 'visible';
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              card.classList.remove('vaga-card--flipped');
-
+              card.classList.remove(cfg.flippedClass);
               setTimeout(() => {
-                card.style.height    = '';
-                card.style.transition = '';
-                card.style.overflow  = '';
+                card.style.height = ''; card.style.transition = ''; card.style.overflow = '';
                 if (onComplete) onComplete();
-              }, VAGA_FLIP_MS + 30);
+              }, cfg.flipMs + 30);
             });
           });
-        }, VAGA_COLL_MS + 10);
+        }, cfg.collMs + 10);
       });
     });
   }
+
+  function flipCardForceReset(card, cfg) {
+    card.classList.remove(cfg.flippedClass, cfg.expandedClass);
+    card.style.height = card.style.overflow = card.style.transition = card.style.clipPath = '';
+    const footer = card.querySelector(cfg.footerSel);
+    if (footer) { footer.style.transform = footer.style.transition = ''; }
+  }
+
+  // ── Wrappers vaga-card ────────────────────────────────────────────────────
+  function vagaCardFlipToBack(card)              { flipCardToBack(card, VAGA_CARD_CFG); }
+  function vagaCardFlipToFront(card, onComplete) { flipCardToFront(card, VAGA_CARD_CFG, onComplete); }
 
   function vagaCardUpdateHeight(card) {
     if (!card.classList.contains('vaga-card--expanded')) return;
     const backH = card.querySelector('.vaga-card__back').scrollHeight;
-
     card.style.transition = 'none';
     card.style.height = card.offsetHeight + 'px';
-
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         card.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
         card.style.height = backH + 'px';
-
-        setTimeout(() => {
-          card.style.height = 'auto';
-          card.style.transition = '';
-        }, 320);
+        setTimeout(() => { card.style.height = 'auto'; card.style.transition = ''; }, 320);
       });
     });
   }
 
-  // ── Animações do card de profissional (flip + expansão, igual ao vaga-card) ──
-  const PRO_FLIP_MS   = 500;
-  const PRO_EXPAND_MS = 380;
-  const PRO_COLL_MS   = 300;
-
-  function proCardFlipToBack(card) {
-    const frontH = card.offsetHeight;
-    card.dataset.frontH = frontH;
-
-    card.style.transition = 'none';
-    card.style.height = frontH + 'px';
-    // Libera overflow durante o flip para que os cantos 3D não sejam cortados
-    card.style.overflow = 'visible';
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        card.classList.add('pro-card--flipped');
-
-        setTimeout(() => {
-          // Restaura overflow antes da expansão (a animação de altura precisa dele)
-          card.style.overflow = '';
-          card.classList.add('pro-card--expanded');
-          const back   = card.querySelector('.pro-card__back');
-          const backH  = back.offsetHeight;
-          const delta  = backH - frontH;
-          const footer = card.querySelector('.pro-card__back-actions');
-
-          if (footer) {
-            footer.style.transition = 'none';
-            footer.style.transform  = `translateY(-${delta}px)`;
-          }
-
-          // clip-path contém filhos 3D que escapam de overflow:hidden durante expansão
-          card.style.clipPath = 'inset(0 0 0 0)';
-
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              const timing = `${PRO_EXPAND_MS}ms cubic-bezier(0.4,0,0.2,1)`;
-
-              card.style.transition = `height ${timing}`;
-              card.style.height     = backH + 'px';
-
-              if (footer) {
-                footer.style.transition = `transform ${timing}`;
-                footer.style.transform  = '';
-              }
-
-              setTimeout(() => {
-                card.style.height    = 'auto';
-                card.style.transition = '';
-                card.style.clipPath  = '';
-                if (footer) footer.style.transition = '';
-              }, PRO_EXPAND_MS + 20);
-            });
-          });
-        }, PRO_FLIP_MS);
-      });
-    });
-  }
-
-  function proCardFlipToFront(card, onComplete) {
-    const frontH   = parseInt(card.dataset.frontH || 200);
-    const currentH = card.offsetHeight;
-    const delta    = currentH - frontH;   // quanto o card vai encolher
-    const footer   = card.querySelector('.pro-card__back-actions');
-
-    // Trava sem transição
-    card.style.transition = 'none';
-    card.style.height     = currentH + 'px';
-    if (footer) footer.style.transition = 'none';
-    // clip-path contém filhos 3D durante o colapso
-    card.style.clipPath = 'inset(0 0 0 0)';
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        const timing = `${PRO_COLL_MS}ms cubic-bezier(0.4,0,0.2,1)`;
-
-        // Altura diminui pelo delta (topo fixo, borda inferior sobe).
-        // Footer sobe pelo mesmo delta → fica sempre colado à borda do card.
-        card.style.transition  = `height ${timing}`;
-        card.style.height      = frontH + 'px';
-
-        if (footer) {
-          footer.style.transition = `transform ${timing}`;
-          footer.style.transform  = `translateY(-${delta}px)`;
-        }
-
-        setTimeout(() => {
-          // Zera o translateY antes do flip (a rotação 3D cobre o reset)
-          if (footer) {
-            footer.style.transition = 'none';
-            footer.style.transform  = '';
-          }
-          card.classList.remove('pro-card--expanded');
-          card.style.transition = 'none';
-          card.style.clipPath   = '';
-          // Libera overflow durante o flip de volta
-          card.style.overflow = 'visible';
-
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              card.classList.remove('pro-card--flipped');
-
-              setTimeout(() => {
-                card.style.height    = '';
-                card.style.transition = '';
-                card.style.overflow  = '';
-                if (onComplete) onComplete();
-              }, PRO_FLIP_MS + 30);
-            });
-          });
-        }, PRO_COLL_MS + 10);
-      });
-    });
-  }
-
+  // ── Wrappers pro-card ─────────────────────────────────────────────────────
+  function proCardFlipToBack(card)               { flipCardToBack(card, PRO_CARD_CFG); }
+  function proCardFlipToFront(card, onComplete)  { flipCardToFront(card, PRO_CARD_CFG, onComplete); }
   const proCardForceReset = (card) => {
-    card.classList.remove('pro-card--flipped', 'pro-card--expanded', 'pro-card--selected');
-    card.style.height = card.style.overflow = card.style.transition = card.style.clipPath = '';
-    const footer = card.querySelector('.pro-card__back-actions');
-    if (footer) { footer.style.transform = footer.style.transition = ''; }
+    card.classList.remove('pro-card--selected');
+    flipCardForceReset(card, PRO_CARD_CFG);
   };
 
   // Delegação de cliques nos cards de vaga
