@@ -642,7 +642,7 @@
             <div class="indicated-popup__backdrop" id="indicated-popup-backdrop"></div>
             <div class="indicated-popup__sheet">
                 <div class="indicated-popup__header">
-                    <p class="indicated-popup__title">Profissionais indicados</p>
+                    <p class="indicated-popup__title" id="indicated-popup-title">Profissionais indicados</p>
                     <button type="button" id="btn-close-indicated-popup" class="agenda-indicated__cancel" aria-label="Fechar">
                         <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
                     </button>
@@ -720,13 +720,26 @@
                             <p class="pedido-detail-card__text" id="pedido-detail-text"></p>
                             <div class="pedido-detail-meta" id="pedido-detail-meta"></div>
                         </div>
+                        <div class="pedido-detail-timer">
+                            <span class="material-symbols-rounded" aria-hidden="true">hourglass_bottom</span>
+                            <span id="pedido-detail-timer-text">—</span>
+                        </div>
                         <p class="pedido-detail-note">
                             <span class="material-symbols-rounded" aria-hidden="true">lock</span>
                             Pedidos publicados não podem ser editados.
                         </p>
-                        <button type="button" id="btn-view-indicated-from-details" class="btn btn--accent">
-                            <span class="material-symbols-rounded" aria-hidden="true">groups</span>
-                            Ver profissionais indicados (<span id="pedido-detail-count">0</span>)
+                        <div class="pedido-detail-indicated">
+                            <p class="pedido-detail-indicated__header">
+                                <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                                Indicações recebidas (<span id="pedido-detail-count">0</span>)
+                            </p>
+                            <div id="pedido-detail-indicated-list" class="pedido-detail-indicated__list">
+                                <!-- Preenchido via JS -->
+                            </div>
+                        </div>
+                        <button type="button" id="btn-pedido-concluir" class="btn btn--outline pedido-btn-cancel">
+                            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+                            Concluir pedido
                         </button>
                     </div>
 

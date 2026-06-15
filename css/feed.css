@@ -1422,6 +1422,46 @@
 
 .pedido-detail-note .material-symbols-rounded { font-size: 1.05rem; }
 
+/* Timer de horas restantes */
+.pedido-detail-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-5);
+  font-weight: 700;
+  color: var(--a-gold);
+}
+
+.pedido-detail-timer .material-symbols-rounded {
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+/* Lista de indicados inline dentro do sheet de detalhes */
+.pedido-detail-indicated {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.pedido-detail-indicated__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-5);
+  font-weight: 800;
+  color: var(--t-light);
+  margin: 0;
+}
+
+.pedido-detail-indicated__header .material-symbols-rounded { font-size: 1.2rem; }
+
+.pedido-detail-indicated__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
 /* Badge de indicações na barra fica clicável quando há pedido publicado */
 #my-pedido-info { cursor: pointer; }
 

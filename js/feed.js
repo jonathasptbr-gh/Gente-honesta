@@ -86,6 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const screenBorder  = document.getElementById('indicate-screen-border');
 
   const openIndicatedPopup = (postId) => {
+    // Título padrão para pedidos de terceiros; para o pedido próprio o chamador
+    // já atualizou para "Indicações para você" antes de chamar esta função.
+    const titleEl = document.getElementById('indicated-popup-title');
+    if (titleEl && postId !== 'my') titleEl.textContent = 'Profissionais indicados';
     renderIndicatedBlock(postId);
     document.getElementById('indicated-popup')?.classList.add('indicated-popup--open');
   };
@@ -1319,11 +1323,13 @@ document.addEventListener('DOMContentLoaded', () => {
   //   - sem pedido → abre o sheet de CRIAÇÃO (formulário)
   //   - com pedido → abre o sheet de DETALHES (somente leitura)
   // O badge ao lado (#my-pedido-info) mostra X/3 indicações e, quando há pedido,
-  // abre a lista de profissionais já indicados (reaproveita o indicated-popup).
+  // abre "Indicações para você" (popup de indicados com título personalizado).
   // MOCK: nada persiste no Firestore; as indicações são semeadas na publicação
   // só para o fluxo ficar demonstrável.
   let hasPedido = false;
-  let pedidoIndications = 0; // indicações recebidas no pedido (mock)
+  let pedidoIndications = 0;
+  let pedidoPublishedAt = null; // timestamp da publicação (para o timer)
+  let pedidoTimerInterval = null; // setInterval do timer (limpo ao fechar/concluir)
   const myPedido = { text: '', urgency: 'normal', duration: '12', neighbors: false };
 
   const btnMyPedido      = document.getElementById('btn-my-pedido');
@@ -1354,7 +1360,44 @@ document.addEventListener('DOMContentLoaded', () => {
   const pedidoCharCount    = document.getElementById('pedido-char-count');
   const pedidoNeighbors    = document.getElementById('pedido-neighbors');
 
-  const closePedidoSheet = () => pedidoSheet?.classList.remove('pedido-sheet--open');
+  const stopPedidoTimer = () => {
+    if (pedidoTimerInterval) { clearInterval(pedidoTimerInterval); pedidoTimerInterval = null; }
+  };
+
+  const closePedidoSheet = () => {
+    pedidoSheet?.classList.remove('pedido-sheet--open');
+    stopPedidoTimer();
+  };
+
+  // Atualiza o texto do timer com as horas restantes (arredondado para cima).
+  const updatePedidoTimer = () => {
+    const timerEl = document.getElementById('pedido-detail-timer-text');
+    if (!timerEl || !pedidoPublishedAt) return;
+    const totalMs = parseInt(myPedido.duration, 10) * 3600 * 1000;
+    const elapsedMs = Date.now() - pedidoPublishedAt;
+    const remainingMs = Math.max(0, totalMs - elapsedMs);
+    const hoursLeft = Math.ceil(remainingMs / (3600 * 1000));
+    timerEl.textContent = hoursLeft > 0 ? `${hoursLeft}h restantes` : 'Expirado';
+  };
+
+  // Renderiza a lista de profissionais indicados dentro do estado de detalhes.
+  const renderPedidoIndicatedInDetails = () => {
+    const list = document.getElementById('pedido-detail-indicated-list');
+    if (!list) return;
+    list.innerHTML = '';
+    const indicated = mockIndicatedByPost['my'] || [];
+    if (indicated.length === 0) {
+      list.innerHTML = '<span style="font-size:var(--fs-4);color:rgba(255,255,255,0.7)">Nenhuma indicação ainda.</span>';
+      return;
+    }
+    indicated.forEach(pro => {
+      const card = document.createElement('div');
+      card.className = 'pro-card';
+      card.style.cursor = 'default';
+      card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div></div></div>`;
+      list.appendChild(card);
+    });
+  };
 
   // Preenche o estado de detalhes (somente leitura) a partir de myPedido.
   const renderPedidoDetails = () => {
@@ -1373,6 +1416,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const cnt = document.getElementById('pedido-detail-count');
     if (cnt) cnt.textContent = pedidoIndications;
+
+    updatePedidoTimer();
+    renderPedidoIndicatedInDetails();
   };
 
   // mode: 'form' (criação) | 'details' (somente leitura).
@@ -1381,7 +1427,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pedidoSheetTitle) pedidoSheetTitle.textContent = isForm ? 'Fazer um pedido' : 'Detalhes do pedido';
     pedidoFormState?.classList.toggle('u-hidden', !isForm);
     pedidoDetailsState?.classList.toggle('u-hidden', isForm);
-    if (!isForm) renderPedidoDetails();
+    if (!isForm) {
+      renderPedidoDetails();
+      // Atualiza o timer a cada minuto enquanto o sheet estiver aberto
+      stopPedidoTimer();
+      pedidoTimerInterval = setInterval(updatePedidoTimer, 60 * 1000);
+    }
     pedidoSheet?.classList.add('pedido-sheet--open');
   };
 
@@ -1425,6 +1476,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     myPedido.text = text;
     hasPedido = true;
+    pedidoPublishedAt = Date.now();
     // MOCK: semeia indicações para o fluxo "ver indicados" ficar demonstrável.
     mockIndicatedByPost['my'] = [
       { name: 'Carlos Almeida', tags: 'Eletricista · Encanador', ic: 78, q: 7, a: 5, v: 6, avail: 'available', pay: { cash: true, pix: true, card: 6 }, nf: true, bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
@@ -1436,10 +1488,25 @@ document.addEventListener('DOMContentLoaded', () => {
     await customAlert('Seu pedido está no ar! Você será avisado quando alguém indicar um profissional de confiança.', 'Pedido publicado', 'check_circle');
   });
 
-  // Botão "ver profissionais indicados" dentro do estado de detalhes
-  document.getElementById('btn-view-indicated-from-details')?.addEventListener('click', () => {
+  // Concluir pedido — reseta o estado e fecha o sheet
+  document.getElementById('btn-pedido-concluir')?.addEventListener('click', async () => {
+    const ok = await customConfirm('Ao concluir, seu pedido sairá do ar e não receberá novas indicações. Deseja continuar?', 'Concluir pedido', 'check_circle');
+    if (!ok) return;
+    hasPedido = false;
+    pedidoPublishedAt = null;
+    pedidoIndications = 0;
+    myPedido.text = '';
+    myPedido.urgency = 'normal';
+    myPedido.duration = '12';
+    myPedido.neighbors = false;
+    mockIndicatedByPost['my'] = [];
+    // Restaura chips do formulário para o padrão
+    document.querySelectorAll('#pedido-urgency .pedido-chip').forEach((c, i) => c.classList.toggle('pedido-chip--active', i === 0));
+    document.querySelectorAll('#pedido-duration .pedido-chip').forEach((c, i) => c.classList.toggle('pedido-chip--active', i === 0));
+    if (pedidoNeighbors) pedidoNeighbors.setAttribute('aria-pressed', 'false');
+    if (inpPedidoText) { inpPedidoText.value = ''; if (pedidoCharCount) pedidoCharCount.textContent = '0'; }
+    renderMyPedidoButton();
     closePedidoSheet();
-    openIndicatedPopup('my');
   });
 
   // Botão principal da barra: criação ou detalhes conforme o estado
@@ -1447,9 +1514,12 @@ document.addEventListener('DOMContentLoaded', () => {
     openPedidoSheet(hasPedido ? 'details' : 'form');
   });
 
-  // Badge ao lado → profissionais já indicados (só faz sentido com pedido ativo)
+  // Badge ao lado → popup "Indicações para você" (título personalizado)
   myPedidoInfo?.addEventListener('click', () => {
-    if (hasPedido) openIndicatedPopup('my');
+    if (!hasPedido) return;
+    const titleEl = document.getElementById('indicated-popup-title');
+    if (titleEl) titleEl.textContent = 'Indicações para você';
+    openIndicatedPopup('my');
   });
 
   renderMyPedidoButton();
