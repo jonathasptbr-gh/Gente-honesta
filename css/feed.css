@@ -1525,6 +1525,12 @@
    legível), e a clipagem fica por conta do overflow:hidden do .pro-card. */
 .pro-card--expanded .pro-card__front {
   height: 0;
+  /* O padding e a borda ficam DIRETO na frente (diferente do vaga-card, cujo
+     padding está nos filhos). Com box-sizing:border-box, height:0 zera só o
+     conteúdo — sem zerar padding/borda sobram ~26px residuais que empurram o
+     verso para baixo (margem no topo) e dessincronizam o footer (delta errado). */
+  padding: 0;
+  border-width: 0;
   overflow: hidden;
   visibility: hidden;
 }
