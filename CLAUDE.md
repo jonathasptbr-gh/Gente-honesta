@@ -340,6 +340,40 @@ Estado relevante em `feed.js`:
 - `setTabButton(tabName, scrolled)` — atualiza ícone/label do botão
 - `switchToTab(tabName)` — ponto único de troca de aba; reseta botão anterior, restaura estado do novo; também usado pelo swipe
 
+### Sistema de filtros e pins (aba Profissionais)
+
+```
+pinnedPros (Set<id>)   — profissionais salvos/pinados pelo usuário (session-only)
+filterState {
+  includeIc:    Set   — faixas de IC selecionadas ('ok'|'warn'|'alert'|'bad')
+  includeAvail: Set   — disponibilidades ('available'|'full'|'unavailable')
+  includePay:   Set   — formas de pagamento ('cash'|'pix'|'card'|'nf')
+  savedOnly:    bool  — mostrar apenas salvos
+  sort:         string — 'name'|'ic'|'avail'|'quality'|'agility'|'value'
+}
+```
+
+- `applyFilters(pros)` — aplica `filterState` sobre um array de profissionais
+- `sortPros(pros)` — ordena conforme `filterState.sort`
+- `reorderAgendaListAnimated()` — reordena cards já renderizados com animação FLIP
+- Pros salvos (`pinnedPros`) aparecem sempre no topo, agrupados separadamente dos demais
+
+### Cards de profissional (flip 3D)
+
+`.pro-card__3d > .pro-card__flipper`:
+- **Frente:** dados do profissional (IC, tags, disponibilidade, IC-bar, pin)
+- **Verso:** `proBackHTML()` — lista de `mockComments` em scroll + botões de ação
+
+`proCardFlipToBack(card)` / `proCardFlipToFront(card, onComplete)` em `feed.js` — motor genérico `flipCardToBack/Front` com configurações separadas para pro-card vs vaga-card.
+
+### Cards de vaga (flip 3D — já implementado)
+
+`.vaga-card__3d > .vaga-card__flipper`:
+- **Frente:** empresa, endereço, cargo, requisitos, benefícios, "Me candidatar"
+- **Verso:** formulário de candidatura com `<details>` por requisito + textarea de observação
+
+Candidatura mockada: sem persistência no Firestore. O flip usa o mesmo motor genérico de animação 3D dos cards de profissional.
+
 ### Regras de scrollbar
 
 Todos os elementos scrolláveis do feed usam `scrollbar-width: none` + `::-webkit-scrollbar { display: none }`. Nunca adicionar scrollbar colorida ou visível em componentes do feed.
@@ -349,15 +383,18 @@ Todos os elementos scrolláveis do feed usam `scrollbar-width: none` + `::-webki
 ## O que ainda é mock (dados de exemplo)
 
 Dentro de `DOMContentLoaded` em `js/feed.js`:
-- `mockProfessionals[]` — 5 profissionais com `{id, name, tags, ic, q, a, v, avail, pay, bio}`
+- `mockProfessionals[]` — 5 profissionais com `{id, name, tags, ic, q, a, v, avail, pay: {cash, pix, card}, nf, bio}`
+  - `pay.card`: `0` = não aceita, `'debit'` = só débito, número = crédito parcelado em até Nx
+  - `nf`: boolean — emite nota fiscal
 - `mockComments[]` — 5 avaliações de exemplo `{author, text, ic}` (mesmo bloco para todos os profissionais)
 - `mockIndicatedByPost{}` — post ID → profissionais já indicados
-- `mockVagas[]` — 3 vagas de emprego de exemplo
+- `mockVagas[]` — 3 vagas de emprego com estrutura detalhada `{id, empresa, endereco, mapsQuery, poster, cargo, vagas, requisitos, cargaHoraria, salario, beneficios}`
 
 Comportamentos placeholder:
 - Botões "Contratar", "WhatsApp", "Compartilhar" exibem alertas placeholder
 - Botão "Fazer um pedido" simula criação sem persistência no Firestore
 - Lista de pedidos (`#list-feed`) com 2 pedidos mockados hardcoded no HTML
+- Cards de vaga já têm flip 3D com formulário de candidatura, mas sem persistência no Firestore
 
 ---
 
@@ -367,4 +404,4 @@ Comportamentos placeholder:
 - Persistência de profissionais no Firestore
 - Firebase Cloud Messaging para notificações push
 - Tela de criação de pedido real (substituir o mock atual)
-- Aba "Vagas" implementada com cards flip (candidatura) — dados ainda mockados, sem persistência
+- Candidatura em vagas com persistência no Firestore (flip de candidatura já existe — falta backend)
