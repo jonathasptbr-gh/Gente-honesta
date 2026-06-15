@@ -1421,12 +1421,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const avatarSrc = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>`;
     const displayName = window.auth?.currentUser?.displayName || 'Você';
     const urgent = myPedido.urgency === 'urgent';
-    // Pílulas opcionais: omite Normal (padrão) e 12h (padrão)
-    const tagsHTML = [
-      urgent ? `<span class="pedido-detail-tag pedido-detail-tag--urgent"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>` : '',
-      myPedido.duration !== '12' ? `<span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">timer</span>${myPedido.duration}h online</span>` : '',
-      myPedido.neighbors ? `<span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">travel_explore</span>Cidades vizinhas</span>` : '',
-    ].filter(Boolean).join('');
     const container = document.getElementById('pedido-detail-card-container');
     if (container) {
       container.innerHTML = `
@@ -1441,7 +1435,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </span>
           </div>
           ${urgent ? `<p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>${myPedido.text}</p>` : `<p class="pedido-item__text">${myPedido.text}</p>`}
-          ${tagsHTML ? `<div class="pedido-detail-meta">${tagsHTML}</div>` : ''}
         </article>
       `;
     }
