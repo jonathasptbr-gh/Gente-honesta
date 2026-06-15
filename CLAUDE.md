@@ -219,7 +219,7 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 
 **Diálogos:** sempre usar `await customAlert(...)` e `await customConfirm(...)` — nunca `alert()` ou `confirm()` nativos.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v94`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v105`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Estado global:** `window.appState` em `app.js`:
 - `confirmationResult` — objeto de confirmação SMS do Firebase
@@ -293,29 +293,34 @@ Navegação por clique ou swipe horizontal. A aba ativa pode exibir `arrow_upwar
 
 ### Painéis deslizantes
 
+O feed tem **3 painéis** lado a lado; o container tem `width: 300%` e desliza via `transform: translateX`.
+
 ```
-.feed-body (overflow:hidden)
-  └─ .feed-panels (width:200%, flex, transition transform)
-       ├─ .feed-panel.feed-panel--pros   (50%)  → #agenda-list (scroll de profissionais)
-       └─ .feed-panel.feed-panel--pedidos (50%) → #pedidos-scroll (scroll de pedidos)
+#feed-panels (.feed-panels, width:300%, flex, transition transform)
+  ├─ .feed-panel.feed-panel--vagas   (33.3%)  → #vagas-scroll / #vagas-list (cards de vaga)
+  ├─ .feed-panel.feed-panel--pros    (33.3%)  → #agenda-list (scroll de profissionais)
+  └─ .feed-panel.feed-panel--pedidos (33.3%)  → #pedidos-scroll (scroll de pedidos)
 ```
 
-- Painel visível controlado por `.feed-panels--pedidos` (adiciona `transform: translateX(-50%)`)
-- `showPedidosPanel()` / `showProsPanel()` em `feed.js` — adicionam/removem a classe e alternam o estado da action bar
+- Painel vagas: `.feed-panels--vagas` (translateX 0%)
+- Painel pros: ausência de classes modificadoras (translateX -33.3%)
+- Painel pedidos: `.feed-panels--pedidos` (translateX -66.6%)
+- `showVagasPanel()` / `showProsPanel()` / `showPedidosPanel()` em `feed.js` — alternam classes e o estado da action bar
 
 ### Action bar (barra de busca / ação)
 
-Fica abaixo da top-bar verde, muda de estado conforme a aba ativa:
+Fica abaixo da top-bar verde, muda de estado conforme a aba ativa. Possui **3 estados**:
 
 ```
 #feed-action-bar (.agenda-filters)
-  └─ .agenda-filters__action-row  ← slot de altura fixa (40px), position:relative
-       ├─ #bar-search-state        ← campo de busca + botão de filtros (default)
-       └─ #bar-pedidos-state       ← botão "Fazer um pedido" (pedidos)
+  └─ .agenda-filters__action-row  ← slot de altura fixa, position:relative
+       ├─ #bar-search-state        ← campo de busca + botão de filtros (aba Profissionais)
+       ├─ #bar-vagas-state         ← botões "Serviço de ajudantes" e "Criar vaga" (aba Vagas)
+       └─ #bar-pedidos-state       ← botão "Fazer um pedido" (aba Pedidos)
   └─ #panel-agenda-filters         ← painel colapsável de filtros (position:absolute)
 ```
 
-As duas linhas são `position: absolute; inset: 0` sobrepostas no slot. A alternância é feita **exclusivamente por CSS** via `opacity + pointer-events + transition: 0.25s ease` — a classe `.agenda-filters--pedidos` no `#feed-action-bar` controla qual linha é visível. **Nunca usar `u-hidden` / `display: none`** nessas linhas, pois quebraria a animação de fade.
+As três linhas são `position: absolute; inset: 0` sobrepostas no slot. A alternância é feita **exclusivamente por CSS** via `opacity + pointer-events + transition: 0.25s ease` — as classes `.agenda-filters--vagas` e `.agenda-filters--pedidos` no `#feed-action-bar` controlam qual linha é visível. **Nunca usar `u-hidden` / `display: none`** nessas linhas, pois quebraria a animação de fade.
 
 ### Lista de Pedidos
 
@@ -341,8 +346,9 @@ Todos os elementos scrolláveis do feed usam `scrollbar-width: none` + `::-webki
 
 Dentro de `DOMContentLoaded` em `js/feed.js`:
 - `mockProfessionals[]` — 5 profissionais com `{id, name, tags, ic, q, a, v, avail, pay, bio}`
-- `mockComments[]` — 5 avaliações de exemplo `{author, text, ic}`
+- `mockComments[]` — 5 avaliações de exemplo `{author, text, ic}` (mesmo bloco para todos os profissionais)
 - `mockIndicatedByPost{}` — post ID → profissionais já indicados
+- `mockVagas[]` — 3 vagas de emprego de exemplo
 
 Comportamentos placeholder:
 - Botões "Contratar", "WhatsApp", "Compartilhar" exibem alertas placeholder
@@ -357,4 +363,4 @@ Comportamentos placeholder:
 - Persistência de profissionais no Firestore
 - Firebase Cloud Messaging para notificações push
 - Tela de criação de pedido real (substituir o mock atual)
-- Aba "Vagas" (conteúdo ainda não implementado)
+- Aba "Vagas" implementada com cards flip (candidatura) — dados ainda mockados, sem persistência

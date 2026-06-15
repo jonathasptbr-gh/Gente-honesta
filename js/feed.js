@@ -616,6 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('inp-agenda-search')?.addEventListener('input', renderAgendaList);
   renderAgendaList();
+  updateSlider('home'); // posiciona o slider na aba ativa inicial
 
 
   // =========================================================================

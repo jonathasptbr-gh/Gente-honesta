@@ -139,6 +139,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const locText = document.getElementById('text-location-status');
     if (locText) locText.innerText = 'Registrar sua região atual';
 
+    // Busca de área (input + lista de resultados)
+    const areaInput = document.getElementById('inp-area-search');
+    if (areaInput) areaInput.value = '';
+    const areaList = document.getElementById('list-area-results');
+    if (areaList) { areaList.innerHTML = ''; areaList.classList.add('u-hidden'); }
+    document.getElementById('btn-area-clear')?.classList.add('u-hidden');
+
+    // Barras de serviço: reseta estado local e atualiza o DOM
+    serviceState.quality = 0;
+    serviceState.agility = 0;
+    updateServiceBars();
+
+    // Colapsável de detalhes profissionais: fecha se estava aberto
+    const proPanel = document.getElementById('panel-prodetails');
+    if (proPanel && !proPanel.classList.contains('u-hidden')) {
+      proPanel.classList.add('u-hidden');
+      document.getElementById('btn-toggle-prodetails')?.closest('.collapsible')?.classList.remove('collapsible--open');
+    }
+
     // Erros de validação
     clearNameErrors();
   };

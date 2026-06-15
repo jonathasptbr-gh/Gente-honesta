@@ -53,7 +53,10 @@
     // MONITOR DE SESSÃO CENTRALIZADO - Única responsável por esconder o loader após qualquer mudança de estado
     if (loader) {
       loader.classList.add('u-fade-out');
-      setTimeout(() => loader.classList.add('u-hidden'), 400);
+      setTimeout(() => {
+        loader.classList.add('u-hidden');
+        loader.classList.remove('u-fade-out'); // limpa para que re-exibições posteriores sejam visíveis
+      }, 400);
     }
   });
 })();
