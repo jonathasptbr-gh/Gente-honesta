@@ -1576,7 +1576,11 @@
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  padding: var(--space-sm);
+  /* Sem padding-bottom: o footer (.pro-card__back-actions) tem padding-bottom
+     próprio e background:white, cobrindo visualmente toda a base do card.
+     Isso elimina a faixa "nua" abaixo dos botões que causava flash transparente
+     ao início da animação de expansão. */
+  padding: var(--space-sm) var(--space-sm) 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
@@ -1657,6 +1661,7 @@
   align-items: stretch;
   gap: var(--space-xs);
   padding-top: var(--space-sm);
+  padding-bottom: var(--space-sm);
   border-top: 1px solid var(--border-light);
   flex-shrink: 0;
   background: var(--bg-white);
