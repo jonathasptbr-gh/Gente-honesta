@@ -1662,6 +1662,18 @@
   background: var(--bg-white);
 }
 
+/* Pré-promove a camada GPU do footer JÁ no flip (500ms antes do slide de
+   expansão começar). Sem isso, o translateY aplicado no início da expansão
+   cria a GraphicsLayer só naquele instante e o primeiro frame composto sai
+   transparente — revelando os comentários atrás dos botões por um piscar.
+   Promover durante o flip dá tempo de rasterizar o fundo branco antes do
+   movimento. Restrito a --flipped para não manter camadas vivas em todos os
+   cards da lista (o vaga-card evita o mesmo flash via box-shadow no footer). */
+.pro-card--flipped .pro-card__back-actions {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
 .pro-card__back-btn {
   display: flex;
   align-items: center;
