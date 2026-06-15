@@ -101,14 +101,10 @@ js/   (a ordem de carga no index.html importa)
   feed.js               — 6º. Feed: notificações, painéis deslizantes, modo indicação,
                           cards de profissional (mock), filtros, pedidos, scroll-to-top, logout
 
-tools/
-  preview.js            — Ferramenta de screenshot headless (Playwright) para decisões estéticas
-  package.json          — Dependências: playwright 1.56.1
-
 .claude/
   settings.json         — Hook SessionStart → session-start.sh
   hooks/
-    session-start.sh    — Git config + Playwright setup (roda a cada sessão web)
+    session-start.sh    — Git config (roda a cada sessão web)
 
 .github/workflows/
   deploy.yml            — CI/CD: push para main → GitHub Pages (sem build step)
@@ -233,53 +229,6 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 - `cooldownActive` — rate-limit do SMS ativo
 - `locationConfirmed` — GPS validado no onboarding
 - `serviceProfile` — `{quality, agility, price}` barras de serviço
-
----
-
-## Preview Visual — fluxo padrão para decisões estéticas
-
-O desenvolvedor trabalha exclusivamente pelo smartphone. **Experimentos puramente
-estéticos (cores, tipografia, espaçamento, variações de design) são decididos por
-screenshot ANTES de qualquer deploy:** gerar as variantes com `tools/preview.js`,
-enviar os PNGs no chat (SendUserFile), iterar até a aprovação, e fazer **um único
-deploy** com a versão escolhida. Não usar produção como bancada de testes visuais.
-
-**Setup (uma vez por sessão web):**
-```bash
-cd tools && npm install --no-audit --no-fund && npx playwright install chromium
-```
-> `.claude/hooks/session-start.sh` já faz isso automaticamente (registrado em
-> `.claude/settings.json` como hook de SessionStart).
-
-**Uso:**
-```bash
-node tools/preview.js '{"view":"view-feed","shots":[
-  {"file":"/tmp/v1.png","css":":root{--bg-canvas:#124014 !important}","label":"1 · verde escuro"},
-  {"file":"/tmp/v2.png","css":":root{--bg-canvas:#e8eae9 !important}","label":"2 · cinza claro"}
-]}'
-```
-- `view`: qualquer tela (`view-feed`, `view-auth`, `view-onboarding`, `view-install`).
-- `tab`: aba do feed a ativar (`vagas`, `home`, `pedidos`). **OBRIGATÓRIO quando a mudança é numa aba específica** — o SPA começa sempre na aba `home`, então sem `tab` o screenshot mostra a tela errada.
-- `css`: qualquer override (tokens do `:root` são o caso típico, com `!important`).
-- O script sobe servidor próprio na porta 8077, emula um Galaxy (412×915 @2x), trata as
-  particularidades do ambiente (proxy/CA, service worker, stub do Firebase,
-  carregamento explícito de webfonts) — tudo comentado no próprio arquivo.
-- Se o stdout mostrar `AVISO ... ícones não renderizaram`, o screenshot é
-  inválido (fontes não carregaram) — repetir a captura.
-- Ressalva ao usuário quando relevante: a renderização headless não é o AMOLED
-  do aparelho; a conferência final de cor é no S24 após o deploy aprovado.
-
-**Regra obrigatória de navegação no preview:**
-O app é um SPA — cada tela e sub-estado só existe após interação JS. O script
-simula essas interações via `showView()` e clique na aba (`shot.tab`). Antes de
-gerar qualquer screenshot, identificar EXATAMENTE qual tela e qual estado precisa
-estar visível para refletir a mudança feita, e passar os parâmetros corretos:
-- Mudança na aba Vagas → `"view":"view-feed", "tab":"vagas"`
-- Mudança na aba Pedidos → `"view":"view-feed", "tab":"pedidos"`
-- Mudança na aba Profissionais → `"view":"view-feed", "tab":"home"`
-- Mudança no onboarding → `"view":"view-onboarding"`
-- Mudança no auth → `"view":"view-auth"`
-Screenshot na tela errada é inválido — não enviar ao usuário.
 
 ---
 
