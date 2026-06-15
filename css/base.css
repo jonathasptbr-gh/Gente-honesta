@@ -31,6 +31,8 @@
 
   /* Superfícies específicas */
   --camera-bg: #111111;          /* fundo da área da câmera */
+  --surface-company: #555558;    /* faixa de empresa nos cards de vaga */
+  --surface-dark: #1c1c1e;       /* superfície escura (botão primário alternativo) */
 
   /* Fundos */
   --bg-white: #FFFFFF;

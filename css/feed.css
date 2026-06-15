@@ -1264,12 +1264,6 @@
   flex-direction: column;
 }
 
-.agenda-filters__search-row {
-  display: flex;
-  gap: var(--space-xs);
-  align-items: center;
-}
-
 .agenda-filters__search-wrap {
   flex: 1;
   position: relative;
@@ -2399,7 +2393,7 @@
 
 /* Faixa cinza do topo: nome da empresa em destaque */
 .vaga-card__company-strip {
-  background: #555558;
+  background: var(--surface-company);
   padding: var(--space-sm) var(--space-md);
   display: flex;
   align-items: flex-start;
@@ -2659,7 +2653,7 @@
   justify-content: center;
   gap: 6px;
   padding: 11px var(--space-md);
-  background: #1c1c1e;
+  background: var(--surface-dark);
   color: #fff;
   border: none;
   border-radius: var(--radius-md);

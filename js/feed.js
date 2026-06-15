@@ -246,15 +246,13 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ---- Modelos padronizados de exibição (reutilizados em vários lugares) ----
+  const icTier = ic => ic >= 75 ? 'ok' : ic >= 50 ? 'warn' : ic >= 25 ? 'alert' : 'bad';
+  const icShieldIcon = ic => ic >= 75 ? 'gpp_good' : ic >= 50 ? 'shield_question' : ic >= 25 ? 'gpp_maybe' : 'gpp_bad';
+
   // Confiança compacta: (escudo) ##% Confiável — ou vertical (escudo/cima, %/meio, palavra/baixo)
   const icBarHTML = (ic, vertical = false) => {
-    // Faixas de 25%: 75–100 verde (check) · 50–74 amarelo (interrogação) ·
-    // 25–49 vermelho (exclamação) · 0–24 preto (negado)
-    let tier, shield;
-    if (ic >= 75)      { tier = 'ok';    shield = 'gpp_good';        }
-    else if (ic >= 50) { tier = 'warn';  shield = 'shield_question'; }
-    else if (ic >= 25) { tier = 'alert'; shield = 'gpp_maybe';       }
-    else               { tier = 'bad';   shield = 'gpp_bad';         }
+    const tier = icTier(ic);
+    const shield = icShieldIcon(ic);
     return `<div class="ic-bar ic-bar--${tier}${vertical ? ' ic-bar--vertical' : ''}"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">${shield}</span><span class="ic-bar__value">${ic}%</span><span class="ic-bar__label">Confiável</span></div>`;
   };
 
@@ -286,8 +284,6 @@ document.addEventListener('DOMContentLoaded', () => {
     { text: 'Contratei para um conserto urgente e não me decepcionou. Além de resolver, deu dicas para evitar o problema no futuro.', author: 'Pedro Alves', ic: 62 },
     { text: 'Segunda vez que contrato e o padrão continua o mesmo. Pode contratar sem medo, profissional exemplar.', author: 'Carla Ramos', ic: 91 },
   ];
-  const icTier = ic => ic >= 75 ? 'ok' : ic >= 50 ? 'warn' : ic >= 25 ? 'alert' : 'bad';
-  const icShieldIcon = ic => ic >= 75 ? 'gpp_good' : ic >= 50 ? 'shield_question' : ic >= 25 ? 'gpp_maybe' : 'gpp_bad';
 
   const buildCommentHTML = (c) => {
     const MAX = 150;
@@ -297,9 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span></p></div>`;
   };
 
+  let _proBackHTML = null;
   const proBackHTML = () => {
+    if (_proBackHTML) return _proBackHTML;
     const commentsHTML = mockComments.map(buildCommentHTML).join('');
-    return `
+    _proBackHTML = `
       <div class="pro-card__back">
         <div class="pro-card__comments-header">
           <span class="material-symbols-rounded" aria-hidden="true">chat_bubble</span>
@@ -325,6 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       </div>
     `;
+    return _proBackHTML;
   };
 
   // Rodapé do card: todos os 4 itens sempre visíveis.
@@ -577,9 +576,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const pinnedCards = cards.filter(c =>  pinnedPros.has(c.id));
     const otherCards  = cards.filter(c => !pinnedPros.has(c.id));
 
+    const proMap = new Map(mockProfessionals.map(p => [p.id, p]));
     const sortCards = (arr) => [...arr].sort((a, b) => {
-      const proA = mockProfessionals.find(p => p.id === a.id);
-      const proB = mockProfessionals.find(p => p.id === b.id);
+      const proA = proMap.get(a.id);
+      const proB = proMap.get(b.id);
       if (!proA || !proB) return 0;
       switch (filterState.sort) {
         case 'ic':      return proB.ic - proA.ic;
