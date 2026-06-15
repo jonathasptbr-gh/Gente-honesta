@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   document.getElementById('btn-close-indicated-popup')?.addEventListener('click', closeIndicatedPopup);
   document.getElementById('indicated-popup-backdrop')?.addEventListener('click', closeIndicatedPopup);
+  bindProCardFlip(document.getElementById('agenda-indicated-list'));
   document.getElementById('indicate-count-badge')?.addEventListener('click', () => {
     if (activePostId != null) openIndicatedPopup(activePostId);
   });
@@ -385,26 +386,54 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   };
 
+  // Renderiza cards de profissional flipáveis (com verso de comentários + WhatsApp)
+  // numa lista arbitrária. Reutilizado no popup de indicados e nos detalhes do pedido.
+  const renderFlippableProCards = (listEl, pros) => {
+    listEl.innerHTML = '';
+    if (!pros || pros.length === 0) {
+      listEl.innerHTML = '<span style="font-size:var(--fs-4);color:rgba(255,255,255,0.75)">Nenhuma indicação ainda.</span>';
+      return;
+    }
+    pros.forEach(pro => {
+      const card = document.createElement('div');
+      card.className = 'pro-card';
+      card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div>${proBackHTML()}</div></div>`;
+      listEl.appendChild(card);
+    });
+  };
+
+  // Registra delegação de cliques de flip num container de pro-cards.
+  // Chamar uma vez por container estático; não chamar dentro de funções de render.
+  const bindProCardFlip = (containerEl) => {
+    if (!containerEl) return;
+    containerEl.addEventListener('click', (e) => {
+      if (e.target.closest('.pro-card__back-btn--whatsapp')) {
+        customAlert('Abrir WhatsApp — funcionalidade em breve.', 'WhatsApp', 'chat');
+        return;
+      }
+      if (e.target.closest('.pro-card__back-btn--share')) {
+        customAlert('Compartilhar perfil — funcionalidade em breve.', 'Compartilhar', 'share');
+        return;
+      }
+      if (e.target.closest('.pro-card__back-btn--back') || e.target.closest('.pro-card__back')) {
+        const c = e.target.closest('.pro-card');
+        if (c) proCardFlipToFront(c);
+        return;
+      }
+      const card = e.target.closest('.pro-card');
+      if (!card) return;
+      const isFlipped = card.classList.contains('pro-card--flipped');
+      containerEl.querySelectorAll('.pro-card--flipped').forEach(el => { if (el !== card) proCardFlipToFront(el); });
+      if (isFlipped) proCardFlipToFront(card);
+      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100); }
+    });
+  };
+
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Monta os mini-cards dos já indicados
   const renderIndicatedBlock = (postId) => {
     const list = document.getElementById('agenda-indicated-list');
     if (!list) return;
-    list.innerHTML = '';
-
-    const indicated = mockIndicatedByPost[postId] || [];
-
-    if (indicated.length === 0) {
-      list.innerHTML = '<span style="font-size:var(--fs-4);color:rgba(255,255,255,0.75);grid-column:1/-1">Nenhuma indicação ainda.</span>';
-      return;
-    }
-
-    indicated.forEach(pro => {
-      const card = document.createElement('div');
-      card.className = 'pro-card';
-      card.style.cursor = 'default';
-      card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div></div></div>`;
-      list.appendChild(card);
-    });
+    renderFlippableProCards(list, mockIndicatedByPost[postId] || []);
   };
 
 
@@ -1384,42 +1413,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderPedidoIndicatedInDetails = () => {
     const list = document.getElementById('pedido-detail-indicated-list');
     if (!list) return;
-    list.innerHTML = '';
-    const indicated = mockIndicatedByPost['my'] || [];
-    if (indicated.length === 0) {
-      list.innerHTML = '<span style="font-size:var(--fs-4);color:rgba(255,255,255,0.7)">Nenhuma indicação ainda.</span>';
-      return;
-    }
-    indicated.forEach(pro => {
-      const card = document.createElement('div');
-      card.className = 'pro-card';
-      card.style.cursor = 'default';
-      card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div></div></div>`;
-      list.appendChild(card);
-    });
+    renderFlippableProCards(list, mockIndicatedByPost['my'] || []);
   };
 
   // Preenche o estado de detalhes (somente leitura) a partir de myPedido.
   const renderPedidoDetails = () => {
-    // Card no formato "como outros veem" — pedido-item sem Denunciar e sem ações
     const avatarSrc = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>`;
     const displayName = window.auth?.currentUser?.displayName || 'Você';
     const urgent = myPedido.urgency === 'urgent';
+    // Pílulas opcionais: omite Normal (padrão) e 12h (padrão)
     const tagsHTML = [
-      `<span class="pedido-detail-tag${urgent ? ' pedido-detail-tag--urgent' : ''}"><span class="material-symbols-rounded" aria-hidden="true">${urgent ? 'bolt' : 'schedule'}</span>${urgent ? 'Urgente' : 'Normal'}</span>`,
-      `<span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">timer</span>${myPedido.duration}h online</span>`,
+      urgent ? `<span class="pedido-detail-tag pedido-detail-tag--urgent"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>` : '',
+      myPedido.duration !== '12' ? `<span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">timer</span>${myPedido.duration}h online</span>` : '',
       myPedido.neighbors ? `<span class="pedido-detail-tag"><span class="material-symbols-rounded" aria-hidden="true">travel_explore</span>Cidades vizinhas</span>` : '',
-    ].join('');
+    ].filter(Boolean).join('');
     const container = document.getElementById('pedido-detail-card-container');
     if (container) {
       container.innerHTML = `
-        <article class="pedido-item pedido-detail-preview">
+        <article class="pedido-item pedido-detail-preview${urgent ? ' pedido-item--urgent' : ''}">
           <div class="pedido-item__meta">
             <img class="pedido-item__avatar" src="${avatarSrc}" alt="">
             <span class="pedido-item__name">${displayName}</span>
+            ${icBarHTML(100)}
+            <span class="pedido-item__timer">
+              <span class="material-symbols-rounded" aria-hidden="true">hourglass_bottom</span>
+              <span id="pedido-detail-timer-text">—</span>
+            </span>
           </div>
-          <p class="pedido-item__text">${myPedido.text}</p>
-          <div class="pedido-detail-meta">${tagsHTML}</div>
+          ${urgent ? `<p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>${myPedido.text}</p>` : `<p class="pedido-item__text">${myPedido.text}</p>`}
+          ${tagsHTML ? `<div class="pedido-detail-meta">${tagsHTML}</div>` : ''}
         </article>
       `;
     }
@@ -1533,6 +1555,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   renderMyPedidoButton();
+  bindProCardFlip(document.getElementById('pedido-detail-indicated-list'));
 
 
   // =========================================================================

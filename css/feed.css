@@ -781,6 +781,23 @@
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
 }
 
+/* Timer de horas restantes — ocupa o slot do Denunciar no card de detalhes */
+.pedido-item__timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-4);
+  font-weight: 600;
+  color: var(--a-gold);
+  flex-shrink: 0;
+}
+
+.pedido-item__timer .material-symbols-rounded {
+  font-size: 0.9rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 20;
+  color: var(--a-gold);
+}
+
 /* Texto do pedido */
 .pedido-item__text {
   font-size: var(--fs-6);
@@ -1160,8 +1177,8 @@
 }
 
 .indicated-popup__list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: var(--space-xs);
   overflow-y: auto;
   min-height: 0;
@@ -1491,6 +1508,9 @@
 
 /* Preview do pedido no formato balão — igual ao feed, sem botões */
 .pedido-detail-preview { pointer-events: none; }
+
+/* Cards de indicados são interativos (flip) mesmo dentro do sheet de detalhes */
+.pedido-detail-indicated__list .pro-card { pointer-events: auto; }
 
 .pedido-detail-indicated__list {
   display: flex;
