@@ -1444,7 +1444,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // =========================================================================
-  // POPUP DE PEDIDOS - Botão "Fazer um pedido" / "Detalhes do meu pedido"
+  // POPUP DE PEDIDOS - Botão "Fazer pedido" / "Detalhes do meu pedido"
   // =========================================================================
   // O botão da action-bar (pedidos) é a entrada do fluxo de pedido próprio:
   //   - sem pedido → abre o sheet de CRIAÇÃO (formulário)
@@ -1472,10 +1472,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'receipt_long';
       if (myPedidoCount)    myPedidoCount.innerText    = `${pedidoIndications}/3`;
       myPedidoInfo?.classList.remove('u-hidden');
+      btnHistorico?.classList.add('u-hidden');
     } else {
-      if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Fazer um pedido';
+      if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Fazer pedido';
       if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'add';
       myPedidoInfo?.classList.add('u-hidden');
+      btnHistorico?.classList.remove('u-hidden');
     }
   };
 
@@ -1537,7 +1539,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // mode: 'form' (criação) | 'details' (somente leitura).
   const openPedidoSheet = (mode) => {
     const isForm = mode === 'form';
-    if (pedidoSheetTitle) pedidoSheetTitle.textContent = isForm ? 'Fazer um pedido' : 'Detalhes do pedido';
+    if (pedidoSheetTitle) pedidoSheetTitle.textContent = isForm ? 'Fazer pedido' : 'Detalhes do pedido';
     pedidoFormState?.classList.toggle('u-hidden', !isForm);
     pedidoDetailsState?.classList.toggle('u-hidden', isForm);
     if (!isForm) {

@@ -416,7 +416,7 @@
   justify-content: center;
   border: none;
   border-radius: var(--radius-md);
-  font-size: var(--fs-8);
+  font-size: var(--fs-6);
   font-weight: 700;
   cursor: pointer;
   touch-action: manipulation;
@@ -667,6 +667,8 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
+  font-size: var(--fs-6);
+  white-space: nowrap;
 }
 
 
