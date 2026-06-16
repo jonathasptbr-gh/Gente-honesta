@@ -1546,7 +1546,7 @@ document.addEventListener('DOMContentLoaded', () => {
   myPedidoInfo?.addEventListener('click', () => {
     if (!hasPedido) return;
     const titleEl = document.getElementById('indicated-popup-title');
-    if (titleEl) titleEl.textContent = 'Indicações para você';
+    if (titleEl) titleEl.textContent = 'Indicações recebidas';
     openIndicatedPopup('my');
   });
 
