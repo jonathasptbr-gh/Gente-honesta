@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span></p></div>`;
   };
 
-  const COMMENTS_PAGE = 10;
+  const COMMENTS_PAGE = 5;
 
   // Appends next batch of comments to the card; removes the button when exhausted.
   // function declaration — chamado antes da sua posição textual em bindProCardFlip e agenda-list.
@@ -471,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isFlipped = card.classList.contains('pro-card--flipped');
       containerEl.querySelectorAll('.pro-card--flipped').forEach(el => { if (el !== card) proCardFlipToFront(el); });
       if (isFlipped) proCardFlipToFront(card);
-      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100); }
+      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 930); }
     });
   }
 
@@ -580,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.classList.add('pro-card--selected');
       selectedProId = card.id;
       proCardFlipToBack(card);
-      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 930);
     } else {
       // ── Navegação normal: flip para o verso ou fecha se já estava aberto ──
       const isFlipped = card.classList.contains('pro-card--flipped');
@@ -588,7 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el !== card) proCardFlipToFront(el);
       });
       if (isFlipped) proCardFlipToFront(card);
-      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100); }
+      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 930); }
     }
   });
 

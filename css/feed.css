@@ -1154,13 +1154,10 @@
   flex-direction: column;
   gap: var(--space-sm);
   max-height: 92dvh;
-  overflow-y: auto;
-  scrollbar-width: none;
+  overflow: hidden;
   transform: translateY(100%);
   transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
 }
-
-.indicated-popup__sheet::-webkit-scrollbar { display: none; }
 
 .indicated-popup--open .indicated-popup__sheet {
   transform: translateY(0);
@@ -1171,12 +1168,6 @@
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--p-green);
-  padding-bottom: var(--space-xs);
-  margin-bottom: calc(-1 * var(--space-xs));
 }
 
 .indicated-popup__title {
@@ -1190,7 +1181,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+  scrollbar-width: none;
 }
+
+.indicated-popup__list::-webkit-scrollbar { display: none; }
 
 /* =========================================================================
    PEDIDO SHEET — criar / gerenciar meu pedido (bottom sheet verde)
@@ -2005,7 +2002,7 @@
   background: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: var(--radius-sm);
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--info-blue);
   font-size: var(--fs-4);
   font-weight: 600;
   cursor: pointer;
