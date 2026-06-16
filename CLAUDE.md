@@ -79,7 +79,7 @@ CNAME                   — "gentehonesta.com.br"
 
 css/
   base.css              — Design tokens (:root), roteamento de telas, utilitários, animações
-  components.css        — Botões, inputs, ic-bar, diálogos, bloqueio desktop/landscape
+  components.css        — Botões, inputs, ic-bar, diálogos, bloqueio desktop/landscape; `btn--danger` (vermelho)
   auth.css              — Fluxo de login: auth-section, OTP grid, carrossel de intro
   onboarding.css        — Formulário de perfil: câmera, tags, localização, barras de
                           serviço, pro-note/pro-compare, ic-card
@@ -219,7 +219,9 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 
 **TDZ em DOMContentLoaded:** dentro do callback de `DOMContentLoaded` em `feed.js`, todas as variáveis declaradas com `const`/`let` ficam na temporal dead zone até sua linha de declaração. Chamar uma função `const` antes de ela ser declarada lança `ReferenceError` silencioso que interrompe TODO o callback — os event listeners abaixo do ponto de erro nunca são registrados. Sempre declare `const` helpers/funções ANTES da linha que os chama, ou mova a chamada para depois da declaração.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v109`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
+
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v122`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Estado global:** `window.appState` em `app.js`:
 - `confirmationResult` — objeto de confirmação SMS do Firebase
@@ -282,15 +284,35 @@ Estilo flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas` (
 ### Sheet "Fazer um pedido" / "Detalhes do meu pedido" (`#pedido-sheet`)
 
 Bottom sheet verde (mesmo padrão slide-up + backdrop do `indicated-popup`), acionado pelo `#btn-my-pedido` da action bar (estado pedidos). Dois estados internos alternados por `u-hidden`:
-- `#pedido-form-state` — **criação**: textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botões Cancelar/Publicar.
-- `#pedido-details-state` — **somente leitura** (pós-publicação): texto do pedido + tags (urgência, duração, alcance), aviso "pedidos publicados não podem ser editados", botão "Ver profissionais indicados".
+- `#pedido-form-state` — **criação**: textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botões Cancelar (`btn btn--danger`, vermelho) / Publicar.
+- `#pedido-details-state` — **somente leitura** (pós-publicação): card do pedido gerado dinamicamente por `renderPedidoDetails()` + lista de pros indicados (`#pedido-detail-indicated-list`) + botões Cancelar pedido (`btn btn--danger`) / Concluir pedido (`btn btn--accent`, amarelo).
+
+O card gerado por `renderPedidoDetails()` contém: avatar, nome, IC-bar (mock 100%), timer de expiração na meta row (no lugar do botão Denunciar). Urgência aparece como badge vermelho inline no texto. **Sem pílulas de tags** (urgência/duração/alcance removidas — as informações estão implícitas no card). O card tem `pointer-events: none`; os pro-cards dentro da lista de indicados têm `pointer-events: auto` via seletor específico.
 
 Lógica em `feed.js` (bloco "POPUP DE PEDIDOS"):
 - `myPedido` — `{text, urgency, duration, neighbors}` (mock, sem persistência no Firestore)
 - `hasPedido` / `pedidoIndications` — estado do pedido atual e nº de indicações
 - `openPedidoSheet('form'|'details')` — abre o sheet no estado certo; `renderPedidoDetails()` preenche a leitura
-- `#btn-my-pedido` → form (sem pedido) ou details (com pedido); badge `#my-pedido-info` ao lado → abre os profissionais indicados (reaproveita `openIndicatedPopup('my')`, com `mockIndicatedByPost['my']`)
+- `#btn-my-pedido` → form (sem pedido) ou details (com pedido); badge `#my-pedido-info` ao lado → abre profissionais indicados com título "Indicações recebidas" (`openIndicatedPopup('my')`)
 - Chips de seleção única via `wirePedidoChipGroup(groupId, dataKey, onPick)`; toggle via `aria-pressed`
+
+### Popup de Profissionais Indicados (`#agenda-indicated-popup`)
+
+Bottom sheet acionado ao clicar nos badges de fração dos pedidos (ex: `2/3`) ou no badge `#my-pedido-info`.
+
+Estrutura HTML obrigatória (qualquer mudança deve manter esta hierarquia):
+```
+.indicated-popup__sheet (overflow: hidden, flex-direction: column)
+  ├─ .indicated-popup__header (flex-shrink: 0) — título + botão Fechar
+  └─ .indicated-popup__scroll (flex: 1, overflow-y: auto) — SCROLL AQUI, não no sheet
+       └─ #agenda-indicated-list .indicated-popup__list — cards de pro
+```
+
+**Crítico:** o header fica FORA do container com scroll (são siblings). Nunca usar `position: sticky` no header — isso causou cards expandidos passarem por baixo do header. A solução estrutural é o wrapper `.indicated-popup__scroll`.
+
+- Título: "Profissionais indicados" (padrão) ou "Indicações recebidas" (quando `postId === 'my'`)
+- `openIndicatedPopup(postId)` — renderiza pros via `renderFlippableProCards`, chama `bindProCardFlip` no container
+- `bindProCardFlip(containerEl)` — registra delegação de clique UMA VEZ por container; verifica `handleLoadMoreComments` primeiro; scroll automático para o topo do card a 930ms do flip
 
 ### Scroll-to-top nas abas
 
@@ -324,9 +346,22 @@ filterState {
 
 `.pro-card__3d > .pro-card__flipper`:
 - **Frente:** dados do profissional (IC, tags, disponibilidade, IC-bar, pin)
-- **Verso:** `proBackHTML()` — lista de `mockComments` em scroll + botões de ação
+- **Verso:** `proBackHTML()` — primeiros `COMMENTS_PAGE` (5) comentários + botão "ver mais" + botões de ação
 
 `proCardFlipToBack(card)` / `proCardFlipToFront(card, onComplete)` em `feed.js` — motor genérico `flipCardToBack/Front` com configurações separadas para pro-card vs vaga-card.
+
+**Paginação de comentários:**
+- `COMMENTS_PAGE = 5` — constante global dentro de DOMContentLoaded
+- `proBackHTML()` — renderiza apenas os primeiros 5; botão `.pro-card__load-more` com `data-offset` indica próximo batch
+- `handleLoadMoreComments(e)` — function declaration; appenda próximo batch com animação `comment--entering` (fade+slide-up, stagger 45ms); anima expansão do card (`height` de `currentH` para novo valor, 0.3s cubic-bezier); retorna `true` se tratou o evento
+- `resetProCardBack(card)` — function declaration; restaura para os primeiros 5 comentários e repõe o botão "ver mais" com `data-offset="${COMMENTS_PAGE}"`
+- `proCardFlipToFront` sempre chama `resetProCardBack` no `onComplete` (depois da animação de flip, ~840ms) — o reset ocorre enquanto o verso já está oculto, sem flash visual
+
+**Cards de vaga** (`<details>` internos): ao abrir um `<details>`, o conteúdo aparece com a mesma animação `commentFadeIn`.
+
+**Helper reutilizável:**
+- `renderFlippableProCards(listEl, pros)` — function declaration; renderiza pro-cards flipáveis em qualquer container
+- Usado em: `#agenda-list` (lista principal), `#agenda-indicated-list` (popup de indicados), `#pedido-detail-indicated-list` (detalhes do pedido)
 
 ### Cards de vaga (flip 3D — já implementado)
 
@@ -335,6 +370,22 @@ filterState {
 - **Verso:** formulário de candidatura com `<details>` por requisito + textarea de observação
 
 Candidatura mockada: sem persistência no Firestore. O flip usa o mesmo motor genérico de animação 3D dos cards de profissional.
+
+### Classes CSS notáveis em feed.css
+
+| Classe | Descrição |
+|---|---|
+| `.pedido-item__timer` | Timer de expiração na meta row do pedido (cor dourada, inline-flex) |
+| `.pedido-item--urgent` | Card de pedido urgente (borda vermelha 2px) |
+| `.pedido-item__urgent-badge` | Pílula vermelha "bolt Urgente" inline no texto |
+| `.pedido-detail-preview` | Card gerado em `renderPedidoDetails()` — `pointer-events: none` |
+| `.pro-card__load-more` | Botão "ver mais comentários" — cor `var(--info-blue)` |
+| `.comment--entering` | Animação `commentFadeIn` fade+slide-up 0.22s nos comentários novos |
+| `.indicated-popup__scroll` | Wrapper de scroll no popup de indicados (fora do header) |
+
+**Classes em components.css:**
+- `btn--danger` — `background: var(--danger); color: #fff` (vermelho; usado em Cancelar)
+- `btn--accent` — `background: var(--a-gold); color: #000` (amarelo; usado em Concluir pedido)
 
 ### Regras de scrollbar
 
@@ -348,14 +399,17 @@ Dentro de `DOMContentLoaded` em `js/feed.js`:
 - `mockProfessionals[]` — 5 profissionais com `{id, name, tags, ic, q, a, v, avail, pay: {cash, pix, card}, nf, bio}`
   - `pay.card`: `0` = não aceita, `'debit'` = só débito, número = crédito parcelado em até Nx
   - `nf`: boolean — emite nota fiscal
-- `mockComments[]` — 5 avaliações de exemplo `{author, text, ic}` (mesmo bloco para todos os profissionais)
-- `mockIndicatedByPost{}` — post ID → profissionais já indicados
+- `mockComments[]` — **15** avaliações de exemplo `{author, text, ic}` (mesmo bloco para todos os profissionais); exibidas 5 por vez via paginação
+- `mockIndicatedByPost{}` — post ID → profissionais já indicados:
+  - `'0'`: 2 pros (posts na lista de pedidos)
+  - `'1'`: 2 pros
+  - `'my'`: 3 pros (semeados ao publicar o pedido)
 - `mockVagas[]` — 3 vagas de emprego com estrutura detalhada `{id, empresa, endereco, mapsQuery, poster, cargo, vagas, requisitos, cargaHoraria, salario, beneficios}`
 
 Comportamentos placeholder:
 - Botões "Contratar", "WhatsApp", "Compartilhar" exibem alertas placeholder
 - Sheet "Fazer um pedido" (`#pedido-sheet`): formulário de criação e tela de detalhes (leitura) já existem, mas sem persistência no Firestore. As indicações do próprio pedido (`mockIndicatedByPost['my']`) são semeadas na publicação só para o fluxo ficar demonstrável.
-- Lista de pedidos (`#list-feed`) com 2 pedidos mockados hardcoded no HTML
+- Lista de pedidos (`#list-feed`) com 2 pedidos mockados hardcoded no HTML; badges mostram `2/3` para ambos
 - Cards de vaga já têm flip 3D com formulário de candidatura, mas sem persistência no Firestore
 
 ---
