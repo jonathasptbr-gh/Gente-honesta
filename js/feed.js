@@ -1110,8 +1110,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Wrappers pro-card ─────────────────────────────────────────────────────
+  // Reseta o verso do card para o estado inicial (primeiros COMMENTS_PAGE comentários).
+  // Chamado após o flip-to-front para que a próxima abertura comece do zero.
+  function resetProCardBack(card) {
+    const commentsList = card.querySelector('.pro-card__comments-list');
+    const backComments = card.querySelector('.pro-card__back-comments');
+    if (!commentsList || !backComments) return;
+    commentsList.innerHTML = mockComments.slice(0, COMMENTS_PAGE).map(buildCommentHTML).join('');
+    let btn = backComments.querySelector('.pro-card__load-more');
+    if (mockComments.length > COMMENTS_PAGE) {
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pro-card__load-more';
+        btn.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">expand_more</span>ver mais comentários';
+        backComments.appendChild(btn);
+      }
+      btn.dataset.offset = String(COMMENTS_PAGE);
+    } else if (btn) {
+      btn.remove();
+    }
+  }
+
   function proCardFlipToBack(card)               { flipCardToBack(card, PRO_CARD_CFG); }
-  function proCardFlipToFront(card, onComplete)  { flipCardToFront(card, PRO_CARD_CFG, onComplete); }
+  function proCardFlipToFront(card, onComplete)  {
+    flipCardToFront(card, PRO_CARD_CFG, () => {
+      resetProCardBack(card);
+      if (onComplete) onComplete();
+    });
+  }
   const proCardForceReset = (card) => {
     card.classList.remove('pro-card--selected');
     flipCardForceReset(card, PRO_CARD_CFG);
