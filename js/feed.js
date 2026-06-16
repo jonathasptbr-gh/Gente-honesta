@@ -1507,13 +1507,6 @@ document.addEventListener('DOMContentLoaded', () => {
     timerEl.textContent = hoursLeft > 0 ? `${hoursLeft}h restantes` : 'Expirado';
   };
 
-  // Renderiza a lista de profissionais indicados dentro do estado de detalhes.
-  const renderPedidoIndicatedInDetails = () => {
-    const list = document.getElementById('pedido-detail-indicated-list');
-    if (!list) return;
-    renderFlippableProCards(list, mockIndicatedByPost['my'] || []);
-  };
-
   // Preenche o estado de detalhes (somente leitura) a partir de myPedido.
   const renderPedidoDetails = () => {
     const avatarSrc = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>`;
@@ -1537,11 +1530,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }
 
-    const cnt = document.getElementById('pedido-detail-count');
-    if (cnt) cnt.textContent = pedidoIndications;
-
     updatePedidoTimer();
-    renderPedidoIndicatedInDetails();
   };
 
   // mode: 'form' (criação) | 'details' (somente leitura).
@@ -1647,7 +1636,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   renderMyPedidoButton();
-  bindProCardFlip(document.getElementById('pedido-detail-indicated-list'));
 
 
   // =========================================================================
