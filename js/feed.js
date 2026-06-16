@@ -1459,6 +1459,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let pedidoTimerInterval = null; // setInterval do timer (limpo ao fechar/concluir)
   const myPedido = { text: '', urgency: 'normal', duration: '12', neighbors: false };
 
+  const btnHistorico     = document.getElementById('btn-historico-pedidos');
   const btnMyPedido      = document.getElementById('btn-my-pedido');
   const btnMyPedidoLabel = document.getElementById('btn-my-pedido-label');
   const btnMyPedidoIcon  = btnMyPedido?.querySelector('.pedido-action__icon');
@@ -1620,6 +1621,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inpPedidoText) { inpPedidoText.value = ''; if (pedidoCharCount) pedidoCharCount.textContent = '0'; }
     renderMyPedidoButton();
     closePedidoSheet();
+  });
+
+  btnHistorico?.addEventListener('click', () => {
+    customAlert('Histórico de pedidos em breve.', 'Histórico', 'history');
   });
 
   // Botão principal da barra: criação ou detalhes conforme o estado
