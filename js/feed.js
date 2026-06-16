@@ -312,10 +312,37 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span></p></div>`;
   };
 
+  const COMMENTS_PAGE = 10;
+
+  // Appends next batch of comments to the card; removes the button when exhausted.
+  // function declaration — chamado antes da sua posição textual em bindProCardFlip e agenda-list.
+  function handleLoadMoreComments(e) {
+    const btn = e.target.closest('.pro-card__load-more');
+    if (!btn) return false;
+    const offset = parseInt(btn.dataset.offset, 10);
+    const nextBatch = mockComments.slice(offset, offset + COMMENTS_PAGE);
+    const list = btn.closest('.pro-card__back-comments')?.querySelector('.pro-card__comments-list');
+    if (!list) return true;
+    nextBatch.forEach(c => {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = buildCommentHTML(c);
+      list.appendChild(wrap.firstElementChild);
+    });
+    const newOffset = offset + COMMENTS_PAGE;
+    if (newOffset >= mockComments.length) btn.remove();
+    else btn.dataset.offset = String(newOffset);
+    return true;
+  }
+
   let _proBackHTML = null;
   const proBackHTML = () => {
     if (_proBackHTML) return _proBackHTML;
-    const commentsHTML = mockComments.map(buildCommentHTML).join('');
+    const initial = mockComments.slice(0, COMMENTS_PAGE);
+    const commentsHTML = initial.map(buildCommentHTML).join('');
+    const hasMore = mockComments.length > COMMENTS_PAGE;
+    const loadMoreBtn = hasMore
+      ? `<button type="button" class="pro-card__load-more" data-offset="${COMMENTS_PAGE}"><span class="material-symbols-rounded" aria-hidden="true">expand_more</span>ver mais comentários</button>`
+      : '';
     _proBackHTML = `
       <div class="pro-card__back">
         <div class="pro-card__comments-header">
@@ -324,6 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="pro-card__back-comments">
           <div class="pro-card__comments-list">${commentsHTML}</div>
+          ${loadMoreBtn}
         </div>
         <div class="pro-card__back-actions">
           <button type="button" class="pro-card__back-btn pro-card__back-btn--back" aria-label="Voltar">
@@ -424,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function bindProCardFlip(containerEl) {
     if (!containerEl) return;
     containerEl.addEventListener('click', (e) => {
+      if (handleLoadMoreComments(e)) return;
       if (e.target.closest('.pro-card__back-btn--whatsapp')) {
         customAlert('Abrir WhatsApp — funcionalidade em breve.', 'WhatsApp', 'chat');
         return;
@@ -480,6 +509,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // TELA - PRINCIPAL (FEED) - LISTA DE CONTATOS - Seleção de profissional (só no modo indicação)
   document.getElementById('agenda-list')?.addEventListener('click', (e) => {
+    if (handleLoadMoreComments(e)) return;
+
     // Botão Salvar (fixar no topo) — atualiza o botão e reordena com
     // animação FLIP, sem reconstruir a lista (sem piscada de re-render)
     if (e.target.closest('.pro-card__pin-btn')) {
