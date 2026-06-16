@@ -2017,6 +2017,16 @@
   padding: var(--space-xs) 0;
 }
 
+/* Animação de entrada de novos comentários (carregados pelo "ver mais") */
+@keyframes commentFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.comment--entering {
+  animation: commentFadeIn 0.22s ease forwards;
+}
+
 .comment__text {
   font-size: var(--fs-3);
   line-height: 1.4;
@@ -2681,6 +2691,10 @@
 .candid-req-obs[open] {
   border-color: var(--p-green);
   background: var(--bg-white);
+}
+
+.candid-req-obs[open] > .candid-req-obs-input {
+  animation: commentFadeIn 0.22s ease forwards;
 }
 
 .candid-req-obs-label {

@@ -323,10 +323,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextBatch = mockComments.slice(offset, offset + COMMENTS_PAGE);
     const list = btn.closest('.pro-card__back-comments')?.querySelector('.pro-card__comments-list');
     if (!list) return true;
-    nextBatch.forEach(c => {
+    nextBatch.forEach((c, i) => {
       const wrap = document.createElement('div');
       wrap.innerHTML = buildCommentHTML(c);
-      list.appendChild(wrap.firstElementChild);
+      const el = wrap.firstElementChild;
+      el.classList.add('comment--entering');
+      el.style.animationDelay = `${i * 45}ms`;
+      list.appendChild(el);
     });
     const newOffset = offset + COMMENTS_PAGE;
     if (newOffset >= mockComments.length) btn.remove();
