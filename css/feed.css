@@ -1171,6 +1171,12 @@
   align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--p-green);
+  padding-bottom: var(--space-xs);
+  margin-bottom: calc(-1 * var(--space-xs));
 }
 
 .indicated-popup__title {

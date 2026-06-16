@@ -292,6 +292,16 @@ document.addEventListener('DOMContentLoaded', () => {
     { text: 'Trabalho limpo e rápido. Excelente custo-benefício.', author: 'Júlia Ferreira', ic: 95 },
     { text: 'Contratei para um conserto urgente e não me decepcionou. Além de resolver, deu dicas para evitar o problema no futuro.', author: 'Pedro Alves', ic: 62 },
     { text: 'Segunda vez que contrato e o padrão continua o mesmo. Pode contratar sem medo, profissional exemplar.', author: 'Carla Ramos', ic: 91 },
+    { text: 'Pontual, educado e deixou tudo organizado ao terminar. Já indiquei para três vizinhos.', author: 'Beatriz Costa', ic: 83 },
+    { text: 'Fez um orçamento justo e cumpriu o prazo combinado. Sem surpresas desagradáveis.', author: 'Lucas Menezes', ic: 77 },
+    { text: 'Atendimento excelente, serviço impecável. A melhor contratação que fiz esse ano.', author: 'Simone Oliveira', ic: 96 },
+    { text: 'Resolveu um problema que outros profissionais não conseguiram. Vale cada centavo.', author: 'Rafael Cunha', ic: 69 },
+    { text: 'Muito cuidadoso com o material e com o espaço. Deixou tudo limpo após o serviço.', author: 'Amanda Borges', ic: 85 },
+    { text: 'Comunicação clara durante todo o processo. Atualizou sobre cada etapa sem eu precisar perguntar.', author: 'Thiago Silveira', ic: 73 },
+    { text: 'Preço honesto e serviço de primeira. Difícil encontrar esse nível de profissionalismo.', author: 'Isabela Martins', ic: 90 },
+    { text: 'Terceira contratação, nunca decepcionou. Profissional de confiança de verdade.', author: 'Eduardo Pinto', ic: 82 },
+    { text: 'Chegou equipado, trabalhou de forma eficiente e entregou antes do prazo.', author: 'Natalia Rocha', ic: 79 },
+    { text: 'Indicaria de olhos fechados. Honestidade e qualidade raramente andam juntas assim.', author: 'Rodrigo Faria', ic: 93 },
   ];
 
   const buildCommentHTML = (c) => {
