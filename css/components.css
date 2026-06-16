@@ -41,6 +41,11 @@
   color: var(--t-sub);
 }
 
+.btn--danger {
+  background: var(--danger);
+  color: #fff;
+}
+
 .btn--text {
   background: none;
   padding: 8px 0;
