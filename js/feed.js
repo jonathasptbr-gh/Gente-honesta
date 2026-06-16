@@ -323,6 +323,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextBatch = mockComments.slice(offset, offset + COMMENTS_PAGE);
     const list = btn.closest('.pro-card__back-comments')?.querySelector('.pro-card__comments-list');
     if (!list) return true;
+    const card = btn.closest('.pro-card');
+    const currentH = card ? card.offsetHeight : null;
+
     nextBatch.forEach((c, i) => {
       const wrap = document.createElement('div');
       wrap.innerHTML = buildCommentHTML(c);
@@ -331,9 +334,26 @@ document.addEventListener('DOMContentLoaded', () => {
       el.style.animationDelay = `${i * 45}ms`;
       list.appendChild(el);
     });
+
     const newOffset = offset + COMMENTS_PAGE;
     if (newOffset >= mockComments.length) btn.remove();
     else btn.dataset.offset = String(newOffset);
+
+    // Anima a altura do card para acomodar os novos comentários suavemente
+    if (card && card.classList.contains('pro-card--expanded') && currentH !== null) {
+      const back = card.querySelector('.pro-card__back');
+      if (back) {
+        const newH = back.scrollHeight + (card.querySelector('.pro-card__back-actions')?.offsetHeight || 0);
+        card.style.transition = 'none';
+        card.style.height = currentH + 'px';
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          card.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
+          card.style.height = newH + 'px';
+          setTimeout(() => { card.style.height = 'auto'; card.style.transition = ''; }, 320);
+        }));
+      }
+    }
+
     return true;
   }
 

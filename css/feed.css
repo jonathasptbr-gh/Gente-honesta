@@ -1177,17 +1177,20 @@
   margin: 0;
 }
 
+.indicated-popup__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.indicated-popup__scroll::-webkit-scrollbar { display: none; }
+
 .indicated-popup__list {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  overflow-y: auto;
-  min-height: 0;
-  flex: 1;
-  scrollbar-width: none;
 }
-
-.indicated-popup__list::-webkit-scrollbar { display: none; }
 
 /* =========================================================================
    PEDIDO SHEET — criar / gerenciar meu pedido (bottom sheet verde)
