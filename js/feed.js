@@ -245,9 +245,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Dados mockados de indicações por post
   const mockIndicatedByPost = {
     '0': [
-      { name: 'Carlos Almeida', tags: 'Eletricista · Encanador', ic: 78, q: 7, a: 5, v: 6, avail: 'available', pay: { cash: true, pix: true, card: 6 }, nf: true, bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' }
+      { name: 'Carlos Almeida', tags: 'Eletricista · Encanador',  ic: 78, q: 7, a: 5, v: 6, avail: 'available',   pay: { cash: true,  pix: true,  card: 6  }, nf: true,  bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
+      { name: 'Roberto Nunes',  tags: 'Pintor · Gesseiro',        ic: 38, q: 6, a: 5, v: 5, avail: 'unavailable', pay: { cash: true,  pix: false, card: 0  }, nf: false, bio: 'Pintura e pequenos reparos em gesso. Estou no início de carreira, então os prazos podem variar.' },
     ],
-    '1': []
+    '1': [
+      { name: 'Paula Ramos',    tags: 'Diarista · Cozinheira',    ic: 64, q: 7, a: 7, v: 7, avail: 'full',        pay: { cash: true,  pix: true,  card: 0  }, nf: false, bio: 'Faço limpeza e cozinha do dia a dia. Não atendo aos finais de semana e não cuido de crianças.' },
+      { name: 'Fernanda Lima',  tags: 'Costureira · Designer',    ic: 91, q: 9, a: 5, v: 7, avail: 'available',   pay: { cash: false, pix: true,  card: 12 }, nf: true,  bio: 'Costura sob medida e ajustes de roupas. Não trabalha com couro nem com grandes lotes.' },
+    ],
   };
 
   // ---- Modelos padronizados de exibição (reutilizados em vários lugares) ----
@@ -1507,8 +1511,9 @@ document.addEventListener('DOMContentLoaded', () => {
     pedidoPublishedAt = Date.now();
     // MOCK: semeia indicações para o fluxo "ver indicados" ficar demonstrável.
     mockIndicatedByPost['my'] = [
-      { name: 'Carlos Almeida', tags: 'Eletricista · Encanador', ic: 78, q: 7, a: 5, v: 6, avail: 'available', pay: { cash: true, pix: true, card: 6 }, nf: true, bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
-      { name: 'Fernanda Lima',  tags: 'Costureira · Designer',   ic: 91, q: 9, a: 5, v: 7, avail: 'available', pay: { cash: false, pix: true, card: 12 }, nf: true, bio: 'Costura sob medida e ajustes de roupas. Não trabalha com couro nem com grandes lotes.' },
+      { name: 'Carlos Almeida', tags: 'Eletricista · Encanador',  ic: 78, q: 7, a: 5, v: 6, avail: 'available',   pay: { cash: true,  pix: true,  card: 6  }, nf: true,  bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
+      { name: 'Fernanda Lima',  tags: 'Costureira · Designer',    ic: 91, q: 9, a: 5, v: 7, avail: 'available',   pay: { cash: false, pix: true,  card: 12 }, nf: true,  bio: 'Costura sob medida e ajustes de roupas. Não trabalha com couro nem com grandes lotes.' },
+      { name: 'Marcos Freitas', tags: 'Marceneiro',               ic: 19, q: 8, a: 4, v: 6, avail: 'full',        pay: { cash: true,  pix: true,  card: 'debit' }, nf: true, bio: 'Móveis sob medida em madeira. Tenho alta demanda, combine o prazo com antecedência.' },
     ];
     pedidoIndications = mockIndicatedByPost['my'].length;
     renderMyPedidoButton();
