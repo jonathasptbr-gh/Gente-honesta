@@ -3,10 +3,10 @@
 // =========================================================================
 // TUTORIAL — motor genérico de tour guiado (coach marks)
 // Camada global reutilizável em QUALQUER tela do app: recebe uma lista de
-// passos (seletor + título + texto) e desenha, por cima da tela normal
-// (sem escurecer o fundo), um destaque no elemento-alvo e um balão com a
-// explicação. Não depende de nenhuma tela específica — quem usa (onboarding,
-// futuramente feed) só precisa fornecer os passos.
+// passos (seletor + título + texto) e desenha, por cima da tela normal, um
+// destaque no elemento-alvo (o resto da tela fica escurecido/desfocado) e
+// um balão com a explicação. Não depende de nenhuma tela específica — quem
+// usa (onboarding, futuramente feed) só precisa fornecer os passos.
 //
 // Uso:
 //   window.startTutorial([
@@ -19,6 +19,9 @@
 //   para reexibir mesmo já tendo sido visto (ex.: botão "Rever tutorial").
 // - Passos cujo elemento não existe ou está oculto (display:none / u-hidden)
 //   no momento são ignorados automaticamente.
+// - Só o elemento em destaque fica clicável/tocável: 4 painéis (topo, base,
+//   esquerda, direita) recortam um "buraco" exatamente no retângulo do alvo,
+//   escurecendo+desfocando e bloqueando o toque em todo o resto da tela.
 // =========================================================================
 
 (function () {
@@ -27,9 +30,12 @@
   let tutorialId = null;
   let onFinishCb = null;
   let lockedScrollEl = null;
+  let mutationObserver = null;
 
   let overlayEl, highlightEl, balloonEl, skipBtn, progressEl, titleEl, textEl, prevBtn, nextBtn;
+  let maskTop, maskBottom, maskLeft, maskRight;
   let repositionTimer = null;
+  let mutationRaf = null;
 
   function buildDOM() {
     if (overlayEl) return;
@@ -38,6 +44,10 @@
     overlayEl.id = 'tutorial-overlay';
     overlayEl.className = 'tutorial-overlay u-hidden';
     overlayEl.innerHTML = `
+      <div id="tutorial-mask-top" class="tutorial-mask"></div>
+      <div id="tutorial-mask-bottom" class="tutorial-mask"></div>
+      <div id="tutorial-mask-left" class="tutorial-mask"></div>
+      <div id="tutorial-mask-right" class="tutorial-mask"></div>
       <div id="tutorial-highlight" class="tutorial-highlight"></div>
       <div id="tutorial-balloon" class="tutorial-balloon" role="dialog" aria-live="polite">
         <button type="button" id="tutorial-skip" class="tutorial-balloon__skip" aria-label="Pular tutorial">
@@ -54,6 +64,10 @@
     `;
     document.body.appendChild(overlayEl);
 
+    maskTop = document.getElementById('tutorial-mask-top');
+    maskBottom = document.getElementById('tutorial-mask-bottom');
+    maskLeft = document.getElementById('tutorial-mask-left');
+    maskRight = document.getElementById('tutorial-mask-right');
     highlightEl = document.getElementById('tutorial-highlight');
     balloonEl = document.getElementById('tutorial-balloon');
     skipBtn = document.getElementById('tutorial-skip');
@@ -107,6 +121,29 @@
     lockedScrollEl = null;
   }
 
+  // Observa mudanças no DOM (ex.: um colapsável abrindo bem ao lado do alvo
+  // em destaque) enquanto o tour está ativo, e reposiciona tudo — sem isso o
+  // balão pode ficar parado por cima de um conteúdo que acabou de aparecer.
+  function startMutationWatch() {
+    stopMutationWatch();
+    mutationObserver = new MutationObserver(() => {
+      if (!isActive()) return;
+      cancelAnimationFrame(mutationRaf);
+      mutationRaf = requestAnimationFrame(positionStep);
+    });
+    mutationObserver.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class', 'style']
+    });
+  }
+
+  function stopMutationWatch() {
+    if (mutationObserver) { mutationObserver.disconnect(); mutationObserver = null; }
+    cancelAnimationFrame(mutationRaf);
+  }
+
   // TUTORIAL - Ponto de Entrada Público
   window.startTutorial = function (newSteps, opts) {
     opts = opts || {};
@@ -121,6 +158,7 @@
     onFinishCb = typeof opts.onFinish === 'function' ? opts.onFinish : null;
 
     lockScroll(findScrollParent(document.querySelector(validSteps[0].selector)));
+    startMutationWatch();
 
     overlayEl.classList.remove('u-hidden');
     currentIndex = 0;
@@ -164,6 +202,49 @@
     repositionTimer = setTimeout(positionStep, 350);
   }
 
+  // Os 4 painéis (topo/base/esquerda/direita) formam uma moldura ao redor do
+  // retângulo em destaque: juntos escurecem+desfocam e bloqueiam o toque em
+  // tudo, exceto no "buraco" onde fica o elemento-alvo (que permanece 100%
+  // interativo, sem nenhuma camada por cima dele).
+  function positionMask(holeTop, holeLeft, holeRight, holeBottom) {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    maskTop.style.top = '0px';
+    maskTop.style.left = '0px';
+    maskTop.style.width = `${vw}px`;
+    maskTop.style.height = `${Math.max(0, holeTop)}px`;
+
+    maskBottom.style.top = `${holeBottom}px`;
+    maskBottom.style.left = '0px';
+    maskBottom.style.width = `${vw}px`;
+    maskBottom.style.height = `${Math.max(0, vh - holeBottom)}px`;
+
+    const bandHeight = Math.max(0, holeBottom - holeTop);
+    maskLeft.style.top = `${holeTop}px`;
+    maskLeft.style.left = '0px';
+    maskLeft.style.width = `${Math.max(0, holeLeft)}px`;
+    maskLeft.style.height = `${bandHeight}px`;
+
+    maskRight.style.top = `${holeTop}px`;
+    maskRight.style.left = `${holeRight}px`;
+    maskRight.style.width = `${Math.max(0, vw - holeRight)}px`;
+    maskRight.style.height = `${bandHeight}px`;
+  }
+
+  // Se logo abaixo do alvo existe um irmão visível colado a ele (ex.: o painel
+  // de um colapsável que acabou de abrir), estende o "fundo" considerado para
+  // o cálculo de posição — sem isso o balão pode ficar por cima desse
+  // conteúdo recém-revelado, pensando que o espaço abaixo do alvo está livre.
+  function getExtendedBottom(targetEl, rect) {
+    const sibling = targetEl.nextElementSibling;
+    if (!sibling || !isVisible(sibling)) return rect.bottom;
+    const sRect = sibling.getBoundingClientRect();
+    const horizontallyAligned = sRect.left < rect.right && sRect.right > rect.left;
+    const directlyBelow = sRect.top >= rect.top - 1 && (sRect.top - rect.bottom) < 24;
+    return (horizontallyAligned && directlyBelow) ? Math.max(rect.bottom, sRect.bottom) : rect.bottom;
+  }
+
   function positionStep() {
     const step = steps[currentIndex];
     if (!step) return;
@@ -173,35 +254,59 @@
     const rect = targetEl.getBoundingClientRect();
     const pad = step.padding != null ? step.padding : 8;
 
-    highlightEl.style.top = `${rect.top - pad}px`;
-    highlightEl.style.left = `${rect.left - pad}px`;
-    highlightEl.style.width = `${rect.width + pad * 2}px`;
-    highlightEl.style.height = `${rect.height + pad * 2}px`;
+    const holeTop = rect.top - pad;
+    const holeLeft = rect.left - pad;
+    const holeRight = rect.right + pad;
+    const holeBottom = rect.bottom + pad;
+
+    highlightEl.style.top = `${holeTop}px`;
+    highlightEl.style.left = `${holeLeft}px`;
+    highlightEl.style.width = `${holeRight - holeLeft}px`;
+    highlightEl.style.height = `${holeBottom - holeTop}px`;
     highlightEl.style.borderRadius = step.round ? '999px' : 'var(--radius-md)';
 
+    positionMask(holeTop, holeLeft, holeRight, holeBottom);
+
+    const extendedBottom = getExtendedBottom(targetEl, rect);
+
     // Mede o balão "invisível" antes de decidir o lado, pra não vazar da tela
+    // nem ficar por cima de algo que acabou de aparecer (ex.: colapsável aberto).
     balloonEl.classList.remove('tutorial-balloon--above', 'tutorial-balloon--below');
     balloonEl.style.visibility = 'hidden';
 
     requestAnimationFrame(() => {
       const bRect = balloonEl.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceBelow = window.innerHeight - extendedBottom;
       const spaceAbove = rect.top;
-      const preferBelow = step.position === 'bottom' ||
+
+      const belowTop = extendedBottom + pad + 16;
+      const aboveTop = rect.top - pad - 16 - bRect.height;
+
+      const belowFits = belowTop + bRect.height <= window.innerHeight - 12;
+      const aboveFits = aboveTop >= 12;
+
+      let preferBelow = step.position === 'bottom' ||
         (step.position !== 'top' && spaceBelow >= Math.min(spaceAbove, bRect.height + 30));
+
+      // Se o lado escolhido não cabe de verdade (ex.: painel recém-aberto
+      // ocupou o espaço abaixo), troca de lado — desde que o outro caiba.
+      if (preferBelow && !belowFits && aboveFits) preferBelow = false;
+      else if (!preferBelow && !aboveFits && belowFits) preferBelow = true;
 
       let top;
       if (preferBelow) {
-        top = rect.bottom + pad + 16;
+        top = belowTop;
         balloonEl.classList.add('tutorial-balloon--below');
       } else {
-        top = rect.top - pad - 16 - bRect.height;
+        top = aboveTop;
         balloonEl.classList.add('tutorial-balloon--above');
       }
       top = Math.max(12, Math.min(top, window.innerHeight - bRect.height - 12));
 
-      let left = rect.left + rect.width / 2 - bRect.width / 2;
-      left = Math.max(12, Math.min(left, window.innerWidth - bRect.width - 12));
+      const left = Math.max(12, Math.min(
+        rect.left + rect.width / 2 - bRect.width / 2,
+        window.innerWidth - bRect.width - 12
+      ));
 
       // Seta do balão sempre aponta pro centro do alvo, mesmo com o balão deslocado
       const arrowLeft = Math.max(20, Math.min(rect.left + rect.width / 2 - left, bRect.width - 20));
@@ -217,6 +322,7 @@
     if (!overlayEl) return;
     overlayEl.classList.add('u-hidden');
     unlockScroll();
+    stopMutationWatch();
     if (tutorialId) markSeen(tutorialId);
     const cb = onFinishCb;
     onFinishCb = null;

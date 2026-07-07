@@ -222,10 +222,13 @@ Motor genérico e reutilizável (`js/tutorial.js` + `css/tutorial.css`) para tou
 qualquer tela — hoje usado no cadastro (`view-onboarding`); a ideia é reaproveitar no feed no futuro
 sem recriar elementos por tela.
 
-**Formato:** camada `position:fixed` de tela inteira e **transparente** (não escurece o app por trás).
-A cada passo, destaca o elemento-alvo com um anel dourado pulsante (`--a-gold`) e mostra um balão
-(`.tutorial-balloon`) com título, texto, progresso (`N / total`) e botões Voltar/Próximo/Pular. O
-elemento real por trás do destaque continua visível e não é coberto por nenhum backdrop escuro.
+**Formato:** camada `position:fixed` de tela inteira. 4 painéis (topo/base/esquerda/direita,
+`.tutorial-mask`) recortam um "buraco" exatamente no retângulo do elemento-alvo — juntos escurecem
+(`--overlay-soft`) e desfocam (`backdrop-filter: blur(3px)`) todo o resto da tela e **bloqueiam
+toque/clique fora do buraco** (`pointer-events: auto` nos painéis). Só o elemento em destaque fica
+100% nítido e interativo — dá pra preencher campos, tocar botões etc. "junto com o tutorial", sem
+conseguir mexer em nada fora do passo atual. Um anel dourado pulsante (`--a-gold`) marca o destaque, e
+um balão (`.tutorial-balloon`) mostra título, texto, progresso (`N / total`) e botões Voltar/Próximo/Pular.
 
 **API pública (`js/tutorial.js`):**
 ```js
@@ -250,6 +253,13 @@ window.resetTutorialSeen('nome-do-tutorial'); // limpa a flag "já visto" (ex.: 
 - **Reposicionamento:** o balão mede a si mesmo antes de decidir se fica acima ou abaixo do alvo
   (conforme espaço disponível) e nunca deixa a seta ou o card vazarem da viewport; reposiciona também
   no `resize`.
+- **Elementos colapsáveis/expansíveis no alvo atual:** um `MutationObserver` (classe/estilo/filhos, em
+  `document.body`) reposiciona tudo automaticamente sempre que o DOM muda enquanto o tour está ativo —
+  ex.: o usuário toca no próprio alvo em destaque (permitido, é a única área clicável) e isso abre um
+  `<details>` ou um `.collapsible__panel` bem ao lado. Para decidir se o balão cabe acima ou abaixo,
+  `getExtendedBottom()` verifica se o irmão logo abaixo do alvo (mesmo pai, colado, ex.: o painel de um
+  colapsável) está visível e soma sua altura ao cálculo — sem isso o balão ficaria por cima do conteúdo
+  recém-revelado, pensando que aquele espaço ainda estava livre.
 
 **Uso atual (cadastro):** `window.startOnboardingTutorial()` em `js/onboarding.js` define os passos do
 tour (foto, nome/sobrenome, localização, detalhes profissionais, IC, Plano Pro, botão concluir) e é
@@ -277,7 +287,7 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v123`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v124`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Estado global:** `window.appState` em `app.js`:
 - `confirmationResult` — objeto de confirmação SMS do Firebase

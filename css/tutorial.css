@@ -1,8 +1,9 @@
 /* ===========================================
    TUTORIAL — motor genérico de tour guiado
-   Camada de tela inteira, TRANSPARENTE (não escurece o app por trás):
-   apenas destaca o elemento-alvo com um brilho pulsante e mostra um
-   balão de explicação. Ver js/tutorial.js para a lógica.
+   Camada de tela inteira: 4 painéis (topo/base/esquerda/direita) recortam um
+   "buraco" exatamente no elemento em destaque — o resto da tela fica
+   escurecido+desfocado e sem interação; só o alvo continua 100% visível e
+   tocável. Ver js/tutorial.js para a lógica.
    ======================================== */
 .tutorial-overlay {
   position: fixed;
@@ -16,6 +17,18 @@
    se o usuário arrastar a tela por baixo dele). */
 .tutorial-scroll-lock {
   overflow: hidden !important;
+}
+
+/* Painéis de recorte: juntos formam uma moldura ao redor do alvo. Cada um
+   escurece+desfoca e bloqueia toque/clique — só o buraco entre eles fica
+   livre, exatamente sobre o elemento em destaque. */
+.tutorial-mask {
+  position: fixed;
+  pointer-events: auto;
+  background: var(--overlay-soft);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
 }
 
 .tutorial-highlight {
