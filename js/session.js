@@ -37,6 +37,11 @@
       // MONITOR DE SESSÃO CENTRALIZADO - Redirecionamento para Perfil Incompleto (Onboarding)
       else {
         if (typeof showView === 'function') showView('view-onboarding');
+        // Tutorial guiado do cadastro (js/tutorial.js): aguarda a animação de
+        // entrada da tela e o fade do loader antes de destacar o primeiro campo.
+        if (typeof window.startOnboardingTutorial === 'function') {
+          setTimeout(window.startOnboardingTutorial, 600);
+        }
       }
     }
     // MONITOR DE SESSÃO CENTRALIZADO - Inicialização de Usuário Deslogado (Fallback)

@@ -80,6 +80,7 @@ CNAME                   — "gentehonesta.com.br"
 css/
   base.css              — Design tokens (:root), roteamento de telas, utilitários, animações
   components.css        — Botões, inputs, ic-bar, diálogos, bloqueio desktop/landscape; `btn--danger` (vermelho)
+  tutorial.css           — Motor de tutorial guiado (destaque + balão), reutilizável em qualquer tela
   auth.css              — Fluxo de login: auth-section, OTP grid, carrossel de intro
   onboarding.css        — Formulário de perfil: câmera, tags, localização, barras de
                           serviço, pro-note/pro-compare, ic-card
@@ -89,16 +90,19 @@ css/
 js/   (a ordem de carga no index.html importa)
   app.js                — 1º CARREGADO. NÚCLEO: Firebase init, showView/navigateTo,
                           customAlert/customConfirm, window.appState, registro do SW
-  install.js            — 2º. PWA: captura beforeinstallprompt, isStandalone,
+  tutorial.js           — 2º. Motor genérico de tour guiado (window.startTutorial) — ver seção própria
+  install.js            — 3º. PWA: captura beforeinstallprompt, isStandalone,
                           prepareInstallView, tela view-install
-  session.js            — 3º. Monitor de sessão (onAuthStateChanged): decide a tela
-                          inicial em login/logout, chama resetAuthFlow no logout
-  auth.js               — 4º. Login: sendOTP (com whitelist), verifyOTP, cooldown,
+  session.js            — 4º. Monitor de sessão (onAuthStateChanged): decide a tela
+                          inicial em login/logout, chama resetAuthFlow no logout, dispara
+                          o tutorial do onboarding
+  auth.js               — 5º. Login: sendOTP (com whitelist), verifyOTP, cooldown,
                           máscara de telefone, OTP grid, carrossel, resetAuthFlow
-  onboarding.js         — 5º. Formulário de perfil: finishRegistration, câmera, tags,
+  onboarding.js         — 6º. Formulário de perfil: finishRegistration, câmera, tags,
                           localização, barras de serviço, diálogos de ajuda,
-                          resetOnboardingForm (chamado pelo resetAuthFlow)
-  feed.js               — 6º. Feed: notificações, painéis deslizantes, modo indicação,
+                          resetOnboardingForm (chamado pelo resetAuthFlow),
+                          startOnboardingTutorial (passos do tutorial de cadastro)
+  feed.js               — 7º. Feed: notificações, painéis deslizantes, modo indicação,
                           cards de profissional (mock), filtros, pedidos, scroll-to-top, logout
 
 .claude/
@@ -124,6 +128,10 @@ Cada arquivo JS expõe funções/objetos em `window` para acesso cross-module.
 - `window.customAlert(msg, title?, icon?)` — Promise-based alert (nunca usar `alert()` nativo)
 - `window.customConfirm(msg, title?, icon?)` — Promise-based confirm (nunca usar `confirm()` nativo)
 
+**tutorial.js** (motor genérico — ver seção "Tutorial Guiado" abaixo):
+- `window.startTutorial(steps, opts)` — inicia um tour em cima de qualquer tela
+- `window.resetTutorialSeen(id)` — limpa a flag "já visto" de um tutorial no localStorage
+
 **auth.js**:
 - `window.authTimerInstance` — referência ao setInterval do cooldown (para limpeza externa)
 - `window.sendOTP(isResend?)` — envia SMS; valida whitelist; inicializa reCAPTCHA
@@ -133,6 +141,7 @@ Cada arquivo JS expõe funções/objetos em `window` para acesso cross-module.
 **onboarding.js**:
 - `window.finishRegistration()` — valida formulário e chama `updateProfile`
 - `window.resetOnboardingForm()` — zera formulário (chamado por `resetAuthFlow`)
+- `window.startOnboardingTutorial()` — dispara o tutorial guiado do cadastro (chamado por `session.js`)
 
 **install.js**:
 - `window.deferredInstallPrompt` — evento `beforeinstallprompt` capturado globalmente
@@ -207,6 +216,53 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 
 ---
 
+## Tutorial Guiado (Coach Marks)
+
+Motor genérico e reutilizável (`js/tutorial.js` + `css/tutorial.css`) para tours guiados em cima de
+qualquer tela — hoje usado no cadastro (`view-onboarding`); a ideia é reaproveitar no feed no futuro
+sem recriar elementos por tela.
+
+**Formato:** camada `position:fixed` de tela inteira e **transparente** (não escurece o app por trás).
+A cada passo, destaca o elemento-alvo com um anel dourado pulsante (`--a-gold`) e mostra um balão
+(`.tutorial-balloon`) com título, texto, progresso (`N / total`) e botões Voltar/Próximo/Pular. O
+elemento real por trás do destaque continua visível e não é coberto por nenhum backdrop escuro.
+
+**API pública (`js/tutorial.js`):**
+```js
+window.startTutorial([
+  { selector: '#meu-elemento', title: 'Título', text: 'Explicação.' , position: 'bottom'|'top' /* opcional */ },
+  // ...
+], { id: 'nome-do-tutorial', force: false, onFinish: () => {} });
+
+window.resetTutorialSeen('nome-do-tutorial'); // limpa a flag "já visto" (ex.: botão "Rever tutorial")
+```
+
+- **Passos** são objetos `{ selector, title, text, position?, padding?, round? }`. Passos cujo elemento
+  não existe ou está oculto (`display:none`/`u-hidden`, ex.: dentro de um `.collapsible__panel` fechado)
+  são **ignorados automaticamente** — não expande nada, nem precisa checar visibilidade manualmente
+  antes de chamar `startTutorial`.
+- **Persistência:** cada tutorial só aparece automaticamente uma vez por dispositivo, via
+  `localStorage['tutorial_seen_' + id]`. Passe `{ force: true }` para reexibir mesmo já visto.
+- **Auto-scroll + trava de scroll:** ao entrar em cada passo, o motor rola (`scrollIntoView`) o container
+  scrollável mais próximo do alvo até centralizá-lo, e trava o scroll desse container
+  (`.tutorial-scroll-lock`) enquanto o tour está ativo — evita o balão "descolar" do alvo se o usuário
+  arrastar a tela por baixo. `.screen` (onboarding, auth, install) já é o próprio container com scroll.
+- **Reposicionamento:** o balão mede a si mesmo antes de decidir se fica acima ou abaixo do alvo
+  (conforme espaço disponível) e nunca deixa a seta ou o card vazarem da viewport; reposiciona também
+  no `resize`.
+
+**Uso atual (cadastro):** `window.startOnboardingTutorial()` em `js/onboarding.js` define os passos do
+tour (foto, nome/sobrenome, localização, detalhes profissionais, IC, Plano Pro, botão concluir) e é
+chamado por `session.js` ~600ms depois de `showView('view-onboarding')` (tempo da animação de entrada +
+fade do loader). Tutorial id: `'onboarding'`.
+
+**Para reaproveitar em outra tela (ex.: feed, futuramente):** defina uma nova função
+`startXTutorial()` no módulo daquela tela com sua própria lista de passos e chame
+`window.startTutorial(steps, { id: 'nome-unico' })` no ponto em que a tela aparece pela primeira vez —
+não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
+
+---
+
 ## Padrões Importantes
 
 **Mobile-only:** `window.IS_MOBILE` é definido sincronicamente no `<head>` do HTML (antes de qualquer render). Em desktop, `html.is-desktop` é adicionado ao `<html>` e um overlay bloqueia o app. `session.js` e `app.js` também verificam `IS_MOBILE` para abortar a inicialização do Firebase/SW.
@@ -221,7 +277,7 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v122`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v123`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Estado global:** `window.appState` em `app.js`:
 - `confirmationResult` — objeto de confirmação SMS do Firebase
@@ -421,3 +477,4 @@ Comportamentos placeholder:
 - Firebase Cloud Messaging para notificações push
 - Persistência do pedido no Firestore (formulário e detalhes já existem — falta backend)
 - Candidatura em vagas com persistência no Firestore (flip de candidatura já existe — falta backend)
+- Estender o Tutorial Guiado (`js/tutorial.js`) para o feed: passos explicando abas, action bar, cards de profissional/vaga e sheets de pedido

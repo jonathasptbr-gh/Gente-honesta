@@ -91,6 +91,55 @@ window.finishRegistration = async function() {
 
 
 // =========================================================================
+// TUTORIAL DO CADASTRO (window.startTutorial — js/tutorial.js)
+// Primeiro uso do motor genérico de tour guiado. Passos cujo elemento está
+// oculto no momento (ex.: seção "Detalhes profissionais" fechada) são
+// ignorados automaticamente pelo motor — não precisa expandir nada aqui.
+// =========================================================================
+window.startOnboardingTutorial = function () {
+  if (typeof window.startTutorial !== 'function') return;
+
+  window.startTutorial([
+    {
+      selector: '#media-preview',
+      title: 'Sua foto de perfil',
+      text: 'Toque aqui para tirar ou escolher uma foto. Um perfil com foto passa mais confiança para quem for indicar ou contratar você.'
+    },
+    {
+      selector: '.profile-header-row__fields',
+      title: 'Nome e sobrenome',
+      text: 'Preencha como você quer ser identificado na plataforma.'
+    },
+    {
+      selector: '#btn-register-location',
+      title: 'Sua região',
+      text: 'Registre sua localização atual para aparecer nas buscas de quem precisa de profissionais perto de você.'
+    },
+    {
+      selector: '#btn-toggle-prodetails',
+      title: 'Detalhes profissionais',
+      text: 'Seção opcional: conte sua área de atuação, habilidades e padrão de serviço para montar seu perfil profissional.'
+    },
+    {
+      selector: '.ic-card',
+      title: 'Índice de Confiança',
+      text: 'Esse é o seu IC: começa em 70% e reflete sua reputação, mudando conforme suas ações e avaliações na plataforma.'
+    },
+    {
+      selector: '.pro-compare',
+      title: 'Plano Pro',
+      text: 'Compare aqui o que muda com o Plano Pro: mais visibilidade, mais pedidos ativos e recursos extras.'
+    },
+    {
+      selector: '#btn-finish-onboarding',
+      title: 'Concluir cadastro',
+      text: 'Depois de preencher os campos obrigatórios, toque aqui para concluir seu cadastro e começar a usar o Gente Honesta.'
+    }
+  ], { id: 'onboarding' });
+};
+
+
+// =========================================================================
 // INTERAÇÕES, ESCUTADORES E COMPORTAMENTOS NATIVOS DO DOM
 // =========================================================================
 

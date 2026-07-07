@@ -4,7 +4,7 @@
 // CONFIGURAÇÃO DO SERVICE WORKER - Definições de Cache
 // =========================================================================
 
-const CACHE_NAME = "gentehonesta-v122";
+const CACHE_NAME = "gentehonesta-v123";
 
 // CONFIGURAÇÃO DO SERVICE WORKER - Lista de Recursos Core para Cache Inicial
 const urlsToCache = [
@@ -13,11 +13,13 @@ const urlsToCache = [
   "./manifest.json",
   "./css/base.css",
   "./css/components.css",
+  "./css/tutorial.css",
   "./css/auth.css",
   "./css/onboarding.css",
   "./css/install.css",
   "./css/feed.css",
   "./js/app.js",
+  "./js/tutorial.js",
   "./js/install.js",
   "./js/session.js",
   "./js/auth.js",

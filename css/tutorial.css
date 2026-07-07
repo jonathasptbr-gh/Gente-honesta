@@ -1,0 +1,127 @@
+/* ===========================================
+   TUTORIAL — motor genérico de tour guiado
+   Camada de tela inteira, TRANSPARENTE (não escurece o app por trás):
+   apenas destaca o elemento-alvo com um brilho pulsante e mostra um
+   balão de explicação. Ver js/tutorial.js para a lógica.
+   ======================================== */
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  pointer-events: none;
+}
+
+/* Bloqueia o scroll do container ativo durante o tour (o motor já rola
+   automaticamente até cada alvo — evita o balão "descolar" do elemento
+   se o usuário arrastar a tela por baixo dele). */
+.tutorial-scroll-lock {
+  overflow: hidden !important;
+}
+
+.tutorial-highlight {
+  position: fixed;
+  pointer-events: none;
+  border: 3px solid var(--a-gold);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 4px rgba(224, 168, 28, 0.25), 0 0 18px 4px rgba(224, 168, 28, 0.45);
+  transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
+  animation: tutorialPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tutorialPulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(224, 168, 28, 0.22), 0 0 16px 4px rgba(224, 168, 28, 0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(224, 168, 28, 0.12), 0 0 26px 8px rgba(224, 168, 28, 0.55); }
+}
+
+.tutorial-balloon {
+  position: fixed;
+  z-index: 9501;
+  pointer-events: auto;
+  width: min(320px, calc(100% - 48px));
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md);
+  animation: stepFadeIn 0.3s ease-out;
+  --tutorial-arrow-left: 50%;
+}
+
+/* Seta do balão apontando para o alvo destacado */
+.tutorial-balloon::after {
+  content: '';
+  position: absolute;
+  left: var(--tutorial-arrow-left);
+  transform: translateX(-50%);
+  border: 9px solid transparent;
+}
+
+.tutorial-balloon--below::after {
+  top: -18px;
+  border-bottom-color: var(--bg-white);
+}
+
+.tutorial-balloon--above::after {
+  bottom: -18px;
+  border-top-color: var(--bg-white);
+}
+
+.tutorial-balloon__skip {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  color: var(--t-sub);
+  cursor: pointer;
+}
+
+.tutorial-balloon__skip .material-symbols-rounded {
+  font-size: 1rem;
+}
+
+.tutorial-balloon__progress {
+  font-size: var(--fs-2);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--a-gold-text);
+  margin-bottom: 4px;
+}
+
+.tutorial-balloon__title {
+  display: block;
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--p-green-dark);
+  padding-right: 24px;
+  margin-bottom: 6px;
+}
+
+.tutorial-balloon__text {
+  font-size: var(--fs-6);
+  line-height: 1.5;
+  color: var(--t-sub);
+  margin-bottom: var(--space-sm);
+}
+
+.tutorial-balloon__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.tutorial-balloon__prev {
+  flex: 0 0 auto;
+}
+
+.tutorial-balloon__next {
+  flex: 0 0 auto;
+  padding: 10px 24px;
+}
