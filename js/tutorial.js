@@ -124,14 +124,21 @@
   // Observa mudanças no DOM (ex.: um colapsável abrindo bem ao lado do alvo
   // em destaque) enquanto o tour está ativo, e reposiciona tudo — sem isso o
   // balão pode ficar parado por cima de um conteúdo que acabou de aparecer.
-  function startMutationWatch() {
+  // IMPORTANTE: nunca observar o próprio overlay do tutorial — o motor muda
+  // style/class das suas máscaras/destaque/balão a cada reposicionamento, e
+  // observar essas mudanças criaria um loop infinito (o balão "pisca" sem
+  // parar, reagindo à própria atualização de posição indefinidamente).
+  function startMutationWatch(rootEl) {
     stopMutationWatch();
-    mutationObserver = new MutationObserver(() => {
+    const root = (rootEl && rootEl !== document.body) ? rootEl : document.documentElement;
+    mutationObserver = new MutationObserver((mutations) => {
       if (!isActive()) return;
+      const relevant = mutations.some(m => !overlayEl.contains(m.target));
+      if (!relevant) return;
       cancelAnimationFrame(mutationRaf);
       mutationRaf = requestAnimationFrame(positionStep);
     });
-    mutationObserver.observe(document.body, {
+    mutationObserver.observe(root, {
       subtree: true,
       childList: true,
       attributes: true,
@@ -157,8 +164,9 @@
     tutorialId = opts.id || null;
     onFinishCb = typeof opts.onFinish === 'function' ? opts.onFinish : null;
 
-    lockScroll(findScrollParent(document.querySelector(validSteps[0].selector)));
-    startMutationWatch();
+    const scrollParent = findScrollParent(document.querySelector(validSteps[0].selector));
+    lockScroll(scrollParent);
+    startMutationWatch(scrollParent);
 
     overlayEl.classList.remove('u-hidden');
     currentIndex = 0;
