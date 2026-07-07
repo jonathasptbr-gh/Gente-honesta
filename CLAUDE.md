@@ -288,7 +288,23 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v125`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v126`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+
+**Atualização do PWA (banner "Nova versão disponível"):** o Service Worker NÃO chama `self.skipWaiting()`
+no `install` — o novo worker fica parado em "waiting" até o usuário confirmar. Fluxo completo:
+1. `js/app.js` chama `registration.update()` assim que o app abre (`window.load`) e sempre que volta ao
+   primeiro plano (`visibilitychange` → `visible`) — não depende só da checagem automática do navegador
+   (que pode demorar até 24h), garantindo detecção rápida de uma versão nova.
+2. Ao detectar um worker novo instalado (`updatefound` → `statechange` → `'installed'`, só quando já
+   existe `navigator.serviceWorker.controller`, ou seja, não é a primeiríssima instalação), exibe
+   `#pwa-update-banner` (`u-hidden` → visível) com o botão "Atualizar".
+3. Clique em "Atualizar" → `worker.postMessage({ type: 'SKIP_WAITING' })` → o SW recebe no listener
+   `message` e só ENTÃO chama `self.skipWaiting()` → `clients.claim()` no `activate` assume a página.
+4. `navigator.serviceWorker.oncontrollerchange` na página dispara `window.location.reload()` uma única
+   vez, carregando os arquivos novos.
+- Nunca recarrega sozinho sem o clique do usuário — evita trocar a versão no meio de uma ação em andamento.
+- `#pwa-update-banner` (HTML no fim do `<body>`, estilos em `components.css`) segue o mesmo contrato de
+  visibilidade das camadas globais: `u-hidden` exclusivamente, `z-index: 10000` (acima até do tutorial).
 
 **Estado global:** `window.appState` em `app.js`:
 - `confirmationResult` — objeto de confirmação SMS do Firebase

@@ -393,6 +393,51 @@
 
 
 /* ===========================================
+   BANNER DE ATUALIZAÇÃO DO PWA
+   Faixa fixa na base da tela — nunca bloqueia o app (sem backdrop), fica
+   acima de tudo (inclusive do tutorial) e some só quando o usuário toca em
+   "Atualizar" (ver app.js). Nunca recarrega sozinha.
+   ======================================== */
+.pwa-update-banner {
+  position: fixed;
+  left: var(--space-md);
+  right: var(--space-md);
+  bottom: max(var(--space-md), env(safe-area-inset-bottom, 0px));
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 14px var(--space-md);
+  background: var(--p-green-dark);
+  color: var(--t-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  animation: stepFadeIn 0.3s ease-out;
+}
+
+.pwa-update-banner__icon {
+  flex-shrink: 0;
+  color: var(--a-gold);
+}
+
+.pwa-update-banner__text {
+  flex: 1;
+  font-size: var(--fs-6);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.pwa-update-banner__btn {
+  flex-shrink: 0;
+  padding: 8px 18px;
+}
+
+.pwa-update-banner__btn:disabled {
+  opacity: 0.6;
+}
+
+
+/* ===========================================
    BLOQUEIO DESKTOP (html.is-desktop)
    O app é exclusivo mobile: em desktop esta camada cobre tudo
    e o JS aborta a inicialização (window.IS_MOBILE = false)

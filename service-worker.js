@@ -4,7 +4,7 @@
 // CONFIGURAÇÃO DO SERVICE WORKER - Definições de Cache
 // =========================================================================
 
-const CACHE_NAME = "gentehonesta-v125";
+const CACHE_NAME = "gentehonesta-v126";
 
 // CONFIGURAÇÃO DO SERVICE WORKER - Lista de Recursos Core para Cache Inicial
 const urlsToCache = [
@@ -44,7 +44,18 @@ self.addEventListener("install", event => {
       );
     })
   );
-  self.skipWaiting();
+  // SEM self.skipWaiting() aqui: o novo worker fica em "waiting" até o usuário
+  // confirmar a atualização no app (banner "Nova versão disponível") — só então
+  // a página envia a mensagem SKIP_WAITING abaixo. Isso evita trocar a versão
+  // no meio de uma ação do usuário sem ele saber.
+});
+
+// SISTEMA DE ATUALIZAÇÃO - Só assume o controle quando o usuário confirma
+// (postMessage disparado pelo clique em "Atualizar" — ver js/app.js)
+self.addEventListener("message", event => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 // =========================================================================

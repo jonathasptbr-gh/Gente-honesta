@@ -139,6 +139,18 @@
     </div>
 
     <!-- =====================================================================
+         CAMADA GLOBAL — Banner de atualização do PWA
+         Contrato: visibilidade controlada EXCLUSIVAMENTE por u-hidden.
+         Exibido por app.js quando um novo Service Worker fica pronto em
+         segundo plano — nunca recarrega sozinho, só com o clique aqui.
+         ===================================================================== -->
+    <div id="pwa-update-banner" class="pwa-update-banner u-hidden" role="status">
+        <span class="material-symbols-rounded pwa-update-banner__icon" aria-hidden="true">system_update</span>
+        <p class="pwa-update-banner__text">Nova versão disponível.</p>
+        <button type="button" id="btn-pwa-update" class="btn btn--accent btn--pill pwa-update-banner__btn">Atualizar</button>
+    </div>
+
+    <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
          Contrato de visibilidade: .screen + .screen--active (nunca u-hidden)
          Sub-passos internos: controlados EXCLUSIVAMENTE por u-hidden

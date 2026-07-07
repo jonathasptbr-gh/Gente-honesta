@@ -27,16 +27,67 @@
 // CONFIGURAÇÃO CORE DO ECOSSISTEMA
 // =========================================================================
 
-// CONFIGURAÇÃO CORE DO ECOSSISTEMA - Service Worker (migrado da antiga landing)
+// CONFIGURAÇÃO CORE DO ECOSSISTEMA - Service Worker e Atualização do PWA
 // O app agora é o ponto de entrada único (index.html), então o registro do SW
-// acontece aqui. Sem auto-reload em update: recarregar a página no meio de uma
-// ação do usuário é agressivo — a nova versão assume naturalmente na próxima
-// abertura (skipWaiting + clients.claim no próprio SW).
+// acontece aqui. Sem auto-reload forçado: o novo Service Worker fica esperando
+// (self.skipWaiting() só roda quando o usuário confirma — ver service-worker.js)
+// e só assumimos/recarregamos quando o usuário toca em "Atualizar" no banner
+// (#pwa-update-banner). Verificamos updates a cada abertura/retorno ao app.
 if ('serviceWorker' in navigator && window.IS_MOBILE) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log('[SW] registrado'))
+      .then(registration => {
+        console.log('[SW] registrado');
+
+        const banner = document.getElementById('pwa-update-banner');
+        const btnUpdate = document.getElementById('btn-pwa-update');
+
+        const showUpdateBanner = (worker) => {
+          if (!banner || !btnUpdate || !worker) return;
+          banner.classList.remove('u-hidden');
+          btnUpdate.onclick = () => {
+            btnUpdate.disabled = true;
+            btnUpdate.textContent = 'Atualizando...';
+            worker.postMessage({ type: 'SKIP_WAITING' });
+          };
+        };
+
+        // Já existe uma versão nova pronta (instalada em segundo plano antes
+        // desta checagem, ex.: enquanto o app estava em background)
+        if (registration.waiting && navigator.serviceWorker.controller) {
+          showUpdateBanner(registration.waiting);
+        }
+
+        // Uma nova versão começou a instalar agora — acompanha até ficar pronta
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateBanner(newWorker);
+            }
+          });
+        });
+
+        // CONFIGURAÇÃO CORE DO ECOSSISTEMA - Verificação Ativa de Atualização
+        // Verifica assim que o app abre e sempre que volta ao primeiro plano
+        // (comum em PWA instalado, que fica muito tempo aberto em background).
+        const checkForUpdate = () => registration.update().catch(() => {});
+        checkForUpdate();
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') checkForUpdate();
+        });
+      })
       .catch(err => console.warn('[SW] falha no registro:', err));
+
+    // Assim que o novo SW assume o controle (pós-clique em "Atualizar"),
+    // recarrega a página para carregar os arquivos novos.
+    let reloadedForUpdate = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (reloadedForUpdate) return;
+      reloadedForUpdate = true;
+      window.location.reload();
+    });
   });
 }
 
