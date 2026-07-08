@@ -34,6 +34,14 @@
 // e só assumimos/recarregamos quando o usuário toca em "Atualizar" no banner
 // (#pwa-update-banner). Verificamos updates a cada abertura/retorno ao app.
 if ('serviceWorker' in navigator && window.IS_MOBILE) {
+  // Só recarrega no controllerchange se ESTE clique em "Atualizar" pediu a
+  // troca — o próprio clients.claim() do SW (service-worker.js) já dispara
+  // "controllerchange" sozinho na primeiríssima instalação de um visitante
+  // novo (quando ainda não há nenhum controller anterior). Sem essa guarda,
+  // todo primeiro acesso recarregaria a página sozinho sem nenhum update real.
+  let updateRequested = false;
+  let reloadedForUpdate = false;
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
       .then(registration => {
@@ -48,6 +56,7 @@ if ('serviceWorker' in navigator && window.IS_MOBILE) {
           btnUpdate.onclick = () => {
             btnUpdate.disabled = true;
             btnUpdate.textContent = 'Atualizando...';
+            updateRequested = true;
             worker.postMessage({ type: 'SKIP_WAITING' });
           };
         };
@@ -82,9 +91,8 @@ if ('serviceWorker' in navigator && window.IS_MOBILE) {
 
     // Assim que o novo SW assume o controle (pós-clique em "Atualizar"),
     // recarrega a página para carregar os arquivos novos.
-    let reloadedForUpdate = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (reloadedForUpdate) return;
+      if (!updateRequested || reloadedForUpdate) return;
       reloadedForUpdate = true;
       window.location.reload();
     });

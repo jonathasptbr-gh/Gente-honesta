@@ -19,9 +19,10 @@
 //   para reexibir mesmo já tendo sido visto (ex.: botão "Rever tutorial").
 // - Passos cujo elemento não existe ou está oculto (display:none / u-hidden)
 //   no momento são ignorados automaticamente.
-// - Só o elemento em destaque fica clicável/tocável: 4 painéis (topo, base,
-//   esquerda, direita) recortam um "buraco" exatamente no retângulo do alvo,
-//   escurecendo+desfocando e bloqueando o toque em todo o resto da tela.
+// - Só o elemento em destaque fica clicável/tocável: uma máscara única
+//   recorta (via clip-path, com os mesmos cantos arredondados do destaque)
+//   um "buraco" exatamente no retângulo do alvo, escurecendo+desfocando e
+//   bloqueando o toque em todo o resto da tela.
 // =========================================================================
 
 (function () {
@@ -32,8 +33,7 @@
   let lockedScrollEl = null;
   let mutationObserver = null;
 
-  let overlayEl, highlightEl, balloonEl, skipBtn, progressEl, titleEl, textEl, prevBtn, nextBtn;
-  let maskTop, maskBottom, maskLeft, maskRight;
+  let overlayEl, maskEl, highlightEl, balloonEl, skipBtn, progressEl, titleEl, textEl, prevBtn, nextBtn;
   let repositionTimer = null;
   let mutationRaf = null;
 
@@ -44,10 +44,7 @@
     overlayEl.id = 'tutorial-overlay';
     overlayEl.className = 'tutorial-overlay u-hidden';
     overlayEl.innerHTML = `
-      <div id="tutorial-mask-top" class="tutorial-mask"></div>
-      <div id="tutorial-mask-bottom" class="tutorial-mask"></div>
-      <div id="tutorial-mask-left" class="tutorial-mask"></div>
-      <div id="tutorial-mask-right" class="tutorial-mask"></div>
+      <div id="tutorial-mask" class="tutorial-mask"></div>
       <div id="tutorial-highlight" class="tutorial-highlight"></div>
       <div id="tutorial-balloon" class="tutorial-balloon" role="dialog" aria-live="polite">
         <button type="button" id="tutorial-skip" class="tutorial-balloon__skip" aria-label="Pular tutorial">
@@ -64,10 +61,7 @@
     `;
     document.body.appendChild(overlayEl);
 
-    maskTop = document.getElementById('tutorial-mask-top');
-    maskBottom = document.getElementById('tutorial-mask-bottom');
-    maskLeft = document.getElementById('tutorial-mask-left');
-    maskRight = document.getElementById('tutorial-mask-right');
+    maskEl = document.getElementById('tutorial-mask');
     highlightEl = document.getElementById('tutorial-highlight');
     balloonEl = document.getElementById('tutorial-balloon');
     skipBtn = document.getElementById('tutorial-skip');
@@ -204,40 +198,37 @@
     prevBtn.classList.toggle('u-hidden', currentIndex === 0);
     nextBtn.textContent = currentIndex === steps.length - 1 ? 'Concluir' : 'Próximo';
 
+    // Esconde já-já: evita o balão "piscar" no canto padrão da tela por um
+    // instante antes de positionStep() calcular o lugar certo (mais notável
+    // no primeiro passo do tour, quando o balão acabou de ser criado).
+    balloonEl.style.visibility = 'hidden';
+
     targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     clearTimeout(repositionTimer);
     repositionTimer = setTimeout(positionStep, 350);
   }
 
-  // Os 4 painéis (topo/base/esquerda/direita) formam uma moldura ao redor do
-  // retângulo em destaque: juntos escurecem+desfocam e bloqueiam o toque em
-  // tudo, exceto no "buraco" onde fica o elemento-alvo (que permanece 100%
-  // interativo, sem nenhuma camada por cima dele).
-  function positionMask(holeTop, holeLeft, holeRight, holeBottom) {
+  // Caminho SVG de um retângulo arredondado (sentido horário) — usado para
+  // recortar o "buraco" da máscara com os mesmos cantos do destaque, em vez
+  // de um buraco quadrado que deixaria os cantos do anel dourado evidentes.
+  function roundedRectPath(x, y, w, h, r) {
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    return `M${x + r},${y} H${x + w - r} A${r},${r} 0 0 1 ${x + w},${y + r} ` +
+      `V${y + h - r} A${r},${r} 0 0 1 ${x + w - r},${y + h} H${x + r} ` +
+      `A${r},${r} 0 0 1 ${x},${y + h - r} V${y + r} A${r},${r} 0 0 1 ${x + r},${y} Z`;
+  }
+
+  // Uma máscara só, cobrindo a tela inteira: escurece+desfoca tudo, exceto o
+  // "buraco" recortado via clip-path — que, por ser um path SVG, acompanha os
+  // mesmos cantos arredondados do anel de destaque (e some da detecção de
+  // toque/clique também, então o alvo permanece 100% interativo).
+  function positionMask(holeTop, holeLeft, holeRight, holeBottom, radius) {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-
-    maskTop.style.top = '0px';
-    maskTop.style.left = '0px';
-    maskTop.style.width = `${vw}px`;
-    maskTop.style.height = `${Math.max(0, holeTop)}px`;
-
-    maskBottom.style.top = `${holeBottom}px`;
-    maskBottom.style.left = '0px';
-    maskBottom.style.width = `${vw}px`;
-    maskBottom.style.height = `${Math.max(0, vh - holeBottom)}px`;
-
-    const bandHeight = Math.max(0, holeBottom - holeTop);
-    maskLeft.style.top = `${holeTop}px`;
-    maskLeft.style.left = '0px';
-    maskLeft.style.width = `${Math.max(0, holeLeft)}px`;
-    maskLeft.style.height = `${bandHeight}px`;
-
-    maskRight.style.top = `${holeTop}px`;
-    maskRight.style.left = `${holeRight}px`;
-    maskRight.style.width = `${Math.max(0, vw - holeRight)}px`;
-    maskRight.style.height = `${bandHeight}px`;
+    const outer = `M0,0 H${vw} V${vh} H0 Z`;
+    const hole = roundedRectPath(holeLeft, holeTop, holeRight - holeLeft, holeBottom - holeTop, radius);
+    maskEl.style.clipPath = `path(evenodd, "${outer} ${hole}")`;
   }
 
   // Se logo abaixo do alvo existe um irmão visível colado a ele (ex.: o painel
@@ -273,7 +264,11 @@
     highlightEl.style.height = `${holeBottom - holeTop}px`;
     highlightEl.style.borderRadius = step.round ? '999px' : 'var(--radius-md)';
 
-    positionMask(holeTop, holeLeft, holeRight, holeBottom);
+    // Mesmo raio do destaque, em px reais, pra o "buraco" da máscara acompanhar
+    // exatamente a curva do anel (999 é só um teto — roundedRectPath() já
+    // limita ao mínimo entre largura/altura, formando a mesma "pílula").
+    const radiusPx = step.round ? 999 : parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--radius-md')) || 12;
+    positionMask(holeTop, holeLeft, holeRight, holeBottom, radiusPx);
 
     const extendedBottom = getExtendedBottom(targetEl, rect);
 

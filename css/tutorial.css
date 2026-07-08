@@ -1,9 +1,9 @@
 /* ===========================================
    TUTORIAL — motor genérico de tour guiado
-   Camada de tela inteira: 4 painéis (topo/base/esquerda/direita) recortam um
-   "buraco" exatamente no elemento em destaque — o resto da tela fica
-   escurecido+desfocado e sem interação; só o alvo continua 100% visível e
-   tocável. Ver js/tutorial.js para a lógica.
+   Camada de tela inteira: uma única máscara recorta um "buraco" (com cantos
+   arredondados, acompanhando o destaque) exatamente no elemento-alvo — o
+   resto da tela fica escurecido+desfocado e sem interação; só o alvo
+   continua 100% visível e tocável. Ver js/tutorial.js para a lógica.
    ======================================== */
 .tutorial-overlay {
   position: fixed;
@@ -19,16 +19,18 @@
   overflow: hidden !important;
 }
 
-/* Painéis de recorte: juntos formam uma moldura ao redor do alvo. Cada um
-   escurece+desfoca e bloqueia toque/clique — só o buraco entre eles fica
-   livre, exatamente sobre o elemento em destaque. */
+/* Máscara única: escurece+desfoca a tela inteira, exceto o "buraco" recortado
+   via clip-path (calculado em JS com os mesmos cantos arredondados do
+   destaque) — o recorte também exclui essa área da detecção de toque/clique,
+   então o alvo permanece 100% interativo sem nenhuma camada por cima dele. */
 .tutorial-mask {
   position: fixed;
+  inset: 0;
   pointer-events: auto;
   background: var(--overlay-soft);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
+  transition: clip-path 0.3s ease;
 }
 
 .tutorial-highlight {
@@ -48,6 +50,10 @@
 
 .tutorial-balloon {
   position: fixed;
+  /* Escondido até o JS calcular a posição correta (positionStep) — sem isso
+     o balão nasce sem top/left definidos e "pisca" no canto padrão da tela
+     por um instante antes de saltar pro lugar certo. */
+  visibility: hidden;
   z-index: 9501;
   pointer-events: auto;
   width: min(320px, calc(100% - 48px));

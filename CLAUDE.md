@@ -222,13 +222,18 @@ Motor genérico e reutilizável (`js/tutorial.js` + `css/tutorial.css`) para tou
 qualquer tela — hoje usado no cadastro (`view-onboarding`); a ideia é reaproveitar no feed no futuro
 sem recriar elementos por tela.
 
-**Formato:** camada `position:fixed` de tela inteira. 4 painéis (topo/base/esquerda/direita,
-`.tutorial-mask`) recortam um "buraco" exatamente no retângulo do elemento-alvo — juntos escurecem
-(`--overlay-soft`) e desfocam (`backdrop-filter: blur(3px)`) todo o resto da tela e **bloqueiam
-toque/clique fora do buraco** (`pointer-events: auto` nos painéis). Só o elemento em destaque fica
-100% nítido e interativo — dá pra preencher campos, tocar botões etc. "junto com o tutorial", sem
-conseguir mexer em nada fora do passo atual. Um anel dourado pulsante (`--a-gold`) marca o destaque, e
-um balão (`.tutorial-balloon`) mostra título, texto, progresso (`N / total`) e botões Voltar/Próximo/Pular.
+**Formato:** camada `position:fixed` de tela inteira. Uma única máscara (`#tutorial-mask`) recorta um
+"buraco" com cantos arredondados — via `clip-path: path(evenodd, ...)` gerado em JS (`roundedRectPath()`),
+com o MESMO raio do anel de destaque — exatamente no retângulo do elemento-alvo. A máscara escurece
+(`--overlay-soft`) e desfoca (`backdrop-filter: blur(1.5px)`, sutil de propósito) todo o resto da tela e
+**bloqueia toque/clique fora do buraco** (`pointer-events: auto`); como o recorte também é respeitado
+pela detecção de clique, a área fora do buraco realmente não responde a toque. Só o elemento em destaque
+fica 100% nítido e interativo — dá pra preencher campos, tocar botões etc. "junto com o tutorial", sem
+conseguir mexer em nada fora do passo atual. Um anel dourado pulsante (`--a-gold`) marca o destaque
+(cantos arredondados iguais aos da máscara), e um balão (`.tutorial-balloon`) mostra título, texto,
+progresso (`N / total`) e botões Voltar/Próximo/Pular. O balão nasce com `visibility: hidden` por padrão
+(CSS) e só fica visível depois que `positionStep()` calcula o lugar certo — sem isso ele "pisca" por um
+instante no canto padrão da tela antes de saltar pra posição correta, mais perceptível no primeiro passo.
 
 **API pública (`js/tutorial.js`):**
 ```js
@@ -288,7 +293,7 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v126`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v127`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Atualização do PWA (banner "Nova versão disponível"):** o Service Worker NÃO chama `self.skipWaiting()`
 no `install` — o novo worker fica parado em "waiting" até o usuário confirmar. Fluxo completo:
@@ -300,8 +305,11 @@ no `install` — o novo worker fica parado em "waiting" até o usuário confirma
    `#pwa-update-banner` (`u-hidden` → visível) com o botão "Atualizar".
 3. Clique em "Atualizar" → `worker.postMessage({ type: 'SKIP_WAITING' })` → o SW recebe no listener
    `message` e só ENTÃO chama `self.skipWaiting()` → `clients.claim()` no `activate` assume a página.
-4. `navigator.serviceWorker.oncontrollerchange` na página dispara `window.location.reload()` uma única
-   vez, carregando os arquivos novos.
+4. `navigator.serviceWorker.oncontrollerchange` na página dispara `window.location.reload()` — mas só
+   se o clique em "Atualizar" pediu a troca (flag `updateRequested`). **Cuidado:** `clients.claim()`
+   também dispara `controllerchange` sozinho na primeiríssima instalação de um visitante novo (quando
+   ainda não existe nenhum controller anterior) — sem essa guarda, todo primeiro acesso recarregaria a
+   página sozinho sem nenhum update real ter acontecido.
 - Nunca recarrega sozinho sem o clique do usuário — evita trocar a versão no meio de uma ação em andamento.
 - `#pwa-update-banner` (HTML no fim do `<body>`, estilos em `components.css`) segue o mesmo contrato de
   visibilidade das camadas globais: `u-hidden` exclusivamente, `z-index: 10000` (acima até do tutorial).
