@@ -83,7 +83,7 @@ css/
   tutorial.css           — Motor de tutorial guiado (destaque + balão), reutilizável em qualquer tela
   auth.css              — Fluxo de login: auth-section, OTP grid, carrossel de intro
   onboarding.css        — Formulário de perfil: câmera, tags, localização, barras de
-                          serviço, pro-note/pro-compare, ic-card
+                          serviço, pro-note, ic-card
   install.css           — Tela-guia de instalação do PWA (view-install)
   feed.css              — Feed, top/bottom bar, painéis deslizantes, pedidos, cards de pro
 
@@ -258,17 +258,28 @@ window.resetTutorialSeen('nome-do-tutorial'); // limpa a flag "já visto" (ex.: 
   (`block:'start'` quando o balão fica embaixo, `block:'end'` quando fica em cima) — isso garante espaço
   de sobra do lado do balão, em vez de só centralizar o alvo (`block:'center'`), que podia deixar alvos
   grandes "presos" no meio da tela sem espaço suficiente nem acima nem abaixo (era o caso do Índice de
-  Confiança). Em vez de "adivinhar" quando a rolagem suave termina com um temporizador fixo, um listener
-  de `scroll` persistente (`startScrollWatch`) reposiciona tudo a cada evento real de scroll — inclusive
-  scroll MANUAL do usuário, já que o container não fica com `overflow:hidden` durante o tour: seções que
-  ficam mais altas que a tela ao expandir (ex.: "Detalhes profissionais") precisam que o usuário role à
-  vontade para ver tudo, e esse listener mantém o destaque e o balão acompanhando esse scroll também.
+  Confiança). `applyScrollPadding()` reserva uma folga extra no topo/base do container via CSS
+  `scroll-padding` (respeitada nativamente por `scrollIntoView`) — assimétrica de propósito:
+  `SCROLL_PADDING_TOP` (24px, soma-se à margem de `decidePlaceBelow()`) é generosa porque a maioria dos
+  passos usa `block:'start'`; `SCROLL_PADDING_BOTTOM` (8px) fica pequena porque `block:'end'` normalmente
+  é usado por alvos grandes/perto do fim da página (já um caso apertado), e não pode consumir o pouco
+  espaço que sobra para o balão acima. Sem essa folga, `block:'start'` alinhava o alvo bem rente à borda
+  da tela, cortando visualmente o início da seção. Em vez de "adivinhar" quando a rolagem suave termina
+  com um temporizador fixo, um listener de `scroll` persistente (`startScrollWatch`) reposiciona tudo a
+  cada evento real de scroll — inclusive scroll MANUAL do usuário, já que o container não fica com
+  `overflow:hidden` durante o tour: seções que ficam mais altas que a tela ao expandir (ex.: "Detalhes
+  profissionais") precisam que o usuário role à vontade para ver tudo, e esse listener mantém o destaque
+  e o balão acompanhando esse scroll também.
 - **Reposicionamento:** o balão mede a si mesmo antes de decidir o lado (função acima) e nunca deixa a
   seta ou o card vazarem da viewport; reposiciona também no `resize`. O cálculo de acima/abaixo do balão
   usa sempre o retângulo ORIGINAL do alvo (nunca o estendido por conteúdo colapsável — ver abaixo): se um
   colapsável abrir maior que a tela inteira, não existe posição sem alguma sobreposição, então a base do
   cálculo fica no alvo em si (que quase sempre cabe), com um teto de extensão (`maxExtension`, 400px) para
-  não tentar perseguir um fundo real inalcançável.
+  não tentar perseguir um fundo real inalcançável. Quando NENHUM dos dois lados cabe de verdade (alvo
+  grande demais pro espaço disponível, ex.: perto do fim da página — `block:'start'` não consegue "puxar"
+  o alvo até o topo por falta de conteúdo abaixo dele no documento), o motor faz um "melhor esforço":
+  fica do lado com mais espaço livre (`spaceAbove` vs `spaceBelow`), minimizando a sobreposição em vez de
+  manter cegamente o lado decidido originalmente.
 - **Elementos colapsáveis/expansíveis no alvo atual:** um `MutationObserver` (classe/estilo/filhos, no
   container com scroll da tela — nunca no próprio overlay do tutorial, para não entrar em loop reagindo
   às suas próprias mudanças de posição) reposiciona tudo automaticamente sempre que o DOM muda enquanto
@@ -276,12 +287,16 @@ window.resetTutorialSeen('nome-do-tutorial'); // limpa a flag "já visto" (ex.: 
   clicável) e isso abre um `<details>` ou um `.collapsible__panel` bem ao lado. `getExtendedRect()`
   verifica se o irmão logo abaixo do alvo (mesmo pai, colado, ex.: o painel de um colapsável) está
   visível e, se estiver, estende o retângulo considerado — usado SÓ no "buraco" do destaque/máscara,
-  pra revelar esse conteúdo recém-aberto (nítido e tocável) em vez de deixá-lo escurecido/bloqueado.
+  pra revelar esse conteúdo recém-aberto (nítido e tocável) em vez de deixá-lo escurecido/bloqueado. Só
+  estende se o irmão já nascia OCULTO no início do passo (`siblingStartedHidden`) — um irmão que já é
+  SEMPRE visível (ex.: a seção de localização logo abaixo dos dados pessoais) nunca é incluído por
+  engano só por estar colado e visível, mesmo sem ter sido "revelado" por nenhuma interação do passo.
 
 **Uso atual (cadastro):** `window.startOnboardingTutorial()` em `js/onboarding.js` define 4 passos
-(dados pessoais — foto+nome+sobrenome juntos, região, detalhes profissionais, Índice de Confiança) e é
-chamado por `session.js` ~600ms depois de `showView('view-onboarding')` (tempo da animação de entrada +
-fade do loader). Tutorial id: `'onboarding'`.
+(dados pessoais — foto+nome+sobrenome juntos, região, detalhes profissionais, Índice de Confiança — este
+último com `position:'top'` explícito, pois é o último campo antes do botão de concluir e não há
+conteúdo suficiente abaixo dele na página) e é chamado por `session.js` ~600ms depois de
+`showView('view-onboarding')` (tempo da animação de entrada + fade do loader). Tutorial id: `'onboarding'`.
 
 **Para reaproveitar em outra tela (ex.: feed, futuramente):** defina uma nova função
 `startXTutorial()` no módulo daquela tela com sua própria lista de passos e chame
@@ -304,7 +319,7 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v129`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v130`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Atualização do PWA (banner "Nova versão disponível"):** o Service Worker NÃO chama `self.skipWaiting()`
 no `install` — o novo worker fica parado em "waiting" até o usuário confirmar. Fluxo completo:

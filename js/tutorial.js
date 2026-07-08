@@ -26,6 +26,17 @@
 // =========================================================================
 
 (function () {
+  // Folga reservada no topo/base do container ao rolar (ver applyScrollPadding).
+  // Assimétrica de propósito: o topo (usado quando o balão fica abaixo, a
+  // maioria dos passos) pode ser generoso; a base (usada quando o balão fica
+  // acima — normalmente alvos grandes/perto do fim da página, já um caso
+  // apertado por natureza, ex.: o Índice de Confiança) fica minimamente
+  // pequena, pra não consumir o pouco espaço que sobra para o balão acima.
+  // SCROLL_PADDING_TOP soma-se à margem de decidePlaceBelow() pros passos que
+  // decidem o lado automaticamente (position explícito não passa por essa conta).
+  const SCROLL_PADDING_TOP = 24;
+  const SCROLL_PADDING_BOTTOM = 8;
+
   let steps = [];
   let currentIndex = 0;
   let tutorialId = null;
@@ -33,6 +44,8 @@
   let mutationObserver = null;
   let scrollWatchEl = null;
   let currentPlaceBelow = true;
+  let siblingStartedHidden = false;
+  let paddedScrollEl = null;
 
   let overlayEl, maskEl, highlightEl, balloonEl, skipBtn, progressEl, titleEl, textEl, prevBtn, nextBtn;
   let repositionTimer = null;
@@ -110,6 +123,26 @@
     return null;
   }
 
+  // Dá uma folga extra no topo/base do container ao rolar (scroll-padding é
+  // respeitado nativamente por scrollIntoView) — sem isso, block:'start'
+  // alinhava o alvo bem rente à borda da tela, cortando visualmente elementos
+  // no início da seção (ex.: o topo da foto de perfil) contra a borda/entalhe
+  // do aparelho, sem nenhum respiro.
+  function applyScrollPadding(el) {
+    paddedScrollEl = el;
+    if (!paddedScrollEl) return;
+    paddedScrollEl.style.scrollPaddingTop = `${SCROLL_PADDING_TOP}px`;
+    paddedScrollEl.style.scrollPaddingBottom = `${SCROLL_PADDING_BOTTOM}px`;
+  }
+
+  function clearScrollPadding() {
+    if (paddedScrollEl) {
+      paddedScrollEl.style.scrollPaddingTop = '';
+      paddedScrollEl.style.scrollPaddingBottom = '';
+    }
+    paddedScrollEl = null;
+  }
+
   // Acompanha o scroll do container em tempo real (em vez de "adivinhar" com um
   // temporizador fixo) enquanto o tour está ativo — o scrollIntoView() é uma
   // animação suave cuja duração varia com a distância (alvos mais abaixo na
@@ -183,6 +216,7 @@
     onFinishCb = typeof opts.onFinish === 'function' ? opts.onFinish : null;
 
     const scrollParent = findScrollParent(document.querySelector(validSteps[0].selector));
+    applyScrollPadding(scrollParent);
     startMutationWatch(scrollParent);
     startScrollWatch(scrollParent);
 
@@ -221,6 +255,15 @@
     progressEl.textContent = `${currentIndex + 1} / ${steps.length}`;
     prevBtn.classList.toggle('u-hidden', currentIndex === 0);
     nextBtn.textContent = currentIndex === steps.length - 1 ? 'Concluir' : 'Próximo';
+
+    // Registra se o irmão do alvo já nasce oculto neste passo — só nesse caso
+    // a extensão do "buraco" (getExtendedRect) pode valer depois. Sem essa
+    // checagem, um irmão que já é SEMPRE visível (ex.: a seção de localização
+    // logo abaixo dos dados pessoais) seria incluído no destaque por engano,
+    // só por estar colado e visível — mesmo nunca tendo sido "revelado" por
+    // nenhuma interação deste passo.
+    const sibling = targetEl.nextElementSibling;
+    siblingStartedHidden = !!sibling && !isVisible(sibling);
 
     // Esconde já-já: evita o balão "piscar" no canto padrão da tela por um
     // instante antes de positionStep() calcular o lugar certo (mais notável
@@ -262,7 +305,7 @@
   function decidePlaceBelow(step, targetHeight, balloonHeight) {
     if (step.position === 'top') return false;
     if (step.position === 'bottom') return true;
-    const margin = 40;
+    const margin = 40 + SCROLL_PADDING_TOP;
     return (targetHeight + balloonHeight + margin) <= window.innerHeight;
   }
 
@@ -298,6 +341,7 @@
   // já que rolar o alvo original não moveria esse conteúdo extra para dentro
   // da tela.
   function getExtendedRect(targetEl, rect) {
+    if (!siblingStartedHidden) return rect;
     const sibling = targetEl.nextElementSibling;
     if (!sibling || !isVisible(sibling)) return rect;
     const sRect = sibling.getBoundingClientRect();
@@ -366,6 +410,16 @@
       let preferBelow = currentPlaceBelow;
       if (preferBelow && !belowFits && aboveFits) preferBelow = false;
       else if (!preferBelow && !aboveFits && belowFits) preferBelow = true;
+      else if (!belowFits && !aboveFits) {
+        // Nenhum dos dois cabe de verdade (alvo grande demais pro espaço
+        // disponível, ex.: perto do fim da página, onde block:'start' não
+        // consegue "puxar" o alvo até o topo por falta de conteúdo abaixo) —
+        // melhor esforço: fica do lado com mais espaço livre, minimizando a
+        // sobreposição em vez de manter o lado original às cegas.
+        const spaceAbove = rect.top - pad;
+        const spaceBelow = window.innerHeight - extRect.bottom - pad;
+        preferBelow = spaceBelow > spaceAbove;
+      }
 
       let top;
       if (preferBelow) {
@@ -397,6 +451,7 @@
     overlayEl.classList.add('u-hidden');
     stopMutationWatch();
     stopScrollWatch();
+    clearScrollPadding();
     if (tutorialId) markSeen(tutorialId);
     const cb = onFinishCb;
     onFinishCb = null;

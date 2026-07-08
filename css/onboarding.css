@@ -494,10 +494,8 @@
   font-weight: 800;
 }
 
-/* Ícones filled com peso médio — compartilhado pelos blocos Pro */
-.pro-note__icon,
-.pro-compare__header .material-symbols-rounded,
-.pro-compare__head--pro .material-symbols-rounded {
+/* Ícone filled com peso médio — bloco Pro */
+.pro-note__icon {
   font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
@@ -534,145 +532,6 @@
   color: var(--p-green-dark);
 }
 
-
-/* ── Comparativo Grátis × Pro (sempre visível, substitui o colapsável) ──
-   Grid de 2 colunas com linhas pareadas: cada recurso ocupa a mesma row nas
-   duas colunas, garantindo alinhamento visual da comparação. A coluna Pro é
-   destacada com o fundo creme/dourado contínuo célula a célula. */
-.pro-compare {
-  border: 2px solid var(--a-gold);
-  border-radius: var(--radius-md);
-  background: var(--bg-white);
-  overflow: hidden; /* mantém os cantos arredondados sobre os fundos internos */
-}
-
-.pro-compare__header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  padding: 14px 16px;
-  background: var(--gold-soft);
-  border-bottom: 1px solid var(--a-gold);
-  color: var(--p-green-dark);
-  font-size: var(--fs-7);
-}
-
-.pro-compare__header .material-symbols-rounded {
-  color: var(--a-gold);
-}
-
-.pro-compare__header strong {
-  font-weight: 800; /* explícito: Inter não carrega 700; 'bolder' do <strong> já resolvia p/ 800 */
-}
-
-.pro-compare__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.pro-compare__head {
-  padding: 10px 8px;
-  text-align: center;
-  font-size: var(--fs-5);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.pro-compare__head--free {
-  background: var(--bg-soft);
-  color: var(--t-sub);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.pro-compare__head--pro {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  background: var(--a-gold);
-  color: var(--p-green-dark);
-  border-bottom: 1px solid var(--a-gold);
-}
-
-.pro-compare__head--pro .material-symbols-rounded {
-  font-size: 1.1rem;
-}
-
-.pro-compare__cell {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 10px 10px;
-  font-size: var(--fs-4);
-  line-height: 1.35;
-  text-align: left;
-}
-
-/* Linhas zebradas por par (head ocupa a row 1; pares começam na row 2) */
-.pro-compare__cell--free {
-  background: var(--bg-soft);
-  color: var(--t-sub);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.pro-compare__cell--pro {
-  background: var(--gold-soft);
-  color: var(--t-main);
-  font-weight: 600;
-  border-bottom: 1px solid var(--gold-soft-border);
-  border-left: 1px solid var(--a-gold);
-}
-
-.pro-compare__ico {
-  flex-shrink: 0;
-  font-size: 1rem;
-  margin-top: 1px;
-}
-
-.pro-compare__ico--yes   { color: var(--success); }
-.pro-compare__ico--no    { color: var(--danger); font-variation-settings: 'FILL' 0, 'wght' 600; }
-.pro-compare__ico--limit { color: var(--t-disabled); font-variation-settings: 'FILL' 0, 'wght' 600; }
-
-.pro-compare__more {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: var(--space-sm) var(--space-md);
-  font-size: var(--fs-5);
-  font-style: italic;
-  color: var(--t-sub);
-}
-
-.pro-compare__more .material-symbols-rounded {
-  font-size: 1.1rem;
-  color: var(--a-gold);
-}
-
-.pro-compare .pro-price {
-  margin-bottom: var(--space-sm);
-}
-
-.pro-compare .btn--accent {
-  width: calc(100% - 2 * var(--space-md));
-  margin: 0 var(--space-md) var(--space-md);
-}
-
-.pro-price {
-  text-align: center;
-  font-size: var(--fs-13);
-  font-weight: 800;
-  color: var(--p-green-dark);
-  margin-bottom: var(--space-md);
-}
-
-.pro-price span {
-  font-size: var(--fs-8);
-  font-weight: 400;
-  color: var(--t-sub);
-}
 
 /* ── Índice de Confiança (card do onboarding) ── */
 .ic-card {

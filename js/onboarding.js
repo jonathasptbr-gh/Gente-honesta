@@ -118,6 +118,11 @@ window.startOnboardingTutorial = function () {
     {
       selector: '.ic-card',
       title: 'Índice de Confiança',
+      // position:'top' — este é o último campo antes do botão de concluir, então
+      // não há conteúdo suficiente abaixo dele na página para "puxá-lo" até o
+      // topo da tela (block:'start' fica limitado pelo fim do documento); forçar
+      // o balão acima evita que ele fique sem espaço de nenhum dos lados.
+      position: 'top',
       text: 'Esse é o seu IC: começa em 70% e reflete sua reputação, mudando conforme suas ações e avaliações na plataforma.'
     }
   ], { id: 'onboarding' });
