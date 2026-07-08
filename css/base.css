@@ -217,22 +217,24 @@ input, textarea {
   text-align: center;
 }
 
+/* Botão "Voltar" e título na mesma linha (economiza altura) — título
+   ocupa o espaço restante, alinhado à esquerda, logo ao lado do botão. */
 .screen__header-nav {
   display: flex;
   align-items: center;
-  margin-bottom: var(--space-xs);
+  gap: var(--space-sm);
+}
+
+.screen__header-nav .btn {
+  flex-shrink: 0;
 }
 
 .screen__title {
+  flex: 1;
+  text-align: left;
   font-size: var(--fs-12);
   font-weight: 800;
   color: var(--p-green-dark);
-}
-
-.screen__subtitle {
-  margin-top: 4px;
-  font-size: var(--fs-7);
-  color: var(--t-sub);
 }
 
 
