@@ -251,30 +251,35 @@ window.resetTutorialSeen('nome-do-tutorial'); // limpa a flag "já visto" (ex.: 
   antes de chamar `startTutorial`.
 - **Persistência:** cada tutorial só aparece automaticamente uma vez por dispositivo, via
   `localStorage['tutorial_seen_' + id]`. Passe `{ force: true }` para reexibir mesmo já visto.
-- **Auto-scroll + acompanhamento em tempo real:** ao entrar em cada passo, o motor rola (`scrollIntoView`,
-  suave) o container scrollável mais próximo do alvo até centralizá-lo, e trava o scroll desse container
-  (`.tutorial-scroll-lock`) enquanto o tour está ativo — evita o balão "descolar" do alvo se o usuário
-  arrastar a tela por baixo. `.screen` (onboarding, auth, install) já é o próprio container com scroll.
-  Em vez de "adivinhar" quando a rolagem suave termina com um temporizador fixo, um listener de `scroll`
-  persistente (`startScrollWatch`) reposiciona tudo a cada evento real de scroll, convergindo pro lugar
-  certo assim que o movimento parar — um atraso fixo podia "congelar" o destaque no meio do caminho para
-  alvos mais distantes (ex.: Índice de Confiança, Plano Pro, perto do fim do formulário), deixando-o
-  visivelmente deslocado da posição final.
-- **Reposicionamento:** o balão mede a si mesmo antes de decidir se fica acima ou abaixo do alvo
-  (conforme espaço disponível) e nunca deixa a seta ou o card vazarem da viewport; reposiciona também
-  no `resize`.
+- **Auto-scroll + acompanhamento em tempo real (scroll NÃO é travado):** ao entrar em cada passo, o motor
+  decide ANTES de rolar se o balão vai ficar abaixo ou acima do alvo (`decidePlaceBelow()` — cabe embaixo
+  se `altura do alvo + altura do balão + margem` for menor que a viewport; senão vai por cima; `step.position`
+  força um lado específico) e rola (`scrollIntoView`) alinhando o alvo no lado OPOSTO da tela
+  (`block:'start'` quando o balão fica embaixo, `block:'end'` quando fica em cima) — isso garante espaço
+  de sobra do lado do balão, em vez de só centralizar o alvo (`block:'center'`), que podia deixar alvos
+  grandes "presos" no meio da tela sem espaço suficiente nem acima nem abaixo (era o caso do Índice de
+  Confiança). Em vez de "adivinhar" quando a rolagem suave termina com um temporizador fixo, um listener
+  de `scroll` persistente (`startScrollWatch`) reposiciona tudo a cada evento real de scroll — inclusive
+  scroll MANUAL do usuário, já que o container não fica com `overflow:hidden` durante o tour: seções que
+  ficam mais altas que a tela ao expandir (ex.: "Detalhes profissionais") precisam que o usuário role à
+  vontade para ver tudo, e esse listener mantém o destaque e o balão acompanhando esse scroll também.
+- **Reposicionamento:** o balão mede a si mesmo antes de decidir o lado (função acima) e nunca deixa a
+  seta ou o card vazarem da viewport; reposiciona também no `resize`. O cálculo de acima/abaixo do balão
+  usa sempre o retângulo ORIGINAL do alvo (nunca o estendido por conteúdo colapsável — ver abaixo): se um
+  colapsável abrir maior que a tela inteira, não existe posição sem alguma sobreposição, então a base do
+  cálculo fica no alvo em si (que quase sempre cabe), com um teto de extensão (`maxExtension`, 400px) para
+  não tentar perseguir um fundo real inalcançável.
 - **Elementos colapsáveis/expansíveis no alvo atual:** um `MutationObserver` (classe/estilo/filhos, no
   container com scroll da tela — nunca no próprio overlay do tutorial, para não entrar em loop reagindo
   às suas próprias mudanças de posição) reposiciona tudo automaticamente sempre que o DOM muda enquanto
   o tour está ativo — ex.: o usuário toca no próprio alvo em destaque (permitido, é a única área
   clicável) e isso abre um `<details>` ou um `.collapsible__panel` bem ao lado. `getExtendedRect()`
   verifica se o irmão logo abaixo do alvo (mesmo pai, colado, ex.: o painel de um colapsável) está
-  visível e, se estiver, estende o retângulo considerado para incluí-lo — usado tanto no "buraco" do
-  destaque/máscara (pra revelar esse conteúdo recém-aberto em vez de deixá-lo escurecido/bloqueado)
-  quanto no cálculo de posição do balão (pra não ficar por cima dele).
+  visível e, se estiver, estende o retângulo considerado — usado SÓ no "buraco" do destaque/máscara,
+  pra revelar esse conteúdo recém-aberto (nítido e tocável) em vez de deixá-lo escurecido/bloqueado.
 
-**Uso atual (cadastro):** `window.startOnboardingTutorial()` em `js/onboarding.js` define os passos do
-tour (foto, nome/sobrenome, localização, detalhes profissionais, IC, Plano Pro, botão concluir) e é
+**Uso atual (cadastro):** `window.startOnboardingTutorial()` em `js/onboarding.js` define 4 passos
+(dados pessoais — foto+nome+sobrenome juntos, região, detalhes profissionais, Índice de Confiança) e é
 chamado por `session.js` ~600ms depois de `showView('view-onboarding')` (tempo da animação de entrada +
 fade do loader). Tutorial id: `'onboarding'`.
 
@@ -299,7 +304,7 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v128`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v129`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Atualização do PWA (banner "Nova versão disponível"):** o Service Worker NÃO chama `self.skipWaiting()`
 no `install` — o novo worker fica parado em "waiting" até o usuário confirmar. Fluxo completo:

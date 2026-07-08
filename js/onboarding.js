@@ -101,14 +101,9 @@ window.startOnboardingTutorial = function () {
 
   window.startTutorial([
     {
-      selector: '#media-preview',
-      title: 'Sua foto de perfil',
-      text: 'Toque aqui para tirar ou escolher uma foto. Um perfil com foto passa mais confiança para quem for indicar ou contratar você.'
-    },
-    {
-      selector: '.profile-header-row__fields',
-      title: 'Nome e sobrenome',
-      text: 'Preencha como você quer ser identificado na plataforma.'
+      selector: '#field-photo',
+      title: 'Dados pessoais',
+      text: 'Adicione uma foto de perfil e preencha seu nome e sobrenome como você quer ser identificado na plataforma.'
     },
     {
       selector: '#btn-register-location',
@@ -124,16 +119,6 @@ window.startOnboardingTutorial = function () {
       selector: '.ic-card',
       title: 'Índice de Confiança',
       text: 'Esse é o seu IC: começa em 70% e reflete sua reputação, mudando conforme suas ações e avaliações na plataforma.'
-    },
-    {
-      selector: '.pro-compare',
-      title: 'Plano Pro',
-      text: 'Compare aqui o que muda com o Plano Pro: mais visibilidade, mais pedidos ativos e recursos extras.'
-    },
-    {
-      selector: '#btn-finish-onboarding',
-      title: 'Concluir cadastro',
-      text: 'Depois de preencher os campos obrigatórios, toque aqui para concluir seu cadastro e começar a usar o Gente Honesta.'
     }
   ], { id: 'onboarding' });
 };

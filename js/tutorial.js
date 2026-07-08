@@ -30,9 +30,9 @@
   let currentIndex = 0;
   let tutorialId = null;
   let onFinishCb = null;
-  let lockedScrollEl = null;
   let mutationObserver = null;
   let scrollWatchEl = null;
+  let currentPlaceBelow = true;
 
   let overlayEl, maskEl, highlightEl, balloonEl, skipBtn, progressEl, titleEl, textEl, prevBtn, nextBtn;
   let repositionTimer = null;
@@ -110,24 +110,17 @@
     return null;
   }
 
-  function lockScroll(el) {
-    lockedScrollEl = el || null;
-    if (lockedScrollEl) lockedScrollEl.classList.add('tutorial-scroll-lock');
-  }
-
-  function unlockScroll() {
-    if (lockedScrollEl) lockedScrollEl.classList.remove('tutorial-scroll-lock');
-    lockedScrollEl = null;
-  }
-
   // Acompanha o scroll do container em tempo real (em vez de "adivinhar" com um
   // temporizador fixo) enquanto o tour está ativo — o scrollIntoView() é uma
   // animação suave cuja duração varia com a distância (alvos mais abaixo na
-  // tela, ex.: Índice de Confiança/Plano Pro, demoram mais); um atraso fixo
-  // podia disparar positionStep() ainda no meio do movimento, "congelando" o
+  // tela, ex.: Índice de Confiança, demoram mais); um atraso fixo podia
+  // disparar positionStep() ainda no meio do movimento, "congelando" o
   // destaque num ponto que não é o final. Reagir a cada evento de scroll real
-  // elimina esse desalinhamento, e também cobre qualquer outro scroll que
-  // aconteça no meio do passo (ex.: o teclado abrindo ao focar um campo).
+  // elimina esse desalinhamento. O scroll NÃO é travado (sem overflow:hidden):
+  // seções como "Detalhes profissionais", mais altas que a tela quando
+  // abertas, precisam que o usuário role manualmente para ver tudo — este
+  // listener mantém o destaque e o balão acompanhando também esse scroll
+  // manual, além de qualquer outro (ex.: o teclado abrindo ao focar um campo).
   function startScrollWatch(el) {
     stopScrollWatch();
     scrollWatchEl = el || window;
@@ -190,7 +183,6 @@
     onFinishCb = typeof opts.onFinish === 'function' ? opts.onFinish : null;
 
     const scrollParent = findScrollParent(document.querySelector(validSteps[0].selector));
-    lockScroll(scrollParent);
     startMutationWatch(scrollParent);
     startScrollWatch(scrollParent);
 
@@ -234,8 +226,21 @@
     // instante antes de positionStep() calcular o lugar certo (mais notável
     // no primeiro passo do tour, quando o balão acabou de ser criado).
     balloonEl.style.visibility = 'hidden';
+    balloonEl.classList.remove('tutorial-balloon--above', 'tutorial-balloon--below');
 
-    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Decide ANTES de rolar se o balão vai ficar abaixo ou acima do alvo — com
+    // base só no tamanho do PRÓPRIO alvo (não do conteúdo colapsável que ele
+    // possa revelar depois: se um colapsável abrir maior que a tela inteira,
+    // não existe posição sem sobreposição, então a base fica no alvo em si,
+    // que quase sempre cabe). Rola alinhando o alvo no lado OPOSTO da tela —
+    // isso garante espaço de sobra pro balão, em vez de só centralizar o alvo
+    // (que podia deixar o conteúdo "preso" no meio da tela, sem espaço
+    // suficiente nem acima nem abaixo, como acontecia no Índice de Confiança).
+    const preRect = targetEl.getBoundingClientRect();
+    const bHeight = balloonEl.getBoundingClientRect().height || 200;
+    currentPlaceBelow = decidePlaceBelow(step, preRect.height, bHeight);
+
+    targetEl.scrollIntoView({ behavior: 'smooth', block: currentPlaceBelow ? 'start' : 'end' });
 
     // Posiciona já com o retângulo atual (cobre o caso do alvo já estar
     // visível, quando scrollIntoView não dispara nenhum evento de scroll) —
@@ -247,6 +252,18 @@
     // motivo, o scroll parar de disparar eventos antes do fim da animação.
     clearTimeout(repositionTimer);
     repositionTimer = setTimeout(positionStep, 700);
+  }
+
+  // Decide de que lado o balão fica (calculado uma vez ao entrar no passo,
+  // usado também para escolher o alinhamento do scrollIntoView) — respeita
+  // step.position quando definido; por padrão, prioriza deixar o alvo perto
+  // do topo (balão abaixo) e só inverte quando o próprio alvo não deixaria
+  // espaço suficiente pro balão daquele lado.
+  function decidePlaceBelow(step, targetHeight, balloonHeight) {
+    if (step.position === 'top') return false;
+    if (step.position === 'bottom') return true;
+    const margin = 40;
+    return (targetHeight + balloonHeight + margin) <= window.innerHeight;
   }
 
   // Caminho SVG de um retângulo arredondado (sentido horário) — usado para
@@ -276,6 +293,10 @@
   // para incluir esse conteúdo — usado tanto no "buraco" da máscara/destaque
   // (pra revelar o conteúdo recém-aberto, e não deixá-lo escurecido/bloqueado)
   // quanto no cálculo de posição do balão (pra não ficar por cima dele).
+  // Também devolve o próprio elemento-irmão (`extraEl`) — é nele que
+  // scrollIntoView({block:'end'}) precisa rolar quando o balão vai para cima,
+  // já que rolar o alvo original não moveria esse conteúdo extra para dentro
+  // da tela.
   function getExtendedRect(targetEl, rect) {
     const sibling = targetEl.nextElementSibling;
     if (!sibling || !isVisible(sibling)) return rect;
@@ -286,7 +307,7 @@
     const left = Math.min(rect.left, sRect.left);
     const right = Math.max(rect.right, sRect.right);
     const bottom = Math.max(rect.bottom, sRect.bottom);
-    return { top: rect.top, left, right, bottom, width: right - left, height: bottom - rect.top };
+    return { top: rect.top, left, right, bottom, width: right - left, height: bottom - rect.top, extraEl: sibling };
   }
 
   function positionStep() {
@@ -323,20 +344,26 @@
 
     requestAnimationFrame(() => {
       const bRect = balloonEl.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - extRect.bottom;
-      const spaceAbove = rect.top;
 
-      const belowTop = extRect.bottom + pad + 16;
+      // Considera o conteúdo estendido (ex.: colapsável aberto) pra não ficar
+      // por cima dele — mas com um teto: se ele for maior que a tela inteira,
+      // perseguir o fundo real não cabe em lugar nenhum (nem embaixo, nem
+      // invertendo pra cima, já que o próprio alvo foi alinhado no topo da
+      // tela). Nesses casos extremos é melhor um posicionamento previsível
+      // (a uma distância fixa do alvo) do que "grudar" numa borda da tela.
+      const maxExtension = 400;
+      const belowBottom = Math.min(extRect.bottom, rect.bottom + maxExtension);
+      const belowTop = belowBottom + pad + 16;
       const aboveTop = rect.top - pad - 16 - bRect.height;
 
       const belowFits = belowTop + bRect.height <= window.innerHeight - 12;
       const aboveFits = aboveTop >= 12;
 
-      let preferBelow = step.position === 'bottom' ||
-        (step.position !== 'top' && spaceBelow >= Math.min(spaceAbove, bRect.height + 30));
-
-      // Se o lado escolhido não cabe de verdade (ex.: painel recém-aberto
-      // ocupou o espaço abaixo), troca de lado — desde que o outro caiba.
+      // O lado já foi decidido em renderStep() (decidePlaceBelow), antes de
+      // rolar — aqui só corrige se algo mudou depois (ex.: o usuário abriu o
+      // colapsável, que só existe/expande DEPOIS da decisão inicial) e o lado
+      // escolhido não cabe mais de verdade, desde que o outro caiba.
+      let preferBelow = currentPlaceBelow;
       if (preferBelow && !belowFits && aboveFits) preferBelow = false;
       else if (!preferBelow && !aboveFits && belowFits) preferBelow = true;
 
@@ -368,7 +395,6 @@
   function finish() {
     if (!overlayEl) return;
     overlayEl.classList.add('u-hidden');
-    unlockScroll();
     stopMutationWatch();
     stopScrollWatch();
     if (tutorialId) markSeen(tutorialId);

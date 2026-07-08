@@ -12,13 +12,6 @@
   pointer-events: none;
 }
 
-/* Bloqueia o scroll do container ativo durante o tour (o motor já rola
-   automaticamente até cada alvo — evita o balão "descolar" do elemento
-   se o usuário arrastar a tela por baixo dele). */
-.tutorial-scroll-lock {
-  overflow: hidden !important;
-}
-
 /* Máscara única: escurece+desfoca a tela inteira, exceto o "buraco" recortado
    via clip-path (calculado em JS com os mesmos cantos arredondados do
    destaque) — o recorte também exclui essa área da detecção de toque/clique,
