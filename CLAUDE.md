@@ -251,10 +251,15 @@ window.resetTutorialSeen('nome-do-tutorial'); // limpa a flag "já visto" (ex.: 
   antes de chamar `startTutorial`.
 - **Persistência:** cada tutorial só aparece automaticamente uma vez por dispositivo, via
   `localStorage['tutorial_seen_' + id]`. Passe `{ force: true }` para reexibir mesmo já visto.
-- **Auto-scroll + trava de scroll:** ao entrar em cada passo, o motor rola (`scrollIntoView`) o container
-  scrollável mais próximo do alvo até centralizá-lo, e trava o scroll desse container
+- **Auto-scroll + acompanhamento em tempo real:** ao entrar em cada passo, o motor rola (`scrollIntoView`,
+  suave) o container scrollável mais próximo do alvo até centralizá-lo, e trava o scroll desse container
   (`.tutorial-scroll-lock`) enquanto o tour está ativo — evita o balão "descolar" do alvo se o usuário
   arrastar a tela por baixo. `.screen` (onboarding, auth, install) já é o próprio container com scroll.
+  Em vez de "adivinhar" quando a rolagem suave termina com um temporizador fixo, um listener de `scroll`
+  persistente (`startScrollWatch`) reposiciona tudo a cada evento real de scroll, convergindo pro lugar
+  certo assim que o movimento parar — um atraso fixo podia "congelar" o destaque no meio do caminho para
+  alvos mais distantes (ex.: Índice de Confiança, Plano Pro, perto do fim do formulário), deixando-o
+  visivelmente deslocado da posição final.
 - **Reposicionamento:** o balão mede a si mesmo antes de decidir se fica acima ou abaixo do alvo
   (conforme espaço disponível) e nunca deixa a seta ou o card vazarem da viewport; reposiciona também
   no `resize`.
@@ -262,10 +267,11 @@ window.resetTutorialSeen('nome-do-tutorial'); // limpa a flag "já visto" (ex.: 
   container com scroll da tela — nunca no próprio overlay do tutorial, para não entrar em loop reagindo
   às suas próprias mudanças de posição) reposiciona tudo automaticamente sempre que o DOM muda enquanto
   o tour está ativo — ex.: o usuário toca no próprio alvo em destaque (permitido, é a única área
-  clicável) e isso abre um `<details>` ou um `.collapsible__panel` bem ao lado. Para decidir se o balão
-  cabe acima ou abaixo, `getExtendedBottom()` verifica se o irmão logo abaixo do alvo (mesmo pai, colado, ex.: o painel de um
-  colapsável) está visível e soma sua altura ao cálculo — sem isso o balão ficaria por cima do conteúdo
-  recém-revelado, pensando que aquele espaço ainda estava livre.
+  clicável) e isso abre um `<details>` ou um `.collapsible__panel` bem ao lado. `getExtendedRect()`
+  verifica se o irmão logo abaixo do alvo (mesmo pai, colado, ex.: o painel de um colapsável) está
+  visível e, se estiver, estende o retângulo considerado para incluí-lo — usado tanto no "buraco" do
+  destaque/máscara (pra revelar esse conteúdo recém-aberto em vez de deixá-lo escurecido/bloqueado)
+  quanto no cálculo de posição do balão (pra não ficar por cima dele).
 
 **Uso atual (cadastro):** `window.startOnboardingTutorial()` em `js/onboarding.js` define os passos do
 tour (foto, nome/sobrenome, localização, detalhes profissionais, IC, Plano Pro, botão concluir) e é
@@ -293,7 +299,7 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v127`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v128`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Atualização do PWA (banner "Nova versão disponível"):** o Service Worker NÃO chama `self.skipWaiting()`
 no `install` — o novo worker fica parado em "waiting" até o usuário confirmar. Fluxo completo:

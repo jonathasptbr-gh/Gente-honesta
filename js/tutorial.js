@@ -32,10 +32,12 @@
   let onFinishCb = null;
   let lockedScrollEl = null;
   let mutationObserver = null;
+  let scrollWatchEl = null;
 
   let overlayEl, maskEl, highlightEl, balloonEl, skipBtn, progressEl, titleEl, textEl, prevBtn, nextBtn;
   let repositionTimer = null;
   let mutationRaf = null;
+  let scrollRaf = null;
 
   function buildDOM() {
     if (overlayEl) return;
@@ -57,6 +59,7 @@
           <button type="button" id="tutorial-prev" class="btn btn--text tutorial-balloon__prev">Voltar</button>
           <button type="button" id="tutorial-next" class="btn btn--primary btn--pill tutorial-balloon__next">Próximo</button>
         </div>
+        <button type="button" id="tutorial-skip-text" class="btn btn--text tutorial-balloon__skip-text">Pular tutorial</button>
       </div>
     `;
     document.body.appendChild(overlayEl);
@@ -65,6 +68,7 @@
     highlightEl = document.getElementById('tutorial-highlight');
     balloonEl = document.getElementById('tutorial-balloon');
     skipBtn = document.getElementById('tutorial-skip');
+    const skipTextBtn = document.getElementById('tutorial-skip-text');
     progressEl = document.getElementById('tutorial-progress');
     titleEl = document.getElementById('tutorial-title');
     textEl = document.getElementById('tutorial-text');
@@ -72,6 +76,7 @@
     nextBtn = document.getElementById('tutorial-next');
 
     skipBtn.addEventListener('click', finish);
+    skipTextBtn.addEventListener('click', finish);
     nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
     prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
 
@@ -113,6 +118,32 @@
   function unlockScroll() {
     if (lockedScrollEl) lockedScrollEl.classList.remove('tutorial-scroll-lock');
     lockedScrollEl = null;
+  }
+
+  // Acompanha o scroll do container em tempo real (em vez de "adivinhar" com um
+  // temporizador fixo) enquanto o tour está ativo — o scrollIntoView() é uma
+  // animação suave cuja duração varia com a distância (alvos mais abaixo na
+  // tela, ex.: Índice de Confiança/Plano Pro, demoram mais); um atraso fixo
+  // podia disparar positionStep() ainda no meio do movimento, "congelando" o
+  // destaque num ponto que não é o final. Reagir a cada evento de scroll real
+  // elimina esse desalinhamento, e também cobre qualquer outro scroll que
+  // aconteça no meio do passo (ex.: o teclado abrindo ao focar um campo).
+  function startScrollWatch(el) {
+    stopScrollWatch();
+    scrollWatchEl = el || window;
+    scrollWatchEl.addEventListener('scroll', onScrollTick, { passive: true });
+  }
+
+  function stopScrollWatch() {
+    if (scrollWatchEl) scrollWatchEl.removeEventListener('scroll', onScrollTick);
+    scrollWatchEl = null;
+    cancelAnimationFrame(scrollRaf);
+  }
+
+  function onScrollTick() {
+    if (!isActive()) return;
+    cancelAnimationFrame(scrollRaf);
+    scrollRaf = requestAnimationFrame(positionStep);
   }
 
   // Observa mudanças no DOM (ex.: um colapsável abrindo bem ao lado do alvo
@@ -161,6 +192,7 @@
     const scrollParent = findScrollParent(document.querySelector(validSteps[0].selector));
     lockScroll(scrollParent);
     startMutationWatch(scrollParent);
+    startScrollWatch(scrollParent);
 
     overlayEl.classList.remove('u-hidden');
     currentIndex = 0;
@@ -205,8 +237,16 @@
 
     targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
+    // Posiciona já com o retângulo atual (cobre o caso do alvo já estar
+    // visível, quando scrollIntoView não dispara nenhum evento de scroll) —
+    // o listener de scroll (startScrollWatch) assume dali em diante e mantém
+    // tudo alinhado em tempo real enquanto a rolagem suave estiver em curso.
+    requestAnimationFrame(positionStep);
+
+    // Rede de segurança: garante uma correção final mesmo se, por algum
+    // motivo, o scroll parar de disparar eventos antes do fim da animação.
     clearTimeout(repositionTimer);
-    repositionTimer = setTimeout(positionStep, 350);
+    repositionTimer = setTimeout(positionStep, 700);
   }
 
   // Caminho SVG de um retângulo arredondado (sentido horário) — usado para
@@ -232,16 +272,21 @@
   }
 
   // Se logo abaixo do alvo existe um irmão visível colado a ele (ex.: o painel
-  // de um colapsável que acabou de abrir), estende o "fundo" considerado para
-  // o cálculo de posição — sem isso o balão pode ficar por cima desse
-  // conteúdo recém-revelado, pensando que o espaço abaixo do alvo está livre.
-  function getExtendedBottom(targetEl, rect) {
+  // de um colapsável que acabou de abrir), estende o retângulo considerado
+  // para incluir esse conteúdo — usado tanto no "buraco" da máscara/destaque
+  // (pra revelar o conteúdo recém-aberto, e não deixá-lo escurecido/bloqueado)
+  // quanto no cálculo de posição do balão (pra não ficar por cima dele).
+  function getExtendedRect(targetEl, rect) {
     const sibling = targetEl.nextElementSibling;
-    if (!sibling || !isVisible(sibling)) return rect.bottom;
+    if (!sibling || !isVisible(sibling)) return rect;
     const sRect = sibling.getBoundingClientRect();
     const horizontallyAligned = sRect.left < rect.right && sRect.right > rect.left;
     const directlyBelow = sRect.top >= rect.top - 1 && (sRect.top - rect.bottom) < 24;
-    return (horizontallyAligned && directlyBelow) ? Math.max(rect.bottom, sRect.bottom) : rect.bottom;
+    if (!horizontallyAligned || !directlyBelow) return rect;
+    const left = Math.min(rect.left, sRect.left);
+    const right = Math.max(rect.right, sRect.right);
+    const bottom = Math.max(rect.bottom, sRect.bottom);
+    return { top: rect.top, left, right, bottom, width: right - left, height: bottom - rect.top };
   }
 
   function positionStep() {
@@ -252,11 +297,12 @@
 
     const rect = targetEl.getBoundingClientRect();
     const pad = step.padding != null ? step.padding : 8;
+    const extRect = getExtendedRect(targetEl, rect);
 
-    const holeTop = rect.top - pad;
-    const holeLeft = rect.left - pad;
-    const holeRight = rect.right + pad;
-    const holeBottom = rect.bottom + pad;
+    const holeTop = extRect.top - pad;
+    const holeLeft = extRect.left - pad;
+    const holeRight = extRect.right + pad;
+    const holeBottom = extRect.bottom + pad;
 
     highlightEl.style.top = `${holeTop}px`;
     highlightEl.style.left = `${holeLeft}px`;
@@ -270,8 +316,6 @@
     const radiusPx = step.round ? 999 : parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--radius-md')) || 12;
     positionMask(holeTop, holeLeft, holeRight, holeBottom, radiusPx);
 
-    const extendedBottom = getExtendedBottom(targetEl, rect);
-
     // Mede o balão "invisível" antes de decidir o lado, pra não vazar da tela
     // nem ficar por cima de algo que acabou de aparecer (ex.: colapsável aberto).
     balloonEl.classList.remove('tutorial-balloon--above', 'tutorial-balloon--below');
@@ -279,10 +323,10 @@
 
     requestAnimationFrame(() => {
       const bRect = balloonEl.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - extendedBottom;
+      const spaceBelow = window.innerHeight - extRect.bottom;
       const spaceAbove = rect.top;
 
-      const belowTop = extendedBottom + pad + 16;
+      const belowTop = extRect.bottom + pad + 16;
       const aboveTop = rect.top - pad - 16 - bRect.height;
 
       const belowFits = belowTop + bRect.height <= window.innerHeight - 12;
@@ -326,6 +370,7 @@
     overlayEl.classList.add('u-hidden');
     unlockScroll();
     stopMutationWatch();
+    stopScrollWatch();
     if (tutorialId) markSeen(tutorialId);
     const cb = onFinishCb;
     onFinishCb = null;
