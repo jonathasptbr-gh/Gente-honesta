@@ -269,7 +269,9 @@ window.resetTutorialSeen('nome-do-tutorial'); // limpa a flag "já visto" (ex.: 
   cada evento real de scroll — inclusive scroll MANUAL do usuário, já que o container não fica com
   `overflow:hidden` durante o tour: seções que ficam mais altas que a tela ao expandir (ex.: "Detalhes
   profissionais") precisam que o usuário role à vontade para ver tudo, e esse listener mantém o destaque
-  e o balão acompanhando esse scroll também.
+  e o balão acompanhando esse scroll também. Ao terminar (concluído ou pulado), o container volta pra
+  posição de scroll de antes do tour começar (`originalScrollTop`) — sem isso a tela ficava "parada" onde
+  o último passo tinha rolado (ex.: cabeçalho cortado no topo) em vez de voltar ao estado normal.
 - **Reposicionamento:** o balão mede a si mesmo antes de decidir o lado (função acima) e nunca deixa a
   seta ou o card vazarem da viewport; reposiciona também no `resize`. O cálculo de acima/abaixo do balão
   usa sempre o retângulo ORIGINAL do alvo (nunca o estendido por conteúdo colapsável — ver abaixo): se um
@@ -315,11 +317,21 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 
 **Diálogos:** sempre usar `await customAlert(...)` e `await customConfirm(...)` — nunca `alert()` ou `confirm()` nativos.
 
+**Onboarding preenche a tela sem sobra (`.onboarding-form`):** `<header class="screen__header">` e
+`<form class="onboarding-form">` são IRMÃOS dentro de `#view-onboarding.screen` (que é `display:flex;
+flex-direction:column`). O form usa `flex: 1; min-height: 0` — NUNCA `min-height: 100%`. Como os dois são
+itens flex na mesma coluna, `min-height:100%` no form referenciaria a altura TOTAL do `.screen`, ignorando
+que o `<header>` já ocupa espaço antes dele, e estouraria a tela; `flex:1` ocupa exatamente o espaço que
+sobra depois do cabeçalho. `#btn-finish-onboarding` usa `margin-top: auto` para ser empurrado até a base,
+absorvendo sozinho a folga quando o conteúdo é mais curto que a tela (ex.: "Detalhes profissionais"
+fechado); quando o colapsável abre e o conteúdo fica mais alto que a tela, a margem automática zera e o
+`.screen` (`overflow-y: auto`) assume o scroll normalmente — nada trava a expansão do colapsável.
+
 **TDZ em DOMContentLoaded:** dentro do callback de `DOMContentLoaded` em `feed.js`, todas as variáveis declaradas com `const`/`let` ficam na temporal dead zone até sua linha de declaração. Chamar uma função `const` antes de ela ser declarada lança `ReferenceError` silencioso que interrompe TODO o callback — os event listeners abaixo do ponto de erro nunca são registrados. Sempre declare `const` helpers/funções ANTES da linha que os chama, ou mova a chamada para depois da declaração.
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v131`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v132`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Atualização do PWA (banner "Nova versão disponível"):** o Service Worker NÃO chama `self.skipWaiting()`
 no `install` — o novo worker fica parado em "waiting" até o usuário confirmar. Fluxo completo:

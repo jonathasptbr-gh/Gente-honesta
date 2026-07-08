@@ -4,6 +4,30 @@
    servirá de base para a futura edição de perfil.
    ======================================== */
 
+/* Distribui o formulário pela altura restante da tela (depois do cabeçalho)
+   quando o conteúdo é mais curto que a viewport (ex.: "Detalhes
+   profissionais" fechado) — sem isso os campos ficavam agrupados no topo,
+   terminando no meio da tela. flex:1 (não min-height:100%) é essencial: o
+   formulário é irmão do <header> dentro do mesmo .screen flex-column, então
+   min-height:100% contaria a altura TOTAL do .screen, ignorando o espaço já
+   ocupado pelo cabeçalho, e estouraria a tela; flex:1 ocupa exatamente o
+   espaço que sobra. min-height:0 permite que, quando o colapsável abre e o
+   conteúdo passa a ser mais alto que a tela, o formulário cresça livremente
+   e o próprio .screen (overflow-y:auto) assuma o scroll normalmente. */
+.onboarding-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Empurra o botão final para a base da tela, absorvendo sozinho o espaço
+   sobrando — os campos acima mantêm o espaçamento normal entre si. */
+#btn-finish-onboarding {
+  margin-top: auto;
+  padding-top: var(--space-md);
+}
+
 /* Linha foto + campos de nome lado a lado */
 .profile-header-row {
   display: flex;

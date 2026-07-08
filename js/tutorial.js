@@ -46,6 +46,8 @@
   let currentPlaceBelow = true;
   let siblingStartedHidden = false;
   let paddedScrollEl = null;
+  let scrollElToRestore = null;
+  let originalScrollTop = 0;
 
   let overlayEl, maskEl, highlightEl, balloonEl, skipBtn, progressEl, titleEl, textEl, prevBtn, nextBtn;
   let repositionTimer = null;
@@ -216,6 +218,8 @@
     onFinishCb = typeof opts.onFinish === 'function' ? opts.onFinish : null;
 
     const scrollParent = findScrollParent(document.querySelector(validSteps[0].selector));
+    scrollElToRestore = scrollParent;
+    originalScrollTop = scrollParent ? scrollParent.scrollTop : 0;
     applyScrollPadding(scrollParent);
     startMutationWatch(scrollParent);
     startScrollWatch(scrollParent);
@@ -452,6 +456,11 @@
     stopMutationWatch();
     stopScrollWatch();
     clearScrollPadding();
+    // Devolve o container pra posição de scroll de antes do tour começar —
+    // sem isso a tela ficava "parada" onde o último passo tinha rolado
+    // (ex.: cabeçalho cortado no topo) em vez de voltar ao estado normal.
+    if (scrollElToRestore) scrollElToRestore.scrollTo({ top: originalScrollTop, behavior: 'auto' });
+    scrollElToRestore = null;
     if (tutorialId) markSeen(tutorialId);
     const cb = onFinishCb;
     onFinishCb = null;
