@@ -106,10 +106,10 @@
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: var(--p-green-light);
-  border: 1.5px solid var(--p-green);
+  background: var(--info-blue-light);
+  border: 1.5px solid var(--info-blue);
   border-radius: var(--radius-pill);
-  color: var(--p-green);
+  color: var(--info-blue);
   font-size: var(--fs-5);
   font-weight: 600;
   cursor: default;
@@ -118,7 +118,7 @@
 .tag-pill__remove {
   font-size: var(--fs-8);
   cursor: pointer;
-  color: var(--p-green);
+  color: var(--info-blue);
   line-height: 1;
   background: none;
   border: none;

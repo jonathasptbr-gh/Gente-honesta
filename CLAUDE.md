@@ -356,7 +356,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v146`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v147`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são
@@ -389,12 +389,13 @@ sinaliza a seleção com um ícone `.chip__check` **à direita do texto** que al
 **Padrão visual unificado com as pílulas de profissão (`.tag-pill`)** para o cadastro ter uma linguagem
 única: `.chip.chip--payment` iguala fonte (`--fs-5`), padding (`8px 14px`) e borda (`1.5px`) às
 `.tag-pill`, e o estado ativo (`.chip--payment.chip--active`) usa o mesmo esquema "tint preenchido" delas
-— fundo tint + borda + texto no mesmo matiz — porém no **azul** do pagamento (`--info-blue` +
-`--info-blue-light`) em vez do verde, preservando a identidade herdada do rodapé do card de profissional
-(`.pro-card__meta-item`) e mantendo os dois grupos distinguíveis. A borda de `1.5px` nasce igual nos dois
-estados (só a COR muda ao selecionar) para não deslocar as vizinhas na mesma linha; o seletor
-`.chip.chip--payment` (2 classes) é necessário para vencer `.chip` sozinho de `feed.css`, carregado depois
-de `onboarding.css` com a mesma especificidade de uma classe. Estado gravado em
+— fundo tint + borda + texto no mesmo matiz. Ambas usam o **azul** `--info-blue` + `--info-blue-light`
+(as `.tag-pill` também foram trocadas de verde para azul, então os dois grupos compartilham exatamente a
+mesma paleta) — cor herdada dos ícones de pagamento no rodapé do card de profissional
+(`.pro-card__meta-item`). A borda de `1.5px` nasce igual nos dois estados (só a COR muda ao selecionar)
+para não deslocar as vizinhas na mesma linha; o seletor `.chip.chip--payment` (2 classes) é necessário
+para vencer `.chip` sozinho de `feed.css`, carregado depois de `onboarding.css` com a mesma especificidade
+de uma classe. Estado gravado em
 `window.appState.paymentMethods = {cash, pix, card, nf}`, resetado junto com o resto do formulário em
 `resetOnboardingForm`. Ao final do painel (depois de todos os
 campos), um card ilustrativo `.pro-cta` (fundo `--gold-soft`, ícone + título + texto curto + chips de
