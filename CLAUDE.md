@@ -76,7 +76,8 @@ manifest.json           — PWA manifest (start_url e scope usam "./" para GitHu
 service-worker.js       — Network-First, cache offline, CACHE_NAME = "gentehonesta-vN"
 CNAME                   — "gentehonesta.com.br"
 .nojekyll               — Impede o Jekyll do GitHub Pages de processar os arquivos
-icon-192.png            — Ícone PWA 192px (operário: capacete + óculos + rosto + check, cores do tema); referenciado no manifest.json
+icon.svg                — Fonte do ícone do app (operário: capacete + óculos + rosto + check, cores do tema); renderizado para os PNGs
+icon-192.png            — Ícone PWA 192px (mesma arte); referenciado no manifest.json
 icon-512.png            — Ícone PWA 512px (mesma arte); referenciado no manifest.json
 
 css/
@@ -358,7 +359,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v151`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v152`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são
