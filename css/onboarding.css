@@ -157,14 +157,23 @@
   font-size: 1.05rem;
 }
 
+/* Borda já nasce em 2px (mesma cor neutra do padrão .chip) para que ativar
+   a seleção troque só a COR da borda, nunca a largura — trocar a largura no
+   :active fazia a pílula "crescer" e empurrar as vizinhas na mesma linha.
+   Seletor .chip.chip--payment (2 classes) é necessário para vencer .chip
+   sozinho de feed.css, que é carregado DEPOIS de onboarding.css e tem a
+   mesma especificidade de uma classe só. */
+.chip.chip--payment {
+  border-width: 2px;
+}
+
 /* Tema azul (--info-blue), igual à cor dos ícones de pagamento no rodapé do
    card de profissional no feed (.pro-card__meta-item) — mas sem preenchimento
    sólido como o verde padrão de .chip--active: o fundo permanece neutro e só
-   o texto + o check ficam azuis (o ícone herda a cor do texto). Borda mais
-   grossa e texto em negrito reforçam o destaque no lugar do preenchimento. */
+   o texto + o check ficam azuis (o ícone herda a cor do texto). Texto em
+   negrito reforça o destaque no lugar do preenchimento. */
 .chip--payment.chip--active {
   background: var(--bg-soft);
-  border-width: 2px;
   border-color: var(--info-blue);
   color: var(--info-blue);
   font-weight: 700;
