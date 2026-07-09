@@ -326,12 +326,23 @@ sobra depois do cabeçalho. `#btn-finish-onboarding` usa `margin-top: auto` para
 absorvendo sozinho a folga quando o conteúdo é mais curto que a tela (ex.: "Detalhes profissionais"
 fechado); quando o colapsável abre e o conteúdo fica mais alto que a tela, a margem automática zera e o
 `.screen` (`overflow-y: auto`) assume o scroll normalmente — nada trava a expansão do colapsável.
+`.screen__header-nav` (botão Voltar + `.screen__title`) é `display:flex`; o título usa `flex:1;
+text-align:right` para ficar afastado do botão, respeitando a margem direita via o padding do próprio
+`.screen` — usa `--fs-11` (não `--fs-12`) porque, dividindo a linha com o botão, o tamanho padrão de
+título de tela quebraria "Complete seu Perfil" em duas linhas e estouraria a altura da tela sem scroll.
+
+**Setas de "voltar" como ícone, nunca caractere de texto:** `#btn-onboarding-back` e `#btn-back-phone`
+usam `<span class="material-symbols-rounded">arrow_back</span>` em vez do caractere `←` solto no texto.
+Um glifo de seta digitado como texto comum não compartilha a métrica vertical das letras ao redor e fica
+visivelmente mais baixo que o rótulo; dentro do `.btn` (que já é `display:flex; align-items:center`),
+o ícone fica automaticamente centralizado com o texto. `.btn--text .material-symbols-rounded` fixa o
+ícone em `1.1rem` para não ficar grande demais perto do texto do link.
 
 **TDZ em DOMContentLoaded:** dentro do callback de `DOMContentLoaded` em `feed.js`, todas as variáveis declaradas com `const`/`let` ficam na temporal dead zone até sua linha de declaração. Chamar uma função `const` antes de ela ser declarada lança `ReferenceError` silencioso que interrompe TODO o callback — os event listeners abaixo do ponto de erro nunca são registrados. Sempre declare `const` helpers/funções ANTES da linha que os chama, ou mova a chamada para depois da declaração.
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v132`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v133`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Atualização do PWA (banner "Nova versão disponível"):** o Service Worker NÃO chama `self.skipWaiting()`
 no `install` — o novo worker fica parado em "waiting" até o usuário confirmar. Fluxo completo:

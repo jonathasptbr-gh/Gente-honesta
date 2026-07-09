@@ -60,6 +60,14 @@
   vertical-align: middle;
 }
 
+/* Ícone de seta (ex.: "← Voltar") como Material Symbol em vez de caractere
+   de texto — um glifo de seta comum não se alinha verticalmente ao centro
+   do texto ao lado (métrica de fonte diferente); dentro do .btn flex com
+   align-items:center, o ícone fica perfeitamente centrado com o rótulo. */
+.btn--text .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
 .btn--text:active {
   transform: none;
   opacity: 0.7;
