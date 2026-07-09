@@ -230,10 +230,13 @@ com o MESMO raio do anel de destaque — exatamente no retângulo do elemento-al
 pela detecção de clique, a área fora do buraco realmente não responde a toque. Só o elemento em destaque
 fica 100% nítido e interativo — dá pra preencher campos, tocar botões etc. "junto com o tutorial", sem
 conseguir mexer em nada fora do passo atual. Um anel dourado pulsante (`--a-gold`) marca o destaque
-(cantos arredondados iguais aos da máscara), e um balão (`.tutorial-balloon`) mostra título, texto,
-progresso (`N / total`) e botões Voltar/Próximo/Pular. O balão nasce com `visibility: hidden` por padrão
-(CSS) e só fica visível depois que `positionStep()` calcula o lugar certo — sem isso ele "pisca" por um
-instante no canto padrão da tela antes de saltar pra posição correta, mais perceptível no primeiro passo.
+(cantos arredondados iguais aos da máscara), e um balão (`.tutorial-balloon`) mostra um cabeçalho
+(`.tutorial-balloon__header`) com o progresso (`N / total`) à esquerda e o link "Pular tutorial" à
+direita — mesma posição de canto que um antigo ícone "X" de fechar ocupava, antes de ser substituído
+por esse link de texto — seguido por título, texto e botões Voltar/Próximo. O balão nasce com
+`visibility: hidden` por padrão (CSS) e só fica visível depois que `positionStep()` calcula o lugar
+certo — sem isso ele "pisca" por um instante no canto padrão da tela antes de saltar pra posição
+correta, mais perceptível no primeiro passo.
 
 **API pública (`js/tutorial.js`):**
 ```js
@@ -342,7 +345,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v134`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v135`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são

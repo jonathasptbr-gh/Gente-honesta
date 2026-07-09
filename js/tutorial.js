@@ -64,14 +64,16 @@
       <div id="tutorial-mask" class="tutorial-mask"></div>
       <div id="tutorial-highlight" class="tutorial-highlight"></div>
       <div id="tutorial-balloon" class="tutorial-balloon" role="dialog" aria-live="polite">
-        <p id="tutorial-progress" class="tutorial-balloon__progress"></p>
+        <div class="tutorial-balloon__header">
+          <p id="tutorial-progress" class="tutorial-balloon__progress"></p>
+          <button type="button" id="tutorial-skip-text" class="tutorial-balloon__skip-text">Pular tutorial</button>
+        </div>
         <strong id="tutorial-title" class="tutorial-balloon__title"></strong>
         <p id="tutorial-text" class="tutorial-balloon__text"></p>
         <div class="tutorial-balloon__actions">
           <button type="button" id="tutorial-prev" class="btn btn--text tutorial-balloon__prev">Voltar</button>
           <button type="button" id="tutorial-next" class="btn btn--primary btn--pill tutorial-balloon__next">Próximo</button>
         </div>
-        <button type="button" id="tutorial-skip-text" class="btn btn--text tutorial-balloon__skip-text">Pular tutorial</button>
       </div>
     `;
     document.body.appendChild(overlayEl);

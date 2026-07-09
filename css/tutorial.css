@@ -77,6 +77,20 @@
   border-top-color: var(--bg-white);
 }
 
+/* Linha do topo do balão: progresso à esquerda, "Pular tutorial" à direita —
+   mesma posição de canto que o antigo ícone X de fechar ocupava. */
+.tutorial-balloon__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: 4px;
+}
+
+.tutorial-balloon__header .tutorial-balloon__progress {
+  margin-bottom: 0;
+}
+
 .tutorial-balloon__progress {
   font-size: var(--fs-2);
   font-weight: 700;
@@ -118,12 +132,14 @@
 }
 
 .tutorial-balloon__skip-text {
-  display: block;
-  width: 100%;
-  margin-top: 4px;
-  padding: 6px 0 0;
-  font-size: var(--fs-4);
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 2px 0;
+  font-size: var(--fs-3);
   font-weight: 600;
-  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 2px;
   color: var(--t-sub);
+  cursor: pointer;
 }
