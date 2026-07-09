@@ -730,4 +730,8 @@ Importante: essa configuração é apenas um ponto de partida. Com o tempo, as a
     });
   });
 
+  document.getElementById('btn-subscribe-pro')?.addEventListener('click', () => {
+    customAlert('A assinatura do Plano Pro estará disponível em breve.', 'Plano Pro', 'workspace_premium');
+  });
+
 });

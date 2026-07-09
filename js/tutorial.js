@@ -64,9 +64,6 @@
       <div id="tutorial-mask" class="tutorial-mask"></div>
       <div id="tutorial-highlight" class="tutorial-highlight"></div>
       <div id="tutorial-balloon" class="tutorial-balloon" role="dialog" aria-live="polite">
-        <button type="button" id="tutorial-skip" class="tutorial-balloon__skip" aria-label="Pular tutorial">
-          <span class="material-symbols-rounded" aria-hidden="true">close</span>
-        </button>
         <p id="tutorial-progress" class="tutorial-balloon__progress"></p>
         <strong id="tutorial-title" class="tutorial-balloon__title"></strong>
         <p id="tutorial-text" class="tutorial-balloon__text"></p>
@@ -82,8 +79,7 @@
     maskEl = document.getElementById('tutorial-mask');
     highlightEl = document.getElementById('tutorial-highlight');
     balloonEl = document.getElementById('tutorial-balloon');
-    skipBtn = document.getElementById('tutorial-skip');
-    const skipTextBtn = document.getElementById('tutorial-skip-text');
+    skipBtn = document.getElementById('tutorial-skip-text');
     progressEl = document.getElementById('tutorial-progress');
     titleEl = document.getElementById('tutorial-title');
     textEl = document.getElementById('tutorial-text');
@@ -91,7 +87,6 @@
     nextBtn = document.getElementById('tutorial-next');
 
     skipBtn.addEventListener('click', finish);
-    skipTextBtn.addEventListener('click', finish);
     nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
     prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
 

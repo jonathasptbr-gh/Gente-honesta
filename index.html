@@ -307,23 +307,6 @@
                 </button>
                 <div id="panel-prodetails" class="collapsible__panel u-hidden">
 
-                    <!-- ── Aviso de vínculo com o Plano Pro ─────────────────────
-                         Os dados desta seção montam o PERFIL PROFISSIONAL, que só
-                         é exibido e divulgado para assinantes do Plano Pro. O
-                         aviso deixa essa dependência explícita antes do
-                         preenchimento, já resumindo a opção de assinatura e os
-                         principais ganhos para o profissional. -->
-                    <div class="pro-note">
-                        <span class="material-symbols-rounded pro-note__icon" aria-hidden="true">workspace_premium</span>
-                        <p class="pro-note__text">
-                            Os dados abaixo montam o seu <strong>perfil profissional</strong>. Ele só fica
-                            <strong>visível na busca e pode receber indicações</strong> para quem assina o
-                            <strong>Plano Pro</strong> (R$ 9,99/mês) — que também amplia pedidos ativos e o
-                            alcance na região. Sem a assinatura, as informações ficam guardadas, mas o perfil
-                            não aparece nas buscas.
-                        </p>
-                    </div>
-
                     <!-- ── Área de atuação / Ocupação (opcional) ───────────────── -->
                     <div class="form-group">
                         <label class="form-group__label">O que você faz? <span class="form-group__optional">(opcional)</span></label>
@@ -344,72 +327,96 @@
                         <div class="form-group__hint"><span id="text-bio-counter">0</span> / 200</div>
                     </div>
 
-                    <!-- ── Padrão de Serviço (opcional) — card ─────────────────── -->
+                    <!-- ── Padrão de Serviço (opcional) — mesmo padrão de seção das demais,
+                         sem card/fundo próprio (só o esquema de cores das barras é mantido) ── -->
                     <div class="form-group">
-                        <div class="service-card">
-                            <div class="service-card__header">
-                                <label class="form-group__label">Padrão de Serviços <span class="form-group__optional">(opcional)</span></label>
-                                <button type="button" id="btn-service-help" class="section-help-btn" aria-label="Dúvidas sobre o padrão de serviços">
-                                    <span class="material-symbols-rounded" aria-hidden="true">help</span>
-                                </button>
+                        <div class="form-group__header">
+                            <label class="form-group__label">Padrão de Serviços <span class="form-group__optional">(opcional)</span></label>
+                            <button type="button" id="btn-service-help" class="section-help-btn" aria-label="Dúvidas sobre o padrão de serviços">
+                                <span class="material-symbols-rounded" aria-hidden="true">help</span>
+                            </button>
+                        </div>
+                        <p class="form-group__description">Distribua seus pontos para refletir a relação entre qualidade, agilidade e valor dos seus serviços. A distribuição mudará conforme as avaliações que receber no futuro.</p>
+
+                        <div class="service-bars">
+                            <div class="service-bar__pool">
+                                <span class="material-symbols-rounded" aria-hidden="true">toll</span>
+                                Pontos disponíveis: <strong id="val-pool">10</strong>
                             </div>
-                            <p class="form-group__description">Distribua seus pontos para refletir a relação entre qualidade, agilidade e valor dos seus serviços. A distribuição mudará conforme as avaliações que receber no futuro.</p>
 
-                            <div class="service-bars">
-                                <div class="service-bar__pool">
-                                    <span class="material-symbols-rounded" aria-hidden="true">toll</span>
-                                    Pontos disponíveis: <strong id="val-pool">10</strong>
+                            <div class="service-bar">
+                                <div class="service-bar__header">
+                                    <span class="material-symbols-rounded" aria-hidden="true">verified</span>
+                                    <span class="service-bar__label">Qualidade</span>
+                                    <span id="val-quality" class="service-bar__value">0</span>
                                 </div>
-
-                                <div class="service-bar">
-                                    <div class="service-bar__header">
-                                        <span class="material-symbols-rounded" aria-hidden="true">verified</span>
-                                        <span class="service-bar__label">Qualidade</span>
-                                        <span id="val-quality" class="service-bar__value">0</span>
+                                <div class="service-bar__row">
+                                    <button type="button" id="btn-quality-minus" class="service-bar__btn">−</button>
+                                    <div class="service-bar__track">
+                                        <div id="fill-quality" class="service-bar__fill service-bar__fill--green" style="width:0%"></div>
+                                        <div class="service-bar__pips--bg"></div>
                                     </div>
-                                    <div class="service-bar__row">
-                                        <button type="button" id="btn-quality-minus" class="service-bar__btn">−</button>
-                                        <div class="service-bar__track">
-                                            <div id="fill-quality" class="service-bar__fill service-bar__fill--green" style="width:0%"></div>
-                                            <div class="service-bar__pips--bg"></div>
-                                        </div>
-                                        <button type="button" id="btn-quality-plus" class="service-bar__btn">+</button>
-                                    </div>
-                                </div>
-
-                                <div class="service-bar service-bar--agility">
-                                    <div class="service-bar__header">
-                                        <span class="material-symbols-rounded" aria-hidden="true">bolt</span>
-                                        <span class="service-bar__label">Agilidade</span>
-                                        <span id="val-agility" class="service-bar__value">0</span>
-                                    </div>
-                                    <div class="service-bar__row">
-                                        <button type="button" id="btn-agility-minus" class="service-bar__btn">−</button>
-                                        <div class="service-bar__track">
-                                            <div id="fill-agility" class="service-bar__fill service-bar__fill--blue" style="width:0%"></div>
-                                            <div class="service-bar__pips--bg"></div>
-                                        </div>
-                                        <button type="button" id="btn-agility-plus" class="service-bar__btn">+</button>
-                                    </div>
-                                </div>
-
-                                <div class="service-bar service-bar--auto">
-                                    <div class="service-bar__header">
-                                        <span class="material-symbols-rounded" aria-hidden="true">payments</span>
-                                        <span class="service-bar__label">Valor cobrado</span>
-                                        <span id="val-price" class="service-bar__value">0</span>
-                                    </div>
-                                    <div class="service-bar__row service-bar__row--auto">
-                                        <div class="service-bar__btn-spacer"></div>
-                                        <div class="service-bar__track">
-                                            <div id="fill-price" class="service-bar__fill service-bar__fill--bronze" style="width:0%"></div>
-                                            <div class="service-bar__pips--bg"></div>
-                                        </div>
-                                        <div class="service-bar__btn-spacer"></div>
-                                    </div>
-                                    <p class="service-bar__auto-hint">O valor é ajustado automaticamente para refletir seu padrão de qualidade e agilidade.</p>
+                                    <button type="button" id="btn-quality-plus" class="service-bar__btn">+</button>
                                 </div>
                             </div>
+
+                            <div class="service-bar service-bar--agility">
+                                <div class="service-bar__header">
+                                    <span class="material-symbols-rounded" aria-hidden="true">bolt</span>
+                                    <span class="service-bar__label">Agilidade</span>
+                                    <span id="val-agility" class="service-bar__value">0</span>
+                                </div>
+                                <div class="service-bar__row">
+                                    <button type="button" id="btn-agility-minus" class="service-bar__btn">−</button>
+                                    <div class="service-bar__track">
+                                        <div id="fill-agility" class="service-bar__fill service-bar__fill--blue" style="width:0%"></div>
+                                        <div class="service-bar__pips--bg"></div>
+                                    </div>
+                                    <button type="button" id="btn-agility-plus" class="service-bar__btn">+</button>
+                                </div>
+                            </div>
+
+                            <div class="service-bar service-bar--auto">
+                                <div class="service-bar__header">
+                                    <span class="material-symbols-rounded" aria-hidden="true">payments</span>
+                                    <span class="service-bar__label">Valor cobrado</span>
+                                    <span id="val-price" class="service-bar__value">0</span>
+                                </div>
+                                <div class="service-bar__row service-bar__row--auto">
+                                    <div class="service-bar__btn-spacer"></div>
+                                    <div class="service-bar__track">
+                                        <div id="fill-price" class="service-bar__fill service-bar__fill--bronze" style="width:0%"></div>
+                                        <div class="service-bar__pips--bg"></div>
+                                    </div>
+                                    <div class="service-bar__btn-spacer"></div>
+                                </div>
+                                <p class="service-bar__auto-hint">O valor é ajustado automaticamente para refletir seu padrão de qualidade e agilidade.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Assinatura Plano Pro — fecha os Detalhes profissionais ──────
+                         Os dados desta seção só ficam visíveis/divulgados com o Plano Pro
+                         ativo; por isso o convite de assinatura vem só ao final, depois
+                         de tudo já preenchido. Versão ilustrativa e sucinta: ícone, uma
+                         linha de contexto, "chips" de benefício e o botão de assinar. -->
+                    <div class="form-group">
+                        <div class="pro-cta">
+                            <div class="pro-cta__header">
+                                <span class="material-symbols-rounded pro-cta__icon" aria-hidden="true">workspace_premium</span>
+                                <strong class="pro-cta__title">Assine o Plano Pro</strong>
+                            </div>
+                            <p class="pro-cta__text">Deixe seu perfil profissional visível na busca da região e pronto para receber indicações.</p>
+                            <div class="pro-cta__perks">
+                                <span class="pro-cta__perk"><span class="material-symbols-rounded" aria-hidden="true">visibility</span>Visível na busca</span>
+                                <span class="pro-cta__perk"><span class="material-symbols-rounded" aria-hidden="true">campaign</span>Recebe indicações</span>
+                                <span class="pro-cta__perk"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Mais pedidos</span>
+                            </div>
+                            <p class="pro-cta__price">R$ 9,99<span>/mês</span></p>
+                            <button type="button" id="btn-subscribe-pro" class="btn btn--accent btn--large">
+                                <span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span>
+                                Assinar Plano Pro
+                            </button>
                         </div>
                     </div>
 

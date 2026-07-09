@@ -83,7 +83,7 @@ css/
   tutorial.css           — Motor de tutorial guiado (destaque + balão), reutilizável em qualquer tela
   auth.css              — Fluxo de login: auth-section, OTP grid, carrossel de intro
   onboarding.css        — Formulário de perfil: câmera, tags, localização, barras de
-                          serviço, pro-note, ic-card
+                          serviço, pro-cta, ic-card
   install.css           — Tela-guia de instalação do PWA (view-install)
   feed.css              — Feed, top/bottom bar, painéis deslizantes, pedidos, cards de pro
 
@@ -342,7 +342,16 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v133`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v134`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+
+**Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
+(sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são
+`.form-group` simples; a última usa `.form-group__header` (label + `#btn-service-help`, sem fundo) em vez
+de um card cinza dedicado. As cores das barras (`service-bar__fill--green/--blue/--bronze`) e seus
+subtítulos são preservados independente da estrutura do container. Ao final do painel (depois de todos os
+campos), um card ilustrativo `.pro-cta` (fundo `--gold-soft`, ícone + título + texto curto + chips de
+benefício + preço + botão `#btn-subscribe-pro`) convida à assinatura do Plano Pro — fica por último de
+propósito, já que os dados da seção só ficam visíveis/divulgados com o Pro ativo.
 
 **Atualização do PWA (banner "Nova versão disponível"):** o Service Worker NÃO chama `self.skipWaiting()`
 no `install` — o novo worker fica parado em "waiting" até o usuário confirmar. Fluxo completo:

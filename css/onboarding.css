@@ -254,22 +254,16 @@
   color: var(--danger);
 }
 
-/* Card do padrão de serviços */
-.service-card {
-  background: var(--bg-soft);
-  border: 2px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-}
-
-.service-card__header {
+/* Cabeçalho de seção com botão de ajuda ao lado do label (ex.: Padrão de
+   Serviços) — mesma linha do label, sem card/fundo próprio. */
+.form-group__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-xs);
 }
 
-.service-card__header .form-group__label {
+.form-group__header .form-group__label {
   margin-bottom: 0;
 }
 
@@ -518,42 +512,87 @@
   font-weight: 800;
 }
 
-/* Ícone filled com peso médio — bloco Pro */
-.pro-note__icon {
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-}
-
-/* ── Aviso de vínculo com o Plano Pro (topo dos Detalhes Profissionais) ──
-   Deixa explícito que os dados da seção montam o perfil profissional e que
-   ele só é exibido/divulgado com a assinatura Pro ativa. */
-.pro-note {
+/* ── Convite de assinatura do Plano Pro (fecha os Detalhes profissionais) ──
+   Card ilustrativo e sucinto: ícone + título, uma linha de contexto, chips
+   de benefício, preço e botão de assinar. */
+.pro-cta {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  margin-bottom: var(--space-md);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
   background: var(--gold-soft);
   border: 1px solid var(--a-gold);
-  border-left: 4px solid var(--a-gold);
   border-radius: var(--radius-md);
-  text-align: left;
+  text-align: center;
 }
 
-.pro-note__icon {
-  flex-shrink: 0;
+.pro-cta__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.pro-cta__icon {
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
   font-size: 1.4rem;
   color: var(--a-gold);
-  margin-top: 2px;
 }
 
-.pro-note__text {
+.pro-cta__title {
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--p-green-dark);
+}
+
+.pro-cta__text {
   font-size: var(--fs-5);
   line-height: 1.5;
   color: var(--t-main);
 }
 
-.pro-note__text strong {
+.pro-cta__perks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs);
+  margin-top: 2px;
+}
+
+.pro-cta__perk {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px var(--space-xs);
+  background: var(--bg-white);
+  border: 1px solid var(--gold-soft-border);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-3);
+  font-weight: 700;
   color: var(--p-green-dark);
+}
+
+.pro-cta__perk .material-symbols-rounded {
+  font-size: 1rem;
+  color: var(--a-gold-text);
+}
+
+.pro-cta__price {
+  margin-top: 2px;
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--p-green-dark);
+}
+
+.pro-cta__price span {
+  font-size: var(--fs-4);
+  font-weight: 600;
+  color: var(--t-sub);
+}
+
+.pro-cta #btn-subscribe-pro {
+  width: 100%;
+  margin-top: var(--space-xs);
 }
 
 
