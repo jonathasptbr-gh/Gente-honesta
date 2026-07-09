@@ -126,7 +126,8 @@ window.appState = {
   selectedTags: [],
   cooldownActive: false,
   locationConfirmed: false,
-  serviceProfile: { quality: 0, agility: 0, price: 0 }
+  serviceProfile: { quality: 0, agility: 0, price: 0 },
+  paymentMethods: { cash: false, pix: false, card: false, nf: false }
 };
 
 

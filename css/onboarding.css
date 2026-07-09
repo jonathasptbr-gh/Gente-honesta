@@ -125,6 +125,20 @@
   padding: 0;
 }
 
+/* Métodos de pagamento aceitos — pílulas de seleção múltipla (mesmo .chip
+   usado nos filtros do feed; aqui só define o wrap do grupo e o espaçamento
+   entre ícone e texto, já que os rótulos são mais longos que os do feed). */
+.payment-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.payment-methods .chip {
+  gap: 6px;
+}
+
 /* Busca de áreas */
 .area-search {
   position: relative;

@@ -190,6 +190,13 @@ document.addEventListener('DOMContentLoaded', () => {
     serviceState.agility = 0;
     updateServiceBars();
 
+    // Métodos de pagamento aceitos: reseta pílulas e estado
+    window.appState.paymentMethods = { cash: false, pix: false, card: false, nf: false };
+    document.querySelectorAll('#container-payment-methods .chip').forEach(chip => {
+      chip.classList.remove('chip--active');
+      chip.setAttribute('aria-pressed', 'false');
+    });
+
     // Colapsável de detalhes profissionais: fecha se estava aberto
     const proPanel = document.getElementById('panel-prodetails');
     if (proPanel && !proPanel.classList.contains('u-hidden')) {
@@ -623,6 +630,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   updateServiceBars(); // estado inicial
+
+  // INTERAÇÕES DO DOM - TELA - ONBOARDING - Métodos de pagamento aceitos (pílulas multi-seleção,
+  // mesmos 4 itens do rodapé do card de profissional no feed: dinheiro, Pix, cartão e nota fiscal)
+  document.querySelectorAll('#container-payment-methods .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const method = chip.dataset.payment;
+      const active = chip.getAttribute('aria-pressed') === 'true';
+      chip.classList.toggle('chip--active', !active);
+      chip.setAttribute('aria-pressed', String(!active));
+      window.appState.paymentMethods[method] = !active;
+    });
+  });
 
   // INTERAÇÕES DO DOM - TELA - ONBOARDING - Colapsável dos Detalhes Profissionais
   (() => {

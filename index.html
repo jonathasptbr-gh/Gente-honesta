@@ -393,6 +393,27 @@
                         </div>
                     </div>
 
+                    <!-- ── Métodos de pagamento aceitos (opcional) — mesmos 4 itens do
+                         rodapé do card de profissional no feed (proFooterHTML em feed.js),
+                         como pílulas de seleção múltipla com texto por extenso ── -->
+                    <div class="form-group">
+                        <label class="form-group__label">Métodos de pagamento aceitos <span class="form-group__optional">(opcional)</span></label>
+                        <div id="container-payment-methods" class="payment-methods">
+                            <button type="button" class="chip" data-payment="cash" aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">attach_money</span>Aceito dinheiro
+                            </button>
+                            <button type="button" class="chip" data-payment="pix" aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">qr_code_2</span>Aceito Pix
+                            </button>
+                            <button type="button" class="chip" data-payment="card" aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">credit_card</span>Aceito cartão
+                            </button>
+                            <button type="button" class="chip" data-payment="nf" aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">receipt_long</span>Consigo emitir nota fiscal
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- ── Assinatura Plano Pro — fecha os Detalhes profissionais ──────
                          Os dados desta seção só ficam visíveis/divulgados com o Plano Pro
                          ativo; por isso o convite de assinatura vem só ao final, depois
