@@ -2207,6 +2207,15 @@
 /* Item de pagamento que o profissional não oferece — esmaecido */
 .pro-card__meta-item--inactive {
   opacity: 0.22;
+}
+
+/* O risco fica só no texto (glifo de ícone riscado fica visualmente
+   estranho) — por isso é aplicado direto no span do rótulo, e não herdado
+   de .pro-card__meta-item--inactive. Herdar do item não funciona de forma
+   confiável aqui porque .pro-card__meta-item é um flex container: o Chrome
+   "blockifica" o ícone como item flex e ignora o text-decoration:none que
+   se tentaria colocar nele para escapar do risco do pai. */
+.pro-card__meta-item--inactive .pro-card__meta-item__label {
   text-decoration: line-through;
 }
 

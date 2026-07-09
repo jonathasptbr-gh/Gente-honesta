@@ -408,11 +408,13 @@ document.addEventListener('DOMContentLoaded', () => {
       : hasCard ? `até ${pro.pay.card}x`
       : 'Cartão';
     const cls = active => `pro-card__meta-item${active ? '' : ' pro-card__meta-item--inactive'}`;
+    const item = (active, icon, label) =>
+      `<span class="${cls(active)}"><span class="material-symbols-rounded">${icon}</span><span class="pro-card__meta-item__label">${label}</span></span>`;
     return `<div class="pro-card__meta">
-      <span class="${cls(hasCash)}"><span class="material-symbols-rounded">attach_money</span>Dinheiro</span>
-      <span class="${cls(hasPix)}"><span class="material-symbols-rounded">qr_code_2</span>Pix</span>
-      <span class="${cls(hasCard)}"><span class="material-symbols-rounded">credit_card</span>${cardLabel}</span>
-      <span class="${cls(hasNF)}"><span class="material-symbols-rounded">receipt_long</span>NF</span>
+      ${item(hasCash, 'attach_money', 'Dinheiro')}
+      ${item(hasPix, 'qr_code_2', 'Pix')}
+      ${item(hasCard, 'credit_card', cardLabel)}
+      ${item(hasNF, 'receipt_long', 'NF')}
     </div>`;
   };
 
