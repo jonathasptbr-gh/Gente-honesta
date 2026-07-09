@@ -160,12 +160,14 @@
 /* Tema azul (--info-blue), igual à cor dos ícones de pagamento no rodapé do
    card de profissional no feed (.pro-card__meta-item) — mas sem preenchimento
    sólido como o verde padrão de .chip--active: o fundo permanece neutro e só
-   o texto + o check ficam azuis (o ícone herda a cor do texto), reforçado por
-   uma borda azul em vez de fundo cheio. */
+   o texto + o check ficam azuis (o ícone herda a cor do texto). Borda mais
+   grossa e texto em negrito reforçam o destaque no lugar do preenchimento. */
 .chip--payment.chip--active {
   background: var(--bg-soft);
+  border-width: 2px;
   border-color: var(--info-blue);
   color: var(--info-blue);
+  font-weight: 700;
 }
 
 /* Busca de áreas */
