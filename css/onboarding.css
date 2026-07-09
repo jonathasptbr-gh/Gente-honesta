@@ -157,26 +157,27 @@
   font-size: 1.05rem;
 }
 
-/* Borda já nasce em 2px (mesma cor neutra do padrão .chip) para que ativar
-   a seleção troque só a COR da borda, nunca a largura — trocar a largura no
-   :active fazia a pílula "crescer" e empurrar as vizinhas na mesma linha.
-   Seletor .chip.chip--payment (2 classes) é necessário para vencer .chip
-   sozinho de feed.css, que é carregado DEPOIS de onboarding.css e tem a
-   mesma especificidade de uma classe só. */
+/* Alinha as pílulas de pagamento à mesma linguagem visual das pílulas de
+   profissão (.tag-pill), para o cadastro ter um padrão único: mesmo tamanho
+   de fonte (--fs-5), padding (8px 14px) e espessura de borda (1.5px). A borda
+   nasce igual nos dois estados — só a COR muda ao selecionar — para não
+   deslocar as vizinhas na mesma linha. Seletor .chip.chip--payment (2 classes)
+   é necessário para vencer .chip sozinho de feed.css, carregado DEPOIS de
+   onboarding.css com a mesma especificidade de uma classe só. */
 .chip.chip--payment {
-  border-width: 2px;
+  padding: 8px 14px;
+  font-size: var(--fs-5);
+  border-width: 1.5px;
 }
 
-/* Tema azul (--info-blue), igual à cor dos ícones de pagamento no rodapé do
-   card de profissional no feed (.pro-card__meta-item) — mas sem preenchimento
-   sólido como o verde padrão de .chip--active: o fundo permanece neutro e só
-   o texto + o check ficam azuis (o ícone herda a cor do texto). Texto em
-   negrito reforça o destaque no lugar do preenchimento. */
+/* Selecionada: mesmo padrão "tint preenchido" das .tag-pill (fundo tint +
+   borda + texto no mesmo matiz), porém no azul do pagamento (--info-blue) em
+   vez do verde — preservando a identidade herdada do rodapé do card de
+   profissional e, ao mesmo tempo, mantendo os dois grupos distinguíveis. */
 .chip--payment.chip--active {
-  background: var(--bg-soft);
+  background: var(--info-blue-light);
   border-color: var(--info-blue);
   color: var(--info-blue);
-  font-weight: 700;
 }
 
 /* Busca de áreas */

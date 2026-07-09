@@ -12,6 +12,7 @@
   --a-gold-hover: #c89210;
   --a-gold-text: #a87808;       /* ocre mais escuro p/ TEXTO colorido */
   --info-blue: #2e5898;         /* Azul-Cobalto Metálico escuro — discreto */
+  --info-blue-light: #dee5f2;   /* tint claro no mesmo matiz (paralelo a --p-green-light) */
   --gold-soft: #fdf8ee;         /* fundo creme (gatilho Pro) */
   --gold-soft-border: #f3e8c0;  /* borda das células Pro do comparativo */
   --whatsapp: #25D366;          /* verde oficial do botão WhatsApp */
