@@ -329,14 +329,19 @@ sobra depois do cabeçalho. `#btn-finish-onboarding` usa `margin-top: auto` para
 absorvendo sozinho a folga quando o conteúdo é mais curto que a tela (ex.: "Detalhes profissionais"
 fechado); quando o colapsável abre e o conteúdo fica mais alto que a tela, a margem automática zera e o
 `.screen` (`overflow-y: auto`) assume o scroll normalmente — nada trava a expansão do colapsável.
-`.screen__header-nav` (botão Voltar + `.screen__title`) é `display:flex`; o título usa `flex:1;
-text-align:right` para ficar afastado do botão, respeitando a margem direita via o padding do próprio
-`.screen` — usa `--fs-11` (não `--fs-12`) porque, dividindo a linha com o botão, o tamanho padrão de
-título de tela quebraria "Complete seu Perfil" em duas linhas e estouraria a altura da tela sem scroll.
+`.screen__header-nav` (`.screen__title` + botão Cancelar) é `display:flex`; o título usa `flex:1;
+text-align:left`, ocupando o espaço restante à esquerda, enquanto o botão fica à direita (`flex-shrink:0`),
+respeitando a margem direita via o padding do próprio `.screen` — o título usa `--fs-11` (não `--fs-12`)
+porque, dividindo a linha com o botão, o tamanho padrão de título de tela quebraria "Complete seu Perfil"
+em duas linhas e estouraria a altura da tela sem scroll.
 
-**Setas de "voltar" como ícone, nunca caractere de texto:** `#btn-onboarding-back` e `#btn-back-phone`
-usam `<span class="material-symbols-rounded">arrow_back</span>` em vez do caractere `←` solto no texto.
-Um glifo de seta digitado como texto comum não compartilha a métrica vertical das letras ao redor e fica
+**Botão de saída do onboarding é "Cancelar", não "Voltar":** `#btn-onboarding-cancel` (à direita do
+título, dentro de `.screen__header-nav`) usa o ícone `close` — não `arrow_back` — porque ele não navega
+para um passo anterior, apenas encerra a sessão e devolve para `view-auth` (mesma função de sempre:
+`customConfirm` → `auth.signOut()` → `onAuthStateChanged` cuida do reset via `resetAuthFlow`).
+`#btn-back-phone` continua usando `<span class="material-symbols-rounded">arrow_back</span>`, pois esse
+sim volta ao passo anterior (telefone) dentro do fluxo de auth. Um glifo digitado como caractere de texto
+solto (`←`) nunca deve substituir o ícone: não compartilha a métrica vertical das letras ao redor e fica
 visivelmente mais baixo que o rótulo; dentro do `.btn` (que já é `display:flex; align-items:center`),
 o ícone fica automaticamente centralizado com o texto. `.btn--text .material-symbols-rounded` fixa o
 ícone em `1.1rem` para não ficar grande demais perto do texto do link.
@@ -345,7 +350,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v135`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v136`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são

@@ -217,9 +217,10 @@ input, textarea {
   text-align: left;
 }
 
-/* Botão "Voltar" e título na mesma linha (economiza altura) — título ocupa
-   o espaço restante, alinhado à direita (afastado do botão, respeitando a
-   margem direita da tela via o padding do próprio .screen). */
+/* Título e botão "Cancelar" na mesma linha (economiza altura) — título ocupa
+   o espaço restante, alinhado à esquerda; o botão fica à direita, afastado do
+   título e respeitando a margem direita da tela via o padding do próprio
+   .screen. */
 .screen__header-nav {
   display: flex;
   align-items: center;
@@ -232,7 +233,7 @@ input, textarea {
 
 .screen__title {
   flex: 1;
-  text-align: right;
+  text-align: left;
   font-size: var(--fs-11);
   font-weight: 800;
   color: var(--p-green-dark);

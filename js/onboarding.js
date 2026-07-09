@@ -201,8 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
     clearNameErrors();
   };
 
-  // INTERAÇÕES DO DOM - TELA - ONBOARDING - Botão voltar: faz logout e reset completo
-  document.getElementById('btn-onboarding-back')?.addEventListener('click', async () => {
+  // INTERAÇÕES DO DOM - TELA - ONBOARDING - Botão cancelar: faz logout e reset completo
+  document.getElementById('btn-onboarding-cancel')?.addEventListener('click', async () => {
     const confirmed = await customConfirm(
       "Ao voltar, sua sessão será encerrada e você precisará confirmar seu número novamente.",
       "Sair do cadastro?",
