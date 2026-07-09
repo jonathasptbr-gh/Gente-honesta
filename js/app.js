@@ -127,7 +127,7 @@ window.appState = {
   cooldownActive: false,
   locationConfirmed: false,
   serviceProfile: { quality: 0, agility: 0, price: 0 },
-  paymentMethods: { cash: false, pix: false, card: false, nf: false }
+  paymentMethods: { cash: false, pix: false, card: 0, nf: false }
 };
 
 

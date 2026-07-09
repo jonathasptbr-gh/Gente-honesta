@@ -307,7 +307,7 @@
 
                     <!-- ── Área de atuação / Ocupação (opcional) ───────────────── -->
                     <div class="form-group">
-                        <label class="form-group__label">O que você faz? <span class="form-group__optional">(opcional)</span></label>
+                        <label class="form-group__label">O que você faz?</label>
                         <div id="container-tags" class="tag-selector__selected"></div>
                         <div class="area-search">
                             <input type="text" id="inp-area-search" class="input-text" placeholder="Buscar profissões ou áreas de atuação...">
@@ -320,7 +320,7 @@
 
                     <!-- ── Suas Habilidades (opcional) ─────────────────────────── -->
                     <div class="form-group">
-                        <label class="form-group__label" for="inp-bio">Suas Habilidades <span class="form-group__optional">(opcional)</span></label>
+                        <label class="form-group__label" for="inp-bio">Suas Habilidades</label>
                         <textarea id="inp-bio" class="input-text input-text--multiline" rows="3" maxlength="200" placeholder="Conte um pouco sobre o que você faz, seus pontos fortes e até suas limitações..."></textarea>
                         <div class="form-group__hint"><span id="text-bio-counter">0</span> / 200</div>
                     </div>
@@ -329,7 +329,7 @@
                          sem card/fundo próprio (só o esquema de cores das barras é mantido) ── -->
                     <div class="form-group">
                         <div class="form-group__header">
-                            <label class="form-group__label">Padrão de Serviços <span class="form-group__optional">(opcional)</span></label>
+                            <label class="form-group__label">Padrão de Serviços</label>
                             <button type="button" id="btn-service-help" class="section-help-btn" aria-label="Dúvidas sobre o padrão de serviços">
                                 <span class="material-symbols-rounded" aria-hidden="true">help</span>
                             </button>
@@ -393,23 +393,40 @@
                         </div>
                     </div>
 
-                    <!-- ── Métodos de pagamento aceitos (opcional) — mesmos 4 itens do
-                         rodapé do card de profissional no feed (proFooterHTML em feed.js),
-                         como pílulas de seleção múltipla com texto por extenso ── -->
+                    <!-- ── Métodos de pagamento aceitos — mesmas opções do rodapé do card de
+                         profissional no feed (proFooterHTML em feed.js). O contexto "aceito"
+                         fica só no título da seção; as pílulas trazem apenas o nome do método.
+                         Cartão é um grupo à parte de seleção única (débito OU um nível de
+                         parcelamento do crédito), pois pro.pay.card no mock é um valor único
+                         (0, 'debit', ou o número máximo de parcelas) — nunca uma combinação.
+                         Cada pílula sinaliza a seleção com um check circular
+                         (radio_button_unchecked → check_circle), além da cor. ── -->
                     <div class="form-group">
-                        <label class="form-group__label">Métodos de pagamento aceitos <span class="form-group__optional">(opcional)</span></label>
+                        <label class="form-group__label">Métodos de pagamento aceitos</label>
                         <div id="container-payment-methods" class="payment-methods">
-                            <button type="button" class="chip" data-payment="cash" aria-pressed="false">
-                                <span class="material-symbols-rounded" aria-hidden="true">attach_money</span>Aceito dinheiro
+                            <button type="button" class="chip chip--payment" data-payment="cash" aria-pressed="false">
+                                <span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>Dinheiro
                             </button>
-                            <button type="button" class="chip" data-payment="pix" aria-pressed="false">
-                                <span class="material-symbols-rounded" aria-hidden="true">qr_code_2</span>Aceito Pix
+                            <button type="button" class="chip chip--payment" data-payment="pix" aria-pressed="false">
+                                <span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>Pix
                             </button>
-                            <button type="button" class="chip" data-payment="card" aria-pressed="false">
-                                <span class="material-symbols-rounded" aria-hidden="true">credit_card</span>Aceito cartão
+                            <button type="button" class="chip chip--payment" data-payment="nf" aria-pressed="false">
+                                <span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>Nota fiscal
                             </button>
-                            <button type="button" class="chip" data-payment="nf" aria-pressed="false">
-                                <span class="material-symbols-rounded" aria-hidden="true">receipt_long</span>Consigo emitir nota fiscal
+                        </div>
+                        <p class="payment-methods__subgroup-label">Cartão</p>
+                        <div id="container-payment-card" class="payment-methods">
+                            <button type="button" class="chip chip--payment" data-card="debit" aria-pressed="false">
+                                <span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>Débito
+                            </button>
+                            <button type="button" class="chip chip--payment" data-card="1" aria-pressed="false">
+                                <span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>Crédito à vista
+                            </button>
+                            <button type="button" class="chip chip--payment" data-card="6" aria-pressed="false">
+                                <span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>Crédito até 6x
+                            </button>
+                            <button type="button" class="chip chip--payment" data-card="12" aria-pressed="false">
+                                <span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>Crédito até 12x
                             </button>
                         </div>
                     </div>

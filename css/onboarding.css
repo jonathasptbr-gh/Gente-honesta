@@ -125,9 +125,9 @@
   padding: 0;
 }
 
-/* Métodos de pagamento aceitos — pílulas de seleção múltipla (mesmo .chip
-   usado nos filtros do feed; aqui só define o wrap do grupo e o espaçamento
-   entre ícone e texto, já que os rótulos são mais longos que os do feed). */
+/* Métodos de pagamento aceitos — pílulas de seleção (mesmo .chip usado nos
+   filtros do feed; aqui só define o wrap do grupo e o espaçamento entre o
+   check circular e o texto). */
 .payment-methods {
   display: flex;
   flex-wrap: wrap;
@@ -137,6 +137,23 @@
 
 .payment-methods .chip {
   gap: 6px;
+}
+
+/* Rótulo do subgrupo "Cartão" — mais discreto que .form-group__label,
+   já que o contexto "Métodos de pagamento aceitos" já foi dado acima. */
+.payment-methods__subgroup-label {
+  margin: 0;
+  font-size: var(--fs-3);
+  font-weight: 700;
+  color: var(--t-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Check circular de seleção: substitui o ícone de tipo — a cor de fundo do
+   chip já indica o estado, o ícone reforça visualmente sem depender só de cor. */
+.chip--payment .chip__check {
+  font-size: 1.05rem;
 }
 
 /* Busca de áreas */

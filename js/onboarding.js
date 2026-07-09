@@ -190,12 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
     serviceState.agility = 0;
     updateServiceBars();
 
-    // Métodos de pagamento aceitos: reseta pílulas e estado
-    window.appState.paymentMethods = { cash: false, pix: false, card: false, nf: false };
-    document.querySelectorAll('#container-payment-methods .chip').forEach(chip => {
-      chip.classList.remove('chip--active');
-      chip.setAttribute('aria-pressed', 'false');
-    });
+    // Métodos de pagamento aceitos: reseta pílulas (dinheiro/Pix/NF + cartão) e estado
+    window.appState.paymentMethods = { cash: false, pix: false, card: 0, nf: false };
+    document.querySelectorAll('#container-payment-methods .chip, #container-payment-card .chip')
+      .forEach(chip => setPaymentChipActive(chip, false));
 
     // Colapsável de detalhes profissionais: fecha se estava aberto
     const proPanel = document.getElementById('panel-prodetails');
@@ -631,15 +629,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateServiceBars(); // estado inicial
 
-  // INTERAÇÕES DO DOM - TELA - ONBOARDING - Métodos de pagamento aceitos (pílulas multi-seleção,
-  // mesmos 4 itens do rodapé do card de profissional no feed: dinheiro, Pix, cartão e nota fiscal)
+  // INTERAÇÕES DO DOM - TELA - ONBOARDING - Métodos de pagamento aceitos
+  // Além da cor, cada pílula sinaliza a seleção com um check circular
+  // (radio_button_unchecked → check_circle) no lugar do ícone de tipo.
+  const setPaymentChipActive = (chip, active) => {
+    chip.classList.toggle('chip--active', active);
+    chip.setAttribute('aria-pressed', String(active));
+    const check = chip.querySelector('.chip__check');
+    if (check) check.innerText = active ? 'check_circle' : 'radio_button_unchecked';
+  };
+
+  // Dinheiro, Pix, Nota fiscal: pílulas independentes (multi-seleção)
   document.querySelectorAll('#container-payment-methods .chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const method = chip.dataset.payment;
       const active = chip.getAttribute('aria-pressed') === 'true';
-      chip.classList.toggle('chip--active', !active);
-      chip.setAttribute('aria-pressed', String(!active));
+      setPaymentChipActive(chip, !active);
       window.appState.paymentMethods[method] = !active;
+    });
+  });
+
+  // Cartão: seleção única (débito OU um nível de parcelamento do crédito) —
+  // reflete o mesmo formato de dado de pro.pay.card no mock (0 = nenhum,
+  // 'debit', ou o número máximo de parcelas). Tocar na pílula já ativa
+  // desmarca (volta para "nenhum").
+  document.querySelectorAll('#container-payment-card .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const wasActive = chip.getAttribute('aria-pressed') === 'true';
+      document.querySelectorAll('#container-payment-card .chip').forEach(c => setPaymentChipActive(c, false));
+      if (wasActive) {
+        window.appState.paymentMethods.card = 0;
+      } else {
+        setPaymentChipActive(chip, true);
+        const val = chip.dataset.card;
+        window.appState.paymentMethods.card = val === 'debit' ? 'debit' : Number(val);
+      }
     });
   });
 
