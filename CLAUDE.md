@@ -354,13 +354,19 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v137`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v138`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são
 `.form-group` simples; a última usa `.form-group__header` (label + `#btn-service-help`, sem fundo) em vez
-de um card cinza dedicado. As cores das barras (`service-bar__fill--green/--blue/--bronze`) e seus
-subtítulos são preservados independente da estrutura do container. Ao final do painel (depois de todos os
+de um card cinza dedicado. As cores das barras (`service-bar__fill--green/--blue/--gold`) e seus
+subtítulos são preservados independente da estrutura do container. A barra "Valor cobrado"
+(`#fill-price`) é automática: `price = (quality + agility) / 2`, sem arredondamento — reage em passos de
+0.5 a cada ponto inteiro somado nas barras de Qualidade/Agilidade (mais responsiva do que depender de 2
+pontos para mover 1). Como `quality + agility` nunca ultrapassa `TOTAL_POINTS` (10), `price` nunca passa
+de 5 — por isso usa sempre a cor amarela padrão (`--a-gold`), fixa no HTML (`service-bar__fill--gold`),
+em vez do antigo sistema de tiers bronze/prata/ouro (removido: o valor nunca alcançava o tier ouro na
+prática, e "prata" era só o teto exato). Ao final do painel (depois de todos os
 campos), um card ilustrativo `.pro-cta` (fundo `--gold-soft`, ícone + título + texto curto + chips de
 benefício + preço + botão `#btn-subscribe-pro`) convida à assinatura do Plano Pro — fica por último de
 propósito, já que os dados da seção só ficam visíveis/divulgados com o Pro ativo.

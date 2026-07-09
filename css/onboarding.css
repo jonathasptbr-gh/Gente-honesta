@@ -430,8 +430,6 @@
 }
 
 .service-bar__fill--green  { background: var(--p-green); }
-.service-bar__fill--bronze { background: var(--tier-bronze); }
-.service-bar__fill--silver { background: var(--tier-silver); }
 .service-bar__fill--gold   { background: var(--a-gold); }
 .service-bar__fill--blue   { background: var(--info-blue); }
 

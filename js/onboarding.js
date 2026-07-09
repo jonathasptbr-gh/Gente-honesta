@@ -573,14 +573,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const TOTAL_POINTS = 10;
   const serviceState = { quality: 0, agility: 0 };
 
-  const getValueTier = (v) => {
-    if (v >= 8) return 'service-bar__fill--gold';
-    if (v >= 5) return 'service-bar__fill--silver';
-    return 'service-bar__fill--bronze';
-  };
-
   const updateServiceBars = () => {
-    const price = Math.floor((serviceState.quality + serviceState.agility) / 2);
+    const price = (serviceState.quality + serviceState.agility) / 2;
     const pool = TOTAL_POINTS - serviceState.quality - serviceState.agility;
 
     const valQuality = document.getElementById('val-quality');
@@ -599,14 +593,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     valQuality.innerText = serviceState.quality;
     valAgility.innerText = serviceState.agility;
-    valPrice.innerText = price;
+    valPrice.innerText = Number.isInteger(price) ? price : price.toFixed(1);
     valPool.innerText = pool;
 
     fillQuality.style.width = `${serviceState.quality * 10}%`;
     fillAgility.style.width = `${serviceState.agility * 10}%`;
 
     priceFill.style.width = `${price * 10}%`;
-    priceFill.className = `service-bar__fill ${getValueTier(price)}`;
 
     btnQualityMinus.disabled = serviceState.quality === 0;
     btnQualityPlus.disabled  = pool === 0 || serviceState.quality === 10;
