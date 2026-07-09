@@ -150,10 +150,19 @@
   letter-spacing: 0.04em;
 }
 
-/* Check circular de seleção: substitui o ícone de tipo — a cor de fundo do
-   chip já indica o estado, o ícone reforça visualmente sem depender só de cor. */
+/* Check circular de seleção à direita do texto: substitui o ícone de tipo —
+   a cor de fundo do chip já indica o estado, o ícone reforça visualmente sem
+   depender só de cor. */
 .chip--payment .chip__check {
   font-size: 1.05rem;
+}
+
+/* Tema azul (--info-blue), igual à cor dos ícones de pagamento no rodapé do
+   card de profissional no feed (.pro-card__meta-item) — sobrepõe o verde
+   padrão de .chip--active só para as pílulas de pagamento. */
+.chip--payment.chip--active {
+  background: var(--info-blue);
+  border-color: var(--info-blue);
 }
 
 /* Busca de áreas */

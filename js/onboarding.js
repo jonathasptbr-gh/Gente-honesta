@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Métodos de pagamento aceitos: reseta pílulas (dinheiro/Pix/NF + cartão) e estado
     window.appState.paymentMethods = { cash: false, pix: false, card: 0, nf: false };
-    document.querySelectorAll('#container-payment-methods .chip, #container-payment-card .chip')
+    document.querySelectorAll('#container-payment-methods .chip, #container-payment-card .chip, #container-payment-nf .chip')
       .forEach(chip => setPaymentChipActive(chip, false));
 
     // Colapsável de detalhes profissionais: fecha se estava aberto
@@ -639,8 +639,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (check) check.innerText = active ? 'check_circle' : 'radio_button_unchecked';
   };
 
-  // Dinheiro, Pix, Nota fiscal: pílulas independentes (multi-seleção)
-  document.querySelectorAll('#container-payment-methods .chip').forEach(chip => {
+  // Dinheiro, Pix, Nota fiscal: pílulas independentes (multi-seleção). NF fica
+  // num container à parte (#container-payment-nf), fora do título "aceitos",
+  // mas usa a mesma lógica de toggle simples das demais.
+  document.querySelectorAll('#container-payment-methods .chip, #container-payment-nf .chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const method = chip.dataset.payment;
       const active = chip.getAttribute('aria-pressed') === 'true';

@@ -354,7 +354,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v140`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v141`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são
@@ -374,15 +374,19 @@ Logo após as barras, "Métodos de pagamento aceitos" reproduz as mesmas opçõe
 profissional no feed (`proFooterHTML()` em `feed.js`), como pílulas `.chip.chip--payment` (mesma classe
 `.chip` dos filtros do feed; `.payment-methods` só define o wrap do grupo) — o contexto "aceito" fica só
 no título da seção (`.form-group__label`), então as pílulas trazem apenas o nome do método ("Dinheiro",
-"Pix", "Nota fiscal"). Cartão é um **grupo à parte** (`#container-payment-card`, com o subtítulo
+"Pix"). Cartão é um **grupo à parte** (`#container-payment-card`, com o subtítulo
 `.payment-methods__subgroup-label` "Cartão"), de **seleção única** — não multi-seleção como o restante —
 porque `pro.pay.card` no mock é sempre um valor único (`0` = nenhum, `'debit'`, ou o número máximo de
 parcelas do crédito), nunca uma combinação: tocar em "Débito", "Crédito à vista", "Crédito até 6x" ou
 "Crédito até 12x" desativa qualquer outra pílula do grupo antes de ativar a escolhida, e tocar na pílula
-já ativa desmarca (volta a `card: 0`). Cada pílula, de ambos os grupos, sinaliza a seleção com um ícone
-`.chip__check` que alterna entre `radio_button_unchecked` e `check_circle` (função
-`setPaymentChipActive()` em `onboarding.js`) — além da cor de fundo do `chip--active`, já que depender só
-de cor não é suficiente para indicar estado selecionado. Estado gravado em
+já ativa desmarca (volta a `card: 0`). "Emito nota fiscal" (`#container-payment-nf`) fica num
+`.form-group` **separado, logo depois** — de propósito fora do bloco "aceitos", já que emitir NF não é um
+método de pagamento e misturar as duas coisas confundiria o usuário. Cada pílula, dos três grupos,
+sinaliza a seleção com um ícone `.chip__check` **à direita do texto** que alterna entre
+`radio_button_unchecked` e `check_circle` (função `setPaymentChipActive()` em `onboarding.js`), e o estado
+ativo usa o tom **azul** (`--info-blue`, via `.chip--payment.chip--active`) — a mesma cor dos ícones de
+pagamento no rodapé do card de profissional (`.pro-card__meta-item`) — em vez do verde padrão de
+`.chip--active`, para reforçar visualmente a mesma origem/tema. Estado gravado em
 `window.appState.paymentMethods = {cash, pix, card, nf}`, resetado junto com o resto do formulário em
 `resetOnboardingForm`. Ao final do painel (depois de todos os
 campos), um card ilustrativo `.pro-cta` (fundo `--gold-soft`, ícone + título + texto curto + chips de
