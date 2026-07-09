@@ -1,8 +1,13 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <!-- Fundo verde (tema --p-green), cantos arredondados -->
+  <!-- Fundo verde (--p-green) -->
   <rect width="512" height="512" rx="104" fill="#184e1b"/>
-  <!-- Escudo amarelo (tema --a-gold) — desenho principal -->
-  <path d="M256 92 L392 144 L392 272 Q392 360 256 424 Q120 360 120 272 L120 144 Z" fill="#e0a81c"/>
-  <!-- Check azul (tema --info-blue) — detalhe de segurança -->
-  <path d="M190 250 L236 298 L332 192" fill="none" stroke="#2e5898" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Capacete de obras amarelo (--a-gold) -->
+  <!-- crista baixa e larga no topo -->
+  <rect x="212" y="130" width="88" height="20" rx="8" fill="#e0a81c"/>
+  <!-- cúpula -->
+  <path d="M154 244 A102 102 0 0 1 358 244 Z" fill="#e0a81c"/>
+  <!-- aba (curta nas laterais) -->
+  <rect x="132" y="242" width="248" height="30" rx="15" fill="#e0a81c"/>
+  <!-- Check azul do tema (--info-blue) — posição do "rosto" -->
+  <path d="M190 358 L236 404 L332 308" fill="none" stroke="#2e5898" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
