@@ -76,7 +76,8 @@ manifest.json           — PWA manifest (start_url e scope usam "./" para GitHu
 service-worker.js       — Network-First, cache offline, CACHE_NAME = "gentehonesta-vN"
 CNAME                   — "gentehonesta.com.br"
 .nojekyll               — Impede o Jekyll do GitHub Pages de processar os arquivos
-icon.svg                — Fonte do ícone do app (operário: capacete + óculos + rosto + check); renderizado para os PNGs
+icon.svg                — Fonte do ícone do app (operário: capacete + óculos + rosto + check, cores do tema); renderizado para os PNGs
+icon-transparent.svg    — Mesma arte com FUNDO TRANSPARENTE (check continua verde); usada na tela de boas-vindas sobre o verde
 icon-192.png            — Ícone PWA 192px (mesma arte); referenciado no manifest.json
 icon-512.png            — Ícone PWA 512px (mesma arte); referenciado no manifest.json
 
@@ -319,6 +320,17 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 
 **Orientation lock:** modo paisagem bloqueado em dois níveis — `manifest.json` (`"orientation": "portrait"`) e overlay CSS em `components.css` via `@media (orientation: landscape)`.
 
+**Tela de boas-vindas (intro) com cores invertidas:** o passo `#step-intro` (carrossel de introdução
+dentro de `#view-auth`) tem fundo verde e cores claras — diferente do restante do fluxo de auth. O escopo
+é feito **só por CSS** via `#view-auth:has(#step-intro:not(.u-hidden))` (auth.css): o fundo verde só se
+aplica enquanto o intro está visível; ao navegar para telefone/OTP (`navigateTo` adiciona `u-hidden` ao
+intro) o `:has()` deixa de casar e o fundo volta ao branco — **verificação de número e cadastro NÃO são
+afetados**. No intro: título em `--t-light`, texto em `--p-green-light`, dots inativos em branco
+translúcido e ativo em `--a-gold`, botão `#btn-start` usa `btn--accent` (amarelo) em vez de `btn--primary`
+(verde), e o 1º slide usa `<img src="icon-transparent.svg" class="intro-carousel__icon-img">` (o ícone do
+operário com fundo transparente) no lugar do antigo glifo `verified_user` — os slides 2 e 3 mantêm os
+ícones Material dourados.
+
 **Loader global:** `#loader-global` — mostrado/ocultado com `u-hidden`. O `onAuthStateChanged` é o único responsável por ocultá-lo em transições normais. Em erros onde o estado de auth não muda, remover manualmente.
 
 **Diálogos:** sempre usar `await customAlert(...)` e `await customConfirm(...)` — nunca `alert()` ou `confirm()` nativos.
@@ -359,7 +371,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v157`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v158`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são

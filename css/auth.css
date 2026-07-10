@@ -160,3 +160,41 @@
   width: 22px;
   background: var(--p-green);
 }
+
+/* ===========================================
+   TELA DE BOAS-VINDAS (intro) — cores invertidas
+   Escopo ESTRITO ao passo de intro: o fundo verde só aparece enquanto
+   #step-intro está visível (não u-hidden). Ao navegar para telefone/OTP
+   o :has() deixa de casar e o fundo volta ao claro — cadastro e verificação
+   de número NÃO são afetados.
+   ======================================== */
+#view-auth:has(#step-intro:not(.u-hidden)) {
+  background: var(--p-green);
+}
+
+/* Novo ícone (capacete) no lugar do verified_user — usa a versão de fundo
+   transparente para fundir com o verde da tela; o check continua verde. */
+.intro-carousel__icon-img {
+  width: clamp(9rem, 44vw, 13rem);
+  height: auto;
+  display: block;
+  margin-top: 1rem;
+}
+
+/* Textos claros sobre o verde */
+#step-intro .auth-section__title {
+  color: var(--t-light);
+}
+
+#step-intro .auth-section__text {
+  color: var(--p-green-light);
+}
+
+/* Dots: inativos em branco translúcido, ativo em dourado (o verde some no fundo) */
+#step-intro .intro-carousel__dot {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+#step-intro .intro-carousel__dot--active {
+  background: var(--a-gold);
+}
