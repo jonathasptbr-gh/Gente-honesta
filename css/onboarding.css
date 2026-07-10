@@ -78,7 +78,7 @@
 
 /* Destaque de "faltando" na seção de padrão de serviços (obrigatoriedade
    condicional dos dados profissionais). Outline não empurra o layout. */
-.service-bars--error {
+.service-choice--error {
   outline: 2px solid var(--danger);
   outline-offset: 6px;
   border-radius: var(--radius-sm);
@@ -472,164 +472,92 @@
   border-top: none;
 }
 
-/* Sistema de barras de serviços */
-.service-bars {
+/* ── Padrão de Serviços — SELEÇÃO por card ──────────────────────────────────
+   4 cards em grade 2×2. Cada um mostra as 3 barras Qualidade/Agilidade/Valor no
+   MESMO componente `.qav` dos cards de profissional do feed (estilos em feed.css,
+   carregado globalmente). Aqui só o "casco" do card selecionável + um leve ajuste
+   de legibilidade das barras no contexto do cadastro (mais largura que na coluna
+   estreita do feed). Seleção única: `.service-choice__card--active` (JS). */
+.service-choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.service-choice__card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.service-bar__header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-xs);
-  margin-bottom: var(--space-xs);
-}
-
-.service-bar__header .material-symbols-rounded {
-  font-size: 1.1rem;
-  color: var(--p-green);
-}
-
-.service-bar--auto .service-bar__header .material-symbols-rounded {
-  color: var(--a-gold);
-}
-
-.service-bar--agility .service-bar__header .material-symbols-rounded {
-  color: var(--info-blue);
-}
-
-.service-bar__label {
-  font-weight: 600;
-  font-size: var(--fs-6);
-  color: var(--t-main);
-}
-
-.service-bar__value {
-  font-weight: 800;
-  font-size: var(--fs-8);
-  color: var(--p-green);
-  min-width: 24px;
-  text-align: center;
-}
-
-.service-bar--auto .service-bar__value {
-  color: var(--a-gold);
-}
-
-.service-bar--agility .service-bar__value {
-  color: var(--info-blue);
-}
-
-.service-bar__row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.service-bar__btn-spacer {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-}
-
-.service-bar__track {
-  flex: 1;
-  height: 28px;
-  background: var(--border-light);
-  border-radius: var(--radius-pill);
-  overflow: hidden;
-  position: relative;
-}
-
-.service-bar__fill {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  border-radius: var(--radius-pill);
-  transition: width 0.3s ease, background 0.4s ease;
-}
-
-.service-bar__fill--green  { background: var(--p-green); }
-.service-bar__fill--gold   { background: var(--a-gold); }
-.service-bar__fill--blue   { background: var(--info-blue); }
-
-/* Divisórias internas via CSS puro */
-.service-bar__pips--bg {
-  position: absolute;
-  left: 0; top: 0; right: 0; bottom: 0;
-  pointer-events: none;
-}
-
-.service-bar__pips--bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to right,
-    transparent,
-    transparent calc(10% - 1.5px),
-    rgba(255,255,255,0.35) calc(10% - 1.5px),
-    rgba(255,255,255,0.35) 10%
-  );
-}
-
-.service-bar__btn {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  border: 2px solid var(--border-light);
+  gap: 10px;
+  padding: 12px;
   background: var(--bg-white);
-  color: var(--p-green);
-  font-size: var(--fs-11);
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-}
-
-.service-bar__btn:active {
-  background: var(--p-green-light);
-  border-color: var(--p-green);
-}
-
-.service-bar__btn:disabled {
-  color: var(--t-disabled);
-  border-color: var(--border-light);
-  cursor: not-allowed;
-}
-
-.service-bar__auto-hint {
-  font-size: var(--fs-3);
-  color: var(--t-sub);
-  font-style: italic;
-  text-align: center;
-}
-
-.service-bar__pool {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--p-green-light);
+  border: 2px solid var(--border-light);
   border-radius: var(--radius-md);
-  font-size: var(--fs-6);
-  color: var(--p-green-dark);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.service-bar__pool .material-symbols-rounded {
-  font-size: 1.1rem;
+.service-choice__card:active {
+  transform: scale(0.99);
+}
+
+.service-choice__card--active {
+  border-color: var(--p-green);
+  box-shadow: 0 0 0 3px rgba(24, 78, 27, 0.10);
+}
+
+.service-choice__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.service-choice__icon {
+  font-size: 1.25rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.service-choice__titles {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.service-choice__title {
+  font-size: var(--fs-4);
+  font-weight: 800;
+  color: var(--p-green-dark);
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.service-choice__sub {
+  font-size: var(--fs-1);
+  font-weight: 600;
+  color: var(--t-sub);
+  line-height: 1.1;
+}
+
+.service-choice__check {
+  font-size: 1.2rem;
+  color: var(--t-disabled);
+  flex-shrink: 0;
+}
+
+.service-choice__card--active .service-choice__check {
   color: var(--p-green);
 }
 
-.service-bar__pool strong {
-  font-size: var(--fs-9);
-  font-weight: 800;
-}
+/* Barras um pouco mais legíveis que na coluna estreita do feed */
+.service-choice .qav { gap: 4px; }
+.service-choice .qav__label { font-size: var(--fs-1); }
+.service-choice .qav__bar { height: 7px; }
 
 /* ── Convite de assinatura do Plano Pro (fecha os Detalhes profissionais) ──
    Card ilustrativo e sucinto: ícone + título, uma linha de contexto, chips

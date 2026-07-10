@@ -112,13 +112,13 @@ function setProDetailsOpen(open, animate = true) {
 function highlightMissingProFields({ tags, bio, service }) {
   const areaInput = document.getElementById('inp-area-search');
   const bioInput = document.getElementById('inp-bio');
-  const serviceBars = document.querySelector('#panel-prodetails .service-bars');
+  const serviceChoice = document.getElementById('container-service-choice');
   if (!tags) areaInput?.classList.add('input-text--error');
   if (!bio) bioInput?.classList.add('input-text--error');
-  if (!service) serviceBars?.classList.add('service-bars--error');
+  if (!service) serviceChoice?.classList.add('service-choice--error');
   // Espera a animação de abertura (~500ms) antes de rolar até o campo
   setTimeout(() => {
-    const first = !tags ? areaInput : (!bio ? bioInput : serviceBars);
+    const first = !tags ? areaInput : (!bio ? bioInput : serviceChoice);
     first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, 520);
 }
@@ -326,10 +326,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (areaList) { areaList.innerHTML = ''; areaList.classList.add('u-hidden'); }
     document.getElementById('btn-area-clear')?.classList.add('u-hidden');
 
-    // Barras de serviço: reseta estado local e atualiza o DOM
-    serviceState.quality = 0;
-    serviceState.agility = 0;
-    updateServiceBars();
+    // Padrão de serviços: desmarca todos os cards (serviceProfile já zerado acima)
+    document.querySelectorAll('#container-service-choice .service-choice__card')
+      .forEach(card => setServiceCardActive(card, false));
 
     // Métodos de pagamento aceitos: NF/cartão zerados; DINHEIRO fica selecionado
     // por padrão (seção não obrigatória, mas já vem com dinheiro marcado).
@@ -344,7 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
     clearNameErrors();
     document.getElementById('inp-area-search')?.classList.remove('input-text--error');
     document.getElementById('inp-bio')?.classList.remove('input-text--error');
-    document.querySelector('#panel-prodetails .service-bars')?.classList.remove('service-bars--error');
+    document.getElementById('container-service-choice')?.classList.remove('service-choice--error');
   };
 
   // INTERAÇÕES DO DOM - TELA - ONBOARDING - Botão cancelar: faz logout e reset completo
@@ -717,65 +716,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.closest('.area-search')) closeAreaResults();
   });
 
-  // INTERAÇÕES DO DOM - TELA - ONBOARDING - Sistema de barras de pontos (qualidade + agilidade → valor)
-  const TOTAL_POINTS = 10;
-  const serviceState = { quality: 0, agility: 0 };
+  // INTERAÇÕES DO DOM - TELA - ONBOARDING - Padrão de Serviços (seleção por card)
+  // 4 perfis prontos; cada card carrega uma combinação de Qualidade/Agilidade/
+  // Valor em data-q/data-a/data-v (escala 0-10, máx 8). Seleção ÚNICA: tocar num
+  // card ativa ele e desativa os demais; tocar no já ativo desmarca (seção volta
+  // a vazia → opcional). O estado grava em window.appState.serviceProfile no
+  // mesmo formato de antes ({quality, agility, price}).
+  const serviceCards = document.querySelectorAll('#container-service-choice .service-choice__card');
 
-  const updateServiceBars = () => {
-    const price = (serviceState.quality + serviceState.agility) / 2;
-    const pool = TOTAL_POINTS - serviceState.quality - serviceState.agility;
-
-    const valQuality = document.getElementById('val-quality');
-    const valAgility = document.getElementById('val-agility');
-    const valPrice = document.getElementById('val-price');
-    const valPool = document.getElementById('val-pool');
-    const fillQuality = document.getElementById('fill-quality');
-    const fillAgility = document.getElementById('fill-agility');
-    const priceFill = document.getElementById('fill-price');
-    const btnQualityMinus = document.getElementById('btn-quality-minus');
-    const btnQualityPlus = document.getElementById('btn-quality-plus');
-    const btnAgilityMinus = document.getElementById('btn-agility-minus');
-    const btnAgilityPlus = document.getElementById('btn-agility-plus');
-    if (!valQuality || !valAgility || !valPrice || !valPool || !fillQuality || !fillAgility ||
-        !priceFill || !btnQualityMinus || !btnQualityPlus || !btnAgilityMinus || !btnAgilityPlus) return;
-
-    valQuality.innerText = serviceState.quality;
-    valAgility.innerText = serviceState.agility;
-    valPrice.innerText = Number.isInteger(price) ? price : price.toFixed(1);
-    valPool.innerText = pool;
-
-    fillQuality.style.width = `${serviceState.quality * 10}%`;
-    fillAgility.style.width = `${serviceState.agility * 10}%`;
-
-    priceFill.style.width = `${price * 10}%`;
-
-    btnQualityMinus.disabled = serviceState.quality === 0;
-    btnQualityPlus.disabled  = pool === 0 || serviceState.quality === 10;
-    btnAgilityMinus.disabled = serviceState.agility === 0;
-    btnAgilityPlus.disabled  = pool === 0 || serviceState.agility === 10;
-
-    window.appState.serviceProfile = { quality: serviceState.quality, agility: serviceState.agility, price };
-
-    // Distribuiu ao menos 1 ponto → limpa o destaque de "faltando" da seção
-    if (serviceState.quality + serviceState.agility > 0) {
-      document.querySelector('#panel-prodetails .service-bars')?.classList.remove('service-bars--error');
-    }
+  const setServiceCardActive = (card, active) => {
+    card.classList.toggle('service-choice__card--active', active);
+    card.setAttribute('aria-pressed', String(active));
+    const check = card.querySelector('.service-choice__check');
+    if (check) check.innerText = active ? 'check_circle' : 'radio_button_unchecked';
   };
 
-  document.getElementById('btn-quality-plus')?.addEventListener('click', () => {
-    if (serviceState.quality + serviceState.agility < TOTAL_POINTS) { serviceState.quality++; updateServiceBars(); }
+  serviceCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const wasActive = card.getAttribute('aria-pressed') === 'true';
+      serviceCards.forEach(c => setServiceCardActive(c, false));
+      if (wasActive) {
+        window.appState.serviceProfile = { quality: 0, agility: 0, price: 0 };
+      } else {
+        setServiceCardActive(card, true);
+        window.appState.serviceProfile = {
+          quality: Number(card.dataset.q),
+          agility: Number(card.dataset.a),
+          price: Number(card.dataset.v)
+        };
+        // Escolheu um perfil → limpa o destaque de "faltando" da seção
+        document.getElementById('container-service-choice')?.classList.remove('service-choice--error');
+      }
+    });
   });
-  document.getElementById('btn-quality-minus')?.addEventListener('click', () => {
-    if (serviceState.quality > 0) { serviceState.quality--; updateServiceBars(); }
-  });
-  document.getElementById('btn-agility-plus')?.addEventListener('click', () => {
-    if (serviceState.quality + serviceState.agility < TOTAL_POINTS) { serviceState.agility++; updateServiceBars(); }
-  });
-  document.getElementById('btn-agility-minus')?.addEventListener('click', () => {
-    if (serviceState.agility > 0) { serviceState.agility--; updateServiceBars(); }
-  });
-
-  updateServiceBars(); // estado inicial
 
   // INTERAÇÕES DO DOM - TELA - ONBOARDING - Métodos de pagamento aceitos
   // Além da cor, cada pílula sinaliza a seleção com um check circular
@@ -860,20 +833,23 @@ Lembre-se: a confiança é construída devagar e perdida rapidamente. Use a plat
     'btn-service-help': {
       title: 'Como funciona o Padrão de Serviço?',
       icon: 'tune',
-      text: `O Padrão de Serviço é uma forma de você comunicar aos clientes como você equilibra qualidade, agilidade e custo nos seus trabalhos.
+      text: `O Padrão de Serviço mostra aos clientes como você equilibra três atributos no seu trabalho:
 
-Os três atributos:
+Qualidade — cuidado, acabamento e atenção aos detalhes.
+Agilidade — rapidez na entrega.
+Valor — o quanto você cobra, em relação ao mercado.
 
-Qualidade — representa o cuidado, acabamento e atenção aos detalhes do seu trabalho. Um profissional focado em qualidade entrega resultados impecáveis, mas pode levar mais tempo.
+Como escolher?
+Em vez de ajustar tudo manualmente, você seleciona um dos 4 perfis prontos — o que melhor representa o seu jeito de trabalhar:
 
-Agilidade — representa a velocidade de entrega. Um profissional ágil resolve rápido, mas pode sacrificar parte do acabamento ou cobrar mais pela urgência.
+• Padrão (equilibrado) — equilíbrio entre os três atributos.
+• Premium — foco em qualidade; entrega mais caprichada e valor mais alto.
+• Rápido — foco em agilidade; resolve rápido.
+• Custo-benefício — valor mais baixo, mantendo uma boa qualidade.
 
-Valor cobrado — calculado automaticamente com base nos dois anteriores. Quanto mais qualidade e agilidade você oferece, maior tende a ser o valor percebido e cobrado pelo seu serviço.
+Basta tocar num card para selecioná-lo (toque de novo para desmarcar). Nenhum perfil começa "no máximo": sempre há espaço para crescer.
 
-Como distribuir os pontos?
-Você tem 10 pontos para dividir entre Qualidade e Agilidade. Não existe distribuição certa ou errada — a ideia é ser honesto sobre como você trabalha de verdade.
-
-Importante: essa configuração é apenas um ponto de partida. Com o tempo, as avaliações que você receber no app vão ajustar automaticamente esses índices para refletir sua reputação real. Então não se preocupe em ser perfeito agora — seja honesto.`
+Importante: essa é só uma escolha inicial. Com o tempo, as avaliações que você receber vão ajustando esses índices automaticamente para refletir sua reputação real — então seja honesto.`
     }
   };
 

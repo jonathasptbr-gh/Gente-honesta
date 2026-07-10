@@ -90,8 +90,8 @@ css/
   components.css        — Botões, inputs, ic-bar, diálogos, bloqueio desktop/landscape; `btn--danger` (vermelho)
   tutorial.css           — Motor de tutorial guiado (destaque + balão), reutilizável em qualquer tela
   auth.css              — Fluxo de login: auth-section, OTP grid, carrossel de intro
-  onboarding.css        — Formulário de perfil: câmera, tags, localização, barras de
-                          serviço, pro-cta, ic-card
+  onboarding.css        — Formulário de perfil: câmera, tags, localização, cards de
+                          padrão de serviço, pro-cta, ic-card
   install.css           — Tela-guia de instalação do PWA (view-install)
   feed.css              — Feed, top/bottom bar, painéis deslizantes, pedidos, cards de pro
 
@@ -107,7 +107,7 @@ js/   (a ordem de carga no index.html importa)
   auth.js               — 5º. Login: sendOTP (com whitelist), verifyOTP, cooldown,
                           máscara de telefone, OTP grid, carrossel, resetAuthFlow
   onboarding.js         — 6º. Formulário de perfil: finishRegistration, câmera, tags,
-                          localização, barras de serviço, diálogos de ajuda,
+                          localização, cards de padrão de serviço, diálogos de ajuda,
                           resetOnboardingForm (chamado pelo resetAuthFlow),
                           startOnboardingTutorial (passos do tutorial de cadastro)
   feed.js               — 7º. Feed: notificações, painéis deslizantes, modo indicação,
@@ -400,7 +400,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v177`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v178`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
@@ -416,7 +416,7 @@ padrão de serviço) todos passam a ser exigidos para o perfil profissional fica
 ISENTO** (nunca obrigatório). Se ficou pela metade, `finishRegistration` mostra um `customConfirm`
 ("Dados profissionais incompletos") oferecendo concluir só o básico (segue) OU completar (`!proceed` →
 `setProDetailsOpen(true)` + `highlightMissingProFields` marca em vermelho os campos vazios — `input-text--error`
-em área/bio, `.service-bars--error` (outline) nas barras — e rola até o primeiro). Os destaques limpam ao
+em área/bio, `.service-choice--error` (outline) na grade de cards — e rola até o primeiro). Os destaques limpam ao
 preencher (seleção de tag, input do bio, distribuição de pontos) e no reset. `#btn-finish-onboarding` ganha
 margem inferior confiável na rolagem via um ELEMENTO espaçador (`.onboarding-form__bottom-spacer`) logo
 após o botão: com o `.screen` como container de scroll, o form (`flex:1`) TRANSBORDA para baixo e passa por
@@ -430,14 +430,18 @@ Todas as subseções seguem o mesmo padrão visual
 `.form-group` simples; a última usa `.form-group__header` (label + `#btn-service-help`, sem fundo) em vez
 de um card cinza dedicado. O rótulo `(opcional)` (`.form-group__optional`) aparece só uma vez, no gatilho
 do colapsável (`#btn-toggle-prodetails`, "Detalhes profissionais") — as subseções internas não repetem o
-aviso, já que ele já foi dado no título da seção como um todo. As cores das barras
-(`service-bar__fill--green/--blue/--gold`) e seus subtítulos são preservados independente da estrutura do
-container. A barra "Valor cobrado" (`#fill-price`) é automática: `price = (quality + agility) / 2`, sem
-arredondamento — reage em passos de 0.5 a cada ponto inteiro somado nas barras de Qualidade/Agilidade
-(mais responsiva do que depender de 2 pontos para mover 1). Como `quality + agility` nunca ultrapassa
-`TOTAL_POINTS` (10), `price` nunca passa de 5 — por isso usa sempre a cor amarela padrão (`--a-gold`),
-fixa no HTML (`service-bar__fill--gold`), em vez do antigo sistema de tiers bronze/prata/ouro (removido: o
-valor nunca alcançava o tier ouro na prática, e "prata" era só o teto exato).
+aviso, já que ele já foi dado no título da seção como um todo.
+
+**"Padrão de Serviços" é SELEÇÃO por card** (`#container-service-choice`, grade 2×2 em `.service-choice`),
+não mais barras com +/−. São 4 perfis prontos (`data-service` = `padrao`/`premium`/`rapido`/`economico`),
+cada card com `data-q`/`data-a`/`data-v` (escala 0-10) e as 3 barras Qualidade/Agilidade/Valor no MESMO
+componente `.qav` dos cards de profissional do feed (estilos em `feed.css`; largura da barra = valor×10%).
+Combinações: Padrão 6/6/5, Premium 8/4/7, Rápido 5/8/6, Custo-benefício 6/5/3 — o **máximo de qualquer
+barra é 8 (80%)**, nenhuma chega a 100%. Seleção ÚNICA em `onboarding.js` (`setServiceCardActive`): tocar
+num card ativa (`.service-choice__card--active`, check → `check_circle`) e desativa os demais; tocar no já
+ativo desmarca (volta a `serviceProfile {0,0,0}` → seção opcional). Grava em
+`window.appState.serviceProfile = {quality, agility, price}` (valores 0-10 do card). Para a obrigatoriedade
+condicional, "padrão preenchido" = qualquer card selecionado (`serviceProfile.quality>0 || agility>0`).
 
 Logo após as barras, "Métodos de pagamento aceitos" reproduz as mesmas opções do rodapé do card de
 profissional no feed (`proFooterHTML()` em `feed.js`), como pílulas `.chip.chip--payment` (mesma classe
@@ -498,7 +502,7 @@ no `install` — o novo worker fica parado em "waiting" até o usuário confirma
 - `selectedTags` — array de áreas profissionais escolhidas
 - `cooldownActive` — rate-limit do SMS ativo
 - `locationConfirmed` — GPS validado no onboarding
-- `serviceProfile` — `{quality, agility, price}` barras de serviço
+- `serviceProfile` — `{quality, agility, price}` (0-10) do card de padrão de serviço escolhido
 - `paymentMethods` — `{cash, pix, card, nf}` métodos de pagamento aceitos (pílulas); `card` é
   `0 | 'debit' | 1 | 6 | 12` (mesmo formato de `pro.pay.card` no mock — nunca uma combinação).
   **`cash` já nasce `true`** (Dinheiro pré-selecionado): a seção de pagamento NÃO é obrigatória e
