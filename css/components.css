@@ -328,15 +328,15 @@
 }
 
 .overlay-loader {
-  background: var(--bg-white);
+  background: var(--p-green);
   transition: opacity .4s ease;
 }
 
 .overlay-loader__spinner {
   width: 80px;
   height: 80px;
-  border: 8px solid var(--bg-input);
-  border-top-color: var(--p-green);
+  border: 8px solid rgba(255, 255, 255, 0.25);
+  border-top-color: var(--t-light);
   border-radius: 50%;
   animation: spin .8s linear infinite;
 }
