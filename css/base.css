@@ -113,7 +113,15 @@ body.app-body {
   min-height: 100vh;
   min-height: 100dvh;
   min-height: var(--app-height, 100dvh);
-  background-color: var(--bg-white);
+  /* Fundo VERDE, não branco: todo o app é verde (auth, onboarding, install,
+     feed) e o splash nativo usa background_color verde do manifest. Se html/body
+     ficassem brancos, qualquer frame em que o loader/tela verde ainda não pintou
+     — fim do splash no Android, parse progressivo, bounce de overscroll no iOS,
+     ou as laterais das telas (max-width:500px) em telas largas — vazaria branco.
+     O <style> crítico inline no <head> já pinta o html de verde no 1º paint;
+     esta regra (carregada depois) PRECISA manter o verde, senão reverteria o
+     html para branco e recriaria o flash que o inline tentava evitar. */
+  background-color: var(--p-green);
   color: var(--t-main);
   overflow: hidden;
   overscroll-behavior: none;

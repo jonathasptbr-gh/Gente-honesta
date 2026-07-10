@@ -160,7 +160,12 @@ window.showView = function(viewId) {
   const target = document.getElementById(viewId);
   if (target) {
     target.classList.add('screen--active');
-    document.getElementById('loader-global')?.classList.add('u-hidden');
+    // NÃO esconder o loader aqui: quem o oculta é o onAuthStateChanged
+    // (session.js), que faz um fade-out de 0.4s sobre a tela verde já ativa.
+    // Escondê-lo instantaneamente aqui (u-hidden = display:none) matava esse
+    // fade — o loader sumia de golpe antes da transição começar. Como o loader
+    // só está visível no boot (sempre via onAuthStateChanged), deixar a ocultação
+    // com o session.js é seguro e restaura a transição suave pós-splash.
   }
 
   // Atualiza a cor da barra de status conforme a tela ativa (branco por padrão)
