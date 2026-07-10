@@ -21,7 +21,18 @@ const clearNameErrors = () =>
 // medindo scrollHeight em runtime, então funciona com conteúdo de altura
 // variável (barras, pagamento, pro-cta). u-hidden continua sendo o estado
 // "fechado" final (display:none) — a animação só acontece na transição.
+//
+// Timing: 0.5s com easing easeOutCubic (arranca responsivo e DESACELERA suave).
+// A curva material padrão (0.4,0,0.2,1) começa lenta e dava a impressão de
+// "travar" no início; o easeOutCubic reage na hora e desliza até parar. A altura
+// acompanha uma opacidade (fade um pouco mais curto) para o conteúdo aparecer
+// dissolvendo, em vez de um recorte seco — reforça a sensação de fluidez.
 // =========================================================================
+const PRODETAILS_DUR = 500; // ms — duração da animação de altura
+const PRODETAILS_EASE = 'cubic-bezier(0.33, 1, 0.68, 1)'; // easeOutCubic
+const PRODETAILS_TRANSITION =
+  `height ${PRODETAILS_DUR}ms ${PRODETAILS_EASE}, opacity ${Math.round(PRODETAILS_DUR * 0.72)}ms ease`;
+
 function setProDetailsOpen(open, animate = true) {
   const panel = document.getElementById('panel-prodetails');
   const collapsible = document.getElementById('btn-toggle-prodetails')?.closest('.collapsible');
@@ -36,6 +47,7 @@ function setProDetailsOpen(open, animate = true) {
   const clearInline = () => {
     panel.style.height = '';
     panel.style.overflow = '';
+    panel.style.opacity = '';
     panel.style.transition = '';
   };
 
@@ -46,13 +58,15 @@ function setProDetailsOpen(open, animate = true) {
 
     panel.style.overflow = 'hidden';
     panel.style.height = '0px';
+    panel.style.opacity = '0';
     const target = panel.scrollHeight; // altura real do conteúdo (com padding)
     requestAnimationFrame(() => {
-      panel.style.transition = 'height 0.32s cubic-bezier(0.4, 0, 0.2, 1)';
+      panel.style.transition = PRODETAILS_TRANSITION;
       panel.style.height = target + 'px';
+      panel.style.opacity = '1';
     });
     const done = (e) => {
-      if (e.propertyName !== 'height') return;
+      if (e.propertyName !== 'height') return; // ignora o fim da opacidade (mais curta)
       clearInline(); // volta para altura automática
       panel.removeEventListener('transitionend', done);
     };
@@ -63,10 +77,12 @@ function setProDetailsOpen(open, animate = true) {
 
     panel.style.overflow = 'hidden';
     panel.style.height = panel.scrollHeight + 'px';
-    void panel.offsetHeight; // força reflow para o height inicial "pegar"
+    panel.style.opacity = '1';
+    void panel.offsetHeight; // força reflow para o height/opacity iniciais "pegarem"
     requestAnimationFrame(() => {
-      panel.style.transition = 'height 0.32s cubic-bezier(0.4, 0, 0.2, 1)';
+      panel.style.transition = PRODETAILS_TRANSITION;
       panel.style.height = '0px';
+      panel.style.opacity = '0';
     });
     const done = (e) => {
       if (e.propertyName !== 'height') return;
@@ -88,11 +104,11 @@ function highlightMissingProFields({ tags, bio, service }) {
   if (!tags) areaInput?.classList.add('input-text--error');
   if (!bio) bioInput?.classList.add('input-text--error');
   if (!service) serviceBars?.classList.add('service-bars--error');
-  // Espera a animação de abertura (~320ms) antes de rolar até o campo
+  // Espera a animação de abertura (~500ms) antes de rolar até o campo
   setTimeout(() => {
     const first = !tags ? areaInput : (!bio ? bioInput : serviceBars);
     first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 360);
+  }, 520);
 }
 
 
