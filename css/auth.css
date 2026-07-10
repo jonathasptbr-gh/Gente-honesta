@@ -131,10 +131,17 @@
 }
 
 /* Mesmo truque de especificidade composta do icon-hero, em escala menor
-   para caber junto do título + texto + dots + botão sem rolagem vertical. */
+   para caber junto do título + texto + dots + botão sem rolagem vertical.
+   ALTURA FIXA (= font-size) + centralização flex: define o "slot" de ícone que
+   TODOS os 3 slides compartilham (glifos e logo), garantindo que título e texto
+   comecem no mesmo Y — sem isso, ícones de alturas diferentes desalinhavam o
+   conteúdo ao deslizar entre os painéis. */
 .material-symbols-rounded.intro-carousel__icon {
   font-size: clamp(5.5rem, 26vw, 8.5rem);
-  display: block;
+  height: clamp(5.5rem, 26vw, 8.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 1rem;
   color: var(--a-gold);
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
@@ -188,11 +195,16 @@
   color: var(--p-green-light);
 }
 
-/* Novo ícone (capacete) no lugar do verified_user — usa a versão de fundo
-   transparente para fundir com o verde da tela; o check continua verde. */
+/* Logo (capacete) do 1º slide — usa a versão de fundo transparente para fundir
+   com o verde da tela; o check continua verde. Ocupa o MESMO slot de altura dos
+   glifos Material dos outros slides (não mais uma largura própria bem maior, que
+   deixava o 1º ícone gigante e desalinhava título/texto ao deslizar). A arte é
+   quadrada com margem transparente embutida, então casar a altura do box com o
+   font-size dos glifos deixa o operário do mesmo tamanho visual deles;
+   width:auto preserva a proporção e margin-top igual mantém o espaçamento. */
 .intro-carousel__icon-img {
-  width: clamp(9rem, 44vw, 13rem);
-  height: auto;
+  height: clamp(5.5rem, 26vw, 8.5rem);
+  width: auto;
   display: block;
   margin-top: 1rem;
 }
