@@ -400,7 +400,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v174`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v175`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
@@ -414,9 +414,12 @@ ISENTO** (nunca obrigatório). Se ficou pela metade, `finishRegistration` mostra
 `setProDetailsOpen(true)` + `highlightMissingProFields` marca em vermelho os campos vazios — `input-text--error`
 em área/bio, `.service-bars--error` (outline) nas barras — e rola até o primeiro). Os destaques limpam ao
 preencher (seleção de tag, input do bio, distribuição de pontos) e no reset. `#btn-finish-onboarding` ganha
-margem inferior confiável na rolagem via `padding-bottom` do `.onboarding-form` (o `padding-bottom` do
-`.screen` era ignorado no fim da rolagem em alguns webviews; `#view-onboarding.screen` zera o seu para não
-duplicar).
+margem inferior confiável na rolagem via um ELEMENTO espaçador (`.onboarding-form__bottom-spacer`) logo
+após o botão: com o `.screen` como container de scroll, o form (`flex:1`) TRANSBORDA para baixo e passa por
+cima de qualquer `padding-bottom` (do form ou do `.screen`), colando o botão na base. A caixa de um elemento
+sempre entra na área rolável, então o espaçador garante o respiro no fim da rolagem; quando o conteúdo é
+curto, o `margin-top:auto` do botão empurra botão + espaçador juntos para a base. `#view-onboarding.screen`
+zera seu `padding-bottom` para o respiro vir só do espaçador (não somar no caso curto).
 
 Todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são

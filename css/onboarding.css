@@ -54,19 +54,26 @@
   padding-top: var(--space-md);
 }
 
-/* Margem inferior mínima quando a tela ROLA (ex.: "Detalhes profissionais"
-   aberto). O padding-bottom do próprio .screen (container com overflow) não é
-   confiável no fim da rolagem em alguns webviews — o botão "Concluir" acabava
-   colado na base. Movendo o respiro para o padding-bottom do FORM (conteúdo em
-   fluxo normal, sempre incluído na área rolável) o espaço aparece de forma
-   confiável; o #view-onboarding.screen zera seu padding-bottom para não somar
-   duas vezes. Fecha com a safe-area do aparelho. */
+/* Margem inferior mínima do botão "Concluir" quando a tela ROLA (ex.: "Detalhes
+   profissionais" aberto). Nem o padding-bottom do .screen nem o do .onboarding-form
+   funcionam aqui: o form é flex:1 e seu conteúdo TRANSBORDA para baixo, passando
+   POR CIMA de qualquer padding-bottom (o botão acabava colado na base). Tornar o
+   FORM o container de scroll também não serve — `margin-top:auto` (que fixa o
+   botão na base quando o conteúdo é curto) é resolvido como 0 dentro de um flex
+   container com overflow. Solução: manter o .screen como container de scroll e
+   usar um ELEMENTO espaçador após o botão. A caixa de um elemento SEMPRE entra na
+   área rolável (ao contrário de padding/margin no fim), então o respiro aparece
+   de forma confiável no fim da rolagem; quando o conteúdo é curto, o
+   `margin-top:auto` do botão empurra botão + espaçador juntos para a base. O
+   .screen zera seu padding-bottom para o respiro vir só do espaçador (sem somar
+   duas vezes no caso curto). */
 #view-onboarding.screen {
   padding-bottom: 0;
 }
 
-.onboarding-form {
-  padding-bottom: max(var(--space-lg), env(safe-area-inset-bottom, 0px));
+.onboarding-form__bottom-spacer {
+  flex-shrink: 0;
+  height: max(var(--space-lg), env(safe-area-inset-bottom, 0px));
 }
 
 /* Destaque de "faltando" na seção de padrão de serviços (obrigatoriedade
