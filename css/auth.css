@@ -195,13 +195,14 @@
   color: var(--p-green-light);
 }
 
-/* Logo (capacete) do 1º slide — usa a versão de fundo transparente para fundir
-   com o verde da tela; o check continua verde. Ocupa o MESMO slot de altura dos
-   glifos Material dos outros slides (não mais uma largura própria bem maior, que
-   deixava o 1º ícone gigante e desalinhava título/texto ao deslizar). A arte é
-   quadrada com margem transparente embutida, então casar a altura do box com o
-   font-size dos glifos deixa o operário do mesmo tamanho visual deles;
-   width:auto preserva a proporção e margin-top igual mantém o espaçamento. */
+/* Logo (capacete) do 1º slide — fundo transparente, funde com o verde da tela;
+   o check continua verde. Fonte: icon-intro.svg, um recorte JUSTO do operário
+   (viewBox só ao redor da arte, ~pequena margem) em vez de icon-transparent.svg
+   (que tem ~23% de margem transparente embutida e deixava o operário menor que
+   os glifos). Ocupa o MESMO slot de altura dos glifos Material dos outros slides
+   (clamp igual) — então título/texto continuam alinhados ao deslizar —, mas por
+   ser recortado o operário PREENCHE mais o box, ficando um pouco maior que os
+   glifos. width:auto preserva a proporção; margin-top igual mantém o espaçamento. */
 .intro-carousel__icon-img {
   height: clamp(5.5rem, 26vw, 8.5rem);
   width: auto;

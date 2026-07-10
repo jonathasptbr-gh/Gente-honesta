@@ -78,7 +78,8 @@ CNAME                   — "gentehonesta.com.br"
 .nojekyll               — Impede o Jekyll do GitHub Pages de processar os arquivos
 icon.svg                — Fonte do ícone QUADRADO full-bleed (operário: capacete + óculos + rosto + check); fundo verde --p-green #184e1b (mesmo da tela inicial/loader). Base dos PNGs maskable
 icon-rounded.svg        — Mesma arte com CANTOS ARREDONDADOS (clipPath rx=123 ≈ 12%; cantos transparentes fora do round-rect). Base dos PNGs `purpose:"any"`. Gerada a partir de icon.svg (wrap do <g> num clip-path)
-icon-transparent.svg    — Mesma arte com FUNDO TRANSPARENTE (check continua verde); usada na tela de boas-vindas sobre o verde
+icon-transparent.svg    — Mesma arte com FUNDO TRANSPARENTE (check continua verde), viewBox full 1024 (com margem embutida)
+icon-intro.svg          — Recorte JUSTO do operário (fundo transparente; viewBox só ao redor da arte, ~pequena margem). Usado no 1º slide da tela de boas-vindas via .intro-carousel__icon-img — preenche mais o slot que o icon-transparent.svg, ficando do tamanho dos glifos dos outros slides
 icon-192.png            — Ícone PWA 192px ARREDONDADO (RGBA, cantos transparentes); manifest `purpose:"any"` + favicon. Mostrado "cru" onde o SO não recorta
 icon-512.png            — Ícone PWA 512px ARREDONDADO (RGBA); manifest `purpose:"any"`
 icon-192-maskable.png   — Ícone PWA 192px QUADRADO full-bleed; manifest `purpose:"maskable"` (launchers adaptativos aplicam a própria máscara: círculo/squircle)
@@ -339,10 +340,15 @@ verde sumiria no fundo. Botões de texto (voltar, reenviar, pular, retry) → `-
 mantendo as cores escuras internas. O ícone hero da instalação (`.auth-section__icon-hero`) segue dourado.
 
 **Tela de boas-vindas (intro), específicos:** o 1º slide usa
-`<img src="icon-transparent.svg" class="intro-carousel__icon-img">` (o ícone do operário com fundo
+`<img src="icon-intro.svg" class="intro-carousel__icon-img">` (recorte justo do operário, fundo
 transparente) no lugar do antigo glifo `verified_user` — os slides 2 e 3 mantêm os ícones Material
-dourados. Botão `#btn-start` usa `btn--accent` (amarelo). Dots (`.intro-carousel__dot`) inativos em
-branco translúcido, ativo em `--a-gold` (o verde padrão sumiria no fundo).
+dourados. Título do 1º slide é só "Gente Honesta" (sem "Bem-vindo ao"). Os 3 ícones (glifos e logo)
+compartilham o MESMO slot de altura fixa (`clamp(5.5rem,26vw,8.5rem)` + centralização flex em
+`.intro-carousel__icon`/`.intro-carousel__icon-img`), então título e texto ficam alinhados ao
+deslizar; o logo usa o recorte `icon-intro.svg` (em vez do `icon-transparent.svg`, de margem larga)
+para preencher esse slot e não ficar menor que os glifos. Botão `#btn-start` usa `btn--accent`
+(amarelo). Dots (`.intro-carousel__dot`) inativos em branco translúcido, ativo em `--a-gold` (o verde
+padrão sumiria no fundo).
 
 **Loader global:** `#loader-global` — mostrado/ocultado com `u-hidden`. O `onAuthStateChanged` é o único responsável por ocultá-lo em transições normais. Em erros onde o estado de auth não muda, remover manualmente. Visual: fundo `--p-green` e spinner branco (trilho em branco translúcido, topo `--t-light`) — coerente com os ambientes verdes; a `meta[name="theme-color"]` inicial também é verde (`#184e1b`) para a barra de status combinar durante o carregamento, antes de `showView` assumir. **CSS crítico inline no `<head>`** pinta o `html` de verde e já dá ao `.overlay-loader` os estilos de cobertura (`position:fixed; inset:0; background:#184e1b; z-index:9999`) — sem isso, entre o `base.css` (que pinta html/body de branco) e o `components.css` (que só então estiliza o loader) havia um flash branco no fim do splash; `.u-hidden` (base.css) ainda vence e esconde o loader normalmente. **Telas não têm animação de entrada** (`.screen` sem `animation`): um `translateY` de entrada deixava uma tira do body branco no topo por um instante, e um fade de opacidade deixava o body vazar durante o fade-out do loader — a transição entre telas fica por conta do fade-out do loader.
 
@@ -394,7 +400,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v170`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v171`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são
