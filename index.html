@@ -46,6 +46,17 @@
 
     <link rel="manifest" href="manifest.json">
 
+    <!-- Ícones do app:
+         - apple-touch-icon (iOS): usa a versão QUADRADA full-bleed. O iOS
+           ignora `purpose:"maskable"` do manifest e SEMPRE aplica a própria
+           máscara arredondada (superelipse) por cima, além de não lidar bem com
+           transparência — então dar a ele a arte quadrada cheia evita cantos
+           pretos/serrilhados; o próprio iOS arredonda.
+         - favicon (aba/atalhos): usa a versão já arredondada (cantos
+           transparentes), pois costuma ser exibida "crua", sem recorte. -->
+    <link rel="apple-touch-icon" href="icon-512-maskable.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+
     <!-- Fontes ANTES do CSS do projeto: a folha do Google define
          `.material-symbols-rounded { font-size:24px }`. Carregando-a primeiro, o CSS
          do projeto (mesma especificidade) vence por ordem de cascata — sem isto o
