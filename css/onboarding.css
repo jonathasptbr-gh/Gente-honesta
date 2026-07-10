@@ -4,6 +4,32 @@
    servirá de base para a futura edição de perfil.
    ======================================== */
 
+/* ===========================================
+   FUNDO VERDE DA TELA DE CADASTRO
+   O #view-onboarding tem fundo --p-green. Os campos e cards (foto, inputs,
+   localização, colapsável + painel, IC card, pro-cta) mantêm fundo
+   claro/branco e por isso se DESTACAM sobre o verde — todo o conteúdo dentro
+   deles segue com as cores escuras normais. Só os elementos que ficam
+   DIRETAMENTE sobre o verde mudam: o cabeçalho (título/subtítulo/cancelar,
+   agora claros) e o botão final (agora amarelo, via btn--accent no HTML, pois
+   verde sobre verde sumiria). Escopo estrito ao #view-onboarding para não
+   afetar telefone/OTP/feed. */
+#view-onboarding.screen {
+  background: var(--p-green);
+}
+
+#view-onboarding .screen__title {
+  color: var(--t-light);
+}
+
+#view-onboarding .screen__subtitle {
+  color: var(--p-green-light);
+}
+
+#view-onboarding #btn-onboarding-cancel {
+  color: var(--p-green-light);
+}
+
 /* Distribui o formulário pela altura restante da tela (depois do cabeçalho)
    quando o conteúdo é mais curto que a viewport (ex.: "Detalhes
    profissionais" fechado) — sem isso os campos ficavam agrupados no topo,
