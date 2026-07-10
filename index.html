@@ -32,6 +32,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
 
+    <!-- CSS crítico inline para emendar o fim do splash nativo (verde) com o
+         loader verde, sem flash branco. Sem isto, entre o base.css (que pinta
+         html/body de branco) e o components.css (que só então estiliza o loader
+         como overlay verde) há um instante em que a tela aparece branca. Aqui o
+         html já nasce verde e o loader já cobre a viewport em verde no primeiro
+         paint; o body branco e as telas cobrem esse verde depois. -->
+    <style>
+      html{background-color:#184e1b}
+      .overlay-loader{position:fixed;inset:0;background:#184e1b;z-index:9999}
+    </style>
+
     <link rel="manifest" href="manifest.json">
 
     <!-- Fontes ANTES do CSS do projeto: a folha do Google define

@@ -189,7 +189,11 @@ input, textarea {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   touch-action: pan-y;
-  animation: screenIn 0.4s ease-out forwards;
+  /* Sem animação de entrada: a tela aparece opaca e imediata. Um translateY
+     de entrada deixava uma tira do body (branco) aparecendo no topo por um
+     instante antes de a tela subir e cobri-la; e um fade de opacidade deixava
+     o body vazar no meio do fade-out do loader (flash claro). A transição
+     entre telas fica por conta do fade-out do próprio loader. */
 }
 
 /* Padding padrão para telas com scroll livre (auth, onboarding).
@@ -275,16 +279,6 @@ input, textarea {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
-}
-
-/* Entrada de tela: só desliza (sem fade de opacidade). O fade fazia a tela
-   ficar semitransparente enquanto o loader também fazia fade-out por cima —
-   as duas camadas translúcidas deixavam o body branco vazar no meio, criando
-   um "flash" claro entre o loading verde e uma tela verde. Entrando OPACA, o
-   fade-out do loader revela uma tela já sólida (verde sobre verde). */
-@keyframes screenIn {
-  from { transform: translateY(15px); }
-  to   { transform: translateY(0); }
 }
 
 @keyframes dialogScaleUp {
