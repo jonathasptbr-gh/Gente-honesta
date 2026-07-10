@@ -130,6 +130,17 @@
   box-sizing: border-box;
 }
 
+/* Reserva a altura de 2 linhas no título dos slides da intro. O 1º slide tem só
+   "Gente Honesta" (1 linha) enquanto os slides 2 e 3 têm títulos de 2 linhas
+   ("Índice de / Confiança", "Peça e / Indique"); sem esta reserva, o parágrafo
+   do 1º slide subia e desalinhava dos textos paralelos. Com o título top-aligned
+   dentro do box de 2 linhas, a 1ª linha continua alinhada com a dos outros
+   slides E o parágrafo desce para o mesmo Y. (2 linhas × line-height 1.1 = 2.2em
+   na medida do próprio título.) */
+.intro-carousel__slide .auth-section__title {
+  min-height: 2.2em;
+}
+
 /* Mesmo truque de especificidade composta do icon-hero, em escala menor
    para caber junto do título + texto + dots + botão sem rolagem vertical.
    ALTURA FIXA (= font-size) + centralização flex: define o "slot" de ícone que
