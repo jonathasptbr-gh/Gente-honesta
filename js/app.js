@@ -184,6 +184,12 @@ window.navigateTo = function(stepId) {
     target.offsetHeight; // leitura deliberada para acionar reflow
     target.style.animation = '';
   }
+
+  // Barra de status: a intro (boas-vindas) tem fundo verde; telefone/OTP são
+  // claros. showView('view-auth') deixa branco por padrão — aqui ajustamos o
+  // sub-passo (esta função roda logo depois, na inicialização do fluxo).
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) themeMeta.setAttribute('content', stepId === 'step-intro' ? '#184e1b' : '#FFFFFF');
 };
 
 
