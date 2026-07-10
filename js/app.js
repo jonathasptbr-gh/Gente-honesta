@@ -143,8 +143,13 @@ window.appState = {
 // mesclada. O feed tem top-bar verde → barra verde; intro e onboarding têm fundo
 // branco (sem top-bar) → barra branca. Centralizado aqui pois é o único ponto que
 // troca de tela.
+// Todas as telas hoje têm fundo verde (auth, onboarding, install, feed), então
+// a barra de status é verde em todas. (Mantém o mapa por clareza/extensão.)
 const THEME_COLOR_BY_VIEW = {
-  'view-feed': '#184e1b' // = var(--p-green), igual ao fundo da .top-bar
+  'view-feed': '#184e1b', // = var(--p-green), igual ao fundo da .top-bar
+  'view-auth': '#184e1b',
+  'view-onboarding': '#184e1b',
+  'view-install': '#184e1b'
 };
 
 window.showView = function(viewId) {
@@ -185,11 +190,6 @@ window.navigateTo = function(stepId) {
     target.style.animation = '';
   }
 
-  // Barra de status: a intro (boas-vindas) tem fundo verde; telefone/OTP são
-  // claros. showView('view-auth') deixa branco por padrão — aqui ajustamos o
-  // sub-passo (esta função roda logo depois, na inicialização do fluxo).
-  const themeMeta = document.querySelector('meta[name="theme-color"]');
-  if (themeMeta) themeMeta.setAttribute('content', stepId === 'step-intro' ? '#184e1b' : '#FFFFFF');
 };
 
 

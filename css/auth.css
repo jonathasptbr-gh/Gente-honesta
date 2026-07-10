@@ -24,8 +24,10 @@
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
 }
 
+/* .auth-section é usada só no #view-auth (intro/telefone/OTP) e no #view-install,
+   ambos com fundo verde — por isso os textos base já nascem claros. */
 .auth-section__title {
-  color: var(--p-green);
+  color: var(--t-light);
   font-size: var(--fs-13);
   font-weight: 800;
   line-height: 1.1;
@@ -33,7 +35,7 @@
 
 .auth-section__text {
   max-width: 420px;
-  color: var(--t-sub);
+  color: var(--p-green-light);
   font-size: var(--fs-9);
   line-height: 1.5;
 }
@@ -49,20 +51,20 @@
 .auth-section__legal {
   margin-top: 15px;
   padding: 0 10px;
-  color: var(--t-sub);
+  color: var(--p-green-light);
   font-size: var(--fs-3);
   line-height: 1.4;
 }
 
 .auth-section__legal a {
-  color: var(--p-green);
+  color: var(--a-gold);
   font-weight: 600;
   text-decoration: underline;
 }
 
 .auth-section__cooldown {
   margin-top: var(--space-md);
-  color: var(--t-sub);
+  color: var(--p-green-light);
   font-size: var(--fs-6);
 }
 
@@ -162,14 +164,28 @@
 }
 
 /* ===========================================
-   TELA DE BOAS-VINDAS (intro) — cores invertidas
-   Escopo ESTRITO ao passo de intro: o fundo verde só aparece enquanto
-   #step-intro está visível (não u-hidden). Ao navegar para telefone/OTP
-   o :has() deixa de casar e o fundo volta ao claro — cadastro e verificação
-   de número NÃO são afetados.
+   FUNDO VERDE — fluxo de auth (intro + telefone + OTP) e tela de instalação
+   Todo o #view-auth e o #view-install têm fundo verde. Inputs (telefone, OTP)
+   e os cards de passos da instalação têm fundo claro/soft e se destacam
+   sozinhos; só os textos/botões diretos sobre o verde é que mudam de cor.
    ======================================== */
-#view-auth:has(#step-intro:not(.u-hidden)) {
+#view-auth.screen,
+#view-install.screen {
   background: var(--p-green);
+}
+
+/* Botões primários (Enviar SMS, Verificar e Entrar, Instalar agora) ficam
+   amarelos — verde sobre verde sumiria. */
+#view-auth .btn--primary,
+#view-install .btn--primary {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+/* Botões de texto (voltar, reenviar, pular, retry) claros sobre o verde. */
+#view-auth .btn--text,
+#view-install .btn--text {
+  color: var(--p-green-light);
 }
 
 /* Novo ícone (capacete) no lugar do verified_user — usa a versão de fundo
@@ -179,15 +195,6 @@
   height: auto;
   display: block;
   margin-top: 1rem;
-}
-
-/* Textos claros sobre o verde */
-#step-intro .auth-section__title {
-  color: var(--t-light);
-}
-
-#step-intro .auth-section__text {
-  color: var(--p-green-light);
 }
 
 /* Dots: inativos em branco translúcido, ativo em dourado (o verde some no fundo) */

@@ -320,16 +320,26 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 
 **Orientation lock:** modo paisagem bloqueado em dois níveis — `manifest.json` (`"orientation": "portrait"`) e overlay CSS em `components.css` via `@media (orientation: landscape)`.
 
-**Tela de boas-vindas (intro) com cores invertidas:** o passo `#step-intro` (carrossel de introdução
-dentro de `#view-auth`) tem fundo verde e cores claras — diferente do restante do fluxo de auth. O escopo
-é feito **só por CSS** via `#view-auth:has(#step-intro:not(.u-hidden))` (auth.css): o fundo verde só se
-aplica enquanto o intro está visível; ao navegar para telefone/OTP (`navigateTo` adiciona `u-hidden` ao
-intro) o `:has()` deixa de casar e o fundo volta ao branco — **verificação de número e cadastro NÃO são
-afetados**. No intro: título em `--t-light`, texto em `--p-green-light`, dots inativos em branco
-translúcido e ativo em `--a-gold`, botão `#btn-start` usa `btn--accent` (amarelo) em vez de `btn--primary`
-(verde), e o 1º slide usa `<img src="icon-transparent.svg" class="intro-carousel__icon-img">` (o ícone do
-operário com fundo transparente) no lugar do antigo glifo `verified_user` — os slides 2 e 3 mantêm os
-ícones Material dourados.
+**Fundo verde em TODO o app:** todas as telas têm fundo verde (`--p-green`) hoje — auth (intro +
+telefone + OTP), onboarding, install e feed. Por isso a `meta[name="theme-color"]` é verde em todas
+(`THEME_COLOR_BY_VIEW` em `app.js` lista `view-auth/onboarding/install/feed` = `#184e1b`).
+
+**Fluxo de auth (`#view-auth`) + instalação (`#view-install`) verdes:** `#view-auth.screen` e
+`#view-install.screen` têm fundo `--p-green` (auth.css). A classe `.auth-section` só é usada nesses dois
+containers (ambos verdes), então seus textos base já nascem claros: `.auth-section__title` → `--t-light`,
+`.auth-section__text`/`.auth-section__legal`/`.auth-section__cooldown` → `--p-green-light`, links do legal
+→ `--a-gold`. Botões primários (`Enviar SMS`, `Verificar e Entrar`, `Instalar agora`) viram amarelos via
+`#view-auth .btn--primary, #view-install .btn--primary { background:--a-gold; color:--p-green-dark }` —
+verde sumiria no fundo. Botões de texto (voltar, reenviar, pular, retry) → `--p-green-light`. Os inputs
+(telefone `--bg-white`, OTP `--bg-soft`) e os cards de passos da instalação (`.install-guide__step`,
+`.install-progress__note` em `--bg-soft`) têm fundo claro e **se destacam sozinhos** sobre o verde,
+mantendo as cores escuras internas. O ícone hero da instalação (`.auth-section__icon-hero`) segue dourado.
+
+**Tela de boas-vindas (intro), específicos:** o 1º slide usa
+`<img src="icon-transparent.svg" class="intro-carousel__icon-img">` (o ícone do operário com fundo
+transparente) no lugar do antigo glifo `verified_user` — os slides 2 e 3 mantêm os ícones Material
+dourados. Botão `#btn-start` usa `btn--accent` (amarelo). Dots (`.intro-carousel__dot`) inativos em
+branco translúcido, ativo em `--a-gold` (o verde padrão sumiria no fundo).
 
 **Loader global:** `#loader-global` — mostrado/ocultado com `u-hidden`. O `onAuthStateChanged` é o único responsável por ocultá-lo em transições normais. Em erros onde o estado de auth não muda, remover manualmente. Visual: fundo `--p-green` e spinner branco (trilho em branco translúcido, topo `--t-light`) — coerente com os ambientes verdes; a `meta[name="theme-color"]` inicial também é verde (`#184e1b`) para a barra de status combinar durante o carregamento, antes de `showView` assumir. **CSS crítico inline no `<head>`** pinta o `html` de verde e já dá ao `.overlay-loader` os estilos de cobertura (`position:fixed; inset:0; background:#184e1b; z-index:9999`) — sem isso, entre o `base.css` (que pinta html/body de branco) e o `components.css` (que só então estiliza o loader) havia um flash branco no fim do splash; `.u-hidden` (base.css) ainda vence e esconde o loader normalmente. **Telas não têm animação de entrada** (`.screen` sem `animation`): um `translateY` de entrada deixava uma tira do body branco no topo por um instante, e um fade de opacidade deixava o body vazar durante o fade-out do loader — a transição entre telas fica por conta do fade-out do loader.
 
@@ -381,7 +391,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v165`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v166`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são
