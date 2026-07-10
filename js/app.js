@@ -141,7 +141,8 @@ window.appState = {
   selectedTags: [],
   cooldownActive: false,
   locationConfirmed: false,
-  serviceProfile: { quality: 0, agility: 0, price: 0 },
+  // "Padrão" (equilibrado) já vem selecionado como base no cadastro
+  serviceProfile: { quality: 5, agility: 5, price: 5 },
   // Dinheiro já vem selecionado por padrão (a seção de pagamento não é obrigatória)
   paymentMethods: { cash: true, pix: false, card: 0, nf: false }
 };

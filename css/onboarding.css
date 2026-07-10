@@ -479,8 +479,8 @@
    de legibilidade das barras no contexto do cadastro (mais largura que na coluna
    estreita do feed). Seleção única: `.service-choice__card--active` (JS). */
 .service-choice {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;   /* lista vertical: facilita comparar/selecionar */
   gap: var(--space-xs);
   margin-top: var(--space-xs);
 }

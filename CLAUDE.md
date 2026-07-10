@@ -400,7 +400,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v178`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v179`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
@@ -411,13 +411,14 @@ gatilho, pelo `resetOnboardingForm` (`false`, instantâneo) e pelo `finishRegist
 `collapsible--open`, que só gira o chevron): `connected` vive do início da abertura ao FIM do fechamento e o
 raio/borda do gatilho NÃO têm transição — assim o gatilho fica reto sobre o painel durante toda a animação, sem
 o "rasgo" verde de quando o canto arredondava sobre o topo reto do painel. **Obrigatoriedade
-condicional:** a seção é opcional, mas se o usuário preencher QUALQUER item (tags/área, habilidades ou
-padrão de serviço) todos passam a ser exigidos para o perfil profissional ficar público. **Pagamento é
-ISENTO** (nunca obrigatório). Se ficou pela metade, `finishRegistration` mostra um `customConfirm`
+condicional:** a seção é opcional, mas se o usuário preencher QUALQUER item que digita — área/profissão
+(tags) OU habilidades (bio) — os dois passam a ser exigidos para o perfil profissional ficar público.
+**Padrão de Serviço e Pagamento são ISENTOS** (têm defaults: card "Padrão" e "Dinheiro"), então não
+disparam a seção sozinhos. Se ficou pela metade, `finishRegistration` mostra um `customConfirm`
 ("Dados profissionais incompletos") oferecendo concluir só o básico (segue) OU completar (`!proceed` →
 `setProDetailsOpen(true)` + `highlightMissingProFields` marca em vermelho os campos vazios — `input-text--error`
-em área/bio, `.service-choice--error` (outline) na grade de cards — e rola até o primeiro). Os destaques limpam ao
-preencher (seleção de tag, input do bio, distribuição de pontos) e no reset. `#btn-finish-onboarding` ganha
+em área/bio — e rola até o primeiro). Os destaques limpam ao
+preencher (seleção de tag, input do bio) e no reset. `#btn-finish-onboarding` ganha
 margem inferior confiável na rolagem via um ELEMENTO espaçador (`.onboarding-form__bottom-spacer`) logo
 após o botão: com o `.screen` como container de scroll, o form (`flex:1`) TRANSBORDA para baixo e passa por
 cima de qualquer `padding-bottom` (do form ou do `.screen`), colando o botão na base. A caixa de um elemento
@@ -432,16 +433,19 @@ de um card cinza dedicado. O rótulo `(opcional)` (`.form-group__optional`) apar
 do colapsável (`#btn-toggle-prodetails`, "Detalhes profissionais") — as subseções internas não repetem o
 aviso, já que ele já foi dado no título da seção como um todo.
 
-**"Padrão de Serviços" é SELEÇÃO por card** (`#container-service-choice`, grade 2×2 em `.service-choice`),
-não mais barras com +/−. São 4 perfis prontos (`data-service` = `padrao`/`premium`/`rapido`/`economico`),
-cada card com `data-q`/`data-a`/`data-v` (escala 0-10) e as 3 barras Qualidade/Agilidade/Valor no MESMO
-componente `.qav` dos cards de profissional do feed (estilos em `feed.css`; largura da barra = valor×10%).
-Combinações: Padrão 6/6/5, Premium 8/4/7, Rápido 5/8/6, Custo-benefício 6/5/3 — o **máximo de qualquer
-barra é 8 (80%)**, nenhuma chega a 100%. Seleção ÚNICA em `onboarding.js` (`setServiceCardActive`): tocar
-num card ativa (`.service-choice__card--active`, check → `check_circle`) e desativa os demais; tocar no já
-ativo desmarca (volta a `serviceProfile {0,0,0}` → seção opcional). Grava em
-`window.appState.serviceProfile = {quality, agility, price}` (valores 0-10 do card). Para a obrigatoriedade
-condicional, "padrão preenchido" = qualquer card selecionado (`serviceProfile.quality>0 || agility>0`).
+**"Padrão de Serviços" é SELEÇÃO por card** (`#container-service-choice`, LISTA VERTICAL em `.service-choice`,
+`flex-direction:column`), não mais barras com +/−. São 4 perfis prontos (`data-service` =
+`padrao`/`premium`/`rapido`/`economico`), cada card com `data-q`/`data-a`/`data-v` (escala 0-10) e as 3
+barras Qualidade/Agilidade/Valor no MESMO componente `.qav` dos cards de profissional do feed (estilos em
+`feed.css`; largura da barra = valor×10%). Combinações: Padrão 5/5/5, Premium 8/5/7, Rápido 5/8/6,
+Custo-benefício 4/4/3 — o **máximo de qualquer barra é 8 (80%)**, nenhuma chega a 100%. Seleção ÚNICA
+estilo RÁDIO (`applyServiceCard`/`setServiceCardActive` em `onboarding.js`): **sempre há um card ativo** —
+"Padrão" já vem selecionado como base (`--active`/`aria-pressed`/`check_circle` no HTML + default
+`serviceProfile {5,5,5}` em `app.js`); tocar em outro troca a seleção, tocar no já ativo não faz nada (sem
+estado vazio). O `resetOnboardingForm` volta ao card "Padrão". Como Serviço (sempre um card) e Pagamento
+(Dinheiro por default) têm valores base, NENHUM dos dois "inicia" a seção — a obrigatoriedade condicional é
+disparada só por **área/profissão (tags) OU habilidades (bio)**; se um deles for preenchido, os dois passam
+a ser exigidos (`allProFilled = tags && bio`).
 
 Logo após as barras, "Métodos de pagamento aceitos" reproduz as mesmas opções do rodapé do card de
 profissional no feed (`proFooterHTML()` em `feed.js`), como pílulas `.chip.chip--payment` (mesma classe

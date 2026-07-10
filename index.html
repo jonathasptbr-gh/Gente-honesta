@@ -348,14 +348,15 @@
                         <div class="form-group__hint"><span id="text-bio-counter">0</span> / 200</div>
                     </div>
 
-                    <!-- ── Padrão de Serviço (opcional) — SELEÇÃO por card.
+                    <!-- ── Padrão de Serviço — SELEÇÃO por card (lista vertical).
                          4 perfis prontos; cada um traz uma combinação diferente das 3
                          barras Qualidade/Agilidade/Valor no MESMO componente `.qav` dos
                          cards de profissional do feed (feed.css / qavHTML em feed.js).
                          Escala 0-10 (largura = valor×10%); o máximo de qualquer barra é
-                         8 (80%) — nenhuma barra chega a 100%. Seleção única, gerenciada
-                         em onboarding.js (setServiceCardActive). Tocar no card já ativo
-                         desmarca (volta ao estado vazio → seção opcional). ── -->
+                         8 (80%) — nenhuma barra chega a 100%. Seleção ÚNICA estilo rádio
+                         (sempre um ativo): "Padrão" já vem selecionado como base; tocar
+                         em outro troca a seleção (não há estado vazio). Gerenciada em
+                         onboarding.js (setServiceCardActive). ── -->
                     <div class="form-group">
                         <div class="form-group__header">
                             <label class="form-group__label">Padrão de Serviços</label>
@@ -367,23 +368,23 @@
 
                         <div id="container-service-choice" class="service-choice">
 
-                            <button type="button" class="service-choice__card" data-service="padrao" data-q="6" data-a="6" data-v="5" aria-pressed="false">
+                            <button type="button" class="service-choice__card service-choice__card--active" data-service="padrao" data-q="5" data-a="5" data-v="5" aria-pressed="true">
                                 <div class="service-choice__head">
                                     <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">balance</span>
                                     <span class="service-choice__titles">
                                         <span class="service-choice__title">Padrão</span>
                                         <span class="service-choice__sub">Equilibrado</span>
                                     </span>
-                                    <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
+                                    <span class="material-symbols-rounded service-choice__check" aria-hidden="true">check_circle</span>
                                 </div>
                                 <div class="qav">
-                                    <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:60%"></div></div></div>
-                                    <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:60%"></div></div></div>
+                                    <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:50%"></div></div></div>
+                                    <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:50%"></div></div></div>
                                     <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:50%"></div></div></div>
                                 </div>
                             </button>
 
-                            <button type="button" class="service-choice__card" data-service="premium" data-q="8" data-a="4" data-v="7" aria-pressed="false">
+                            <button type="button" class="service-choice__card" data-service="premium" data-q="8" data-a="5" data-v="7" aria-pressed="false">
                                 <div class="service-choice__head">
                                     <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">workspace_premium</span>
                                     <span class="service-choice__titles">
@@ -394,7 +395,7 @@
                                 </div>
                                 <div class="qav">
                                     <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:80%"></div></div></div>
-                                    <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:40%"></div></div></div>
+                                    <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:50%"></div></div></div>
                                     <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:70%"></div></div></div>
                                 </div>
                             </button>
@@ -415,7 +416,7 @@
                                 </div>
                             </button>
 
-                            <button type="button" class="service-choice__card" data-service="economico" data-q="6" data-a="5" data-v="3" aria-pressed="false">
+                            <button type="button" class="service-choice__card" data-service="economico" data-q="4" data-a="4" data-v="3" aria-pressed="false">
                                 <div class="service-choice__head">
                                     <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">savings</span>
                                     <span class="service-choice__titles">
@@ -425,8 +426,8 @@
                                     <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
                                 </div>
                                 <div class="qav">
-                                    <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:60%"></div></div></div>
-                                    <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:50%"></div></div></div>
+                                    <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:40%"></div></div></div>
+                                    <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:40%"></div></div></div>
                                     <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:30%"></div></div></div>
                                 </div>
                             </button>

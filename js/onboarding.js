@@ -108,17 +108,16 @@ function setProDetailsOpen(open, animate = true) {
 
 // HELPER — destaca em vermelho os campos ainda vazios da seção de dados
 // profissionais (quando o usuário optou por COMPLETAR em vez de ignorar) e rola
-// até o primeiro faltante. Pagamento é isento (nunca obrigatório).
-function highlightMissingProFields({ tags, bio, service }) {
+// até o primeiro faltante. Só área/profissão e habilidades entram aqui — Padrão
+// de Serviço e Pagamento têm defaults e nunca são "obrigatórios".
+function highlightMissingProFields({ tags, bio }) {
   const areaInput = document.getElementById('inp-area-search');
   const bioInput = document.getElementById('inp-bio');
-  const serviceChoice = document.getElementById('container-service-choice');
   if (!tags) areaInput?.classList.add('input-text--error');
   if (!bio) bioInput?.classList.add('input-text--error');
-  if (!service) serviceChoice?.classList.add('service-choice--error');
   // Espera a animação de abertura (~500ms) antes de rolar até o campo
   setTimeout(() => {
-    const first = !tags ? areaInput : (!bio ? bioInput : serviceChoice);
+    const first = !tags ? areaInput : bioInput;
     first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, 520);
 }
@@ -182,12 +181,15 @@ window.finishRegistration = async function() {
   // (nunca obrigatório). Se ficou pela metade, oferecemos concluir o cadastro
   // básico mesmo assim (os dados profissionais só ficam visíveis quando
   // totalmente preenchidos) OU voltar e completar.
+  // Gatilho da seção = campos que o usuário PREENCHE ativamente: área/profissão
+  // (tags) ou habilidades (bio). Padrão de Serviço (sempre com um card ativo, base
+  // "Padrão") e Pagamento (Dinheiro por padrão) têm valores default e NÃO iniciam
+  // a seção sozinhos — senão o cadastro básico sempre cairia no aviso abaixo.
   const bioVal = document.getElementById('inp-bio')?.value.trim() ?? '';
   const proTagsFilled = window.appState.selectedTags.length > 0;
   const proBioFilled = bioVal.length > 0;
-  const proServiceFilled = window.appState.serviceProfile.quality > 0 || window.appState.serviceProfile.agility > 0;
-  const anyProFilled = proTagsFilled || proBioFilled || proServiceFilled;
-  const allProFilled = proTagsFilled && proBioFilled && proServiceFilled;
+  const anyProFilled = proTagsFilled || proBioFilled;
+  const allProFilled = proTagsFilled && proBioFilled;
 
   if (anyProFilled && !allProFilled) {
     const proceed = await customConfirm(
@@ -199,7 +201,7 @@ window.finishRegistration = async function() {
       // Usuário optou por COMPLETAR: abre a seção (animado), destaca o que falta
       // e rola até o primeiro campo vazio.
       setProDetailsOpen(true);
-      highlightMissingProFields({ tags: proTagsFilled, bio: proBioFilled, service: proServiceFilled });
+      highlightMissingProFields({ tags: proTagsFilled, bio: proBioFilled });
       return;
     }
     // proceder: segue com o cadastro básico (dados profissionais parciais NÃO
@@ -326,9 +328,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (areaList) { areaList.innerHTML = ''; areaList.classList.add('u-hidden'); }
     document.getElementById('btn-area-clear')?.classList.add('u-hidden');
 
-    // Padrão de serviços: desmarca todos os cards (serviceProfile já zerado acima)
-    document.querySelectorAll('#container-service-choice .service-choice__card')
-      .forEach(card => setServiceCardActive(card, false));
+    // Padrão de serviços: volta ao card "Padrão" pré-selecionado (base)
+    const padraoCard = document.querySelector('#container-service-choice [data-service="padrao"]');
+    if (padraoCard) applyServiceCard(padraoCard);
 
     // Métodos de pagamento aceitos: NF/cartão zerados; DINHEIRO fica selecionado
     // por padrão (seção não obrigatória, mas já vem com dinheiro marcado).
@@ -718,10 +720,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // INTERAÇÕES DO DOM - TELA - ONBOARDING - Padrão de Serviços (seleção por card)
   // 4 perfis prontos; cada card carrega uma combinação de Qualidade/Agilidade/
-  // Valor em data-q/data-a/data-v (escala 0-10, máx 8). Seleção ÚNICA: tocar num
-  // card ativa ele e desativa os demais; tocar no já ativo desmarca (seção volta
-  // a vazia → opcional). O estado grava em window.appState.serviceProfile no
-  // mesmo formato de antes ({quality, agility, price}).
+  // Valor em data-q/data-a/data-v (escala 0-10, máx 8). Seleção ÚNICA estilo
+  // rádio: SEMPRE há um card ativo ("Padrão" já vem selecionado como base). Tocar
+  // em outro troca a seleção; tocar no já ativo não faz nada. Grava em
+  // window.appState.serviceProfile ({quality, agility, price}).
   const serviceCards = document.querySelectorAll('#container-service-choice .service-choice__card');
 
   const setServiceCardActive = (card, active) => {
@@ -731,22 +733,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (check) check.innerText = active ? 'check_circle' : 'radio_button_unchecked';
   };
 
+  const applyServiceCard = (card) => {
+    serviceCards.forEach(c => setServiceCardActive(c, c === card));
+    window.appState.serviceProfile = {
+      quality: Number(card.dataset.q),
+      agility: Number(card.dataset.a),
+      price: Number(card.dataset.v)
+    };
+  };
+
   serviceCards.forEach(card => {
     card.addEventListener('click', () => {
-      const wasActive = card.getAttribute('aria-pressed') === 'true';
-      serviceCards.forEach(c => setServiceCardActive(c, false));
-      if (wasActive) {
-        window.appState.serviceProfile = { quality: 0, agility: 0, price: 0 };
-      } else {
-        setServiceCardActive(card, true);
-        window.appState.serviceProfile = {
-          quality: Number(card.dataset.q),
-          agility: Number(card.dataset.a),
-          price: Number(card.dataset.v)
-        };
-        // Escolheu um perfil → limpa o destaque de "faltando" da seção
-        document.getElementById('container-service-choice')?.classList.remove('service-choice--error');
-      }
+      if (card.getAttribute('aria-pressed') === 'true') return; // rádio: já ativo mantém
+      applyServiceCard(card);
     });
   });
 
