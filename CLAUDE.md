@@ -400,13 +400,17 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v176`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v177`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
 `onboarding.js`, função declaration hoistada): mede `scrollHeight` em runtime e anima `height` 0↔conteúdo
 (0.5s, easeOutCubic, com fade de opacidade); `u-hidden` continua o estado fechado final (a animação só ocorre na transição). Usada pelo
-gatilho, pelo `resetOnboardingForm` (`false`, instantâneo) e pelo `finishRegistration`. **Obrigatoriedade
+gatilho, pelo `resetOnboardingForm` (`false`, instantâneo) e pelo `finishRegistration`. O cap reto do gatilho
+(cantos inferiores retos + borda inferior transparente) vem de `collapsible--connected` (distinta de
+`collapsible--open`, que só gira o chevron): `connected` vive do início da abertura ao FIM do fechamento e o
+raio/borda do gatilho NÃO têm transição — assim o gatilho fica reto sobre o painel durante toda a animação, sem
+o "rasgo" verde de quando o canto arredondava sobre o topo reto do painel. **Obrigatoriedade
 condicional:** a seção é opcional, mas se o usuário preencher QUALQUER item (tags/área, habilidades ou
 padrão de serviço) todos passam a ser exigidos para o perfil profissional ficar público. **Pagamento é
 ISENTO** (nunca obrigatório). Se ficou pela metade, `finishRegistration` mostra um `customConfirm`

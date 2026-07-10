@@ -415,7 +415,12 @@
   font-weight: 800;
   font-size: var(--fs-7);
   cursor: pointer;
-  transition: var(--transition);
+  /* SEM transição no raio/borda: os cantos inferiores precisam virar retos (e a
+     borda inferior sumir) INSTANTANEAMENTE quando o painel aparece — se
+     animassem, durante a abertura o canto ficaria arredondado sobre o topo reto
+     do painel e o fundo verde vazava nos cantos (um "rasgo"). Só o fundo tem
+     transição (para eventuais estados de toque). */
+  transition: background 0.2s ease;
   text-align: left;
 }
 
@@ -442,7 +447,12 @@
   transform: rotate(180deg);
 }
 
-.collapsible--open .collapsible__trigger {
+/* Cantos inferiores retos + borda inferior transparente enquanto o painel está
+   PRESENTE (aberto ou animando). Ligado a `collapsible--connected` (JS), que vive
+   de open-start até close-END — ao contrário de `collapsible--open`, que é
+   removida no INÍCIO do fechamento (para o chevron girar de volta na hora). Assim
+   o "cap" reto do gatilho acompanha o painel por toda a animação, sem rasgo. */
+.collapsible--connected .collapsible__trigger {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom-color: transparent;

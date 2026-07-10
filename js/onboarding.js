@@ -52,7 +52,10 @@ function setProDetailsOpen(open, animate = true) {
   };
 
   if (open) {
-    collapsible.classList.add('collapsible--open');
+    // `collapsible--open` gira o chevron; `collapsible--connected` mantém o cap
+    // reto do gatilho enquanto o painel existe (do início da abertura ao FIM do
+    // fechamento) — evita o "rasgo" verde nos cantos durante a animação.
+    collapsible.classList.add('collapsible--open', 'collapsible--connected');
     panel.classList.remove('u-hidden');
     if (!animate) { clearInline(); return; }
 
@@ -72,8 +75,16 @@ function setProDetailsOpen(open, animate = true) {
     };
     panel.addEventListener('transitionend', done);
   } else {
+    // Chevron gira de volta IMEDIATAMENTE; o cap reto (connected) só sai quando o
+    // painel some de vez (fim da animação), senão o canto arredondaria por cima
+    // do painel ainda visível durante o fechamento.
     collapsible.classList.remove('collapsible--open');
-    if (!animate) { panel.classList.add('u-hidden'); clearInline(); return; }
+    if (!animate) {
+      panel.classList.add('u-hidden');
+      collapsible.classList.remove('collapsible--connected');
+      clearInline();
+      return;
+    }
 
     panel.style.overflow = 'hidden';
     panel.style.height = panel.scrollHeight + 'px';
@@ -87,6 +98,7 @@ function setProDetailsOpen(open, animate = true) {
     const done = (e) => {
       if (e.propertyName !== 'height') return;
       panel.classList.add('u-hidden');
+      collapsible.classList.remove('collapsible--connected');
       clearInline();
       panel.removeEventListener('transitionend', done);
     };
