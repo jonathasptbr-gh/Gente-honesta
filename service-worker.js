@@ -4,7 +4,10 @@
 // CONFIGURAÇÃO DO SERVICE WORKER - Definições de Cache
 // =========================================================================
 
-const CACHE_NAME = "gentehonesta-v173";
+const CACHE_NAME = "gentehonesta-v174";
+// Versão legível derivada do CACHE_NAME ("v174") — enviada à página sob demanda
+// (mensagem GET_VERSION) para exibir no banner "Nova versão disponível".
+const APP_VERSION = CACHE_NAME.replace("gentehonesta-", "");
 
 // CONFIGURAÇÃO DO SERVICE WORKER - Lista de Recursos Core para Cache Inicial
 const urlsToCache = [
@@ -59,6 +62,12 @@ self.addEventListener("install", event => {
 self.addEventListener("message", event => {
   if (event.data && event.data.type === "SKIP_WAITING") {
     self.skipWaiting();
+  } else if (event.data && event.data.type === "GET_VERSION") {
+    // Responde a versão deste worker pela porta do MessageChannel (a página usa
+    // para exibir "Nova versão disponível (vN)"). event.source como fallback.
+    const reply = { type: "VERSION", version: APP_VERSION };
+    if (event.ports && event.ports[0]) event.ports[0].postMessage(reply);
+    else if (event.source) event.source.postMessage(reply);
   }
 });
 

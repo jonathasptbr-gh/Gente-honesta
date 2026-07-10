@@ -54,6 +54,29 @@
   padding-top: var(--space-md);
 }
 
+/* Margem inferior mínima quando a tela ROLA (ex.: "Detalhes profissionais"
+   aberto). O padding-bottom do próprio .screen (container com overflow) não é
+   confiável no fim da rolagem em alguns webviews — o botão "Concluir" acabava
+   colado na base. Movendo o respiro para o padding-bottom do FORM (conteúdo em
+   fluxo normal, sempre incluído na área rolável) o espaço aparece de forma
+   confiável; o #view-onboarding.screen zera seu padding-bottom para não somar
+   duas vezes. Fecha com a safe-area do aparelho. */
+#view-onboarding.screen {
+  padding-bottom: 0;
+}
+
+.onboarding-form {
+  padding-bottom: max(var(--space-lg), env(safe-area-inset-bottom, 0px));
+}
+
+/* Destaque de "faltando" na seção de padrão de serviços (obrigatoriedade
+   condicional dos dados profissionais). Outline não empurra o layout. */
+.service-bars--error {
+  outline: 2px solid var(--danger);
+  outline-offset: 6px;
+  border-radius: var(--radius-sm);
+}
+
 /* Linha foto + campos de nome lado a lado */
 .profile-header-row {
   display: flex;

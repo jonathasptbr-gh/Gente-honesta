@@ -53,6 +53,21 @@ if ('serviceWorker' in navigator && window.IS_MOBILE) {
         const showUpdateBanner = (worker) => {
           if (!banner || !btnUpdate || !worker) return;
           banner.classList.remove('u-hidden');
+
+          // Pergunta ao NOVO worker qual a versão dele e exibe no banner, para o
+          // usuário saber qual atualização está disponível. Via MessageChannel:
+          // a resposta chega na port1. Se o worker for de uma versão antiga (sem
+          // o handler GET_VERSION), o texto padrão permanece.
+          try {
+            const textEl = document.getElementById('pwa-update-text');
+            const channel = new MessageChannel();
+            channel.port1.onmessage = (e) => {
+              const v = e.data && e.data.version;
+              if (v && textEl) textEl.textContent = `Nova versão disponível (${v}).`;
+            };
+            worker.postMessage({ type: 'GET_VERSION' }, [channel.port2]);
+          } catch (_) { /* sem versão: mantém o texto padrão */ }
+
           btnUpdate.onclick = () => {
             btnUpdate.disabled = true;
             btnUpdate.textContent = 'Atualizando...';
@@ -127,7 +142,8 @@ window.appState = {
   cooldownActive: false,
   locationConfirmed: false,
   serviceProfile: { quality: 0, agility: 0, price: 0 },
-  paymentMethods: { cash: false, pix: false, card: 0, nf: false }
+  // Dinheiro já vem selecionado por padrão (a seção de pagamento não é obrigatória)
+  paymentMethods: { cash: true, pix: false, card: 0, nf: false }
 };
 
 

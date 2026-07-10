@@ -400,9 +400,25 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v173`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v174`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
-**Seção "Detalhes profissionais" (`#panel-prodetails`):** todas as subseções seguem o mesmo padrão visual
+**Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
+`#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
+`onboarding.js`, função declaration hoistada): mede `scrollHeight` em runtime e anima `height` 0↔conteúdo
+(0.32s); `u-hidden` continua o estado fechado final (a animação só ocorre na transição). Usada pelo
+gatilho, pelo `resetOnboardingForm` (`false`, instantâneo) e pelo `finishRegistration`. **Obrigatoriedade
+condicional:** a seção é opcional, mas se o usuário preencher QUALQUER item (tags/área, habilidades ou
+padrão de serviço) todos passam a ser exigidos para o perfil profissional ficar público. **Pagamento é
+ISENTO** (nunca obrigatório). Se ficou pela metade, `finishRegistration` mostra um `customConfirm`
+("Dados profissionais incompletos") oferecendo concluir só o básico (segue) OU completar (`!proceed` →
+`setProDetailsOpen(true)` + `highlightMissingProFields` marca em vermelho os campos vazios — `input-text--error`
+em área/bio, `.service-bars--error` (outline) nas barras — e rola até o primeiro). Os destaques limpam ao
+preencher (seleção de tag, input do bio, distribuição de pontos) e no reset. `#btn-finish-onboarding` ganha
+margem inferior confiável na rolagem via `padding-bottom` do `.onboarding-form` (o `padding-bottom` do
+`.screen` era ignorado no fim da rolagem em alguns webviews; `#view-onboarding.screen` zera o seu para não
+duplicar).
+
+Todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são
 `.form-group` simples; a última usa `.form-group__header` (label + `#btn-service-help`, sem fundo) em vez
 de um card cinza dedicado. O rótulo `(opcional)` (`.form-group__optional`) aparece só uma vez, no gatilho
@@ -453,7 +469,10 @@ no `install` — o novo worker fica parado em "waiting" até o usuário confirma
    (que pode demorar até 24h), garantindo detecção rápida de uma versão nova.
 2. Ao detectar um worker novo instalado (`updatefound` → `statechange` → `'installed'`, só quando já
    existe `navigator.serviceWorker.controller`, ou seja, não é a primeiríssima instalação), exibe
-   `#pwa-update-banner` (`u-hidden` → visível) com o botão "Atualizar".
+   `#pwa-update-banner` (`u-hidden` → visível) com o botão "Atualizar". Ao exibir, a página pergunta a
+   versão ao NOVO worker via `MessageChannel` (`{type:'GET_VERSION'}` → SW responde `APP_VERSION`,
+   derivado do `CACHE_NAME`, ex.: `v174`) e atualiza `#pwa-update-text` para "Nova versão disponível
+   (vN).". Se o worker novo for de uma versão antiga sem o handler, o texto padrão permanece.
 3. Clique em "Atualizar" → `worker.postMessage({ type: 'SKIP_WAITING' })` → o SW recebe no listener
    `message` e só ENTÃO chama `self.skipWaiting()` → `clients.claim()` no `activate` assume a página.
 4. `navigator.serviceWorker.oncontrollerchange` na página dispara `window.location.reload()` — mas só
@@ -474,7 +493,10 @@ no `install` — o novo worker fica parado em "waiting" até o usuário confirma
 - `locationConfirmed` — GPS validado no onboarding
 - `serviceProfile` — `{quality, agility, price}` barras de serviço
 - `paymentMethods` — `{cash, pix, card, nf}` métodos de pagamento aceitos (pílulas); `card` é
-  `0 | 'debit' | 1 | 6 | 12` (mesmo formato de `pro.pay.card` no mock — nunca uma combinação)
+  `0 | 'debit' | 1 | 6 | 12` (mesmo formato de `pro.pay.card` no mock — nunca uma combinação).
+  **`cash` já nasce `true`** (Dinheiro pré-selecionado): a seção de pagamento NÃO é obrigatória e
+  vem com dinheiro marcado por padrão (HTML com `chip--active`/`aria-pressed="true"`, e o
+  `resetOnboardingForm` reativa só a pílula Dinheiro)
 
 ---
 

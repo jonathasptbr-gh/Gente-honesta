@@ -15,6 +15,88 @@ const clearNameErrors = () =>
 
 
 // =========================================================================
+// COLAPSÁVEL "DETALHES PROFISSIONAIS" — abertura/recolhimento ANIMADO
+// Função declaration (hoisted) para ser usada tanto pelo gatilho quanto pelo
+// finishRegistration e pelo reset. Anima a ALTURA de 0 → conteúdo (e vice-versa)
+// medindo scrollHeight em runtime, então funciona com conteúdo de altura
+// variável (barras, pagamento, pro-cta). u-hidden continua sendo o estado
+// "fechado" final (display:none) — a animação só acontece na transição.
+// =========================================================================
+function setProDetailsOpen(open, animate = true) {
+  const panel = document.getElementById('panel-prodetails');
+  const collapsible = document.getElementById('btn-toggle-prodetails')?.closest('.collapsible');
+  if (!panel || !collapsible) return;
+
+  const isOpen = !panel.classList.contains('u-hidden');
+  if (open === isOpen) return; // já no estado desejado
+
+  // Cancela qualquer animação em curso antes de iniciar outra
+  panel.style.transition = '';
+
+  const clearInline = () => {
+    panel.style.height = '';
+    panel.style.overflow = '';
+    panel.style.transition = '';
+  };
+
+  if (open) {
+    collapsible.classList.add('collapsible--open');
+    panel.classList.remove('u-hidden');
+    if (!animate) { clearInline(); return; }
+
+    panel.style.overflow = 'hidden';
+    panel.style.height = '0px';
+    const target = panel.scrollHeight; // altura real do conteúdo (com padding)
+    requestAnimationFrame(() => {
+      panel.style.transition = 'height 0.32s cubic-bezier(0.4, 0, 0.2, 1)';
+      panel.style.height = target + 'px';
+    });
+    const done = (e) => {
+      if (e.propertyName !== 'height') return;
+      clearInline(); // volta para altura automática
+      panel.removeEventListener('transitionend', done);
+    };
+    panel.addEventListener('transitionend', done);
+  } else {
+    collapsible.classList.remove('collapsible--open');
+    if (!animate) { panel.classList.add('u-hidden'); clearInline(); return; }
+
+    panel.style.overflow = 'hidden';
+    panel.style.height = panel.scrollHeight + 'px';
+    void panel.offsetHeight; // força reflow para o height inicial "pegar"
+    requestAnimationFrame(() => {
+      panel.style.transition = 'height 0.32s cubic-bezier(0.4, 0, 0.2, 1)';
+      panel.style.height = '0px';
+    });
+    const done = (e) => {
+      if (e.propertyName !== 'height') return;
+      panel.classList.add('u-hidden');
+      clearInline();
+      panel.removeEventListener('transitionend', done);
+    };
+    panel.addEventListener('transitionend', done);
+  }
+}
+
+// HELPER — destaca em vermelho os campos ainda vazios da seção de dados
+// profissionais (quando o usuário optou por COMPLETAR em vez de ignorar) e rola
+// até o primeiro faltante. Pagamento é isento (nunca obrigatório).
+function highlightMissingProFields({ tags, bio, service }) {
+  const areaInput = document.getElementById('inp-area-search');
+  const bioInput = document.getElementById('inp-bio');
+  const serviceBars = document.querySelector('#panel-prodetails .service-bars');
+  if (!tags) areaInput?.classList.add('input-text--error');
+  if (!bio) bioInput?.classList.add('input-text--error');
+  if (!service) serviceBars?.classList.add('service-bars--error');
+  // Espera a animação de abertura (~320ms) antes de rolar até o campo
+  setTimeout(() => {
+    const first = !tags ? areaInput : (!bio ? bioInput : serviceBars);
+    first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 360);
+}
+
+
+// =========================================================================
 // TELA - PROCESSO DE ONBOARDING - Persistência do Perfil do Usuário
 // =========================================================================
 
@@ -63,6 +145,37 @@ window.finishRegistration = async function() {
       firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
     return await customAlert("Preencha os campos obrigatórios destacados em vermelho para concluir seu cadastro.", "Cadastro Incompleto", "error");
+  }
+
+  // DADOS PROFISSIONAIS — obrigatoriedade condicional
+  // A seção inteira é opcional; mas se o usuário preencher QUALQUER um de seus
+  // itens (área/tags, habilidades ou padrão de serviço), todos passam a ser
+  // exigidos para que o perfil profissional fique público. Pagamento é ISENTO
+  // (nunca obrigatório). Se ficou pela metade, oferecemos concluir o cadastro
+  // básico mesmo assim (os dados profissionais só ficam visíveis quando
+  // totalmente preenchidos) OU voltar e completar.
+  const bioVal = document.getElementById('inp-bio')?.value.trim() ?? '';
+  const proTagsFilled = window.appState.selectedTags.length > 0;
+  const proBioFilled = bioVal.length > 0;
+  const proServiceFilled = window.appState.serviceProfile.quality > 0 || window.appState.serviceProfile.agility > 0;
+  const anyProFilled = proTagsFilled || proBioFilled || proServiceFilled;
+  const allProFilled = proTagsFilled && proBioFilled && proServiceFilled;
+
+  if (anyProFilled && !allProFilled) {
+    const proceed = await customConfirm(
+      "Você começou a preencher seus dados profissionais, mas ainda faltam campos. Eles só ficam visíveis publicamente quando estiverem completos.\n\nQuer concluir só o cadastro básico por enquanto? Você pode completar seus dados profissionais depois.",
+      "Dados profissionais incompletos",
+      "work"
+    );
+    if (!proceed) {
+      // Usuário optou por COMPLETAR: abre a seção (animado), destaca o que falta
+      // e rola até o primeiro campo vazio.
+      setProDetailsOpen(true);
+      highlightMissingProFields({ tags: proTagsFilled, bio: proBioFilled, service: proServiceFilled });
+      return;
+    }
+    // proceder: segue com o cadastro básico (dados profissionais parciais NÃO
+    // ficam públicos — sem persistência ainda; é o comportamento previsto).
   }
 
   document.getElementById('loader-global')?.classList.remove('u-hidden');
@@ -190,20 +303,20 @@ document.addEventListener('DOMContentLoaded', () => {
     serviceState.agility = 0;
     updateServiceBars();
 
-    // Métodos de pagamento aceitos: reseta pílulas (dinheiro/Pix/NF + cartão) e estado
-    window.appState.paymentMethods = { cash: false, pix: false, card: 0, nf: false };
+    // Métodos de pagamento aceitos: NF/cartão zerados; DINHEIRO fica selecionado
+    // por padrão (seção não obrigatória, mas já vem com dinheiro marcado).
+    window.appState.paymentMethods = { cash: true, pix: false, card: 0, nf: false };
     document.querySelectorAll('#container-payment-methods .chip, #container-payment-card .chip, #container-payment-nf .chip')
-      .forEach(chip => setPaymentChipActive(chip, false));
+      .forEach(chip => setPaymentChipActive(chip, chip.dataset.payment === 'cash'));
 
-    // Colapsável de detalhes profissionais: fecha se estava aberto
-    const proPanel = document.getElementById('panel-prodetails');
-    if (proPanel && !proPanel.classList.contains('u-hidden')) {
-      proPanel.classList.add('u-hidden');
-      document.getElementById('btn-toggle-prodetails')?.closest('.collapsible')?.classList.remove('collapsible--open');
-    }
+    // Colapsável de detalhes profissionais: fecha (instantâneo, sem animação)
+    setProDetailsOpen(false, false);
 
-    // Erros de validação
+    // Erros de validação (nome + destaques da seção profissional)
     clearNameErrors();
+    document.getElementById('inp-area-search')?.classList.remove('input-text--error');
+    document.getElementById('inp-bio')?.classList.remove('input-text--error');
+    document.querySelector('#panel-prodetails .service-bars')?.classList.remove('service-bars--error');
   };
 
   // INTERAÇÕES DO DOM - TELA - ONBOARDING - Botão cancelar: faz logout e reset completo
@@ -265,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const counter = document.getElementById('text-bio-counter');
     if (counter) counter.innerText = e.target.value.length;
     e.target.classList.toggle('input-text--maxed', e.target.value.length >= 200);
+    if (e.target.value.trim()) e.target.classList.remove('input-text--error');
   });
 
   // INTERAÇÕES DO DOM - TELA - ONBOARDING - Câmera como dialog (padrão nativo do app)
@@ -529,6 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
         li.classList.add('is-selecting');
         window.appState.selectedTags.push(tag);
         renderSelectedTags();
+        areaSearchInput?.classList.remove('input-text--error');
         if (areaSearchInput) areaSearchInput.value = '';
         if (areaClearBtn) areaClearBtn.classList.add('u-hidden');
         if (areaSearchInput) areaSearchInput.focus();
@@ -612,6 +727,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btnAgilityPlus.disabled  = pool === 0 || serviceState.agility === 10;
 
     window.appState.serviceProfile = { quality: serviceState.quality, agility: serviceState.agility, price };
+
+    // Distribuiu ao menos 1 ponto → limpa o destaque de "faltando" da seção
+    if (serviceState.quality + serviceState.agility > 0) {
+      document.querySelector('#panel-prodetails .service-bars')?.classList.remove('service-bars--error');
+    }
   };
 
   document.getElementById('btn-quality-plus')?.addEventListener('click', () => {
@@ -675,15 +795,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const panel = document.getElementById('panel-prodetails');
     if (!btn || !panel) return;
     btn.addEventListener('click', () => {
-      const collapsible = btn.closest('.collapsible');
       const isOpen = !panel.classList.contains('u-hidden');
-      if (isOpen) {
-        panel.classList.add('u-hidden');
-        collapsible?.classList.remove('collapsible--open');
-      } else {
-        panel.classList.remove('u-hidden');
-        collapsible?.classList.add('collapsible--open');
-      }
+      setProDetailsOpen(!isOpen, true); // animação de descompactação/recolhimento
     });
   })();
 
