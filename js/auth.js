@@ -23,8 +23,27 @@ let cooldownVisibilityHandler = null;
 // HELPERS DE INTERFACE — REUTILIZADOS NO FLUXO DE LOGIN
 // =========================================================================
 
-const clearOTPFields = () =>
-  document.querySelectorAll('.otp-grid__input').forEach(f => f.value = '');
+// Renderiza os 6 quadradinhos do OTP a partir do valor do input ÚNICO.
+// Função declaration (hoisted) para o clearOTPFields (const, abaixo) usar.
+function renderOtpCells() {
+  const input = document.getElementById('otp-input');
+  const cells = document.querySelectorAll('.otp-cell');
+  if (!input || !cells.length) return;
+  const val = input.value;
+  const focused = document.activeElement === input;
+  const activeIdx = Math.min(val.length, cells.length - 1); // célula do "cursor"
+  cells.forEach((cell, i) => {
+    cell.textContent = val[i] || '';
+    cell.classList.toggle('otp-cell--filled', !!val[i]);
+    cell.classList.toggle('otp-cell--active', focused && i === activeIdx);
+  });
+}
+
+const clearOTPFields = () => {
+  const input = document.getElementById('otp-input');
+  if (input) input.value = '';
+  renderOtpCells();
+};
 
 const onlyDigits = (value) => value.replace(/\D/g, "");
 
@@ -168,9 +187,7 @@ window.verifyOTP = async function() {
     );
   }
 
-  const code = Array.from(document.querySelectorAll('.otp-grid__input'))
-                    .map(i => i.value)
-                    .join('');
+  const code = document.getElementById('otp-input')?.value ?? '';
 
   if (code.length < 6) {
     return await customAlert("Digite o código de verificação de 6 dígitos completo.", "Código Incompleto", "shield");
@@ -440,38 +457,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // INTERAÇÕES DO DOM - TELA - AUTENTICAÇÃO - Gerenciador Avançado das Caixas do Código OTP
-  const otpFields = document.querySelectorAll('.otp-grid__input');
-  otpFields.forEach((input, index) => {
-    input.addEventListener('input', (e) => {
-      const val = onlyDigits(e.target.value);
-      e.target.value = val.slice(0, 1);
-
-      if (e.target.value && index < otpFields.length - 1) {
-        otpFields[index + 1].focus();
-      }
-    });
-
-    input.addEventListener('keydown', (e) => {
-      if (e.key === "Backspace") {
-        if (!input.value && index > 0) {
-          otpFields[index - 1].value = "";
-          otpFields[index - 1].focus();
-        } else {
-          input.value = "";
-        }
-        e.preventDefault();
-      }
-    });
-
-    input.addEventListener('paste', (e) => {
-      const data = onlyDigits(e.clipboardData.getData('text'));
-      if (data.length === 6) {
-        otpFields.forEach((field, i) => field.value = data[i] || "");
-        otpFields[5].focus();
-        e.preventDefault();
-      }
-    });
-  });
+  // INTERAÇÕES DO DOM - TELA - AUTENTICAÇÃO - OTP (input ÚNICO + 6 células)
+  // Um só input mantém o foco o tempo todo → o teclado não pisca/balança como
+  // acontecia ao mover o foco entre 6 caixas. Digitar, apagar (Backspace), colar
+  // e o autofill de SMS disparam 'input' — que sanitiza (só dígitos, máx 6) e
+  // redesenha as células. Sem gerência manual de foco entre campos.
+  const otpInput = document.getElementById('otp-input');
+  if (otpInput) {
+    const syncOtp = () => {
+      otpInput.value = onlyDigits(otpInput.value).slice(0, 6);
+      renderOtpCells();
+    };
+    otpInput.addEventListener('input', syncOtp);
+    otpInput.addEventListener('focus', renderOtpCells);
+    otpInput.addEventListener('blur', renderOtpCells);
+    renderOtpCells(); // estado inicial (vazio)
+  }
 
 });

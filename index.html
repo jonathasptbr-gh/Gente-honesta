@@ -251,13 +251,20 @@
             <h1 class="auth-section__title">Validar Código</h1>
             <p class="auth-section__text">Enviamos um código para:<br><b id="text-display-phone" class="text-accent"></b></p>
 
-            <div id="container-otp" class="otp-grid">
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+            <!-- OTP: UM único input (o foco nunca sai dele → sem o "balanço" do
+                 teclado que acontecia ao pular entre 6 caixas separadas), invisível,
+                 sobreposto a 6 células que exibem os dígitos (estética de seções
+                 individuais). Lógica em auth.js (renderOtpCells). -->
+            <div id="container-otp" class="otp-field">
+                <div class="otp-cells" aria-hidden="true">
+                    <div class="otp-cell"></div>
+                    <div class="otp-cell"></div>
+                    <div class="otp-cell"></div>
+                    <div class="otp-cell"></div>
+                    <div class="otp-cell"></div>
+                    <div class="otp-cell"></div>
+                </div>
+                <input type="text" id="otp-input" class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" aria-label="Código de verificação de 6 dígitos" required>
             </div>
 
             <button type="submit" id="btn-verify-otp" class="btn btn--primary btn--large">Verificar e Entrar</button>

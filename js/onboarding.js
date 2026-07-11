@@ -22,8 +22,8 @@ const clearNameErrors = () =>
 // variável (barras, pagamento, pro-cta). u-hidden continua sendo o estado
 // "fechado" final (display:none) — a animação só acontece na transição.
 //
-// Timing: 1s cada sentido, calmo. APENAS altura anima (sem fade de opacidade,
-// que deixava o verde vazar no fechamento). Overflow:hidden recorta o conteúdo.
+// Timing: abre em 1s (calmo) e fecha em 0.5s. APENAS altura anima (sem fade de
+// opacidade, que deixava o verde vazar no fechamento). Overflow:hidden recorta.
 //
 // EASINGS ESPELHADOS (essencial): abrir usa easeOUT (arranca responsivo e
 // DESACELERA suave — a curva material padrão começava lenta e "travava"); fechar
@@ -32,9 +32,8 @@ const clearNameErrors = () =>
 // ARRASTAVA o último naco (sobrava um título "parado") antes de sumir — a
 // sanfona parecia não ir até o fim. Com easeIn o fechamento vai suave até 0.
 // =========================================================================
-const PRODETAILS_DUR = 1000; // ms — duração da animação de altura (abrir/fechar)
-const PRODETAILS_OPEN_TRANSITION  = `height ${PRODETAILS_DUR}ms cubic-bezier(0.33, 1, 0.68, 1)`; // easeOutCubic
-const PRODETAILS_CLOSE_TRANSITION = `height ${PRODETAILS_DUR}ms cubic-bezier(0.32, 0, 0.67, 0)`; // easeInCubic
+const PRODETAILS_OPEN_TRANSITION  = `height 1000ms cubic-bezier(0.33, 1, 0.68, 1)`; // easeOutCubic
+const PRODETAILS_CLOSE_TRANSITION = `height 500ms cubic-bezier(0.32, 0, 0.67, 0)`;  // easeInCubic
 
 function setProDetailsOpen(open, animate = true) {
   const panel = document.getElementById('panel-prodetails');

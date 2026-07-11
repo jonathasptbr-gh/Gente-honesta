@@ -73,30 +73,62 @@
   font-size: var(--fs-6);
 }
 
-/* OTP Grid */
-.otp-grid {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-xs);
+/* OTP — UM input invisível sobre 6 células visuais.
+   Um único campo mantém o foco o tempo todo, então o teclado não "pisca"/balança
+   como acontecia ao mover o foco entre 6 inputs separados. As 6 células dão a
+   estética de dígitos individuais; o input (texto/caret transparentes) cobre
+   toda a área para capturar toque e teclado. Estados das células em auth.js:
+   `otp-cell--filled` (tem dígito) e `otp-cell--active` (célula do cursor). */
+.otp-field {
+  position: relative;
   margin: var(--space-md) 0;
 }
 
-.otp-grid__input {
+.otp-cells {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-xs);
+  pointer-events: none; /* cliques atravessam para o input por cima */
+}
+
+.otp-cell {
   width: 45px;
   height: 55px;
   border: 2px solid var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-soft);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--fs-12);
   font-weight: 800;
-  transition: var(--transition);
+  color: var(--t-main);
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.otp-grid__input:focus {
+.otp-cell--filled {
+  background: var(--bg-white);
+}
+
+.otp-cell--active {
   border-color: var(--a-gold);
   background: var(--bg-white);
+}
+
+.otp-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
   outline: none;
+  background: transparent;
+  color: transparent;        /* o dígito aparece nas células, não no input */
+  caret-color: transparent;  /* cursor simulado pela célula --active */
+  text-align: center;
+  font-size: var(--fs-12);   /* mantém o teclado numérico; texto é invisível */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 

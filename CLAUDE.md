@@ -89,7 +89,7 @@ css/
   base.css              — Design tokens (:root), roteamento de telas, utilitários, animações
   components.css        — Botões, inputs, ic-bar, diálogos, bloqueio desktop/landscape; `btn--danger` (vermelho)
   tutorial.css           — Motor de tutorial guiado (destaque + balão), reutilizável em qualquer tela
-  auth.css              — Fluxo de login: auth-section, OTP grid, carrossel de intro
+  auth.css              — Fluxo de login: auth-section, OTP (input único + células), carrossel de intro
   onboarding.css        — Formulário de perfil: câmera, tags, localização, cards de
                           padrão de serviço, pro-cta, ic-card
   install.css           — Tela-guia de instalação do PWA (view-install)
@@ -105,7 +105,7 @@ js/   (a ordem de carga no index.html importa)
                           inicial em login/logout, chama resetAuthFlow no logout, dispara
                           o tutorial do onboarding
   auth.js               — 5º. Login: sendOTP (com whitelist), verifyOTP, cooldown,
-                          máscara de telefone, OTP grid, carrossel, resetAuthFlow
+                          máscara de telefone, OTP (input único), carrossel, resetAuthFlow
   onboarding.js         — 6º. Formulário de perfil: finishRegistration, câmera, tags,
                           localização, cards de padrão de serviço, diálogos de ajuda,
                           resetOnboardingForm (chamado pelo resetAuthFlow),
@@ -400,12 +400,12 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v182`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v183`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
 `onboarding.js`, função declaration hoistada): mede `scrollHeight` em runtime e anima `height` 0↔conteúdo
-(1s cada sentido; SÓ altura — sem fade de opacidade, que deixava o verde vazar no fechamento; abre com easeOut e fecha com easeIn, curvas ESPELHADAS: usar easeOut no fechamento arrastava o último naco/título antes de sumir); `u-hidden` continua o estado fechado final (a animação só ocorre na transição). Usada pelo
+(abre em 1s, fecha em 0.5s; SÓ altura — sem fade de opacidade, que deixava o verde vazar no fechamento; abre com easeOut e fecha com easeIn, curvas ESPELHADAS: usar easeOut no fechamento arrastava o último naco/título antes de sumir); `u-hidden` continua o estado fechado final (a animação só ocorre na transição). Usada pelo
 gatilho, pelo `resetOnboardingForm` (`false`, instantâneo) e pelo `finishRegistration`. O cap reto do gatilho
 (cantos inferiores retos + borda inferior transparente) vem de `collapsible--connected` (distinta de
 `collapsible--open`, que só gira o chevron): `connected` vive do início da abertura ao FIM do fechamento e o
