@@ -223,8 +223,9 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 | 0–24 | `ic--bad` (cinza) | `gpp_bad` |
 
 O card do Índice de Confiança no cadastro (`.ic-card`, `#view-onboarding`) é o "SELO DE REPUTAÇÃO":
-o ÚNICO card ESCURO do formulário, de propósito (fundo `--bg-canvas`, o MESMO verde escuro das listas
-do feed, + brilho dourado radial + borda dourada translúcida). Nunca abreviar "IC" em texto visível ao usuário — sempre "Índice de
+card BRANCO como os demais campos do formulário, distinguido pela borda `--gold-soft-border` e por um
+leve brilho dourado radial no canto; textos nas cores padrão dos cards claros (título `--p-green-dark`,
+corpo/nota/rodapé `--t-sub`, eyebrow e destaques em `--a-gold-text`, 70 em degradê ouro→ocre). Nunca abreviar "IC" em texto visível ao usuário — sempre "Índice de
 Confiança". Conteúdo (de cima p/ baixo, seções irmãs num flex column com `justify-content: space-between`
 para distribuir a altura extra): cabeçalho SÓ com o eyebrow dourado "SUA REPUTAÇÃO NA PLATAFORMA";
 `.ic-hero` (o TÍTULO do card `.ic-hero__title` "Índice de Confiança" + frase de responsabilidade — o

@@ -651,23 +651,21 @@
 
 
 /* ── Índice de Confiança (card do onboarding) — "SELO DE REPUTAÇÃO" ──
-   Card ESCURO premium: verde profundo em degradê + brilho dourado + marca
-   d'água de escudo. É o ÚNICO elemento escuro do formulário, de propósito —
-   destaca-se de todos os campos claros e sinaliza importância. Conteúdo (de
-   cima p/ baixo): cabeçalho, hero 70%, medidor segmentado com pino "VOCÊ" e
-   os 4 escudos do sistema, colunas "faz subir/faz cair" e rodapé-lema. */
+   Card BRANCO como os demais campos do cadastro, distinguido pela borda
+   dourada suave e pelo leve brilho dourado no canto. Textos nas cores padrão
+   dos cards claros da tela (títulos --p-green-dark, corpo --t-sub). Conteúdo
+   (de cima p/ baixo): cabeçalho, hero 70 na moldura-escudo, medidor
+   segmentado com os 4 escudos do sistema e pino, nota e rodapé-lema. */
 .ic-card {
   position: relative;
-  border: 1.5px solid rgba(224, 168, 28, 0.45);
+  border: 1.5px solid var(--gold-soft-border);
   border-radius: var(--radius-md);
-  /* MESMO verde escuro do fundo das listas do feed (--bg-canvas), com o
-     brilho dourado radial por cima */
   background:
-    radial-gradient(130% 90% at 100% 0%, rgba(224, 168, 28, 0.16), transparent 55%),
-    var(--bg-canvas);
+    radial-gradient(130% 90% at 100% 0%, rgba(224, 168, 28, 0.10), transparent 55%),
+    var(--bg-white);
   padding: 14px var(--space-md);
   overflow: hidden;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  box-shadow: var(--shadow-sm);
 }
 
 .ic-card__info-btn {
@@ -684,7 +682,7 @@
 
 .ic-card__info-btn .material-symbols-rounded {
   font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--t-sub);
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
@@ -699,7 +697,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(224, 168, 28, 0.9);
+  color: var(--a-gold-text);
 }
 
 /* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca
@@ -758,7 +756,8 @@
   font-size: 1.9rem;
   font-weight: 800;
   line-height: 1;
-  background: linear-gradient(165deg, #f6ce67 20%, var(--a-gold) 80%);
+  /* degradê mais escuro (ouro → ocre): o tom claro sumia no fundo branco */
+  background: linear-gradient(165deg, var(--a-gold) 20%, var(--a-gold-text) 80%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -776,7 +775,7 @@
   display: block;
   font-size: var(--fs-9);
   font-weight: 800;
-  color: var(--t-light);
+  color: var(--p-green-dark);
   line-height: 1.15;
   margin-bottom: 2px;
 }
@@ -784,7 +783,7 @@
 .ic-hero__text {
   font-size: var(--fs-3);
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--t-sub);
 }
 
 /* ── Medidor: zonas ACIMA da barra segmentada (4 faixas); pino "VOCÊ" em 70%
@@ -845,7 +844,7 @@
 .ic-meter__seg--bad   { background: #000000; }
 .ic-meter__seg--alert { background: var(--danger); }
 .ic-meter__seg--warn  { background: var(--a-gold); }
-.ic-meter__seg--ok    { background: #46a56b; }
+.ic-meter__seg--ok    { background: var(--success-fill); }
 
 /* Zonas (ACIMA da barra): escudo do sistema + faixa numérica, uma por segmento */
 .ic-meter__zones {
@@ -874,12 +873,14 @@
   font-weight: 800;
 }
 
-/* Cores por faixa (versões legíveis sobre o fundo escuro; a <25% é PRETA,
-   como o segmento da barra: a zona "morta" do índice) */
+/* Cores por faixa (as MESMAS do resto do app sobre fundo claro; a <25% é
+   PRETA, como o segmento da barra: a zona "morta" do índice). O texto da
+   faixa dourada usa o ocre --a-gold-text para legibilidade no branco. */
 .ic-zone--bad   .ic-zone__shield, .ic-zone--bad   .ic-zone__range { color: #000000; }
-.ic-zone--alert .ic-zone__shield, .ic-zone--alert .ic-zone__range { color: #f16a60; }
-.ic-zone--warn  .ic-zone__shield, .ic-zone--warn  .ic-zone__range { color: #efc04b; }
-.ic-zone--ok    .ic-zone__shield, .ic-zone--ok    .ic-zone__range { color: #5fc084; }
+.ic-zone--alert .ic-zone__shield, .ic-zone--alert .ic-zone__range { color: var(--danger); }
+.ic-zone--warn  .ic-zone__shield { color: var(--a-gold); }
+.ic-zone--warn  .ic-zone__range { color: var(--a-gold-text); }
+.ic-zone--ok    .ic-zone__shield, .ic-zone--ok    .ic-zone__range { color: var(--success-fill); }
 
 /* Zona atual (50–74, onde o usuário começa): acesa e com o escudo maior */
 .ic-zone--current {
@@ -897,7 +898,7 @@
   font-style: italic;
   line-height: 1.35;
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--t-sub);
 }
 
 /* ── Rodapé-lema (mesmo tamanho de fonte da nota, centralizado como ela) ── */
@@ -905,13 +906,13 @@
   font-size: var(--fs-1);
   line-height: 1.45;
   text-align: center;
-  color: rgba(255, 255, 255, 0.62);
-  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--t-sub);
+  border-top: 1px solid var(--gold-soft-border);
   padding-top: 6px;
 }
 
 .ic-card__footer strong {
-  color: #efc04b;
+  color: var(--a-gold-text);
   font-weight: 700;
 }
 
