@@ -242,7 +242,9 @@ ficam com `opacity: 0.78` — depois a barra segmentada nas 4 faixas, e o pino "
 — ABAIXO da barra, posicionado em `left: 70%`, linha subindo até a barra + etiqueta em linha única
 `white-space: nowrap`); `.ic-factors` (duas
 colunas, "Faz cair" à ESQUERDA e "Faz subir" à DIREITA, combinando com a barra que cresce para a
-direita — itens são EXEMPLOS, com a nota `.ic-factors__note` em itálico ocupando as
+direita; a coluna "Faz cair" é ESPELHADA — texto alinhado à direita, seta DEPOIS do texto no HTML e
+pontos de marcação à direita dos itens — como contraponto visual da "Faz subir" — itens são EXEMPLOS,
+com a nota `.ic-factors__note` em itálico e CENTRALIZADA ocupando as
 duas colunas do grid: "todas as suas ações na plataforma, boas ou ruins, afetam esse índice"; "Indicações
 FEITAS", não "recebidas" — resumo do diálogo de ajuda `btn-ic-info`); e `.ic-card__footer` (lema
 "confiança se constrói devagar, e se perde rápido"). Nos textos visíveis do card NUNCA usar travessão
