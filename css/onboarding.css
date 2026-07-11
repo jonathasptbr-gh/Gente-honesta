@@ -668,17 +668,6 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
 }
 
-/* Marca d'água: escudo gigante dourado quase transparente no canto */
-.material-symbols-rounded.ic-card__watermark {
-  position: absolute;
-  right: -22px;
-  top: -18px;
-  font-size: 9rem;
-  color: rgba(224, 168, 28, 0.08);
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 48;
-  pointer-events: none;
-}
-
 .ic-card__info-btn {
   position: absolute;
   top: var(--space-sm);
@@ -698,7 +687,7 @@
 }
 
 .ic-card__head {
-  position: relative;   /* acima da marca d'água */
+  position: relative;
   padding-right: 26px;  /* espaço p/ o botão de ajuda (?) */
 }
 
