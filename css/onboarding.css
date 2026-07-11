@@ -736,11 +736,13 @@
   gap: var(--space-md);
 }
 
+/* O 70 ocupa todo o espaço que sobra à direita do texto e se CENTRALIZA nele */
 .ic-hero__value {
   font-size: 2.8rem;
   font-weight: 800;
   line-height: 1;
-  flex-shrink: 0;
+  flex: 1;
+  text-align: center;
   background: linear-gradient(165deg, #f6ce67 20%, var(--a-gold) 80%);
   -webkit-background-clip: text;
   background-clip: text;
