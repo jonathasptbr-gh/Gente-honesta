@@ -239,7 +239,7 @@ caixa), moldura CENTRALIZADA na zona REAL disponível à direita do texto — do
 card, não só até o padding (`flex: 1; text-align: center; margin-right` negativo anulando o padding e hero
 sem gap); o título vive AQUI, ao lado do
 número, nunca é escondido); `.ic-meter` (as zonas `.ic-meter__zones` ficam ACIMA da barra — os MESMOS escudos do resto do
-app `gpp_bad`/`gpp_maybe`/`shield_question`/`gpp_good` em versões de cor legíveis no fundo escuro, sendo a
+app `gpp_bad`/`gpp_maybe`/`shield_question`/`gpp_good` nas cores PADRÃO do app sobre fundo claro, sendo a
 faixa <25% PRETA `#000`, escudo e segmento, a "zona morta" do índice; zonas SEM nomes de faixa — só escudo
 + faixa numérica, os escudos coloridos já comunicam; a zona atual `.ic-zone--current` acende, as demais
 ficam com `opacity: 0.78` — depois a barra segmentada nas 4 faixas, e o pino "CONFIANÇA ATUAL" pulsante — `icPinPulse`
