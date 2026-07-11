@@ -736,16 +736,37 @@
   align-items: center;
 }
 
-/* O 70 se CENTRALIZA na zona REAL disponível: do fim do bloco de texto até a
-   BORDA do card (a margem negativa anula o padding direito do card, e o hero
-   sem gap faz a caixa começar rente ao texto). */
+/* A moldura-escudo (com o 70 dentro) se CENTRALIZA na zona REAL disponível:
+   do fim do bloco de texto até a BORDA do card (a margem negativa anula o
+   padding direito do card, e o hero sem gap faz a caixa começar rente ao
+   texto). */
+.ic-hero__badge {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: calc(-1 * var(--space-md));
+}
+
+/* Escudo em LINHA (FILL 0): mesmo modelo dos escudos do app, só o contorno */
+.material-symbols-rounded.ic-hero__badge-shield {
+  font-size: 4.6rem;
+  line-height: 1;
+  color: var(--a-gold);
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+}
+
+/* O 70 fica DENTRO do escudo; o centro visual do glifo é um pouco acima do
+   centro da caixa (o escudo afunila para baixo), daí o -56%. */
 .ic-hero__value {
-  font-size: 3.2rem;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -56%);
+  font-size: 1.7rem;
   font-weight: 800;
   line-height: 1;
-  flex: 1;
-  text-align: center;
-  margin-right: calc(-1 * var(--space-md));
   background: linear-gradient(165deg, #f6ce67 20%, var(--a-gold) 80%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -908,7 +929,7 @@
    fechado. O hero 70 e o medidor com os 4 escudos ficam SEMPRE. Limiares
    MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
    fonte): completo ~800px, sem rodapé ~757px, sem nota ~732px, compacto
-   ~678px. */
+   ~694px. */
 @media (max-height: 804px) {
   #view-onboarding .ic-card__footer { display: none; }
 }
@@ -920,7 +941,8 @@
 
 @media (max-height: 736px) {
   /* Telas bem curtas: compacta hero e medidor (nada mais é escondido) */
-  #view-onboarding .ic-hero__value { font-size: 2.6rem; }
+  #view-onboarding .ic-hero__badge-shield { font-size: 3.6rem; }
+  #view-onboarding .ic-hero__value { font-size: 1.35rem; }
   #view-onboarding .ic-hero__text { display: none; }
   #view-onboarding .ic-zone__shield { font-size: 1.15rem; }
   #view-onboarding .ic-zone--current .ic-zone__shield { font-size: 1.35rem; }
