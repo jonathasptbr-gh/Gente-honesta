@@ -49,7 +49,9 @@ const onlyDigits = (value) => value.replace(/\D/g, "");
 
 function setButtonLoading(btn, label) {
   btn.disabled = true;
-  btn.innerHTML = `<span class="material-symbols-rounded" style="display:inline-block;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px;font-size:22px">autorenew</span> ${label}`;
+  // 'wght' 700 no ícone: o padrão dos ícones é 500, que fica fino demais ao
+  // lado do texto em negrito do botão
+  btn.innerHTML = `<span class="material-symbols-rounded" style="display:inline-block;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px;font-size:22px;font-variation-settings:'FILL' 1,'wght' 700,'GRAD' 25,'opsz' 48">autorenew</span> ${label}`;
   btn.classList.add('btn--loading');
 }
 
@@ -402,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Feedback visual — muda o texto do link para "Enviando..." e desabilita
     const originalHTML = btnResend.innerHTML;
     btnResend.disabled = true;
-    btnResend.innerHTML = '<span class="material-symbols-rounded" style="display:inline-block;animation:spin 1s linear infinite;vertical-align:middle;font-size:16px;margin-right:4px">autorenew</span>Enviando...';
+    btnResend.innerHTML = '<span class="material-symbols-rounded" style="display:inline-block;animation:spin 1s linear infinite;vertical-align:middle;font-size:16px;margin-right:4px;font-variation-settings:\'FILL\' 1,\'wght\' 700,\'GRAD\' 25,\'opsz\' 48">autorenew</span>Enviando...';
 
     // Chama sendOTP em modo reenvio — não navega, não pisca, retorna Promise real
     const result = await sendOTP(true);
