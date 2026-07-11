@@ -22,16 +22,20 @@ const clearNameErrors = () =>
 // variável (barras, pagamento, pro-cta). u-hidden continua sendo o estado
 // "fechado" final (display:none) — a animação só acontece na transição.
 //
-// Timing: 0.5s com easing easeOutCubic (arranca responsivo e DESACELERA suave).
-// A curva material padrão (0.4,0,0.2,1) começa lenta e dava a impressão de
-// "travar" no início; o easeOutCubic reage na hora e desliza até parar. A altura
-// acompanha uma opacidade (fade um pouco mais curto) para o conteúdo aparecer
-// dissolvendo, em vez de um recorte seco — reforça a sensação de fluidez.
+// Timing: 0.7s (calmo) com easing easeOutCubic (arranca responsivo e DESACELERA
+// suave). A curva material padrão (0.4,0,0.2,1) começa lenta e dava a impressão
+// de "travar" no início; o easeOutCubic reage na hora e desliza até parar.
+//
+// APENAS altura anima — NÃO há mais fade de opacidade. O fade fazia o painel
+// INTEIRO (inclusive o fundo branco) ficar transparente ~mais rápido que o
+// colapso da altura: no FECHAMENTO isso deixava o verde vazar por trás (um
+// "vão"), o conteúdo "sumia" antes da hora e só no fim a borda arredondava e a
+// posição saltava. Colapsar só a altura (com overflow:hidden) é limpo e
+// SIMÉTRICO — abre e fecha exatamente igual, deslizando o conteúdo do IC junto.
 // =========================================================================
-const PRODETAILS_DUR = 500; // ms — duração da animação de altura
+const PRODETAILS_DUR = 700; // ms — duração da animação de altura (calma)
 const PRODETAILS_EASE = 'cubic-bezier(0.33, 1, 0.68, 1)'; // easeOutCubic
-const PRODETAILS_TRANSITION =
-  `height ${PRODETAILS_DUR}ms ${PRODETAILS_EASE}, opacity ${Math.round(PRODETAILS_DUR * 0.72)}ms ease`;
+const PRODETAILS_TRANSITION = `height ${PRODETAILS_DUR}ms ${PRODETAILS_EASE}`;
 
 function setProDetailsOpen(open, animate = true) {
   const panel = document.getElementById('panel-prodetails');
@@ -41,13 +45,17 @@ function setProDetailsOpen(open, animate = true) {
   const isOpen = !panel.classList.contains('u-hidden');
   if (open === isOpen) return; // já no estado desejado
 
-  // Cancela qualquer animação em curso antes de iniciar outra
+  // Remove o listener de uma animação anterior que não terminou (toggle rápido)
+  // e cancela a transição em curso antes de iniciar outra.
+  if (panel._proDetailsEnd) {
+    panel.removeEventListener('transitionend', panel._proDetailsEnd);
+    panel._proDetailsEnd = null;
+  }
   panel.style.transition = '';
 
   const clearInline = () => {
     panel.style.height = '';
     panel.style.overflow = '';
-    panel.style.opacity = '';
     panel.style.transition = '';
   };
 
@@ -61,18 +69,18 @@ function setProDetailsOpen(open, animate = true) {
 
     panel.style.overflow = 'hidden';
     panel.style.height = '0px';
-    panel.style.opacity = '0';
     const target = panel.scrollHeight; // altura real do conteúdo (com padding)
     requestAnimationFrame(() => {
       panel.style.transition = PRODETAILS_TRANSITION;
       panel.style.height = target + 'px';
-      panel.style.opacity = '1';
     });
     const done = (e) => {
-      if (e.propertyName !== 'height') return; // ignora o fim da opacidade (mais curta)
+      if (e.target !== panel || e.propertyName !== 'height') return; // ignora filhos
       clearInline(); // volta para altura automática
       panel.removeEventListener('transitionend', done);
+      panel._proDetailsEnd = null;
     };
+    panel._proDetailsEnd = done;
     panel.addEventListener('transitionend', done);
   } else {
     // Chevron gira de volta IMEDIATAMENTE; o cap reto (connected) só sai quando o
@@ -88,20 +96,20 @@ function setProDetailsOpen(open, animate = true) {
 
     panel.style.overflow = 'hidden';
     panel.style.height = panel.scrollHeight + 'px';
-    panel.style.opacity = '1';
-    void panel.offsetHeight; // força reflow para o height/opacity iniciais "pegarem"
+    void panel.offsetHeight; // força reflow para o height inicial "pegar"
     requestAnimationFrame(() => {
       panel.style.transition = PRODETAILS_TRANSITION;
       panel.style.height = '0px';
-      panel.style.opacity = '0';
     });
     const done = (e) => {
-      if (e.propertyName !== 'height') return;
+      if (e.target !== panel || e.propertyName !== 'height') return; // ignora filhos
       panel.classList.add('u-hidden');
       collapsible.classList.remove('collapsible--connected');
       clearInline();
       panel.removeEventListener('transitionend', done);
+      panel._proDetailsEnd = null;
     };
+    panel._proDetailsEnd = done;
     panel.addEventListener('transitionend', done);
   }
 }
@@ -115,11 +123,11 @@ function highlightMissingProFields({ tags, bio }) {
   const bioInput = document.getElementById('inp-bio');
   if (!tags) areaInput?.classList.add('input-text--error');
   if (!bio) bioInput?.classList.add('input-text--error');
-  // Espera a animação de abertura (~500ms) antes de rolar até o campo
+  // Espera a animação de abertura (~700ms) antes de rolar até o campo
   setTimeout(() => {
     const first = !tags ? areaInput : bioInput;
     first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 520);
+  }, 720);
 }
 
 
