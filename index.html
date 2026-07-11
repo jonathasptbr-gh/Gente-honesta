@@ -505,37 +505,43 @@
                     </button>
 
                     <div class="ic-card__head">
-                        <div class="ic-card__gauge-wrap">
-                            <span class="material-symbols-rounded ic-card__shield ic-card__shield--warn" aria-hidden="true">shield_question</span>
-                            <span class="ic-gauge__label ic-gauge__label--warn">70%</span>
-                        </div>
-                        <div class="ic-card__content">
-                            <strong class="ic-card__title">Índice de Confiança</strong>
-                            <p class="ic-card__text">Sua reputação viva na plataforma — começa em 70% e cresce com suas boas ações.</p>
-                        </div>
+                        <strong class="ic-card__title">Índice de Confiança</strong>
+                        <p class="ic-card__text">Sua reputação viva na plataforma — começa em 70% e cresce com suas boas ações.</p>
                     </div>
 
-                    <!-- Medidor: barra segmentada das 4 faixas (cores do sistema) +
-                         ponteiro em 70%. Compacto e é o destaque visual do card. -->
-                    <div class="ic-meter" role="img" aria-label="Você está em 70% — faixa Em formação (50 a 74%)">
-                        <div class="ic-meter__pointer" style="left:70%">
-                            <span class="ic-meter__pointer-val">70%</span>
+                    <!-- Faixas em lista vertical, com os MESMOS escudos coloridos do
+                         resto do app (gpp_good/shield_question/gpp_maybe/gpp_bad). A
+                         faixa atual (50-74%, "Em formação") é a linha-destaque, com o
+                         escudo GRANDE e o 70%. As linhas se distribuem (space-around)
+                         para preencher a altura do card sem sobrar vão. -->
+                    <div class="ic-tiers">
+                        <div class="ic-tier ic-tier--ok">
+                            <span class="material-symbols-rounded ic-tier__shield" aria-hidden="true">gpp_good</span>
+                            <span class="ic-tier__range">75–100%</span>
+                            <span class="ic-tier__name">Confiável</span>
                         </div>
-                        <div class="ic-meter__bar">
-                            <span class="ic-meter__seg ic-meter__seg--bad"></span>
-                            <span class="ic-meter__seg ic-meter__seg--alert"></span>
-                            <span class="ic-meter__seg ic-meter__seg--warn"></span>
-                            <span class="ic-meter__seg ic-meter__seg--ok"></span>
+
+                        <div class="ic-tier ic-tier--warn ic-tier--current">
+                            <span class="material-symbols-rounded ic-tier__shield" aria-hidden="true">shield_question</span>
+                            <span class="ic-tier__current-val">70%</span>
+                            <div class="ic-tier__info">
+                                <span class="ic-tier__name">Em formação</span>
+                                <span class="ic-tier__hint">você começa aqui · 50–74%</span>
+                            </div>
                         </div>
-                        <div class="ic-meter__labels">
-                            <span class="ic-meter__label">Crítico</span>
-                            <span class="ic-meter__label">Atenção</span>
-                            <span class="ic-meter__label ic-meter__label--current">Formação</span>
-                            <span class="ic-meter__label">Confiável</span>
+
+                        <div class="ic-tier ic-tier--alert">
+                            <span class="material-symbols-rounded ic-tier__shield" aria-hidden="true">gpp_maybe</span>
+                            <span class="ic-tier__range">25–49%</span>
+                            <span class="ic-tier__name">Atenção</span>
+                        </div>
+
+                        <div class="ic-tier ic-tier--bad">
+                            <span class="material-symbols-rounded ic-tier__shield" aria-hidden="true">gpp_bad</span>
+                            <span class="ic-tier__range">0–24%</span>
+                            <span class="ic-tier__name">Crítico</span>
                         </div>
                     </div>
-
-                    <p class="ic-card__quote">"O que se conquista com esforço resiste ao tempo. Cuide do seu índice."</p>
                 </div>
             </div>
 

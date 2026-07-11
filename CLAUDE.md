@@ -222,14 +222,15 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 | 25–49 | `ic--alert` (vermelho) | `gpp_maybe` |
 | 0–24 | `ic--bad` (cinza) | `gpp_bad` |
 
-O card do IC no cadastro (`.ic-card`, `#view-onboarding`) é COMPACTO e artístico (fundo em degradê + halo
-dourado atrás do gauge) e traz um **medidor** `.ic-meter`: barra segmentada das 4 faixas (cinza/vermelho/
-ouro/verde = bad/alert/warn/ok) com um ponteiro-pílula em `left:70%` e rótulos (Crítico/Atenção/Formação/
-Confiável, "Formação" destacada). A `.form-group--ic-fill` usa `flex: 1 0 auto` (cresce para preencher o vão
-até "Concluir", nunca encolhe abaixo do conteúdo). **Adaptativo por altura** (`@media (max-height:...)` em
-`#view-onboarding`): esconde a citação (≤860px), depois o texto (≤760px), depois os rótulos do medidor
-(≤680px) — assim o card SEMPRE cabe sem rolagem com "Detalhes profissionais" fechado, inclusive no navegador
-com barra. Gauge + barra do medidor sempre ficam.
+O card do IC no cadastro (`.ic-card`, `#view-onboarding`) é artístico (fundo em degradê + brilho dourado) e
+mostra as 4 faixas em LISTA VERTICAL (`.ic-tiers` → `.ic-tier--ok/warn/alert/bad`) com os MESMOS escudos
+coloridos do resto do app (`gpp_good`/`shield_question`/`gpp_maybe`/`gpp_bad`). A faixa atual (50–74%,
+`.ic-tier--current`) é a linha-HERO: escudo grande + "70%" + destaque dourado (fundo `--gold-soft` + borda
+`--a-gold` + sombra). As linhas usam `justify-content: space-around` para PREENCHER a altura do card sem
+sobrar vão (`.form-group--ic-fill` = `flex: 1 0 auto`). **Adaptativo por altura** (`@media (max-height)` em
+`#view-onboarding`): esconde o texto (≤780px) e, em telas curtas (≤720px, navegador com barra), compacta o
+card (esconde o hint, encolhe escudos/70%, paddings menores) — cabe sem rolagem de ~700px pra cima. As 4
+faixas + o hero sempre ficam.
 
 ---
 
@@ -411,7 +412,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v187`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v188`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
