@@ -658,10 +658,11 @@
    segmentado com os 4 escudos do sistema e pino, nota e rodapé-lema. */
 .ic-card {
   position: relative;
-  border: 1.5px solid var(--gold-soft-border);
+  border: 1.5px solid var(--p-green-dark);
   border-radius: var(--radius-md);
+  /* brilho radial VERDE no canto (era dourado) */
   background:
-    radial-gradient(130% 90% at 100% 0%, rgba(224, 168, 28, 0.10), transparent 55%),
+    radial-gradient(130% 90% at 100% 0%, rgba(24, 78, 27, 0.10), transparent 55%),
     var(--bg-white);
   padding: 14px var(--space-md);
   overflow: hidden;
@@ -697,7 +698,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--a-gold-text);
+  color: var(--p-green-dark);
 }
 
 /* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca
@@ -824,9 +825,9 @@
 }
 
 @keyframes icPinPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(224, 168, 28, 0.45); }
-  70%  { box-shadow: 0 0 0 7px rgba(224, 168, 28, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(224, 168, 28, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(24, 78, 27, 0.40); }
+  70%  { box-shadow: 0 0 0 7px rgba(24, 78, 27, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(24, 78, 27, 0); }
 }
 
 .ic-meter__track {
@@ -907,12 +908,14 @@
   line-height: 1.45;
   text-align: center;
   color: var(--t-sub);
-  border-top: 1px solid var(--gold-soft-border);
+  border-top: 1px solid var(--p-green-light);
   padding-top: 6px;
 }
 
+/* Destaque em VERDE (era dourado), em linha própria (display:block quebra) */
 .ic-card__footer strong {
-  color: var(--a-gold-text);
+  display: block;
+  color: var(--p-green-dark);
   font-weight: 700;
 }
 
