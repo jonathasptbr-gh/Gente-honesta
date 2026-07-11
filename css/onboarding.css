@@ -906,13 +906,13 @@
    extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
    fechado. O hero 70 e o medidor com os 4 escudos ficam SEMPRE. Limiares
    MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
-   fonte): completo ~834px, sem rodapé ~770px, sem nota ~732px, compacto
+   fonte): completo ~821px, sem rodapé ~757px, sem nota ~732px, compacto
    ~678px. */
-@media (max-height: 838px) {
+@media (max-height: 825px) {
   #view-onboarding .ic-card__footer { display: none; }
 }
 
-@media (max-height: 774px) {
+@media (max-height: 761px) {
   #view-onboarding .ic-factors { display: none; }
   #view-onboarding .ic-card { padding: var(--space-sm) var(--space-md); }
 }
