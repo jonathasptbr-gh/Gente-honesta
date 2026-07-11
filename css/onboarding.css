@@ -309,7 +309,7 @@
   gap: var(--space-sm);
   width: 100%;
   padding: 16px;
-  border: 2px solid var(--border-light);
+  border: none;   /* sem borda: o card branco contrasta sozinho no fundo verde */
   border-radius: var(--radius-md);
   background: var(--bg-white);
   cursor: pointer;
@@ -359,7 +359,8 @@
 }
 
 .location-check--error {
-  border-color: var(--danger);
+  /* sem borda real (não desloca o layout): o anel de erro vem por box-shadow */
+  box-shadow: inset 0 0 0 2px var(--danger);
   background: var(--danger-soft);
 }
 
@@ -412,7 +413,7 @@
   width: 100%;
   padding: 14px 16px;
   background: var(--bg-soft);
-  border: 2px solid var(--border-light);
+  border: none;   /* sem borda: o card claro contrasta sozinho no fundo verde */
   border-radius: var(--radius-md);
   color: var(--p-green-dark);
   font-weight: 800;
@@ -463,8 +464,7 @@
 
 .collapsible__panel {
   padding: var(--space-md);
-  border: 2px solid var(--border-light);
-  border-top: none;
+  border: none;   /* sem borda, como o gatilho acima */
   border-bottom-left-radius: var(--radius-md);
   border-bottom-right-radius: var(--radius-md);
   background: var(--bg-white);
@@ -658,7 +658,7 @@
    segmentado com os 4 escudos do sistema e pino, nota e rodapé-lema. */
 .ic-card {
   position: relative;
-  border: 1.5px solid var(--p-green-dark);
+  border: none;   /* sem borda: o card branco contrasta sozinho no fundo verde */
   border-radius: var(--radius-md);
   /* brilho radial VERDE no canto (era dourado) */
   background:
@@ -942,18 +942,18 @@
    extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
    fechado. O hero 70 e o medidor com os 4 escudos ficam SEMPRE. Limiares
    MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
-   fonte): completo ~829px, sem rodapé ~786px, sem nota ~761px, compacto
-   ~699px. */
-@media (max-height: 833px) {
+   fonte): completo ~819px, sem rodapé ~776px, sem nota ~751px, compacto
+   ~689px. */
+@media (max-height: 823px) {
   #view-onboarding .ic-card__footer { display: none; }
 }
 
-@media (max-height: 790px) {
+@media (max-height: 780px) {
   #view-onboarding .ic-factors { display: none; }
   #view-onboarding .ic-card { padding: var(--space-sm) var(--space-md); }
 }
 
-@media (max-height: 765px) {
+@media (max-height: 755px) {
   /* Telas bem curtas: compacta cabeçalho, card interno, hero e medidor
      (nada mais é escondido) */
   #view-onboarding .ic-card { padding: 10px var(--space-md); }
