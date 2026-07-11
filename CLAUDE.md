@@ -231,9 +231,11 @@ para distribuir a altura extra): cabeçalho SÓ com o eyebrow dourado "SUA REPUT
 `.ic-hero` (o TÍTULO do card `.ic-hero__title` "Índice de Confiança" + frase de responsabilidade — o
 índice começa em 70 e mantê-lo depende do usuário — em bloco alinhado à esquerda com largura contida
 (`flex: 0 1 62%`), e o número 70 em degradê dourado via `background-clip: text`, SEM o símbolo "%",
-DENTRO de uma moldura-escudo em LINHA (`.ic-hero__badge`: glifo `shield` do mesmo conjunto Material do
-app com `FILL 0`, dourado, 70 absoluto centralizado em `translate(-50%, -56%)` — o centro visual do
-glifo fica acima do centro da caixa), moldura CENTRALIZADA na zona REAL disponível à direita do texto — do fim do bloco de texto até a BORDA do
+DENTRO de uma MOLDURA em forma de escudo (`.ic-hero__badge`: SVG inline `.ic-hero__badge-shield`, SÓ o
+contorno `stroke: --a-gold` sem preenchimento, formato dos escudos do app; SVG em vez de glifo da fonte
+de ícones de propósito — controle total de tamanho/traço e sem depender do carregamento da fonte; 70
+absoluto centralizado em `translate(-50%, -55%)`, o centro visual do escudo fica acima do centro da
+caixa), moldura CENTRALIZADA na zona REAL disponível à direita do texto — do fim do bloco de texto até a BORDA do
 card, não só até o padding (`flex: 1; text-align: center; margin-right` negativo anulando o padding e hero
 sem gap); o título vive AQUI, ao lado do
 número, nunca é escondido); `.ic-meter` (as zonas `.ic-meter__zones` ficam ACIMA da barra — os MESMOS escudos do resto do
@@ -251,9 +253,9 @@ centralizado e com a MESMA fonte da nota, `--fs-1`). Nos textos visíveis do car
 "—" (visualmente estranho para o usuário — usar vírgula, ponto e vírgula ou dois-pontos).
 `.form-group--ic-fill` = `flex: 1 0 auto` (preenche o vão até o botão de concluir). **Adaptativo por
 altura** (`@media (max-height)` em `#view-onboarding`, limiares MEDIDOS por estado: completo ~800px, sem
-rodapé ~757px, sem nota ~732px, compacto ~694px): ≤804px esconde o rodapé; ≤761px esconde a nota e aperta
+rodapé ~757px, sem nota ~732px, compacto ~698px): ≤804px esconde o rodapé; ≤761px esconde a nota e aperta
 o padding; ≤736px compacta (some a frase do hero, encolhem a moldura-escudo/70 e os escudos) — cabe sem
-rolagem de ~694px pra cima.
+rolagem de ~698px pra cima.
 O hero 70% + o medidor com os 4 escudos ficam SEMPRE. O texto de ajuda (`helpTexts['btn-ic-info']` em
 onboarding.js) diz "70%" (nunca "100 pontos") e também não usa a abreviação.
 

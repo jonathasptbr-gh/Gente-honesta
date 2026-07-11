@@ -749,22 +749,22 @@
   margin-right: calc(-1 * var(--space-md));
 }
 
-/* Escudo em LINHA (FILL 0): mesmo modelo dos escudos do app, só o contorno */
-.material-symbols-rounded.ic-hero__badge-shield {
-  font-size: 4.6rem;
-  line-height: 1;
-  color: var(--a-gold);
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 48;
+/* Moldura em forma de escudo: SVG só de contorno (stroke dourado, sem
+   preenchimento), no formato dos escudos do app */
+.ic-hero__badge-shield {
+  display: block;
+  width: 4.9rem;
+  height: 5.3rem;
 }
 
-/* O 70 fica DENTRO do escudo; o centro visual do glifo é um pouco acima do
-   centro da caixa (o escudo afunila para baixo), daí o -56%. */
+/* O 70 fica DENTRO da moldura; o centro visual do escudo é um pouco acima do
+   centro da caixa (o desenho afunila para baixo), daí o -55%. */
 .ic-hero__value {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -56%);
-  font-size: 1.7rem;
+  transform: translate(-50%, -55%);
+  font-size: 1.9rem;
   font-weight: 800;
   line-height: 1;
   background: linear-gradient(165deg, #f6ce67 20%, var(--a-gold) 80%);
@@ -941,8 +941,8 @@
 
 @media (max-height: 736px) {
   /* Telas bem curtas: compacta hero e medidor (nada mais é escondido) */
-  #view-onboarding .ic-hero__badge-shield { font-size: 3.6rem; }
-  #view-onboarding .ic-hero__value { font-size: 1.35rem; }
+  #view-onboarding .ic-hero__badge-shield { width: 3.5rem; height: 3.8rem; }
+  #view-onboarding .ic-hero__value { font-size: 1.3rem; }
   #view-onboarding .ic-hero__text { display: none; }
   #view-onboarding .ic-zone__shield { font-size: 1.15rem; }
   #view-onboarding .ic-zone--current .ic-zone__shield { font-size: 1.35rem; }

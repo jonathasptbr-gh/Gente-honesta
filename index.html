@@ -521,10 +521,16 @@
                             <strong class="ic-hero__title">Índice de Confiança</strong>
                             <p class="ic-hero__text">Todo cadastro começa em 70 como nosso voto de confiança, mas cuidar dele é sua responsabilidade.</p>
                         </div>
-                        <!-- 70 emoldurado por um escudo em LINHA (contorno) do
-                             mesmo modelo de escudos do app -->
+                        <!-- 70 emoldurado por uma MOLDURA em linha (SVG, só o
+                             contorno dourado) em forma de escudo, no formato dos
+                             escudos do app. SVG em vez de glifo da fonte: controle
+                             total de tamanho/traço, sem depender do carregamento
+                             da fonte de ícones -->
                         <span class="ic-hero__badge">
-                            <span class="material-symbols-rounded ic-hero__badge-shield" aria-hidden="true">shield</span>
+                            <svg class="ic-hero__badge-shield" viewBox="0 0 24 26" aria-hidden="true">
+                                <path d="M12 1.6 L21.4 5.4 V12 C21.4 18.1 17.3 23.3 12 24.7 C6.7 23.3 2.6 18.1 2.6 12 V5.4 Z"
+                                      fill="none" stroke="var(--a-gold)" stroke-width="1.7" stroke-linejoin="round"/>
+                            </svg>
                             <span class="ic-hero__value">70</span>
                         </span>
                     </div>
