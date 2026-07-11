@@ -727,11 +727,12 @@
   gap: 8px;
 }
 
-/* ── Hero: 70% gigante + status + mensagem de responsabilidade ── */
+/* ── Hero: título + mensagem de responsabilidade à esquerda, 70 à direita ── */
 .ic-hero {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-md);
 }
 
@@ -746,11 +747,11 @@
   color: transparent;
 }
 
-/* Texto alinhado à direita, encostando no 70 (que fica à direita dele) */
+/* Texto à esquerda, com largura contida para dar mais respiro ao 70 */
 .ic-hero__info {
   min-width: 0;
-  flex: 1;
-  text-align: right;
+  flex: 0 1 62%;
+  text-align: left;
 }
 
 /* O TÍTULO do card vive no hero, ao lado do 70% (nunca é escondido) */
