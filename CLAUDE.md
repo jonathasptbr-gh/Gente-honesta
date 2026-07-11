@@ -231,7 +231,9 @@ para distribuir a altura extra): cabeçalho SÓ com o eyebrow dourado "SUA REPUT
 `.ic-hero` (o TÍTULO do card `.ic-hero__title` "Índice de Confiança" + frase de responsabilidade — o
 índice começa em 70 e mantê-lo depende do usuário — em bloco alinhado à esquerda com largura contida
 (`flex: 0 1 62%`), e o número 70 GIGANTE em degradê dourado via `background-clip: text`, SEM o símbolo
-"%", CENTRALIZADO no espaço que sobra à direita do texto (`flex: 1; text-align: center`); o título vive AQUI, ao lado do
+"%", CENTRALIZADO na zona REAL disponível à direita do texto — do fim do bloco de texto até a BORDA do
+card, não só até o padding (`flex: 1; text-align: center; margin-right` negativo anulando o padding e hero
+sem gap); o título vive AQUI, ao lado do
 número, nunca é escondido); `.ic-meter` (as zonas `.ic-meter__zones` ficam ACIMA da barra — os MESMOS escudos do resto do
 app `gpp_bad`/`gpp_maybe`/`shield_question`/`gpp_good` em versões de cor legíveis no fundo escuro, sendo a
 faixa <25% PRETA `#000`, escudo e segmento, a "zona morta" do índice; zonas SEM nomes de faixa — só escudo
@@ -431,7 +433,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v194`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v195`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em

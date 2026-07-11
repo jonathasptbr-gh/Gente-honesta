@@ -727,22 +727,25 @@
   gap: 8px;
 }
 
-/* ── Hero: título + mensagem de responsabilidade à esquerda, 70 à direita ── */
+/* ── Hero: título + mensagem de responsabilidade à esquerda, 70 à direita ──
+   SEM gap: a caixa do 70 deve começar exatamente onde o texto termina, para a
+   centralização considerar a zona real disponível (ver .ic-hero__value). */
 .ic-hero {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
 }
 
-/* O 70 ocupa todo o espaço que sobra à direita do texto e se CENTRALIZA nele */
+/* O 70 se CENTRALIZA na zona REAL disponível: do fim do bloco de texto até a
+   BORDA do card (a margem negativa anula o padding direito do card, e o hero
+   sem gap faz a caixa começar rente ao texto). */
 .ic-hero__value {
-  font-size: 2.8rem;
+  font-size: 3.2rem;
   font-weight: 800;
   line-height: 1;
   flex: 1;
   text-align: center;
+  margin-right: calc(-1 * var(--space-md));
   background: linear-gradient(165deg, #f6ce67 20%, var(--a-gold) 80%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -969,7 +972,7 @@
 
 @media (max-height: 718px) {
   /* Telas bem curtas: compacta hero e medidor (nada mais é escondido) */
-  #view-onboarding .ic-hero__value { font-size: 2.3rem; }
+  #view-onboarding .ic-hero__value { font-size: 2.6rem; }
   #view-onboarding .ic-hero__text { display: none; }
   #view-onboarding .ic-zone__shield { font-size: 1.15rem; }
   #view-onboarding .ic-zone--current .ic-zone__shield { font-size: 1.35rem; }
