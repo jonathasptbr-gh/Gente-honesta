@@ -905,6 +905,23 @@
 .ic-factors__col--up   .ic-factors__head { color: #5fc084; }
 .ic-factors__col--down .ic-factors__head { color: #f16a60; }
 
+/* Coluna "Faz cair" ESPELHADA: tudo alinhado à direita — cabeçalho (com a seta
+   à direita do texto, via ordem no HTML), itens e pontos de marcação — como
+   contraponto visual da coluna "Faz subir" */
+.ic-factors__col--down {
+  text-align: right;
+}
+
+.ic-factors__col--down .ic-factors__list li {
+  padding-left: 0;
+  padding-right: 12px;
+}
+
+.ic-factors__col--down .ic-factors__list li::before {
+  left: auto;
+  right: 0;
+}
+
 .ic-factors__list {
   list-style: none;
   display: flex;
@@ -939,6 +956,7 @@
   font-size: var(--fs-1);
   font-style: italic;
   line-height: 1.35;
+  text-align: center;
   color: rgba(255, 255, 255, 0.5);
 }
 
