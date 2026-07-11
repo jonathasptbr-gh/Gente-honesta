@@ -660,9 +660,11 @@
   position: relative;
   border: 1.5px solid rgba(224, 168, 28, 0.45);
   border-radius: var(--radius-md);
+  /* MESMO verde escuro do fundo das listas do feed (--bg-canvas), com o
+     brilho dourado radial por cima */
   background:
     radial-gradient(130% 90% at 100% 0%, rgba(224, 168, 28, 0.16), transparent 55%),
-    linear-gradient(170deg, #12380f 0%, var(--p-green-dark) 100%);
+    var(--bg-canvas);
   padding: 14px var(--space-md);
   overflow: hidden;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
