@@ -687,18 +687,34 @@
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
+/* Cabeçalho no PADRÃO das seções do cadastro: ícone verde + rótulo com a
+   mesma cara de .form-group__label (--p-green, --fs-5, 700, uppercase) */
 .ic-card__head {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding-right: 26px;  /* espaço p/ o botão de ajuda (?) */
 }
 
+.material-symbols-rounded.ic-card__head-icon {
+  font-size: 1.25rem;
+  color: var(--p-green);
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
 .ic-card__eyebrow {
-  display: block;
-  font-size: var(--fs-1);
+  font-size: var(--fs-5);
   font-weight: 700;
-  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--p-green-dark);
+  color: var(--p-green);
+}
+
+/* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70) */
+.ic-card__intro {
+  background: var(--bg-soft);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
 }
 
 /* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca
@@ -727,16 +743,16 @@
 }
 
 /* A moldura-escudo (com o 70 dentro) se CENTRALIZA na zona REAL disponível:
-   do fim do bloco de texto até a BORDA do card (a margem negativa anula o
-   padding direito do card, e o hero sem gap faz a caixa começar rente ao
-   texto). */
+   do fim do bloco de texto até a BORDA do card interno (a margem negativa
+   anula o padding direito do .ic-card__intro, e o hero sem gap faz a caixa
+   começar rente ao texto). */
 .ic-hero__badge {
   position: relative;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: calc(-1 * var(--space-md));
+  margin-right: -12px;
 }
 
 /* Moldura em forma de escudo: SVG só de contorno (stroke dourado, sem
@@ -771,12 +787,13 @@
   text-align: left;
 }
 
-/* O TÍTULO do card vive no hero, ao lado do 70% (nunca é escondido) */
+/* O SUBTÍTULO do card vive no hero, ao lado do 70 (nunca é escondido) —
+   no verde comum (--p-green) das seções */
 .ic-hero__title {
   display: block;
   font-size: var(--fs-9);
   font-weight: 800;
-  color: var(--p-green-dark);
+  color: var(--p-green);
   line-height: 1.15;
   margin-bottom: 2px;
 }
@@ -923,22 +940,30 @@
    extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
    fechado. O hero 70 e o medidor com os 4 escudos ficam SEMPRE. Limiares
    MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
-   fonte): completo ~800px, sem rodapé ~757px, sem nota ~732px, compacto
-   ~694px. */
-@media (max-height: 804px) {
+   fonte): completo ~849px, sem rodapé ~807px, sem nota ~782px, compacto
+   ~700px. */
+@media (max-height: 853px) {
   #view-onboarding .ic-card__footer { display: none; }
 }
 
-@media (max-height: 761px) {
+@media (max-height: 811px) {
   #view-onboarding .ic-factors { display: none; }
   #view-onboarding .ic-card { padding: var(--space-sm) var(--space-md); }
 }
 
-@media (max-height: 736px) {
-  /* Telas bem curtas: compacta hero e medidor (nada mais é escondido) */
-  #view-onboarding .ic-hero__badge-shield { width: 3.5rem; height: 3.8rem; }
-  #view-onboarding .ic-hero__value { font-size: 1.3rem; }
+@media (max-height: 786px) {
+  /* Telas bem curtas: compacta cabeçalho, card interno, hero e medidor
+     (nada mais é escondido) */
+  #view-onboarding .ic-card { padding: 10px var(--space-md); }
+  #view-onboarding .ic-card__eyebrow { font-size: var(--fs-4); }
+  #view-onboarding .ic-card__intro { padding: 6px 10px; }
+  #view-onboarding .ic-hero__badge { margin-right: -10px; }
+  #view-onboarding .ic-hero__badge-shield { width: 3.1rem; height: 3.4rem; }
+  #view-onboarding .ic-hero__value { font-size: 1.2rem; }
   #view-onboarding .ic-hero__text { display: none; }
+  #view-onboarding .ic-meter { padding-bottom: 20px; }
+  #view-onboarding .ic-meter__zones { margin-bottom: 4px; }
+  #view-onboarding .ic-meter__track { height: 8px; }
   #view-onboarding .ic-zone__shield { font-size: 1.15rem; }
   #view-onboarding .ic-zone--current .ic-zone__shield { font-size: 1.35rem; }
 }

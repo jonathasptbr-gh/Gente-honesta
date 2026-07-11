@@ -229,18 +229,19 @@ textos nas cores padrão dos cards claros (título e eyebrow `--p-green-dark`, c
 `--t-sub`, 70 em degradê ouro→ocre; o destaque do rodapé é `--p-green-dark` em linha própria via
 `display:block`). Nunca abreviar "IC" em texto visível ao usuário — sempre "Índice de
 Confiança". Conteúdo (de cima p/ baixo, seções irmãs num flex column com `justify-content: space-between`
-para distribuir a altura extra): cabeçalho SÓ com o eyebrow dourado "SUA REPUTAÇÃO NA PLATAFORMA";
-`.ic-hero` (o TÍTULO do card `.ic-hero__title` "Índice de Confiança" + frase de responsabilidade — o
-índice começa em 70 e mantê-lo depende do usuário — em bloco alinhado à esquerda com largura contida
-(`flex: 0 1 62%`), e o número 70 em degradê dourado via `background-clip: text`, SEM o símbolo "%",
+para distribuir a altura extra): cabeçalho `.ic-card__head` no PADRÃO das seções do cadastro (ícone
+`verified_user` VERDE + rótulo "Sua reputação na plataforma" com a cara de `.form-group__label`:
+`--p-green`, `--fs-5`, 700, uppercase); um card INTERNO `.ic-card__intro` (fundo `--bg-soft`) contendo
+o `.ic-hero` (o SUBTÍTULO `.ic-hero__title` "Índice de Confiança" em `--p-green` + frase de
+responsabilidade — o índice começa em 70 e mantê-lo depende do usuário — em bloco alinhado à esquerda
+com largura contida (`flex: 0 1 62%`), e o número 70 em degradê dourado via `background-clip: text`, SEM o símbolo "%",
 DENTRO de uma MOLDURA em forma de escudo (`.ic-hero__badge`: SVG inline `.ic-hero__badge-shield`, SÓ o
 contorno `stroke: --a-gold` sem preenchimento, formato dos escudos do app; SVG em vez de glifo da fonte
 de ícones de propósito — controle total de tamanho/traço e sem depender do carregamento da fonte; 70
 absoluto centralizado em `translate(-50%, -55%)`, o centro visual do escudo fica acima do centro da
-caixa), moldura CENTRALIZADA na zona REAL disponível à direita do texto — do fim do bloco de texto até a BORDA do
-card, não só até o padding (`flex: 1; text-align: center; margin-right` negativo anulando o padding e hero
-sem gap); o título vive AQUI, ao lado do
-número, nunca é escondido); `.ic-meter` (as zonas `.ic-meter__zones` ficam ACIMA da barra — os MESMOS escudos do resto do
+caixa), moldura CENTRALIZADA na zona REAL disponível à direita do texto — do fim do bloco de texto até a BORDA
+do card INTERNO, não só até o padding (`flex: 1; text-align: center; margin-right` negativo anulando o
+padding do intro e hero sem gap); o subtítulo vive AQUI, ao lado do número, nunca é escondido); `.ic-meter` (as zonas `.ic-meter__zones` ficam ACIMA da barra — os MESMOS escudos do resto do
 app `gpp_bad`/`gpp_maybe`/`shield_question`/`gpp_good` nas cores PADRÃO do app sobre fundo claro, sendo a
 faixa <25% PRETA `#000`, escudo e segmento, a "zona morta" do índice; zonas SEM nomes de faixa — só escudo
 + faixa numérica, os escudos coloridos já comunicam; a zona atual `.ic-zone--current` acende, as demais
@@ -254,10 +255,10 @@ de Confiança é seu bem mais valioso na plataforma, seja honesto e responsável
 centralizado e com a MESMA fonte da nota, `--fs-1`). Nos textos visíveis do card NUNCA usar travessão
 "—" (visualmente estranho para o usuário — usar vírgula, ponto e vírgula ou dois-pontos).
 `.form-group--ic-fill` = `flex: 1 0 auto` (preenche o vão até o botão de concluir). **Adaptativo por
-altura** (`@media (max-height)` em `#view-onboarding`, limiares MEDIDOS por estado: completo ~800px, sem
-rodapé ~757px, sem nota ~732px, compacto ~698px): ≤804px esconde o rodapé; ≤761px esconde a nota e aperta
-o padding; ≤736px compacta (some a frase do hero, encolhem a moldura-escudo/70 e os escudos) — cabe sem
-rolagem de ~698px pra cima.
+altura** (`@media (max-height)` em `#view-onboarding`, limiares MEDIDOS por estado: completo ~849px, sem
+rodapé ~807px, sem nota ~782px, compacto ~698px): ≤853px esconde o rodapé; ≤811px esconde a nota e aperta
+o padding; ≤786px compacta (some a frase do hero, encolhem cabeçalho, card interno, moldura-escudo/70 e
+escudos) — cabe sem rolagem de ~698px pra cima.
 O hero 70% + o medidor com os 4 escudos ficam SEMPRE. O texto de ajuda (`helpTexts['btn-ic-info']` em
 onboarding.js) diz "70%" (nunca "100 pontos") e também não usa a abreviação.
 
