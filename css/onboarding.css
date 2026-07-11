@@ -745,6 +745,77 @@
   text-align: center;
 }
 
+/* ── IC: preenche o espaço restante do form até o botão ──
+   Quando "Detalhes profissionais" está fechado, sobrava um vão até "Concluir".
+   O form-group do IC cresce (flex:1) e o card vira flex-column; a escala no meio
+   (flex:1) se centraliza, absorvendo a folga sem parecer esticado. */
+/* flex: 1 0 auto — CRESCE para o espaço livre, mas NUNCA encolhe abaixo do
+   conteúdo (a 4ª faixa + citação sumiam por `overflow:hidden` do card quando o
+   flex encolhia). Sem espaço livre (ex.: "Detalhes profissionais" aberto), fica
+   na altura do conteúdo e a tela rola normalmente. */
+.form-group--ic-fill {
+  flex: 1 0 auto;
+}
+
+.form-group--ic-fill .ic-card {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Escala das faixas do IC (75-100 / 50-74 / 25-49 / 0-24) */
+.ic-scale {
+  flex: 1;                       /* ocupa o meio do card quando ele cresce */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+  margin: var(--space-sm) 0;
+}
+
+.ic-scale__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 7px var(--space-xs);
+  border-radius: var(--radius-sm);
+}
+
+.ic-scale__icon {
+  font-size: 1.35rem;
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.ic-scale__range {
+  font-size: var(--fs-4);
+  font-weight: 800;
+  flex-shrink: 0;
+  min-width: 62px;
+}
+
+.ic-scale__desc {
+  font-size: var(--fs-3);
+  color: var(--t-sub);
+  line-height: 1.3;
+}
+
+/* Cores por faixa — as mesmas do sistema (ic-bar / gauge) */
+.ic-scale__row--ok    .ic-scale__icon,
+.ic-scale__row--ok    .ic-scale__range { color: var(--success-fill); }
+.ic-scale__row--warn  .ic-scale__icon,
+.ic-scale__row--warn  .ic-scale__range { color: var(--a-gold-text); }
+.ic-scale__row--alert .ic-scale__icon,
+.ic-scale__row--alert .ic-scale__range { color: var(--danger); }
+.ic-scale__row--bad   .ic-scale__icon,
+.ic-scale__row--bad   .ic-scale__range { color: var(--t-main); }
+
+/* Faixa onde o usuário começa (50-74%) — destaque sutil creme */
+.ic-scale__row--current {
+  background: var(--gold-soft);
+  box-shadow: inset 0 0 0 1.5px var(--gold-soft-border);
+}
+
 /* ── Dialog da câmera ── */
 .dialog-box--camera {
   padding: var(--space-md);
