@@ -45,6 +45,15 @@
   line-height: 1.5;
 }
 
+/* Número de telefone na tela do OTP: cor de texto NEUTRA (não dourada). O
+   dourado passou a denotar ação clicável — o número é só informação, então não
+   deve parecer um link. Preto seria ilegível no fundo verde escuro; --t-light
+   (branco) é o "texto normal" deste tema escuro, prominente mas sem cara de
+   link. Sobrepõe o dourado de `.text-accent` (id > classe). */
+#text-display-phone {
+  color: var(--t-light);
+}
+
 /* Intencional: container vazio gerenciado dinamicamente pelo Firebase reCAPTCHA */
 .auth-section__captcha {}
 
