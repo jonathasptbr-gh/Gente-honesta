@@ -733,13 +733,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (check) check.innerText = active ? 'check_circle' : 'radio_button_unchecked';
   };
 
+  // Atualiza o display único de barras (svc-fill-*); a largura anima via CSS
+  const updateServiceDisplay = (q, a, v) => {
+    const fq = document.getElementById('svc-fill-quality');
+    const fa = document.getElementById('svc-fill-agility');
+    const fv = document.getElementById('svc-fill-value');
+    if (fq) fq.style.width = `${q * 10}%`;
+    if (fa) fa.style.width = `${a * 10}%`;
+    if (fv) fv.style.width = `${v * 10}%`;
+  };
+
   const applyServiceCard = (card) => {
     serviceCards.forEach(c => setServiceCardActive(c, c === card));
-    window.appState.serviceProfile = {
-      quality: Number(card.dataset.q),
-      agility: Number(card.dataset.a),
-      price: Number(card.dataset.v)
-    };
+    const q = Number(card.dataset.q);
+    const a = Number(card.dataset.a);
+    const v = Number(card.dataset.v);
+    window.appState.serviceProfile = { quality: q, agility: a, price: v };
+    updateServiceDisplay(q, a, v);
   };
 
   serviceCards.forEach(card => {

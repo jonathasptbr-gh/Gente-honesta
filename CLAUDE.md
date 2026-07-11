@@ -400,7 +400,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v179`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v180`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
@@ -433,11 +433,14 @@ de um card cinza dedicado. O rótulo `(opcional)` (`.form-group__optional`) apar
 do colapsável (`#btn-toggle-prodetails`, "Detalhes profissionais") — as subseções internas não repetem o
 aviso, já que ele já foi dado no título da seção como um todo.
 
-**"Padrão de Serviços" é SELEÇÃO por card** (`#container-service-choice`, LISTA VERTICAL em `.service-choice`,
-`flex-direction:column`), não mais barras com +/−. São 4 perfis prontos (`data-service` =
-`padrao`/`premium`/`rapido`/`economico`), cada card com `data-q`/`data-a`/`data-v` (escala 0-10) e as 3
-barras Qualidade/Agilidade/Valor no MESMO componente `.qav` dos cards de profissional do feed (estilos em
-`feed.css`; largura da barra = valor×10%). Combinações: Padrão 5/5/5, Premium 8/5/7, Rápido 5/8/6,
+**"Padrão de Serviços" é SELEÇÃO por card + display único de barras** (`#container-service-choice`, GRADE
+2×2 em `.service-choice` `grid-template-columns:1fr 1fr`), não mais barras com +/−. São 4 cards COMPACTOS
+(`data-service` = `padrao`/`premium`/`rapido`/`economico`) só com ícone + título + subtítulo (check no canto);
+cada um traz `data-q`/`data-a`/`data-v` (escala 0-10). As barras ficam num ÚNICO `.service-choice-display`
+abaixo da grade, no MESMO componente `.qav` dos cards de profissional do feed (estilos em `feed.css`; largura
+= valor×10%), com `#svc-fill-quality/agility/value` atualizados em `onboarding.js` (`updateServiceDisplay`) a
+cada seleção — a largura ANIMA via `transition: width` escopada em `.service-choice-display .qav__fill` (as
+barras do feed seguem sem transição). Combinações: Padrão 5/5/5, Premium 8/5/7, Rápido 5/8/6,
 Custo-benefício 4/4/3 — o **máximo de qualquer barra é 8 (80%)**, nenhuma chega a 100%. Seleção ÚNICA
 estilo RÁDIO (`applyServiceCard`/`setServiceCardActive` em `onboarding.js`): **sempre há um card ativo** —
 "Padrão" já vem selecionado como base (`--active`/`aria-pressed`/`check_circle` no HTML + default
@@ -447,7 +450,7 @@ estado vazio). O `resetOnboardingForm` volta ao card "Padrão". Como Serviço (s
 disparada só por **área/profissão (tags) OU habilidades (bio)**; se um deles for preenchido, os dois passam
 a ser exigidos (`allProFilled = tags && bio`).
 
-Logo após as barras, "Métodos de pagamento aceitos" reproduz as mesmas opções do rodapé do card de
+Logo após, "Métodos de pagamento aceitos" reproduz as mesmas opções do rodapé do card de
 profissional no feed (`proFooterHTML()` em `feed.js`), como pílulas `.chip.chip--payment` (mesma classe
 `.chip` dos filtros do feed; `.payment-methods` só define o wrap do grupo) — o contexto "aceito" fica só
 no título da seção (`.form-group__label`), então as pílulas trazem apenas o nome do método ("Dinheiro",

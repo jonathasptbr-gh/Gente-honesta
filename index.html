@@ -366,72 +366,44 @@
                         </div>
                         <p class="form-group__description">Escolha o perfil que melhor descreve seu serviço. Cada opção define sua relação entre <strong>qualidade</strong>, <strong>agilidade</strong> e <strong>valor</strong> — e vai se ajustando sozinha conforme as avaliações que você receber.</p>
 
+                        <!-- Grade 2×2 de cards compactos (ícone + título + subtítulo), SEM
+                             barras individuais. -->
                         <div id="container-service-choice" class="service-choice">
-
                             <button type="button" class="service-choice__card service-choice__card--active" data-service="padrao" data-q="5" data-a="5" data-v="5" aria-pressed="true">
-                                <div class="service-choice__head">
-                                    <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">balance</span>
-                                    <span class="service-choice__titles">
-                                        <span class="service-choice__title">Padrão</span>
-                                        <span class="service-choice__sub">Equilibrado</span>
-                                    </span>
-                                    <span class="material-symbols-rounded service-choice__check" aria-hidden="true">check_circle</span>
-                                </div>
-                                <div class="qav">
-                                    <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:50%"></div></div></div>
-                                    <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:50%"></div></div></div>
-                                    <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:50%"></div></div></div>
-                                </div>
+                                <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">balance</span>
+                                <span class="service-choice__title">Padrão</span>
+                                <span class="service-choice__sub">Equilibrado</span>
+                                <span class="material-symbols-rounded service-choice__check" aria-hidden="true">check_circle</span>
                             </button>
-
                             <button type="button" class="service-choice__card" data-service="premium" data-q="8" data-a="5" data-v="7" aria-pressed="false">
-                                <div class="service-choice__head">
-                                    <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">workspace_premium</span>
-                                    <span class="service-choice__titles">
-                                        <span class="service-choice__title">Premium</span>
-                                        <span class="service-choice__sub">Alta qualidade</span>
-                                    </span>
-                                    <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
-                                </div>
-                                <div class="qav">
-                                    <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:80%"></div></div></div>
-                                    <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:50%"></div></div></div>
-                                    <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:70%"></div></div></div>
-                                </div>
+                                <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">workspace_premium</span>
+                                <span class="service-choice__title">Premium</span>
+                                <span class="service-choice__sub">Alta qualidade</span>
+                                <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
                             </button>
-
                             <button type="button" class="service-choice__card" data-service="rapido" data-q="5" data-a="8" data-v="6" aria-pressed="false">
-                                <div class="service-choice__head">
-                                    <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">bolt</span>
-                                    <span class="service-choice__titles">
-                                        <span class="service-choice__title">Rápido</span>
-                                        <span class="service-choice__sub">Alta agilidade</span>
-                                    </span>
-                                    <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
-                                </div>
-                                <div class="qav">
-                                    <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:50%"></div></div></div>
-                                    <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:80%"></div></div></div>
-                                    <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:60%"></div></div></div>
-                                </div>
+                                <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">bolt</span>
+                                <span class="service-choice__title">Rápido</span>
+                                <span class="service-choice__sub">Alta agilidade</span>
+                                <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
                             </button>
-
                             <button type="button" class="service-choice__card" data-service="economico" data-q="4" data-a="4" data-v="3" aria-pressed="false">
-                                <div class="service-choice__head">
-                                    <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">savings</span>
-                                    <span class="service-choice__titles">
-                                        <span class="service-choice__title">Custo-benefício</span>
-                                        <span class="service-choice__sub">Econômico</span>
-                                    </span>
-                                    <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
-                                </div>
-                                <div class="qav">
-                                    <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:40%"></div></div></div>
-                                    <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:40%"></div></div></div>
-                                    <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:30%"></div></div></div>
-                                </div>
+                                <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">savings</span>
+                                <span class="service-choice__title">Custo-benefício</span>
+                                <span class="service-choice__sub">Econômico</span>
+                                <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
                             </button>
+                        </div>
 
+                        <!-- Display ÚNICO das barras (componente .qav do feed), animado
+                             conforme o card selecionado (svc-fill-* atualizados em
+                             onboarding.js; largura = valor×10%). Começa no "Padrão" 50/50/50. -->
+                        <div class="service-choice-display" aria-hidden="true">
+                            <div class="qav">
+                                <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div id="svc-fill-quality" class="qav__fill" style="width:50%"></div></div></div>
+                                <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div id="svc-fill-agility" class="qav__fill" style="width:50%"></div></div></div>
+                                <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div id="svc-fill-value" class="qav__fill" style="width:50%"></div></div></div>
+                            </div>
                         </div>
                     </div>
 
