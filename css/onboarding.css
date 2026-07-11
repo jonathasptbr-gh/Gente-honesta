@@ -687,27 +687,27 @@
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-/* Cabeçalho no PADRÃO das seções do cadastro: ícone verde + rótulo com a
-   mesma cara de .form-group__label (--p-green, --fs-5, 700, uppercase) */
+/* Cabeçalho no PADRÃO dos TÍTULOS do cadastro ("Detalhes profissionais",
+   "Registrar sua região atual"): ícone verde 24px + texto --fs-7, 800,
+   --p-green-dark, sem uppercase */
 .ic-card__head {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-sm);
   padding-right: 26px;  /* espaço p/ o botão de ajuda (?) */
 }
 
 .material-symbols-rounded.ic-card__head-icon {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   color: var(--p-green);
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
 }
 
 .ic-card__eyebrow {
-  font-size: var(--fs-5);
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--p-green);
+  font-size: var(--fs-7);
+  font-weight: 800;
+  color: var(--p-green-dark);
 }
 
 /* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70) */
@@ -788,13 +788,15 @@
 }
 
 /* O SUBTÍTULO do card vive no hero, ao lado do 70 (nunca é escondido) —
-   no verde comum (--p-green) das seções */
+   no MESMO padrão de subtítulo de "O que você faz?"/"Suas Habilidades"
+   (.form-group__label: --p-green, --fs-5, 700, uppercase) */
 .ic-hero__title {
   display: block;
-  font-size: var(--fs-9);
-  font-weight: 800;
+  font-size: var(--fs-5);
+  font-weight: 700;
+  text-transform: uppercase;
   color: var(--p-green);
-  line-height: 1.15;
+  line-height: 1.2;
   margin-bottom: 2px;
 }
 
@@ -940,22 +942,23 @@
    extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
    fechado. O hero 70 e o medidor com os 4 escudos ficam SEMPRE. Limiares
    MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
-   fonte): completo ~849px, sem rodapé ~807px, sem nota ~782px, compacto
-   ~700px. */
-@media (max-height: 853px) {
+   fonte): completo ~829px, sem rodapé ~786px, sem nota ~761px, compacto
+   ~699px. */
+@media (max-height: 833px) {
   #view-onboarding .ic-card__footer { display: none; }
 }
 
-@media (max-height: 811px) {
+@media (max-height: 790px) {
   #view-onboarding .ic-factors { display: none; }
   #view-onboarding .ic-card { padding: var(--space-sm) var(--space-md); }
 }
 
-@media (max-height: 786px) {
+@media (max-height: 765px) {
   /* Telas bem curtas: compacta cabeçalho, card interno, hero e medidor
      (nada mais é escondido) */
   #view-onboarding .ic-card { padding: 10px var(--space-md); }
-  #view-onboarding .ic-card__eyebrow { font-size: var(--fs-4); }
+  #view-onboarding .ic-card__eyebrow { font-size: var(--fs-6); }
+  #view-onboarding .ic-card__head-icon { font-size: 1.3rem; }
   #view-onboarding .ic-card__intro { padding: 6px 10px; }
   #view-onboarding .ic-hero__badge { margin-right: -10px; }
   #view-onboarding .ic-hero__badge-shield { width: 3.1rem; height: 3.4rem; }
