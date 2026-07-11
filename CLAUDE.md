@@ -238,8 +238,9 @@ número, nunca é escondido); `.ic-meter` (as zonas `.ic-meter__zones` ficam ACI
 app `gpp_bad`/`gpp_maybe`/`shield_question`/`gpp_good` em versões de cor legíveis no fundo escuro, sendo a
 faixa <25% PRETA `#000`, escudo e segmento, a "zona morta" do índice; zonas SEM nomes de faixa — só escudo
 + faixa numérica, os escudos coloridos já comunicam; a zona atual `.ic-zone--current` acende, as demais
-ficam com `opacity: 0.78` — depois a barra segmentada nas 4 faixas, e o pino "VOCÊ" pulsante — `icPinPulse`
-— ABAIXO da barra, posicionado em `left: 70%`, linha subindo até a barra + etiqueta); `.ic-factors` (duas
+ficam com `opacity: 0.78` — depois a barra segmentada nas 4 faixas, e o pino "CONFIANÇA ATUAL" pulsante — `icPinPulse`
+— ABAIXO da barra, posicionado em `left: 70%`, linha subindo até a barra + etiqueta em linha única
+`white-space: nowrap`); `.ic-factors` (duas
 colunas "Faz subir"/"Faz cair" — itens são EXEMPLOS, com a nota `.ic-factors__note` em itálico ocupando as
 duas colunas do grid: "todas as suas ações na plataforma, boas ou ruins, afetam esse índice"; "Indicações
 FEITAS", não "recebidas" — resumo do diálogo de ajuda `btn-ic-info`); e `.ic-card__footer` (lema
@@ -433,7 +434,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v195`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v196`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em

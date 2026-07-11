@@ -798,6 +798,7 @@
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: nowrap;   /* "Confiança atual" numa linha só */
   color: var(--p-green-dark);
   background: var(--a-gold);
   padding: 2px 8px;
