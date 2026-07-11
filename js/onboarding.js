@@ -824,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
       text: `O Índice de Confiança é uma métrica interna da plataforma Gente Honesta que representa o nível de credibilidade e reputação de um usuário dentro do ecossistema.
 
 Como funciona?
-Ao se cadastrar, você recebe automaticamente um Índice de Confiança de 70% — o voto de confiança inicial da plataforma. Esse índice não é fixo: ele sobe e desce conforme suas ações e interações.
+Ao se cadastrar, você recebe automaticamente um Índice de Confiança de 70%, o voto de confiança inicial da plataforma. Esse índice não é fixo: ele sobe e desce conforme suas ações e interações.
 
 O que aumenta seu índice:
 • Avaliações positivas de clientes e parceiros

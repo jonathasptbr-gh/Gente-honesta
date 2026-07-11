@@ -746,11 +746,6 @@
   color: transparent;
 }
 
-.ic-hero__pct {
-  font-size: var(--fs-11);
-  font-weight: 800;
-}
-
 .ic-hero__info {
   min-width: 0;
 }
@@ -771,15 +766,16 @@
   color: rgba(255, 255, 255, 0.78);
 }
 
-/* ── Medidor: barra segmentada (4 faixas) + pino "VOCÊ" em 70% + zonas ── */
+/* ── Medidor: zonas ACIMA da barra segmentada (4 faixas); pino "VOCÊ" em 70%
+   ABAIXO dela (linha subindo até a barra + etiqueta pulsante) ── */
 .ic-meter {
   position: relative;
-  padding-top: 22px;  /* espaço do pino acima da barra */
+  padding-bottom: 26px;  /* espaço do pino abaixo da barra */
 }
 
 .ic-meter__pin {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 70%;
   transform: translateX(-50%);
   display: flex;
@@ -824,15 +820,15 @@
   flex: 1;
 }
 
-.ic-meter__seg--bad   { background: #3f4a42; }
+.ic-meter__seg--bad   { background: #000000; }
 .ic-meter__seg--alert { background: var(--danger); }
 .ic-meter__seg--warn  { background: var(--a-gold); }
 .ic-meter__seg--ok    { background: #46a56b; }
 
-/* Zonas: escudos do sistema + faixa + nome, um por segmento */
+/* Zonas (ACIMA da barra): escudo do sistema + faixa numérica, uma por segmento */
 .ic-meter__zones {
   display: flex;
-  margin-top: 6px;
+  margin-bottom: 6px;
 }
 
 .ic-zone {
@@ -856,8 +852,9 @@
   font-weight: 800;
 }
 
-/* Cores por faixa (versões legíveis sobre o fundo escuro) */
-.ic-zone--bad   .ic-zone__shield, .ic-zone--bad   .ic-zone__range { color: #93a096; }
+/* Cores por faixa (versões legíveis sobre o fundo escuro; a <25% é PRETA,
+   como o segmento da barra: a zona "morta" do índice) */
+.ic-zone--bad   .ic-zone__shield, .ic-zone--bad   .ic-zone__range { color: #000000; }
 .ic-zone--alert .ic-zone__shield, .ic-zone--alert .ic-zone__range { color: #f16a60; }
 .ic-zone--warn  .ic-zone__shield, .ic-zone--warn  .ic-zone__range { color: #efc04b; }
 .ic-zone--ok    .ic-zone__shield, .ic-zone--ok    .ic-zone__range { color: #5fc084; }
@@ -953,8 +950,8 @@
    extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
    fechado. O hero 70% e o medidor com os 4 escudos ficam SEMPRE. Limiares
    MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
-   fonte): completo ~887px, sem rodapé ~823px, sem colunas ~711px, compacto
-   ~669px. */
+   fonte): completo ~891px, sem rodapé ~827px, sem colunas ~715px, compacto
+   ~673px. */
 @media (max-height: 894px) {
   #view-onboarding .ic-card__footer { display: none; }
 }
