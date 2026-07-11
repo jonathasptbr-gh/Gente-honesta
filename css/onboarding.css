@@ -878,67 +878,9 @@
   font-size: 1.6rem;
 }
 
-/* ── O que move o índice: duas colunas (sobe / cai) ── */
-.ic-factors {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-sm);
-  row-gap: 4px;   /* a linha da nota (exemplos) fica colada nas colunas */
-}
-
-/* Cabeçalhos em flex de bloco (não inline): as duas colunas ganham caixas de
-   MESMA altura com texto e seta centralizados verticalmente, garantindo que
-   "Faz descer" e "Faz subir" fiquem na mesma linha visual. */
-.ic-factors__head {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--fs-2);
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  line-height: 1.2;
-  margin-bottom: 3px;
-}
-
-/* Coluna espelhada: o cabeçalho encosta na direita */
-.ic-factors__col--down .ic-factors__head {
-  justify-content: flex-end;
-}
-
-.ic-factors__head .material-symbols-rounded {
-  font-size: 0.95rem;
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
-}
-
-.ic-factors__col--up   .ic-factors__head { color: #5fc084; }
-.ic-factors__col--down .ic-factors__head { color: #f16a60; }
-
-/* Coluna "Faz descer" ESPELHADA: tudo alinhado à direita — cabeçalho (com a
-   seta à direita do texto, via ordem no HTML) e itens — como contraponto
-   visual da coluna "Faz subir" */
-.ic-factors__col--down {
-  text-align: right;
-}
-
-.ic-factors__list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-/* Itens sem pontos demarcadores: texto puro, alinhado pela coluna */
-.ic-factors__list li {
-  font-size: var(--fs-2);
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.75);
-}
-
-/* Nota: as colunas são só EXEMPLOS (ocupa as duas colunas do grid; some junto
-   com .ic-factors nas telas baixas) */
+/* ── O que move o índice: nota única (a antiga tabela sobe/desce foi removida;
+   some nas telas baixas via @media, junto com o container) ── */
 .ic-factors__note {
-  grid-column: 1 / -1;
   font-size: var(--fs-1);
   font-style: italic;
   line-height: 1.35;
@@ -962,20 +904,20 @@
 
 /* ── Adaptativo por altura (inclui a redução pela barra do navegador): esconde
    extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
-   fechado. O hero 70% e o medidor com os 4 escudos ficam SEMPRE. Limiares
+   fechado. O hero 70 e o medidor com os 4 escudos ficam SEMPRE. Limiares
    MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
-   fonte): completo ~891px, sem rodapé ~827px, sem colunas ~715px, compacto
-   ~673px. */
-@media (max-height: 894px) {
+   fonte): completo ~834px, sem rodapé ~770px, sem nota ~732px, compacto
+   ~678px. */
+@media (max-height: 838px) {
   #view-onboarding .ic-card__footer { display: none; }
 }
 
-@media (max-height: 830px) {
+@media (max-height: 774px) {
   #view-onboarding .ic-factors { display: none; }
   #view-onboarding .ic-card { padding: var(--space-sm) var(--space-md); }
 }
 
-@media (max-height: 718px) {
+@media (max-height: 736px) {
   /* Telas bem curtas: compacta hero e medidor (nada mais é escondido) */
   #view-onboarding .ic-hero__value { font-size: 2.6rem; }
   #view-onboarding .ic-hero__text { display: none; }

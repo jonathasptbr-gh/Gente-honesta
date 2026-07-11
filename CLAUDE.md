@@ -240,22 +240,18 @@ faixa <25% PRETA `#000`, escudo e segmento, a "zona morta" do índice; zonas SEM
 + faixa numérica, os escudos coloridos já comunicam; a zona atual `.ic-zone--current` acende, as demais
 ficam com `opacity: 0.78` — depois a barra segmentada nas 4 faixas, e o pino "CONFIANÇA ATUAL" pulsante — `icPinPulse`
 — ABAIXO da barra, posicionado em `left: 70%`, linha subindo até a barra + etiqueta em linha única
-`white-space: nowrap`); `.ic-factors` (duas
-colunas, "Faz descer" à ESQUERDA e "Faz subir" à DIREITA, combinando com a barra que cresce para a
-direita; a coluna "Faz descer" é ESPELHADA — texto alinhado à direita, seta DEPOIS do texto no HTML —
-como contraponto visual da "Faz subir"; os cabeçalhos são `display:flex; align-items:center` (caixas de
-mesma altura, texto e seta verticalmente alinhados entre as colunas; o da direita usa
-`justify-content:flex-end`); itens SEM pontos demarcadores (texto puro) — itens são EXEMPLOS,
-com a nota `.ic-factors__note` em itálico e CENTRALIZADA ocupando as
-duas colunas do grid: "Resumindo, todas as suas ações na plataforma, boas ou ruins, afetam esse índice"; "Indicações
+`white-space: nowrap`); `.ic-factors` (SÓ a nota
+`.ic-factors__note` em itálico e centralizada: "Resumindo, todas as suas ações na plataforma, boas ou
+ruins, afetam esse índice" — a antiga tabela "Faz descer"/"Faz subir" foi REMOVIDA de propósito, não
+recriar); "Indicações
 FEITAS", não "recebidas" — resumo do diálogo de ajuda `btn-ic-info`); e `.ic-card__footer` (lema
 "confiança se constrói devagar, e se perde rápido"). Nos textos visíveis do card NUNCA usar travessão
 "—" (visualmente estranho para o usuário — usar vírgula, ponto e vírgula ou dois-pontos).
 `.form-group--ic-fill` = `flex: 1 0 auto` (preenche o vão até o botão de concluir). **Adaptativo por
-altura** (`@media (max-height)` em `#view-onboarding`, limiares MEDIDOS por estado: completo ~891px, sem
-rodapé ~827px, sem colunas ~715px, compacto ~673px): ≤894px esconde o rodapé; ≤830px esconde as colunas
-(e a nota) e aperta o padding; ≤718px compacta (some a frase do hero, encolhem o 70 e os escudos) — cabe
-sem rolagem de ~673px pra cima.
+altura** (`@media (max-height)` em `#view-onboarding`, limiares MEDIDOS por estado: completo ~834px, sem
+rodapé ~770px, sem nota ~732px, compacto ~678px): ≤838px esconde o rodapé; ≤774px esconde a nota e aperta
+o padding; ≤736px compacta (some a frase do hero, encolhem o 70 e os escudos) — cabe sem rolagem de
+~678px pra cima.
 O hero 70% + o medidor com os 4 escudos ficam SEMPRE. O texto de ajuda (`helpTexts['btn-ic-info']` em
 onboarding.js) diz "70%" (nunca "100 pontos") e também não usa a abreviação.
 
