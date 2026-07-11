@@ -829,7 +829,7 @@ Ao se cadastrar, você recebe automaticamente um Índice de Confiança de 70% �
 O que aumenta seu índice:
 • Avaliações positivas de clientes e parceiros
 • Cumprimento de acordos e prazos
-• Indicações recebidas de outros usuários
+• Indicações feitas a outros usuários
 • Histórico de serviços concluídos com sucesso
 • Tempo de atividade consistente na plataforma
 

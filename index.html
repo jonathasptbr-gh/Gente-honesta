@@ -511,14 +511,14 @@
 
                     <div class="ic-card__head">
                         <span class="ic-card__eyebrow">Sua reputação na plataforma</span>
-                        <strong class="ic-card__title">Índice de Confiança</strong>
                     </div>
 
-                    <!-- Hero: o 70% inicial + a mensagem de responsabilidade -->
+                    <!-- Hero: o 70% inicial + o TÍTULO do card + a mensagem de
+                         responsabilidade (o título vive aqui, junto do número) -->
                     <div class="ic-hero">
                         <span class="ic-hero__value">70<span class="ic-hero__pct">%</span></span>
                         <div class="ic-hero__info">
-                            <strong class="ic-hero__status">Em formação</strong>
+                            <strong class="ic-hero__title">Índice de Confiança</strong>
                             <p class="ic-hero__text">Todo cadastro nasce com este voto de confiança — mantê-lo alto depende só de você.</p>
                         </div>
                     </div>
@@ -536,26 +536,25 @@
                             <span class="ic-meter__seg ic-meter__seg--warn"></span>
                             <span class="ic-meter__seg ic-meter__seg--ok"></span>
                         </div>
+                        <!-- Zonas SEM nomes/títulos de faixa (só escudo + faixa
+                             numérica) — decisão de design: os escudos coloridos
+                             já comunicam o significado -->
                         <div class="ic-meter__zones">
                             <div class="ic-zone ic-zone--bad">
                                 <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">gpp_bad</span>
                                 <span class="ic-zone__range">0–24</span>
-                                <span class="ic-zone__name">Crítico</span>
                             </div>
                             <div class="ic-zone ic-zone--alert">
                                 <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">gpp_maybe</span>
                                 <span class="ic-zone__range">25–49</span>
-                                <span class="ic-zone__name">Atenção</span>
                             </div>
                             <div class="ic-zone ic-zone--warn ic-zone--current">
                                 <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">shield_question</span>
                                 <span class="ic-zone__range">50–74</span>
-                                <span class="ic-zone__name">Em formação</span>
                             </div>
                             <div class="ic-zone ic-zone--ok">
                                 <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">gpp_good</span>
                                 <span class="ic-zone__range">75–100</span>
-                                <span class="ic-zone__name">Confiável</span>
                             </div>
                         </div>
                     </div>
@@ -567,7 +566,7 @@
                             <ul class="ic-factors__list">
                                 <li>Avaliações positivas</li>
                                 <li>Acordos cumpridos</li>
-                                <li>Indicações recebidas</li>
+                                <li>Indicações feitas</li>
                             </ul>
                         </div>
                         <div class="ic-factors__col ic-factors__col--down">
@@ -578,6 +577,7 @@
                                 <li>Disputas e violações</li>
                             </ul>
                         </div>
+                        <p class="ic-factors__note">Alguns exemplos — outras ações e avaliações também movem o índice.</p>
                     </div>
 
                     <p class="ic-card__footer">Índice alto aparece primeiro nas buscas e recebe mais indicações. <strong>Confiança se constrói devagar — e se perde rápido.</strong></p>

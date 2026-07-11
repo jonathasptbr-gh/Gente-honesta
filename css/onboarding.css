@@ -709,15 +709,6 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(224, 168, 28, 0.9);
-  margin-bottom: 1px;
-}
-
-.ic-card__title {
-  display: block;
-  font-size: var(--fs-10);
-  font-weight: 800;
-  color: var(--t-light);
-  line-height: 1.15;
 }
 
 /* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca
@@ -764,11 +755,13 @@
   min-width: 0;
 }
 
-.ic-hero__status {
+/* O TÍTULO do card vive no hero, ao lado do 70% (nunca é escondido) */
+.ic-hero__title {
   display: block;
-  font-size: var(--fs-7);
+  font-size: var(--fs-9);
   font-weight: 800;
-  color: var(--a-gold);
+  color: var(--t-light);
+  line-height: 1.15;
   margin-bottom: 2px;
 }
 
@@ -863,18 +856,13 @@
   font-weight: 800;
 }
 
-.ic-zone__name {
-  font-size: var(--fs-1);
-  color: rgba(255, 255, 255, 0.62);
-}
-
 /* Cores por faixa (versões legíveis sobre o fundo escuro) */
 .ic-zone--bad   .ic-zone__shield, .ic-zone--bad   .ic-zone__range { color: #93a096; }
 .ic-zone--alert .ic-zone__shield, .ic-zone--alert .ic-zone__range { color: #f16a60; }
 .ic-zone--warn  .ic-zone__shield, .ic-zone--warn  .ic-zone__range { color: #efc04b; }
 .ic-zone--ok    .ic-zone__shield, .ic-zone--ok    .ic-zone__range { color: #5fc084; }
 
-/* Zona atual (Em formação): acesa e com o escudo maior */
+/* Zona atual (50–74, onde o usuário começa): acesa e com o escudo maior */
 .ic-zone--current {
   opacity: 1;
 }
@@ -883,16 +871,12 @@
   font-size: 1.6rem;
 }
 
-.ic-zone--current .ic-zone__name {
-  color: var(--t-light);
-  font-weight: 700;
-}
-
 /* ── O que move o índice: duas colunas (sobe / cai) ── */
 .ic-factors {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-sm);
+  row-gap: 4px;   /* a linha da nota (exemplos) fica colada nas colunas */
 }
 
 .ic-factors__head {
@@ -941,6 +925,16 @@
   opacity: 0.55;
 }
 
+/* Nota: as colunas são só EXEMPLOS (ocupa as duas colunas do grid; some junto
+   com .ic-factors nas telas baixas) */
+.ic-factors__note {
+  grid-column: 1 / -1;
+  font-size: var(--fs-1);
+  font-style: italic;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.5);
+}
+
 /* ── Rodapé-lema ── */
 .ic-card__footer {
   font-size: var(--fs-2);
@@ -959,9 +953,9 @@
    extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
    fechado. O hero 70% e o medidor com os 4 escudos ficam SEMPRE. Limiares
    MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
-   fonte): completo ~889px, sem rodapé ~823px, sem colunas ~744px, compacto
-   ~693px. */
-@media (max-height: 896px) {
+   fonte): completo ~887px, sem rodapé ~823px, sem colunas ~711px, compacto
+   ~669px. */
+@media (max-height: 894px) {
   #view-onboarding .ic-card__footer { display: none; }
 }
 
@@ -970,13 +964,12 @@
   #view-onboarding .ic-card { padding: var(--space-sm) var(--space-md); }
 }
 
-@media (max-height: 751px) {
+@media (max-height: 718px) {
   /* Telas bem curtas: compacta hero e medidor (nada mais é escondido) */
   #view-onboarding .ic-hero__value { font-size: 2.3rem; }
   #view-onboarding .ic-hero__text { display: none; }
   #view-onboarding .ic-zone__shield { font-size: 1.15rem; }
   #view-onboarding .ic-zone--current .ic-zone__shield { font-size: 1.35rem; }
-  #view-onboarding .ic-zone__name { display: none; }
 }
 
 /* ── Dialog da câmera ── */
