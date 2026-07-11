@@ -228,10 +228,10 @@ brilho dourado radial + borda dourada translúcida + marca d'água `.ic-card__wa
 quase transparente no canto). Nunca abreviar "IC" em texto visível ao usuário — sempre "Índice de
 Confiança". Conteúdo (de cima p/ baixo, seções irmãs num flex column com `justify-content: space-between`
 para distribuir a altura extra): cabeçalho SÓ com o eyebrow dourado "SUA REPUTAÇÃO NA PLATAFORMA";
-`.ic-hero` (o número 70 GIGANTE em degradê dourado via `background-clip: text` — SEM o símbolo "%",
-decisão de design — + o TÍTULO do card `.ic-hero__title` "Índice de Confiança" — o título vive AQUI, ao
-lado do número, nunca é escondido — + frase de responsabilidade: o índice começa em 70 e mantê-lo depende
-do usuário); `.ic-meter` (as zonas `.ic-meter__zones` ficam ACIMA da barra — os MESMOS escudos do resto do
+`.ic-hero` (o TÍTULO do card `.ic-hero__title` "Índice de Confiança" + frase de responsabilidade — o
+índice começa em 70 e mantê-lo depende do usuário — em bloco alinhado À DIREITA, com o número 70 GIGANTE
+em degradê dourado via `background-clip: text`, SEM o símbolo "%", À DIREITA do texto; o título vive
+AQUI, ao lado do número, nunca é escondido); `.ic-meter` (as zonas `.ic-meter__zones` ficam ACIMA da barra — os MESMOS escudos do resto do
 app `gpp_bad`/`gpp_maybe`/`shield_question`/`gpp_good` em versões de cor legíveis no fundo escuro, sendo a
 faixa <25% PRETA `#000`, escudo e segmento, a "zona morta" do índice; zonas SEM nomes de faixa — só escudo
 + faixa numérica, os escudos coloridos já comunicam; a zona atual `.ic-zone--current` acende, as demais
@@ -430,7 +430,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v191`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v192`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em

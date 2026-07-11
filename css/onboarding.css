@@ -746,8 +746,11 @@
   color: transparent;
 }
 
+/* Texto alinhado à direita, encostando no 70 (que fica à direita dele) */
 .ic-hero__info {
   min-width: 0;
+  flex: 1;
+  text-align: right;
 }
 
 /* O TÍTULO do card vive no hero, ao lado do 70% (nunca é escondido) */
