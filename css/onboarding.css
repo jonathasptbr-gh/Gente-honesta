@@ -26,8 +26,11 @@
   color: var(--p-green-light);
 }
 
+/* "Cancelar" DOURADO (não verde-claro): denota ação clicável sobre o verde,
+   em vez de se camuflar como texto comum (mesmo critério dos botões de texto
+   do fluxo de auth). */
 #view-onboarding #btn-onboarding-cancel {
-  color: var(--p-green-light);
+  color: var(--a-gold);
 }
 
 /* Distribui o formulário pela altura restante da tela (depois do cabeçalho)

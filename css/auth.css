@@ -226,10 +226,13 @@
   color: var(--p-green-dark);
 }
 
-/* Botões de texto (voltar, reenviar, pular, retry) claros sobre o verde. */
+/* Botões de texto (Alterar número, Reenviar SMS, Continuar no navegador, etc.):
+   DOURADO em vez do verde-claro. O verde-claro se camuflava no texto comum e não
+   parecia clicável; o --a-gold (mesmo dos links legais) denota ação/link sobre o
+   verde. */
 #view-auth .btn--text,
 #view-install .btn--text {
-  color: var(--p-green-light);
+  color: var(--a-gold);
 }
 
 /* Logo (capacete) do 1º slide — fundo transparente, funde com o verde da tela;
