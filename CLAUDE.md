@@ -223,7 +223,9 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 | 0–24 | `ic--bad` (cinza) | `gpp_bad` |
 
 O card do Índice de Confiança no cadastro (`.ic-card`, `#view-onboarding`) é o "SELO DE REPUTAÇÃO":
-card BRANCO como os demais campos do formulário, com borda `--p-green-dark` e um leve brilho VERDE
+card BRANCO como os demais campos do formulário, SEM borda (como os cards de região e detalhes
+profissionais, que também perderam as bordas cinzas: o card claro contrasta sozinho no verde; o estado
+de erro da localização usa `box-shadow` inset vermelho em vez de borda) e com um leve brilho VERDE
 radial no canto (pulso do pino também verde — os efeitos decorativos do card são verdes, não dourados);
 textos nas cores padrão dos cards claros (título e eyebrow `--p-green-dark`, corpo/nota/rodapé
 `--t-sub`, 70 em degradê ouro→ocre; o destaque do rodapé é `--p-green-dark` em linha própria via
@@ -256,10 +258,10 @@ de Confiança é seu bem mais valioso na plataforma, seja honesto e responsável
 centralizado e com a MESMA fonte da nota, `--fs-1`). Nos textos visíveis do card NUNCA usar travessão
 "—" (visualmente estranho para o usuário — usar vírgula, ponto e vírgula ou dois-pontos).
 `.form-group--ic-fill` = `flex: 1 0 auto` (preenche o vão até o botão de concluir). **Adaptativo por
-altura** (`@media (max-height)` em `#view-onboarding`, limiares MEDIDOS por estado: completo ~829px, sem
-rodapé ~786px, sem nota ~761px, compacto ~699px): ≤833px esconde o rodapé; ≤790px esconde a nota e aperta
-o padding; ≤765px compacta (some a frase do hero, encolhem cabeçalho, card interno, moldura-escudo/70 e
-escudos) — cabe sem rolagem de ~698px pra cima.
+altura** (`@media (max-height)` em `#view-onboarding`, limiares MEDIDOS por estado: completo ~819px, sem
+rodapé ~776px, sem nota ~751px, compacto ~689px): ≤823px esconde o rodapé; ≤780px esconde a nota e aperta
+o padding; ≤755px compacta (some a frase do hero, encolhem cabeçalho, card interno, moldura-escudo/70 e
+escudos) — cabe sem rolagem de ~689px pra cima.
 O hero 70% + o medidor com os 4 escudos ficam SEMPRE. O texto de ajuda (`helpTexts['btn-ic-info']` em
 onboarding.js) diz "70%" (nunca "100 pontos") e também não usa a abreviação.
 
