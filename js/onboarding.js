@@ -272,7 +272,7 @@ window.startOnboardingTutorial = function () {
       // topo da tela (block:'start' fica limitado pelo fim do documento); forçar
       // o balão acima evita que ele fique sem espaço de nenhum dos lados.
       position: 'top',
-      text: 'Esse é o seu IC: começa em 70% e reflete sua reputação, mudando conforme suas ações e avaliações na plataforma.'
+      text: 'Sua reputação na plataforma: começa em 70% e sobe ou cai conforme suas ações e avaliações. Cuide bem dela.'
     }
   ], { id: 'onboarding' });
 };
@@ -821,19 +821,19 @@ document.addEventListener('DOMContentLoaded', () => {
     'btn-ic-info': {
       title: 'O que é o Índice de Confiança?',
       icon: 'verified_user',
-      text: `O Índice de Confiança (IC) é uma métrica interna da plataforma Gente Honesta que representa o nível de credibilidade e reputação de um usuário dentro do ecossistema.
+      text: `O Índice de Confiança é uma métrica interna da plataforma Gente Honesta que representa o nível de credibilidade e reputação de um usuário dentro do ecossistema.
 
 Como funciona?
-Ao se cadastrar, você recebe automaticamente 100 pontos — o voto de confiança inicial da plataforma. Esse índice não é fixo: ele sobe e desce conforme suas ações e interações.
+Ao se cadastrar, você recebe automaticamente um Índice de Confiança de 70% — o voto de confiança inicial da plataforma. Esse índice não é fixo: ele sobe e desce conforme suas ações e interações.
 
-O que aumenta seu IC:
+O que aumenta seu índice:
 • Avaliações positivas de clientes e parceiros
 • Cumprimento de acordos e prazos
 • Indicações recebidas de outros usuários
 • Histórico de serviços concluídos com sucesso
 • Tempo de atividade consistente na plataforma
 
-O que reduz seu IC:
+O que reduz seu índice:
 • Avaliações negativas ou reclamações
 • Cancelamentos frequentes sem justificativa
 • Disputas abertas contra você
@@ -841,7 +841,7 @@ O que reduz seu IC:
 • Violações dos Termos de Uso
 
 Por que ele importa?
-Usuários com IC alto aparecem primeiro nas buscas, têm mais chances de receber indicações e transmitem mais confiança para novos clientes. Um IC baixo pode limitar funcionalidades e visibilidade no app.
+Usuários com Índice de Confiança alto aparecem primeiro nas buscas, têm mais chances de receber indicações e transmitem mais confiança para novos clientes. Um índice baixo pode limitar funcionalidades e visibilidade no app.
 
 Lembre-se: a confiança é construída devagar e perdida rapidamente. Use a plataforma com honestidade e seu índice refletirá isso naturalmente.`
     },

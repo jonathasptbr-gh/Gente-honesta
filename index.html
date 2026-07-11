@@ -493,55 +493,94 @@
             </div>
 
             <!-- ── Índice de Confiança ──────────────────────────────────────
-                 form-group--ic-fill: cresce (flex:1 0 auto) para preencher o vão
-                 até o botão quando fechado, mas o conteúdo é COMPACTO por padrão
-                 (gauge + medidor de faixas), então cabe na tela — inclusive no
-                 navegador com barra. Extras (texto, rótulos, citação) escondem em
-                 telas baixas via @media (max-height) — ver onboarding.css. -->
+                 Card ESCURO premium (verde profundo + dourado) — o único escuro do
+                 formulário, de propósito: é o "selo de reputação" e deve chamar
+                 atenção entre os campos claros. form-group--ic-fill: cresce
+                 (flex:1 0 auto) para preencher o vão até o botão; as seções
+                 internas se distribuem (space-between). Conteúdo: cabeçalho +
+                 hero 70% + medidor de faixas (escudos do sistema) com pino "VOCÊ"
+                 em 70% + colunas "faz subir/faz cair" + rodapé. Em telas baixas,
+                 rodapé e colunas escondem via @media (max-height) — o medidor com
+                 os 4 escudos e o hero 70% ficam SEMPRE. Ver onboarding.css. -->
             <div class="form-group form-group--ic-fill">
                 <div class="ic-card">
+                    <span class="material-symbols-rounded ic-card__watermark" aria-hidden="true">shield_question</span>
                     <button type="button" id="btn-ic-info" class="ic-card__info-btn" aria-label="Mais informações sobre o Índice de Confiança">
                         <span class="material-symbols-rounded" aria-hidden="true">help</span>
                     </button>
 
                     <div class="ic-card__head">
+                        <span class="ic-card__eyebrow">Sua reputação na plataforma</span>
                         <strong class="ic-card__title">Índice de Confiança</strong>
-                        <p class="ic-card__text">Sua reputação viva na plataforma — começa em 70% e cresce com suas boas ações.</p>
                     </div>
 
-                    <!-- Faixas em lista vertical, com os MESMOS escudos coloridos do
-                         resto do app (gpp_good/shield_question/gpp_maybe/gpp_bad). A
-                         faixa atual (50-74%, "Em formação") é a linha-destaque, com o
-                         escudo GRANDE e o 70%. As linhas se distribuem (space-around)
-                         para preencher a altura do card sem sobrar vão. -->
-                    <div class="ic-tiers">
-                        <div class="ic-tier ic-tier--ok">
-                            <span class="material-symbols-rounded ic-tier__shield" aria-hidden="true">gpp_good</span>
-                            <span class="ic-tier__range">75–100%</span>
-                            <span class="ic-tier__name">Confiável</span>
+                    <!-- Hero: o 70% inicial + a mensagem de responsabilidade -->
+                    <div class="ic-hero">
+                        <span class="ic-hero__value">70<span class="ic-hero__pct">%</span></span>
+                        <div class="ic-hero__info">
+                            <strong class="ic-hero__status">Em formação</strong>
+                            <p class="ic-hero__text">Todo cadastro nasce com este voto de confiança — mantê-lo alto depende só de você.</p>
                         </div>
+                    </div>
 
-                        <div class="ic-tier ic-tier--warn ic-tier--current">
-                            <span class="material-symbols-rounded ic-tier__shield" aria-hidden="true">shield_question</span>
-                            <span class="ic-tier__current-val">70%</span>
-                            <div class="ic-tier__info">
-                                <span class="ic-tier__name">Em formação</span>
-                                <span class="ic-tier__hint">você começa aqui · 50–74%</span>
+                    <!-- Medidor: barra segmentada nas 4 faixas + pino "VOCÊ" em 70%
+                         + zonas com os MESMOS escudos coloridos do resto do app -->
+                    <div class="ic-meter">
+                        <div class="ic-meter__pin" aria-hidden="true">
+                            <span class="ic-meter__pin-tag">você</span>
+                            <span class="ic-meter__pin-line"></span>
+                        </div>
+                        <div class="ic-meter__track" aria-hidden="true">
+                            <span class="ic-meter__seg ic-meter__seg--bad"></span>
+                            <span class="ic-meter__seg ic-meter__seg--alert"></span>
+                            <span class="ic-meter__seg ic-meter__seg--warn"></span>
+                            <span class="ic-meter__seg ic-meter__seg--ok"></span>
+                        </div>
+                        <div class="ic-meter__zones">
+                            <div class="ic-zone ic-zone--bad">
+                                <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">gpp_bad</span>
+                                <span class="ic-zone__range">0–24</span>
+                                <span class="ic-zone__name">Crítico</span>
+                            </div>
+                            <div class="ic-zone ic-zone--alert">
+                                <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">gpp_maybe</span>
+                                <span class="ic-zone__range">25–49</span>
+                                <span class="ic-zone__name">Atenção</span>
+                            </div>
+                            <div class="ic-zone ic-zone--warn ic-zone--current">
+                                <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">shield_question</span>
+                                <span class="ic-zone__range">50–74</span>
+                                <span class="ic-zone__name">Em formação</span>
+                            </div>
+                            <div class="ic-zone ic-zone--ok">
+                                <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">gpp_good</span>
+                                <span class="ic-zone__range">75–100</span>
+                                <span class="ic-zone__name">Confiável</span>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="ic-tier ic-tier--alert">
-                            <span class="material-symbols-rounded ic-tier__shield" aria-hidden="true">gpp_maybe</span>
-                            <span class="ic-tier__range">25–49%</span>
-                            <span class="ic-tier__name">Atenção</span>
+                    <!-- O que move o índice (resumo do diálogo de ajuda) -->
+                    <div class="ic-factors">
+                        <div class="ic-factors__col ic-factors__col--up">
+                            <span class="ic-factors__head"><span class="material-symbols-rounded" aria-hidden="true">arrow_upward</span>Faz subir</span>
+                            <ul class="ic-factors__list">
+                                <li>Avaliações positivas</li>
+                                <li>Acordos cumpridos</li>
+                                <li>Indicações recebidas</li>
+                            </ul>
                         </div>
-
-                        <div class="ic-tier ic-tier--bad">
-                            <span class="material-symbols-rounded ic-tier__shield" aria-hidden="true">gpp_bad</span>
-                            <span class="ic-tier__range">0–24%</span>
-                            <span class="ic-tier__name">Crítico</span>
+                        <div class="ic-factors__col ic-factors__col--down">
+                            <span class="ic-factors__head"><span class="material-symbols-rounded" aria-hidden="true">arrow_downward</span>Faz cair</span>
+                            <ul class="ic-factors__list">
+                                <li>Reclamações</li>
+                                <li>Cancelamentos</li>
+                                <li>Disputas e violações</li>
+                            </ul>
                         </div>
                     </div>
+
+                    <p class="ic-card__footer">Índice alto aparece primeiro nas buscas e recebe mais indicações. <strong>Confiança se constrói devagar — e se perde rápido.</strong></p>
                 </div>
             </div>
 

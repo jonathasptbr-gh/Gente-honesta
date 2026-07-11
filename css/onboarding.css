@@ -650,20 +650,33 @@
 }
 
 
-/* ── Índice de Confiança (card do onboarding) — COMPACTO + ARTÍSTICO ──
-   Fundo com leve degradê e um brilho dourado no canto (destaca-se dos campos
-   brancos comuns e amarra ao gauge). Conteúdo enxuto: gauge + medidor de faixas
-   + (extras adaptativos). */
+/* ── Índice de Confiança (card do onboarding) — "SELO DE REPUTAÇÃO" ──
+   Card ESCURO premium: verde profundo em degradê + brilho dourado + marca
+   d'água de escudo. É o ÚNICO elemento escuro do formulário, de propósito —
+   destaca-se de todos os campos claros e sinaliza importância. Conteúdo (de
+   cima p/ baixo): cabeçalho, hero 70%, medidor segmentado com pino "VOCÊ" e
+   os 4 escudos do sistema, colunas "faz subir/faz cair" e rodapé-lema. */
 .ic-card {
   position: relative;
-  border: 1.5px solid var(--gold-soft-border);
+  border: 1.5px solid rgba(224, 168, 28, 0.45);
   border-radius: var(--radius-md);
   background:
-    radial-gradient(120% 80% at 100% 0%, rgba(224, 168, 28, 0.12), transparent 55%),
-    linear-gradient(160deg, #ffffff 0%, #eef4ee 100%);
-  padding: var(--space-md);
+    radial-gradient(130% 90% at 100% 0%, rgba(224, 168, 28, 0.16), transparent 55%),
+    linear-gradient(170deg, #12380f 0%, var(--p-green-dark) 100%);
+  padding: 14px var(--space-md);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+/* Marca d'água: escudo gigante dourado quase transparente no canto */
+.material-symbols-rounded.ic-card__watermark {
+  position: absolute;
+  right: -22px;
+  top: -18px;
+  font-size: 9rem;
+  color: rgba(224, 168, 28, 0.08);
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 48;
+  pointer-events: none;
 }
 
 .ic-card__info-btn {
@@ -673,7 +686,6 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--t-sub);
   line-height: 1;
   padding: 2px;
   z-index: 2;
@@ -681,31 +693,37 @@
 
 .ic-card__info-btn .material-symbols-rounded {
   font-size: 1.2rem;
-  color: var(--t-sub);
+  color: rgba(255, 255, 255, 0.65);
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 .ic-card__head {
-  padding-right: 22px;   /* espaço p/ o botão de ajuda (?) */
+  position: relative;   /* acima da marca d'água */
+  padding-right: 26px;  /* espaço p/ o botão de ajuda (?) */
+}
+
+.ic-card__eyebrow {
+  display: block;
+  font-size: var(--fs-1);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(224, 168, 28, 0.9);
+  margin-bottom: 1px;
 }
 
 .ic-card__title {
   display: block;
-  font-size: var(--fs-7);
+  font-size: var(--fs-10);
   font-weight: 800;
-  color: var(--p-green-dark);
-  margin-bottom: 4px;
-}
-
-.ic-card__text {
-  font-size: var(--fs-3);
-  color: var(--t-sub);
-  line-height: 1.4;
+  color: var(--t-light);
+  line-height: 1.15;
 }
 
 /* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca
    encolhe abaixo do conteúdo). Em telas curtas fica na altura do conteúdo e a
-   página rola. */
+   página rola. As seções internas se distribuem (space-between) para ocupar a
+   altura extra sem sobrar vão em uma ponta só. */
 .form-group--ic-fill {
   flex: 1 0 auto;
 }
@@ -714,107 +732,251 @@
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  justify-content: space-between;
+  gap: 8px;
 }
 
-/* ── Lista de faixas — escudos coloridos do sistema, a atual em destaque ──
-   Distribui (space-around) para PREENCHER a altura do card, sem sobrar vão. */
-.ic-tiers {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  gap: var(--space-xs);
-  min-height: 0;
-}
-
-.ic-tier {
+/* ── Hero: 70% gigante + status + mensagem de responsabilidade ── */
+.ic-hero {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  padding: 4px var(--space-xs);
-}
-
-.ic-tier__shield {
-  font-size: 1.7rem;
-  flex-shrink: 0;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-}
-
-.ic-tier__range {
-  font-size: var(--fs-4);
-  font-weight: 800;
-  min-width: 64px;
-}
-
-.ic-tier__name {
-  font-size: var(--fs-4);
-  font-weight: 600;
-  color: var(--t-sub);
-}
-
-/* Cores por faixa (escudo + %) — as mesmas do resto do app */
-.ic-tier--ok    .ic-tier__shield, .ic-tier--ok    .ic-tier__range { color: var(--success-fill); }
-.ic-tier--warn  .ic-tier__shield, .ic-tier--warn  .ic-tier__range { color: var(--a-gold); }
-.ic-tier--alert .ic-tier__shield, .ic-tier--alert .ic-tier__range { color: var(--danger); }
-.ic-tier--bad   .ic-tier__shield, .ic-tier--bad   .ic-tier__range { color: var(--t-main); }
-
-/* Faixa ATUAL — o "hero": escudo grande + 70% + destaque dourado */
-.ic-tier--current {
   gap: var(--space-md);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--gold-soft);
-  border: 1.5px solid var(--a-gold);
-  border-radius: var(--radius-md);
-  box-shadow: 0 3px 10px rgba(224, 168, 28, 0.20);
 }
 
-.ic-tier--current .ic-tier__shield {
-  font-size: 3rem;
-}
-
-.ic-tier__current-val {
-  font-size: var(--fs-11);
+.ic-hero__value {
+  font-size: 2.8rem;
   font-weight: 800;
-  color: var(--a-gold-text);
   line-height: 1;
   flex-shrink: 0;
+  background: linear-gradient(165deg, #f6ce67 20%, var(--a-gold) 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.ic-tier__info {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
+.ic-hero__pct {
+  font-size: var(--fs-11);
+  font-weight: 800;
+}
+
+.ic-hero__info {
   min-width: 0;
 }
 
-.ic-tier--current .ic-tier__name {
-  font-size: var(--fs-6);
+.ic-hero__status {
+  display: block;
+  font-size: var(--fs-7);
   font-weight: 800;
-  color: var(--p-green-dark);
+  color: var(--a-gold);
+  margin-bottom: 2px;
 }
 
-.ic-tier__hint {
+.ic-hero__text {
+  font-size: var(--fs-3);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* ── Medidor: barra segmentada (4 faixas) + pino "VOCÊ" em 70% + zonas ── */
+.ic-meter {
+  position: relative;
+  padding-top: 22px;  /* espaço do pino acima da barra */
+}
+
+.ic-meter__pin {
+  position: absolute;
+  top: 0;
+  left: 70%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.ic-meter__pin-tag {
+  font-size: var(--fs-1);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p-green-dark);
+  background: var(--a-gold);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  animation: icPinPulse 2.2s ease-out infinite;
+}
+
+.ic-meter__pin-line {
+  width: 2px;
+  height: 7px;
+  background: var(--a-gold);
+}
+
+@keyframes icPinPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(224, 168, 28, 0.45); }
+  70%  { box-shadow: 0 0 0 7px rgba(224, 168, 28, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(224, 168, 28, 0); }
+}
+
+.ic-meter__track {
+  display: flex;
+  gap: 3px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.ic-meter__seg {
+  flex: 1;
+}
+
+.ic-meter__seg--bad   { background: #3f4a42; }
+.ic-meter__seg--alert { background: var(--danger); }
+.ic-meter__seg--warn  { background: var(--a-gold); }
+.ic-meter__seg--ok    { background: #46a56b; }
+
+/* Zonas: escudos do sistema + faixa + nome, um por segmento */
+.ic-meter__zones {
+  display: flex;
+  margin-top: 6px;
+}
+
+.ic-zone {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1px;
+  opacity: 0.78;   /* zonas "futuras" levemente apagadas; a atual acende */
+}
+
+.ic-zone__shield {
+  font-size: 1.35rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.ic-zone__range {
+  font-size: var(--fs-1);
+  font-weight: 800;
+}
+
+.ic-zone__name {
+  font-size: var(--fs-1);
+  color: rgba(255, 255, 255, 0.62);
+}
+
+/* Cores por faixa (versões legíveis sobre o fundo escuro) */
+.ic-zone--bad   .ic-zone__shield, .ic-zone--bad   .ic-zone__range { color: #93a096; }
+.ic-zone--alert .ic-zone__shield, .ic-zone--alert .ic-zone__range { color: #f16a60; }
+.ic-zone--warn  .ic-zone__shield, .ic-zone--warn  .ic-zone__range { color: #efc04b; }
+.ic-zone--ok    .ic-zone__shield, .ic-zone--ok    .ic-zone__range { color: #5fc084; }
+
+/* Zona atual (Em formação): acesa e com o escudo maior */
+.ic-zone--current {
+  opacity: 1;
+}
+
+.ic-zone--current .ic-zone__shield {
+  font-size: 1.6rem;
+}
+
+.ic-zone--current .ic-zone__name {
+  color: var(--t-light);
+  font-weight: 700;
+}
+
+/* ── O que move o índice: duas colunas (sobe / cai) ── */
+.ic-factors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.ic-factors__head {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: var(--fs-2);
-  color: var(--t-sub);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.ic-factors__head .material-symbols-rounded {
+  font-size: 0.95rem;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+}
+
+.ic-factors__col--up   .ic-factors__head { color: #5fc084; }
+.ic-factors__col--down .ic-factors__head { color: #f16a60; }
+
+.ic-factors__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ic-factors__list li {
+  font-size: var(--fs-2);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.75);
+  padding-left: 12px;
+  position: relative;
+}
+
+.ic-factors__list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+/* ── Rodapé-lema ── */
+.ic-card__footer {
+  font-size: var(--fs-2);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.62);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  padding-top: 6px;
+}
+
+.ic-card__footer strong {
+  color: #efc04b;
+  font-weight: 700;
 }
 
 /* ── Adaptativo por altura (inclui a redução pela barra do navegador): esconde
    extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
-   fechado. As 4 faixas + o hero (escudo grande + %) sempre ficam. */
-@media (max-height: 780px) {
-  #view-onboarding .ic-card__text { display: none; }
+   fechado. O hero 70% e o medidor com os 4 escudos ficam SEMPRE. Limiares
+   MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
+   fonte): completo ~889px, sem rodapé ~823px, sem colunas ~744px, compacto
+   ~693px. */
+@media (max-height: 896px) {
+  #view-onboarding .ic-card__footer { display: none; }
 }
 
-@media (max-height: 720px) {
-  /* Telas curtas (navegador com barra / aparelhos menores): encolhe o card */
-  #view-onboarding .ic-tier__hint { display: none; }
-  #view-onboarding .ic-card { padding: var(--space-sm); }
-  #view-onboarding .ic-tiers { gap: 2px; }
-  #view-onboarding .ic-tier__shield { font-size: 1.45rem; }
-  #view-onboarding .ic-tier--current { padding: var(--space-xs) var(--space-sm); }
-  #view-onboarding .ic-tier--current .ic-tier__shield { font-size: 2.3rem; }
-  #view-onboarding .ic-tier__current-val { font-size: var(--fs-9); }
+@media (max-height: 830px) {
+  #view-onboarding .ic-factors { display: none; }
+  #view-onboarding .ic-card { padding: var(--space-sm) var(--space-md); }
+}
+
+@media (max-height: 751px) {
+  /* Telas bem curtas: compacta hero e medidor (nada mais é escondido) */
+  #view-onboarding .ic-hero__value { font-size: 2.3rem; }
+  #view-onboarding .ic-hero__text { display: none; }
+  #view-onboarding .ic-zone__shield { font-size: 1.15rem; }
+  #view-onboarding .ic-zone--current .ic-zone__shield { font-size: 1.35rem; }
+  #view-onboarding .ic-zone__name { display: none; }
 }
 
 /* ── Dialog da câmera ── */
