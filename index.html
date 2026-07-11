@@ -493,51 +493,49 @@
             </div>
 
             <!-- ── Índice de Confiança ──────────────────────────────────────
-                 form-group--ic-fill: cresce (flex:1) para preencher o espaço que
-                 sobra até o botão quando "Detalhes profissionais" está fechado.
-                 A escala das faixas (mesmos ícones/cores do sistema) aproveita
-                 esse espaço com informação útil. -->
+                 form-group--ic-fill: cresce (flex:1 0 auto) para preencher o vão
+                 até o botão quando fechado, mas o conteúdo é COMPACTO por padrão
+                 (gauge + medidor de faixas), então cabe na tela — inclusive no
+                 navegador com barra. Extras (texto, rótulos, citação) escondem em
+                 telas baixas via @media (max-height) — ver onboarding.css. -->
             <div class="form-group form-group--ic-fill">
                 <div class="ic-card">
                     <button type="button" id="btn-ic-info" class="ic-card__info-btn" aria-label="Mais informações sobre o Índice de Confiança">
                         <span class="material-symbols-rounded" aria-hidden="true">help</span>
                     </button>
-                    <div class="ic-card__body">
+
+                    <div class="ic-card__head">
                         <div class="ic-card__gauge-wrap">
                             <span class="material-symbols-rounded ic-card__shield ic-card__shield--warn" aria-hidden="true">shield_question</span>
                             <span class="ic-gauge__label ic-gauge__label--warn">70%</span>
                         </div>
                         <div class="ic-card__content">
                             <strong class="ic-card__title">Índice de Confiança</strong>
-                            <p class="ic-card__text">Reflete sua reputação na plataforma — começa em 70% e muda com suas ações. Toque no ícone para saber mais.</p>
+                            <p class="ic-card__text">Sua reputação viva na plataforma — começa em 70% e cresce com suas boas ações.</p>
                         </div>
                     </div>
 
-                    <!-- Escala das faixas — ícones e cores já usados no resto do app -->
-                    <div class="ic-scale">
-                        <div class="ic-scale__row ic-scale__row--ok">
-                            <span class="material-symbols-rounded ic-scale__icon" aria-hidden="true">gpp_good</span>
-                            <span class="ic-scale__range">75–100%</span>
-                            <span class="ic-scale__desc">Confiável — reputação sólida e comprovada.</span>
+                    <!-- Medidor: barra segmentada das 4 faixas (cores do sistema) +
+                         ponteiro em 70%. Compacto e é o destaque visual do card. -->
+                    <div class="ic-meter" role="img" aria-label="Você está em 70% — faixa Em formação (50 a 74%)">
+                        <div class="ic-meter__pointer" style="left:70%">
+                            <span class="ic-meter__pointer-val">70%</span>
                         </div>
-                        <div class="ic-scale__row ic-scale__row--warn ic-scale__row--current">
-                            <span class="material-symbols-rounded ic-scale__icon" aria-hidden="true">shield_question</span>
-                            <span class="ic-scale__range">50–74%</span>
-                            <span class="ic-scale__desc">Em formação — <strong>você começa aqui</strong>, com 70%.</span>
+                        <div class="ic-meter__bar">
+                            <span class="ic-meter__seg ic-meter__seg--bad"></span>
+                            <span class="ic-meter__seg ic-meter__seg--alert"></span>
+                            <span class="ic-meter__seg ic-meter__seg--warn"></span>
+                            <span class="ic-meter__seg ic-meter__seg--ok"></span>
                         </div>
-                        <div class="ic-scale__row ic-scale__row--alert">
-                            <span class="material-symbols-rounded ic-scale__icon" aria-hidden="true">gpp_maybe</span>
-                            <span class="ic-scale__range">25–49%</span>
-                            <span class="ic-scale__desc">Atenção — avaliações negativas derrubam o índice.</span>
-                        </div>
-                        <div class="ic-scale__row ic-scale__row--bad">
-                            <span class="material-symbols-rounded ic-scale__icon" aria-hidden="true">gpp_bad</span>
-                            <span class="ic-scale__range">0–24%</span>
-                            <span class="ic-scale__desc">Crítico — visibilidade e acesso ficam limitados.</span>
+                        <div class="ic-meter__labels">
+                            <span class="ic-meter__label">Crítico</span>
+                            <span class="ic-meter__label">Atenção</span>
+                            <span class="ic-meter__label ic-meter__label--current">Formação</span>
+                            <span class="ic-meter__label">Confiável</span>
                         </div>
                     </div>
 
-                    <p class="ic-card__quote">"O que se recebe de graça se perde com facilidade. O que se conquista com esforço resiste ao tempo. Cuide do seu índice."</p>
+                    <p class="ic-card__quote">"O que se conquista com esforço resiste ao tempo. Cuide do seu índice."</p>
                 </div>
             </div>
 
