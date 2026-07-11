@@ -22,20 +22,19 @@ const clearNameErrors = () =>
 // variável (barras, pagamento, pro-cta). u-hidden continua sendo o estado
 // "fechado" final (display:none) — a animação só acontece na transição.
 //
-// Timing: 0.7s (calmo) com easing easeOutCubic (arranca responsivo e DESACELERA
-// suave). A curva material padrão (0.4,0,0.2,1) começa lenta e dava a impressão
-// de "travar" no início; o easeOutCubic reage na hora e desliza até parar.
+// Timing: 1s cada sentido, calmo. APENAS altura anima (sem fade de opacidade,
+// que deixava o verde vazar no fechamento). Overflow:hidden recorta o conteúdo.
 //
-// APENAS altura anima — NÃO há mais fade de opacidade. O fade fazia o painel
-// INTEIRO (inclusive o fundo branco) ficar transparente ~mais rápido que o
-// colapso da altura: no FECHAMENTO isso deixava o verde vazar por trás (um
-// "vão"), o conteúdo "sumia" antes da hora e só no fim a borda arredondava e a
-// posição saltava. Colapsar só a altura (com overflow:hidden) é limpo e
-// SIMÉTRICO — abre e fecha exatamente igual, deslizando o conteúdo do IC junto.
+// EASINGS ESPELHADOS (essencial): abrir usa easeOUT (arranca responsivo e
+// DESACELERA suave — a curva material padrão começava lenta e "travava"); fechar
+// usa easeIN (o espelho: começa suave e ACELERA até fechar por completo). Usar
+// easeOut também no fechamento colapsava ~87% já na metade do tempo e depois
+// ARRASTAVA o último naco (sobrava um título "parado") antes de sumir — a
+// sanfona parecia não ir até o fim. Com easeIn o fechamento vai suave até 0.
 // =========================================================================
-const PRODETAILS_DUR = 700; // ms — duração da animação de altura (calma)
-const PRODETAILS_EASE = 'cubic-bezier(0.33, 1, 0.68, 1)'; // easeOutCubic
-const PRODETAILS_TRANSITION = `height ${PRODETAILS_DUR}ms ${PRODETAILS_EASE}`;
+const PRODETAILS_DUR = 1000; // ms — duração da animação de altura (abrir/fechar)
+const PRODETAILS_OPEN_TRANSITION  = `height ${PRODETAILS_DUR}ms cubic-bezier(0.33, 1, 0.68, 1)`; // easeOutCubic
+const PRODETAILS_CLOSE_TRANSITION = `height ${PRODETAILS_DUR}ms cubic-bezier(0.32, 0, 0.67, 0)`; // easeInCubic
 
 function setProDetailsOpen(open, animate = true) {
   const panel = document.getElementById('panel-prodetails');
@@ -71,7 +70,7 @@ function setProDetailsOpen(open, animate = true) {
     panel.style.height = '0px';
     const target = panel.scrollHeight; // altura real do conteúdo (com padding)
     requestAnimationFrame(() => {
-      panel.style.transition = PRODETAILS_TRANSITION;
+      panel.style.transition = PRODETAILS_OPEN_TRANSITION;
       panel.style.height = target + 'px';
     });
     const done = (e) => {
@@ -98,7 +97,7 @@ function setProDetailsOpen(open, animate = true) {
     panel.style.height = panel.scrollHeight + 'px';
     void panel.offsetHeight; // força reflow para o height inicial "pegar"
     requestAnimationFrame(() => {
-      panel.style.transition = PRODETAILS_TRANSITION;
+      panel.style.transition = PRODETAILS_CLOSE_TRANSITION;
       panel.style.height = '0px';
     });
     const done = (e) => {
@@ -123,11 +122,11 @@ function highlightMissingProFields({ tags, bio }) {
   const bioInput = document.getElementById('inp-bio');
   if (!tags) areaInput?.classList.add('input-text--error');
   if (!bio) bioInput?.classList.add('input-text--error');
-  // Espera a animação de abertura (~700ms) antes de rolar até o campo
+  // Espera a animação de abertura (~1s) antes de rolar até o campo
   setTimeout(() => {
     const first = !tags ? areaInput : bioInput;
     first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 720);
+  }, 1020);
 }
 
 

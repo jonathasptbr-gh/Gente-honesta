@@ -4,7 +4,12 @@
 .auth-section {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* `safe center`: centraliza quando cabe, mas alinha ao TOPO (e deixa rolar)
+     quando o conteúdo não cabe — ex.: teclado aberto encolhendo a área
+     (interactive-widget=resizes-content). Sem o `safe`, a centralização em flex
+     empurraria o topo do conteúdo para fora da área rolável (inalcançável) e o
+     campo focado poderia ficar atrás do teclado. */
+  justify-content: safe center;
   align-items: center;
   min-height: 100%;
   gap: var(--space-md);

@@ -25,7 +25,11 @@
     </script>
 
     <title>Gente Honesta</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- interactive-widget=resizes-content: quando o teclado virtual abre, o
+         layout (ICB) ENCOLHE em vez de só sobrepor — assim o conteúdo centralizado
+         (telefone/OTP) sobe e fica acima do teclado, e o --app-height (window.innerHeight)
+         acompanha via o listener de resize em app.js. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
     <!-- Cor inicial verde = combina com o loader verde durante o carregamento; o
          showView() ajusta para verde no feed e branco na verificação/onboarding. -->
     <meta name="theme-color" content="#184e1b">
