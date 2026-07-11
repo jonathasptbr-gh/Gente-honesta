@@ -244,11 +244,12 @@ ficam com `opacity: 0.78` — depois a barra segmentada nas 4 faixas, e o pino "
 `.ic-factors__note` em itálico e centralizada: "Todas as suas ações, boas ou ruins, afetam esse índice"
 — a antiga tabela "Faz descer"/"Faz subir" foi REMOVIDA de propósito, não recriar); "Indicações
 FEITAS", não "recebidas" — resumo do diálogo de ajuda `btn-ic-info`); e `.ic-card__footer` (lema: "O Índice
-de Confiança é seu bem mais valioso na plataforma, seja honesto e responsável e ele lhe recompensará"). Nos textos visíveis do card NUNCA usar travessão
+de Confiança é seu bem mais valioso na plataforma, seja honesto e responsável e ele lhe recompensará" —
+centralizado e com a MESMA fonte da nota, `--fs-1`). Nos textos visíveis do card NUNCA usar travessão
 "—" (visualmente estranho para o usuário — usar vírgula, ponto e vírgula ou dois-pontos).
 `.form-group--ic-fill` = `flex: 1 0 auto` (preenche o vão até o botão de concluir). **Adaptativo por
-altura** (`@media (max-height)` em `#view-onboarding`, limiares MEDIDOS por estado: completo ~821px, sem
-rodapé ~757px, sem nota ~732px, compacto ~678px): ≤825px esconde o rodapé; ≤761px esconde a nota e aperta
+altura** (`@media (max-height)` em `#view-onboarding`, limiares MEDIDOS por estado: completo ~800px, sem
+rodapé ~757px, sem nota ~732px, compacto ~678px): ≤804px esconde o rodapé; ≤761px esconde a nota e aperta
 o padding; ≤736px compacta (some a frase do hero, encolhem o 70 e os escudos) — cabe sem rolagem de
 ~678px pra cima.
 O hero 70% + o medidor com os 4 escudos ficam SEMPRE. O texto de ajuda (`helpTexts['btn-ic-info']` em

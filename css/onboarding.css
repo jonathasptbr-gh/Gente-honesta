@@ -888,10 +888,11 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* ── Rodapé-lema ── */
+/* ── Rodapé-lema (mesmo tamanho de fonte da nota, centralizado como ela) ── */
 .ic-card__footer {
-  font-size: var(--fs-2);
+  font-size: var(--fs-1);
   line-height: 1.45;
+  text-align: center;
   color: rgba(255, 255, 255, 0.62);
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   padding-top: 6px;
@@ -906,9 +907,9 @@
    extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
    fechado. O hero 70 e o medidor com os 4 escudos ficam SEMPRE. Limiares
    MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
-   fonte): completo ~821px, sem rodapé ~757px, sem nota ~732px, compacto
+   fonte): completo ~800px, sem rodapé ~757px, sem nota ~732px, compacto
    ~678px. */
-@media (max-height: 825px) {
+@media (max-height: 804px) {
   #view-onboarding .ic-card__footer { display: none; }
 }
 
