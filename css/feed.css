@@ -127,162 +127,492 @@
 
 
 /* ===========================================
-   PAINEL DE NOTIFICAÇÕES
+   ABA DE CONTRATOS (tela cheia, slide-down do topo)
+
+   Ocupa toda a área do #view-feed (que é position:relative). Entra deslizando
+   do topo (translateY(-100%) → 0). Cabeçalho fixo + corpo rolável interno.
    ======================================== */
-.notif-backdrop {
+.contracts-panel {
   position: absolute;
   inset: 0;
-  background: rgba(3, 32, 4, 0.35);
-  backdrop-filter: blur(3px);
-  z-index: 40;
-  transition: opacity 0.3s ease;
-}
-
-.notif-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 90%;
-  max-width: 400px;
-  background: var(--bg-white);
-  z-index: 50;
+  z-index: 60;
+  background: var(--bg-canvas);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  transform: translateX(-100%);
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+  overflow: hidden;
+  transform: translateY(-100%);
+  transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
 }
 
-.notif-panel--open {
-  transform: translateX(0);
+.contracts-panel--open {
+  transform: translateY(0);
 }
 
-.notif-panel__header {
+/* Cabeçalho fixo verde — mesma linguagem da top-bar */
+.contracts-panel__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-md);
-  border-bottom: 1px solid var(--border-light);
-  min-height: 64px;
+  padding: var(--space-sm) var(--space-md);
+  min-height: 60px;
+  background: var(--p-green);
   flex-shrink: 0;
+  padding-top: calc(var(--space-sm) + env(safe-area-inset-top, 0px));
 }
 
-.notif-panel__title {
-  font-size: 1.1rem;
+.contracts-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
   font-weight: 800;
-  color: var(--p-green-dark);
+  color: var(--t-light);
 }
 
-.notif-section {
-  padding: var(--space-sm) 0;
+.contracts-panel__title .material-symbols-rounded {
+  font-size: 1.4rem;
 }
 
-.notif-section__label {
+/* Botão "Fechar" do cabeçalho: claro sobre o verde */
+.contracts-panel__header .btn--outline {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: var(--t-light);
+}
+
+.contracts-panel__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-md);
+  padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+
+/* ── Bloco: criar minicontrato + recém-criados ── */
+.contracts-create {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.contracts-create__row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-xs);
+}
+
+.contracts-create__btn {
+  flex: 1;
+  gap: 8px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+}
+
+/* Seta que colapsa os recém-criados — à direita do botão de criar */
+.contracts-create__collapse {
+  width: 48px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  color: var(--p-green);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.contracts-create__collapse:active {
+  transform: scale(0.95);
+}
+
+.contracts-create__chevron {
+  font-size: 1.4rem;
+  transition: transform 0.3s ease;
+}
+
+.contracts-recent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  overflow: hidden;
+  max-height: 600px;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+}
+
+.contracts-recent--collapsed {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Seta gira ao colapsar (aria-expanded="false" é setado via JS no botão) */
+.contracts-create__collapse[aria-expanded="false"] .contracts-create__chevron {
+  transform: rotate(180deg);
+}
+
+.contracts-recent__label {
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--t-sub);
-  padding: var(--space-xs) var(--space-md);
+  padding: 2px 2px;
 }
 
-.notif-card {
+.contract-mini {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  border-bottom: 1px solid var(--border-light);
-  transition: background 0.15s;
+  padding: 10px var(--space-sm);
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
 }
 
-.notif-card:active {
-  background: var(--bg-soft);
+.contract-mini__info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
 }
 
-.notif-card--action {
-  background: var(--p-green-light);
-}
-
-.notif-card__avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.notif-card__avatar {
-  width: 38px;
-  height: 51px;
+.contract-mini__avatar {
+  width: 34px;
+  height: 44px;
   border-radius: 6px;
   object-fit: cover;
   border: 2px solid var(--border-light);
   background: var(--bg-soft);
-}
-
-.notif-card__status-dot {
-  position: absolute;
-  bottom: 2px;
-  right: -3px;
-  width: 10px;
-  height: 10px;
-  background: var(--success-fill);
-  border-radius: 50%;
-  border: 2px solid var(--bg-white);
-}
-
-.notif-card__icon {
-  font-size: 1.6rem;
-  color: var(--p-green);
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
-.notif-card__icon--gold {
-  color: var(--a-gold);
+.contract-mini__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
-.notif-card__content {
+.contract-mini__name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--t-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contract-mini__sub {
+  font-size: 0.78rem;
+  color: var(--t-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contract-mini__actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.contract-mini__btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-soft);
+  color: var(--p-green);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.contract-mini__btn:active {
+  transform: scale(0.9);
+  background: var(--p-green-light);
+}
+
+.contract-mini__btn .material-symbols-rounded {
+  font-size: 1.2rem;
+}
+
+
+/* ── Busca e filtros ── */
+.contracts-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-sm) var(--space-md);
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.contracts-filters__search-wrap {
+  position: relative;
+}
+
+.contracts-filters__search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--t-sub);
+  font-size: 1.2rem;
+  pointer-events: none;
+}
+
+.contracts-filters__search {
+  width: 100%;
+  height: 42px;
+  padding: 0 var(--space-sm) 0 40px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  background: var(--bg-input);
+  font-size: 0.9rem;
+  color: var(--t-main);
+  outline: none;
+  transition: var(--transition);
+}
+
+.contracts-filters__search:focus {
+  background: var(--bg-white);
+  border-color: var(--p-green);
+  box-shadow: 0 0 0 3px rgba(24, 78, 27, 0.08);
+}
+
+.contracts-filters__chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.contracts-filters__row {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.contracts-filters__field {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  min-width: 0;
 }
 
-.notif-card__text {
-  font-size: 0.88rem;
-  line-height: 1.4;
-  color: var(--t-main);
-}
-
-.notif-card__time {
-  font-size: 0.75rem;
+.contracts-filters__field-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--t-sub);
 }
 
-.notif-card__actions {
+.contracts-filters__input {
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  font-size: 0.85rem;
+  color: var(--t-main);
+  outline: none;
+  appearance: none;
+  transition: var(--transition);
+}
+
+.contracts-filters__input:focus {
+  background: var(--bg-white);
+  border-color: var(--p-green);
+}
+
+
+/* ── Lista de contratos ── */
+.contracts-list {
   display: flex;
-  gap: var(--space-xs);
-  margin-top: 4px;
+  flex-direction: column;
+  gap: var(--space-sm);
 }
 
-.notif-card__btn {
-  padding: 8px 14px;
-  font-size: 0.82rem;
-  height: auto;
+.contract-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  box-shadow: var(--shadow-sm);
 }
 
-.notif-card__tag {
+.contract-card--cancelled {
+  opacity: 0.72;
+}
+
+/* Linha superior: cliente (foto + nome + IC) | status */
+.contract-card__main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.contract-card__client {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.contract-card__avatar {
+  width: 42px;
+  height: 56px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 2px solid var(--border-light);
+  background: var(--bg-soft);
+  flex-shrink: 0;
+}
+
+.contract-card__client-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.contract-card__name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--t-main);
+  line-height: 1.2;
+}
+
+/* Selo de status — pílula */
+.contract-card__status {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 4px 10px;
   border-radius: var(--radius-pill);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
-.notif-card__tag--green {
+.contract-card__status .material-symbols-rounded {
+  font-size: 0.95rem;
+}
+
+.contract-card__status--active {
   background: var(--p-green-light);
   color: var(--p-green);
+}
+
+.contract-card__status--done {
+  background: #eef2ff;
+  color: var(--info-blue);
+}
+
+.contract-card__status--cancelled {
+  background: var(--danger-soft);
+  color: var(--danger-text);
+}
+
+.contract-card__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success-fill);
+}
+
+/* Datas de início e fim */
+.contract-card__dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  padding: 6px 0;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.contract-card__date {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--t-sub);
+}
+
+.contract-card__date .material-symbols-rounded {
+  font-size: 1.05rem;
+  color: var(--p-green);
+}
+
+/* Corpo: descrição (esquerda) + valor em destaque (direita) */
+.contract-card__body {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-sm);
+}
+
+.contract-card__desc {
+  flex: 1;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--t-main);
+  min-width: 0;
+}
+
+.contract-card__value-box {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  padding-left: var(--space-sm);
+  border-left: 1px solid var(--border-light);
+  text-align: right;
+}
+
+.contract-card__value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--p-green);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.contract-card__payment {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--t-sub);
+  white-space: nowrap;
+}
+
+.contract-card__payment .material-symbols-rounded {
+  font-size: 1rem;
 }
 
 

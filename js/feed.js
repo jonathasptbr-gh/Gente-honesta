@@ -7,28 +7,43 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // =========================================================================
-  // TELA - PRINCIPAL (FEED) - PAINEL DE NOTIFICAÇÕES - Abertura e Fechamento
+  // TELA - PRINCIPAL (FEED) - ABA DE CONTRATOS - Abertura e Fechamento
+  // Tela cheia que desliza a partir do topo (slide-down). Substitui o antigo
+  // painel lateral de notificações.
   // =========================================================================
 
-  const panelNotif     = document.getElementById('panel-notifications');
-  const backdropNotif  = document.getElementById('overlay-notif-backdrop');
-  const btnOpen        = document.getElementById('btn-open-notifications');
-  const btnClose       = document.getElementById('btn-close-notifications');
+  const panelContracts = document.getElementById('panel-contracts');
+  const btnOpenContracts  = document.getElementById('btn-open-contracts');
+  const btnCloseContracts = document.getElementById('btn-close-contracts');
 
-  const openNotifPanel = () => {
-    backdropNotif?.classList.remove('u-hidden');
-    panelNotif?.classList.add('notif-panel--open');
+  const openContractsPanel = () => {
+    panelContracts?.classList.add('contracts-panel--open');
   };
 
-  const closeNotifPanel = () => {
-    panelNotif?.classList.remove('notif-panel--open');
-    // Aguarda animação antes de ocultar backdrop
-    setTimeout(() => backdropNotif?.classList.add('u-hidden'), 320);
+  const closeContractsPanel = () => {
+    panelContracts?.classList.remove('contracts-panel--open');
   };
 
-  btnOpen?.addEventListener('click', openNotifPanel);
-  btnClose?.addEventListener('click', closeNotifPanel);
-  backdropNotif?.addEventListener('click', closeNotifPanel);
+  btnOpenContracts?.addEventListener('click', openContractsPanel);
+  btnCloseContracts?.addEventListener('click', closeContractsPanel);
+
+  // --- Recém-criados: colapsar/expandir pela seta ao lado de "Criar minicontrato"
+  const btnToggleRecent = document.getElementById('btn-toggle-recent');
+  const recentBlock     = document.getElementById('contracts-recent');
+
+  btnToggleRecent?.addEventListener('click', () => {
+    const collapsed = recentBlock?.classList.toggle('contracts-recent--collapsed');
+    btnToggleRecent.setAttribute('aria-expanded', String(!collapsed));
+  });
+
+  // --- Chips de status dos contratos (Todos / Ativo / Concluído / Cancelado)
+  const statusChips = document.querySelectorAll('[data-filter-status]');
+  statusChips.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      statusChips.forEach((c) => c.classList.remove('chip--active'));
+      chip.classList.add('chip--active');
+    });
+  });
 
 
   // =========================================================================
