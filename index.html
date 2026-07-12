@@ -715,6 +715,25 @@
             </div>
         </div>
 
+        <!-- ── Sheet: histórico de pedidos (ativo + concluídos) ── -->
+        <!-- Reusa o padrão slide-up de .indicated-popup; drill-down para o detalhe unificado. -->
+        <div id="historico-sheet" class="indicated-popup" role="dialog" aria-modal="true">
+            <div class="indicated-popup__backdrop" id="historico-sheet-backdrop"></div>
+            <div class="indicated-popup__sheet">
+                <div class="indicated-popup__header">
+                    <p class="indicated-popup__title">Histórico de pedidos</p>
+                    <button type="button" id="btn-close-historico" class="agenda-indicated__cancel" aria-label="Fechar">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
+                    </button>
+                </div>
+                <div class="indicated-popup__scroll">
+                    <div id="historico-list" class="historico-list">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ── Sheet: criar / gerenciar meu pedido ── -->
         <!-- Contrato: visibilidade controlada por .pedido-sheet--open (slide-up, padrão indicated-popup). -->
         <div id="pedido-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
@@ -776,13 +795,25 @@
                         </div>
                     </div>
 
-                    <!-- ESTADO: DETALHES (somente leitura) -->
+                    <!-- ESTADO: DETALHES (somente leitura) — pedido no topo + indicações abaixo -->
                     <div id="pedido-details-state" class="pedido-sheet__state u-hidden">
                         <div id="pedido-detail-card-container"></div>
-                        <button type="button" id="btn-pedido-concluir" class="btn btn--accent">
-                            <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
-                            Concluir pedido
-                        </button>
+                        <div class="pedido-detail-indicated">
+                            <p class="pedido-detail-indicated__header">
+                                <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                                Indicações recebidas
+                                <span class="pedido-detail-indicated__fraction" id="pedido-detail-fraction">0/3</span>
+                            </p>
+                            <div id="pedido-detail-indicated-list" class="pedido-detail-indicated__list">
+                                <!-- Preenchido via JS -->
+                            </div>
+                        </div>
+                        <div class="pedido-sheet__actions" id="pedido-detail-actions">
+                            <button type="button" id="btn-pedido-concluir" class="btn btn--accent">
+                                <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+                                Concluir pedido
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -904,10 +935,6 @@
                         <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">add</span>
                         <span id="btn-my-pedido-label">Fazer pedido</span>
                     </button>
-                    <div id="my-pedido-info" class="post-card__indicate-info u-hidden" aria-label="Indicações recebidas no meu pedido">
-                        <span id="my-pedido-count" class="post-card__indicate-count">0/3</span>
-                        <span class="material-symbols-rounded" aria-hidden="true">groups</span>
-                    </div>
                 </div>
                 </div><!-- /.agenda-filters__action-row -->
 

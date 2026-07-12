@@ -478,7 +478,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v216`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v217`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
@@ -643,24 +643,42 @@ As três linhas são `position: absolute; inset: 0` sobrepostas no slot. A alter
 
 Estilo flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas` (verde escuro), texto puro branco (`--t-light`). Avatar discreto (28px). "Denunciar" como chip-botão. "Indicar alguém" como `btn--accent` (amarelo sobre verde).
 
-### Sheet "Fazer um pedido" / "Detalhes do meu pedido" (`#pedido-sheet`)
+### Action bar de pedidos — DOIS botões sempre visíveis
 
-Bottom sheet verde (mesmo padrão slide-up + backdrop do `indicated-popup`), acionado pelo `#btn-my-pedido` da action bar (estado pedidos). Dois estados internos alternados por `u-hidden`:
+A `#bar-pedidos-state` tem SEMPRE dois botões lado a lado (o antigo badge `#my-pedido-info` de "ver indicados" foi REMOVIDO — sua função foi absorvida pelo detalhe unificado):
+- `#btn-historico-pedidos` (`btn--white`) — **Histórico**, sempre visível (antes sumia quando havia pedido ativo).
+- `#btn-my-pedido` (`btn--accent`) — alterna via `renderMyPedidoButton()`: **"Fazer pedido"** (ícone `add`) quando NÃO há pedido ativo → abre o formulário; **"Pedido atual"** (ícone `receipt_long`) quando há um pedido ativo → abre o detalhe unificado desse pedido.
+
+### Sheet "Fazer pedido" / detalhe unificado (`#pedido-sheet`)
+
+Bottom sheet verde (mesmo padrão slide-up + backdrop do `indicated-popup`). Dois estados internos alternados por `u-hidden`:
 - `#pedido-form-state` — **criação**: textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botões Cancelar (`btn btn--danger`, vermelho) / Publicar.
-- `#pedido-details-state` — **somente leitura** (pós-publicação): card do pedido gerado dinamicamente por `renderPedidoDetails()` + lista de pros indicados (`#pedido-detail-indicated-list`) + botões Cancelar pedido (`btn btn--danger`) / Concluir pedido (`btn btn--accent`, amarelo).
+- `#pedido-details-state` — **detalhe unificado** (somente leitura): o **pedido no topo** (`#pedido-detail-card-container`, via `renderPedidoDetails(pedido)`) e, logo abaixo, a seção **"Indicações recebidas"** (`.pedido-detail-indicated` com fração `#pedido-detail-fraction` e lista `#pedido-detail-indicated-list`). Antes eram DOIS popups separados (detalhes + visualizador de indicações); agora são um só. O botão **Concluir pedido** (`btn btn--accent`) fica em `#pedido-detail-actions` e só aparece para pedido **ativo** (escondido via `u-hidden` em pedido concluído).
 
-O card gerado por `renderPedidoDetails()` contém: avatar, nome, IC-bar (mock 100%), timer de expiração na meta row (no lugar do botão Denunciar). Urgência aparece como badge vermelho inline no texto. **Sem pílulas de tags** (urgência/duração/alcance removidas — as informações estão implícitas no card). O card tem `pointer-events: none`; os pro-cards dentro da lista de indicados têm `pointer-events: auto` via seletor específico.
+`renderPedidoDetails(pedido)` recebe um pedido do histórico e monta: card (avatar, nome, IC-bar mock 100%; na meta row um **timer** de horas restantes se `status:'active'`, ou o selo verde **"Concluído"** `.pedido-item__timer--done` se `status:'completed'`), urgência como badge vermelho inline, fração `N/3` e a lista de indicados via `renderFlippableProCards`. O card tem `pointer-events: none`; os pro-cards dos indicados têm `pointer-events: auto`.
 
-Lógica em `feed.js` (bloco "POPUP DE PEDIDOS"):
-- `myPedido` — `{text, urgency, duration, neighbors}` (mock, sem persistência no Firestore)
-- `hasPedido` / `pedidoIndications` — estado do pedido atual e nº de indicações
-- `openPedidoSheet('form'|'details')` — abre o sheet no estado certo; `renderPedidoDetails()` preenche a leitura
-- `#btn-my-pedido` → form (sem pedido) ou details (com pedido); badge `#my-pedido-info` ao lado → abre profissionais indicados com título "Indicações recebidas" (`openIndicatedPopup('my')`)
-- Chips de seleção única via `wirePedidoChipGroup(groupId, dataKey, onPick)`; toggle via `aria-pressed`
+### Histórico de pedidos (`#historico-sheet`)
+
+Bottom sheet (reusa as classes estruturais de `.indicated-popup` para o slide-up) acionado por `#btn-historico-pedidos`. Lista `#historico-list` com **todos** os pedidos, inclusive o ativo, ordenados por data (mais recente no topo) via `renderHistoricoList()`. Cada `.historico-item`:
+- status **"Ativo"** (`--status--active`, dourado, ícone `bolt`) ou **"Concluído"** (`--status--done`, cinza, ícone `check_circle`);
+- data curta (`formatPedidoDate` → "12 jul, 14:30");
+- botão excluir (`.historico-item__delete`, ícone `delete`) — `customConfirm` e remove do histórico; se era o pedido em exibição, fecha o detalhe;
+- texto do pedido (clamp 2 linhas) + contagem `N/3 indicações`.
+- Tocar no item (fora do botão excluir) abre o **mesmo** detalhe unificado (`openPedidoDetail(id)`). A delegação em `historicoList` dá prioridade ao `.historico-item__delete` (com `stopPropagation`) antes de abrir o detalhe.
+
+Ao concluir um pedido a partir de um item do histórico, o detalhe fecha e o sheet de histórico (que fica aberto por baixo) se atualiza sozinho (`renderHistoricoList()` roda no handler de concluir).
+
+Lógica em `feed.js` (bloco "PEDIDOS - Botões..."):
+- `pedidoHistory` — array `{id, text, urgency, duration, neighbors, createdAt, completedAt, status:'active'|'completed', indicated:[]}` (mock, em memória, SEM persistência no Firestore). Só pode haver **um** pedido `active` por vez.
+- `myPedido` — `{text, urgency, duration, neighbors}` (objeto de trabalho do formulário; `resetPedidoForm()` volta aos defaults).
+- `getActivePedido()` / `getPedidoById(id)` / `detailPedidoId` (pedido em exibição no detalhe).
+- `openPedidoForm()` / `openPedidoDetail(id)` — abrem o sheet no estado certo.
+- Publicar cria o pedido como `active` e **semeia** 3 indicações mock em `pedido.indicated`; Concluir muda `status` para `completed` (permanece no histórico).
+- Chips de seleção única via `wirePedidoChipGroup(groupId, dataKey, onPick)`; toggle via `aria-pressed`.
 
 ### Popup de Profissionais Indicados (`#agenda-indicated-popup`)
 
-Bottom sheet acionado ao clicar nos badges de fração dos pedidos (ex: `2/3`) ou no badge `#my-pedido-info`.
+Bottom sheet acionado ao clicar nos badges de fração dos pedidos de TERCEIROS na lista (ex: `2/3`). As indicações do PRÓPRIO pedido não usam mais este popup — vão para o detalhe unificado (`#pedido-details-state`, ver acima).
 
 Estrutura HTML obrigatória (qualquer mudança deve manter esta hierarquia):
 ```
@@ -672,7 +690,7 @@ Estrutura HTML obrigatória (qualquer mudança deve manter esta hierarquia):
 
 **Crítico:** o header fica FORA do container com scroll (são siblings). Nunca usar `position: sticky` no header — isso causou cards expandidos passarem por baixo do header. A solução estrutural é o wrapper `.indicated-popup__scroll`.
 
-- Título: "Profissionais indicados" (padrão) ou "Indicações recebidas" (quando `postId === 'my'`)
+- Título: "Profissionais indicados" (padrão)
 - `openIndicatedPopup(postId)` — renderiza pros via `renderFlippableProCards`, chama `bindProCardFlip` no container
 - `bindProCardFlip(containerEl)` — registra delegação de clique UMA VEZ por container; verifica `handleLoadMoreComments` primeiro; scroll automático para o topo do card a 930ms do flip
 
@@ -762,15 +780,15 @@ Dentro de `DOMContentLoaded` em `js/feed.js`:
   - `pay.card`: `0` = não aceita, `'debit'` = só débito, número = crédito parcelado em até Nx
   - `nf`: boolean — emite nota fiscal
 - `mockComments[]` — **15** avaliações de exemplo `{author, text, ic}` (mesmo bloco para todos os profissionais); exibidas 5 por vez via paginação
-- `mockIndicatedByPost{}` — post ID → profissionais já indicados:
+- `mockIndicatedByPost{}` — post ID → profissionais já indicados (pedidos de TERCEIROS):
   - `'0'`: 2 pros (posts na lista de pedidos)
   - `'1'`: 2 pros
-  - `'my'`: 3 pros (semeados ao publicar o pedido)
+  - (o próprio pedido NÃO usa mais este objeto: suas indicações vivem em `pedido.indicated` dentro de `pedidoHistory` — ver "Histórico de pedidos")
 - `mockVagas[]` — 3 vagas de emprego com estrutura detalhada `{id, empresa, endereco, mapsQuery, poster, cargo, vagas, requisitos, cargaHoraria, salario, beneficios}`
 
 Comportamentos placeholder:
 - Botões "Contratar", "WhatsApp", "Compartilhar" exibem alertas placeholder
-- Sheet "Fazer um pedido" (`#pedido-sheet`): formulário de criação e tela de detalhes (leitura) já existem, mas sem persistência no Firestore. As indicações do próprio pedido (`mockIndicatedByPost['my']`) são semeadas na publicação só para o fluxo ficar demonstrável.
+- Sheet de pedido (`#pedido-sheet`) + histórico (`#historico-sheet`): criação, detalhe unificado (pedido + indicações) e histórico (ativo + concluídos) já existem, mas sem persistência no Firestore. `pedidoHistory` vive em memória; as 3 indicações do próprio pedido (`pedido.indicated`) são semeadas na publicação só para o fluxo ficar demonstrável. Excluir/concluir operam só sobre esse array em memória.
 - Lista de pedidos (`#list-feed`) com 2 pedidos mockados hardcoded no HTML; badges mostram `2/3` para ambos
 - Cards de vaga já têm flip 3D com formulário de candidatura, mas sem persistência no Firestore
 

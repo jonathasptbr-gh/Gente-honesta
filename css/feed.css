@@ -1515,6 +1515,113 @@
 /* Preview do pedido no formato balão — igual ao feed, sem botões */
 .pedido-detail-preview { pointer-events: none; }
 
+/* Selo "Concluído" no lugar do timer, em pedidos já finalizados */
+.pedido-item__timer--done { color: var(--success); }
+
+/* =========================================================================
+   HISTÓRICO DE PEDIDOS — lista dentro do #historico-sheet (bottom sheet verde)
+   Inclui o pedido ativo; ordenada por data (mais recente no topo). Cada item
+   abre o mesmo detalhe unificado (pedido + indicados) ao ser tocado.
+   ========================================================================= */
+.historico-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.historico-empty {
+  margin: 0;
+  padding: var(--space-md) 0;
+  text-align: center;
+  font-size: var(--fs-4);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.historico-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.historico-item:active {
+  transform: scale(0.99);
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.historico-item__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.historico-item__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px 3px 7px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-2);
+  font-weight: 700;
+}
+
+.historico-item__status .material-symbols-rounded {
+  font-size: 0.95rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.historico-item__status--active { background: var(--a-gold); color: var(--p-green-dark); }
+.historico-item__status--done   { background: rgba(255, 255, 255, 0.16); color: rgba(255, 255, 255, 0.85); }
+
+.historico-item__date {
+  font-size: var(--fs-2);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.historico-item__delete {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  transition: var(--transition);
+}
+
+.historico-item__delete:active { transform: scale(0.9); background: var(--danger); color: var(--t-light); }
+.historico-item__delete .material-symbols-rounded { font-size: 1.15rem; }
+
+.historico-item__text {
+  margin: 0;
+  font-size: var(--fs-4);
+  line-height: 1.35;
+  color: var(--t-light);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.historico-item__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-2);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.historico-item__count .material-symbols-rounded { font-size: 1rem; }
+
 /* Cards de indicados são interativos (flip) mesmo dentro do sheet de detalhes */
 .pedido-detail-indicated__list .pro-card { pointer-events: auto; }
 
@@ -1523,9 +1630,6 @@
   flex-direction: column;
   gap: var(--space-xs);
 }
-
-/* Badge de indicações na barra fica clicável quando há pedido publicado */
-#my-pedido-info { cursor: pointer; }
 
 /* Borda dourada nas bordas da tela durante modo indicação */
 .indicate-screen-border {

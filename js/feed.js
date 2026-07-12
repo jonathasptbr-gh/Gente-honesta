@@ -1443,44 +1443,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // =========================================================================
-  // POPUP DE PEDIDOS - Botão "Fazer pedido" / "Detalhes do meu pedido"
+  // PEDIDOS - Botões "Histórico" + "Fazer pedido" / "Pedido atual"
   // =========================================================================
-  // O botão da action-bar (pedidos) é a entrada do fluxo de pedido próprio:
-  //   - sem pedido → abre o sheet de CRIAÇÃO (formulário)
-  //   - com pedido → abre o sheet de DETALHES (somente leitura)
-  // O badge ao lado (#my-pedido-info) mostra X/3 indicações e, quando há pedido,
-  // abre "Indicações para você" (popup de indicados com título personalizado).
-  // MOCK: nada persiste no Firestore; as indicações são semeadas na publicação
-  // só para o fluxo ficar demonstrável.
-  let hasPedido = false;
-  let pedidoIndications = 0;
-  let pedidoPublishedAt = null; // timestamp da publicação (para o timer)
+  // A action-bar (pedidos) tem SEMPRE dois botões:
+  //   - "Histórico" → sheet com todos os pedidos (ativo + concluídos), por data.
+  //   - "Fazer pedido" (sem pedido ativo) → formulário de CRIAÇÃO.
+  //     "Pedido atual" (com pedido ativo) → detalhe UNIFICADO: o pedido no topo
+  //     e, logo abaixo, as indicações recebidas (antes eram dois popups
+  //     separados: detalhes + visualizador de indicações).
+  // Tocar num item do histórico abre esse MESMO detalhe unificado.
+  // MOCK: nada persiste no Firestore; histórico e indicações vivem em memória.
+  let pedidoIdSeq = 1;
+  const pedidoHistory = []; // {id, text, urgency, duration, neighbors, createdAt, completedAt, status:'active'|'completed', indicated:[]}
+  let detailPedidoId = null;      // id do pedido exibido no sheet de detalhe
   let pedidoTimerInterval = null; // setInterval do timer (limpo ao fechar/concluir)
-  const myPedido = { text: '', urgency: 'normal', duration: '12', neighbors: false };
+  const myPedido = { text: '', urgency: 'normal', duration: '12', neighbors: false }; // objeto de trabalho do formulário
+
+  const getActivePedido = () => pedidoHistory.find(p => p.status === 'active') || null;
+  const getPedidoById   = (id) => pedidoHistory.find(p => p.id === id) || null;
 
   const btnHistorico     = document.getElementById('btn-historico-pedidos');
   const btnMyPedido      = document.getElementById('btn-my-pedido');
   const btnMyPedidoLabel = document.getElementById('btn-my-pedido-label');
   const btnMyPedidoIcon  = btnMyPedido?.querySelector('.pedido-action__icon');
-  const myPedidoInfo     = document.getElementById('my-pedido-info');
-  const myPedidoCount    = document.getElementById('my-pedido-count');
 
+  // Histórico é SEMPRE visível; só o botão principal muda conforme haja pedido ativo.
   const renderMyPedidoButton = () => {
-    if (hasPedido) {
-      if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Detalhes do meu pedido';
+    if (getActivePedido()) {
+      if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Pedido atual';
       if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'receipt_long';
-      if (myPedidoCount)    myPedidoCount.innerText    = `${pedidoIndications}/3`;
-      myPedidoInfo?.classList.remove('u-hidden');
-      btnHistorico?.classList.add('u-hidden');
     } else {
       if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Fazer pedido';
       if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'add';
-      myPedidoInfo?.classList.add('u-hidden');
-      btnHistorico?.classList.remove('u-hidden');
     }
   };
 
-  // ── Sheet de criação / detalhes ──
+  // ── Elementos do sheet de criação / detalhe ──
   const pedidoSheet        = document.getElementById('pedido-sheet');
   const pedidoSheetTitle   = document.getElementById('pedido-sheet-title');
   const pedidoFormState    = document.getElementById('pedido-form-state');
@@ -1488,6 +1486,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const inpPedidoText      = document.getElementById('inp-pedido-text');
   const pedidoCharCount    = document.getElementById('pedido-char-count');
   const pedidoNeighbors    = document.getElementById('pedido-neighbors');
+  const btnPedidoConcluir  = document.getElementById('btn-pedido-concluir');
 
   const stopPedidoTimer = () => {
     if (pedidoTimerInterval) { clearInterval(pedidoTimerInterval); pedidoTimerInterval = null; }
@@ -1496,24 +1495,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const closePedidoSheet = () => {
     pedidoSheet?.classList.remove('pedido-sheet--open');
     stopPedidoTimer();
+    detailPedidoId = null;
   };
 
-  // Atualiza o texto do timer com as horas restantes (arredondado para cima).
+  // Data curta legível: "12 jul, 14:30"
+  const formatPedidoDate = (ts) => new Date(ts).toLocaleString('pt-BR', {
+    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
+  }).replace('.', '');
+
+  // Atualiza o texto do timer (horas restantes) do pedido ativo em exibição.
   const updatePedidoTimer = () => {
     const timerEl = document.getElementById('pedido-detail-timer-text');
-    if (!timerEl || !pedidoPublishedAt) return;
-    const totalMs = parseInt(myPedido.duration, 10) * 3600 * 1000;
-    const elapsedMs = Date.now() - pedidoPublishedAt;
-    const remainingMs = Math.max(0, totalMs - elapsedMs);
+    const pedido = getPedidoById(detailPedidoId);
+    if (!timerEl || !pedido || pedido.status !== 'active') return;
+    const totalMs = parseInt(pedido.duration, 10) * 3600 * 1000;
+    const remainingMs = Math.max(0, totalMs - (Date.now() - pedido.createdAt));
     const hoursLeft = Math.ceil(remainingMs / (3600 * 1000));
     timerEl.textContent = hoursLeft > 0 ? `${hoursLeft}h restantes` : 'Expirado';
   };
 
-  // Preenche o estado de detalhes (somente leitura) a partir de myPedido.
-  const renderPedidoDetails = () => {
+  // Preenche o detalhe (card do pedido + fração + lista de indicados) a partir
+  // de um pedido do histórico. Pedido ativo mostra timer + "Concluir"; concluído
+  // mostra o selo "Concluído" e nenhuma ação.
+  const renderPedidoDetails = (pedido) => {
     const avatarSrc = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>`;
     const displayName = window.auth?.currentUser?.displayName || 'Você';
-    const urgent = myPedido.urgency === 'urgent';
+    const urgent = pedido.urgency === 'urgent';
+    const active = pedido.status === 'active';
+    const metaRight = active
+      ? `<span class="pedido-item__timer"><span class="material-symbols-rounded" aria-hidden="true">hourglass_bottom</span><span id="pedido-detail-timer-text">—</span></span>`
+      : `<span class="pedido-item__timer pedido-item__timer--done"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluído</span>`;
     const container = document.getElementById('pedido-detail-card-container');
     if (container) {
       container.innerHTML = `
@@ -1522,37 +1533,48 @@ document.addEventListener('DOMContentLoaded', () => {
             <img class="pedido-item__avatar" src="${avatarSrc}" alt="">
             <span class="pedido-item__name">${displayName}</span>
             ${icBarHTML(100)}
-            <span class="pedido-item__timer">
-              <span class="material-symbols-rounded" aria-hidden="true">hourglass_bottom</span>
-              <span id="pedido-detail-timer-text">—</span>
-            </span>
+            ${metaRight}
           </div>
-          ${urgent ? `<p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>${myPedido.text}</p>` : `<p class="pedido-item__text">${myPedido.text}</p>`}
+          ${urgent ? `<p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>${pedido.text}</p>` : `<p class="pedido-item__text">${pedido.text}</p>`}
         </article>
       `;
     }
-
+    const fractionEl = document.getElementById('pedido-detail-fraction');
+    if (fractionEl) fractionEl.textContent = `${pedido.indicated.length}/3`;
+    const listEl = document.getElementById('pedido-detail-indicated-list');
+    if (listEl) renderFlippableProCards(listEl, pedido.indicated);
+    btnPedidoConcluir?.classList.toggle('u-hidden', !active);
     updatePedidoTimer();
   };
 
-  // mode: 'form' (criação) | 'details' (somente leitura).
-  const openPedidoSheet = (mode) => {
-    const isForm = mode === 'form';
-    if (pedidoSheetTitle) pedidoSheetTitle.textContent = isForm ? 'Fazer pedido' : 'Detalhes do pedido';
-    pedidoFormState?.classList.toggle('u-hidden', !isForm);
-    pedidoDetailsState?.classList.toggle('u-hidden', isForm);
-    if (!isForm) {
-      renderPedidoDetails();
-      // Atualiza o timer a cada minuto enquanto o sheet estiver aberto
-      stopPedidoTimer();
-      pedidoTimerInterval = setInterval(updatePedidoTimer, 60 * 1000);
-    }
+  // Abre o sheet no formulário de criação (não há pedido ativo).
+  const openPedidoForm = () => {
+    if (pedidoSheetTitle) pedidoSheetTitle.textContent = 'Fazer pedido';
+    pedidoFormState?.classList.remove('u-hidden');
+    pedidoDetailsState?.classList.add('u-hidden');
+    stopPedidoTimer();
+    detailPedidoId = null;
+    pedidoSheet?.classList.add('pedido-sheet--open');
+  };
+
+  // Abre o detalhe unificado (pedido + indicações) de um pedido específico.
+  const openPedidoDetail = (id) => {
+    const pedido = getPedidoById(id);
+    if (!pedido) return;
+    detailPedidoId = id;
+    if (pedidoSheetTitle) pedidoSheetTitle.textContent = pedido.status === 'active' ? 'Pedido atual' : 'Pedido concluído';
+    pedidoFormState?.classList.add('u-hidden');
+    pedidoDetailsState?.classList.remove('u-hidden');
+    renderPedidoDetails(pedido);
+    stopPedidoTimer();
+    if (pedido.status === 'active') pedidoTimerInterval = setInterval(updatePedidoTimer, 60 * 1000);
     pedidoSheet?.classList.add('pedido-sheet--open');
   };
 
   document.getElementById('btn-close-pedido-sheet')?.addEventListener('click', closePedidoSheet);
   document.getElementById('pedido-sheet-backdrop')?.addEventListener('click', closePedidoSheet);
   document.getElementById('btn-pedido-cancel')?.addEventListener('click', closePedidoSheet);
+  bindProCardFlip(document.getElementById('pedido-detail-indicated-list'));
 
   // Contador de caracteres do texto do pedido
   inpPedidoText?.addEventListener('input', () => {
@@ -1580,7 +1602,20 @@ document.addEventListener('DOMContentLoaded', () => {
     pedidoNeighbors.setAttribute('aria-pressed', String(myPedido.neighbors));
   });
 
-  // Publicar
+  // Volta o formulário aos defaults (após publicar ou ao concluir/limpar).
+  const resetPedidoForm = () => {
+    myPedido.text = '';
+    myPedido.urgency = 'normal';
+    myPedido.duration = '12';
+    myPedido.neighbors = false;
+    document.querySelectorAll('#pedido-urgency .pedido-chip').forEach((c, i) => c.classList.toggle('pedido-chip--active', i === 0));
+    document.querySelectorAll('#pedido-duration .pedido-chip').forEach((c, i) => c.classList.toggle('pedido-chip--active', i === 0));
+    if (pedidoNeighbors) pedidoNeighbors.setAttribute('aria-pressed', 'false');
+    if (inpPedidoText) { inpPedidoText.value = ''; inpPedidoText.classList.remove('input-text--error'); }
+    if (pedidoCharCount) pedidoCharCount.textContent = '0';
+  };
+
+  // Publicar → cria o pedido no histórico como ATIVO e semeia indicações (mock).
   document.getElementById('btn-pedido-publish')?.addEventListener('click', async () => {
     const text = inpPedidoText?.value.trim() || '';
     if (text.length < 10) {
@@ -1588,57 +1623,115 @@ document.addEventListener('DOMContentLoaded', () => {
       await customAlert('Descreva seu pedido com pelo menos 10 caracteres para os profissionais entenderem o que você precisa.', 'Pedido incompleto', 'edit_note');
       return;
     }
-    myPedido.text = text;
-    hasPedido = true;
-    pedidoPublishedAt = Date.now();
-    // MOCK: semeia indicações para o fluxo "ver indicados" ficar demonstrável.
-    mockIndicatedByPost['my'] = [
-      { name: 'Carlos Almeida', tags: 'Eletricista · Encanador',  ic: 78, q: 7, a: 5, v: 6, avail: 'available',   pay: { cash: true,  pix: true,  card: 6  }, nf: true,  bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
-      { name: 'Fernanda Lima',  tags: 'Costureira · Designer',    ic: 91, q: 9, a: 5, v: 7, avail: 'available',   pay: { cash: false, pix: true,  card: 12 }, nf: true,  bio: 'Costura sob medida e ajustes de roupas. Não trabalha com couro nem com grandes lotes.' },
-      { name: 'Marcos Freitas', tags: 'Marceneiro',               ic: 19, q: 8, a: 4, v: 6, avail: 'full',        pay: { cash: true,  pix: true,  card: 'debit' }, nf: true, bio: 'Móveis sob medida em madeira. Tenho alta demanda, combine o prazo com antecedência.' },
-    ];
-    pedidoIndications = mockIndicatedByPost['my'].length;
+    const pedido = {
+      id: pedidoIdSeq++,
+      text,
+      urgency: myPedido.urgency,
+      duration: myPedido.duration,
+      neighbors: myPedido.neighbors,
+      createdAt: Date.now(),
+      completedAt: null,
+      status: 'active',
+      // MOCK: semeia indicações para o fluxo "ver indicados" ficar demonstrável.
+      indicated: [
+        { name: 'Carlos Almeida', tags: 'Eletricista · Encanador',  ic: 78, q: 7, a: 5, v: 6, avail: 'available',   pay: { cash: true,  pix: true,  card: 6  }, nf: true,  bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
+        { name: 'Fernanda Lima',  tags: 'Costureira · Designer',    ic: 91, q: 9, a: 5, v: 7, avail: 'available',   pay: { cash: false, pix: true,  card: 12 }, nf: true,  bio: 'Costura sob medida e ajustes de roupas. Não trabalha com couro nem com grandes lotes.' },
+        { name: 'Marcos Freitas', tags: 'Marceneiro',               ic: 19, q: 8, a: 4, v: 6, avail: 'full',        pay: { cash: true,  pix: true,  card: 'debit' }, nf: true, bio: 'Móveis sob medida em madeira. Tenho alta demanda, combine o prazo com antecedência.' },
+      ],
+    };
+    pedidoHistory.push(pedido);
+    resetPedidoForm();
     renderMyPedidoButton();
     closePedidoSheet();
     await customAlert('Seu pedido está no ar! Você será avisado quando alguém indicar um profissional de confiança.', 'Pedido publicado', 'check_circle');
   });
 
-  // Concluir pedido — reseta o estado e fecha o sheet
-  document.getElementById('btn-pedido-concluir')?.addEventListener('click', async () => {
-    const ok = await customConfirm('Ao concluir, seu pedido sairá do ar e não receberá novas indicações. Deseja continuar?', 'Concluir pedido', 'check_circle');
+  // Concluir pedido → marca como concluído (permanece no histórico) e fecha o sheet.
+  btnPedidoConcluir?.addEventListener('click', async () => {
+    const pedido = getPedidoById(detailPedidoId);
+    if (!pedido || pedido.status !== 'active') return;
+    const ok = await customConfirm('Ao concluir, seu pedido sairá do ar e não receberá novas indicações. Ele continua salvo no seu histórico. Deseja continuar?', 'Concluir pedido', 'check_circle');
     if (!ok) return;
-    hasPedido = false;
-    pedidoPublishedAt = null;
-    pedidoIndications = 0;
-    myPedido.text = '';
-    myPedido.urgency = 'normal';
-    myPedido.duration = '12';
-    myPedido.neighbors = false;
-    mockIndicatedByPost['my'] = [];
-    // Restaura chips do formulário para o padrão
-    document.querySelectorAll('#pedido-urgency .pedido-chip').forEach((c, i) => c.classList.toggle('pedido-chip--active', i === 0));
-    document.querySelectorAll('#pedido-duration .pedido-chip').forEach((c, i) => c.classList.toggle('pedido-chip--active', i === 0));
-    if (pedidoNeighbors) pedidoNeighbors.setAttribute('aria-pressed', 'false');
-    if (inpPedidoText) { inpPedidoText.value = ''; if (pedidoCharCount) pedidoCharCount.textContent = '0'; }
+    pedido.status = 'completed';
+    pedido.completedAt = Date.now();
     renderMyPedidoButton();
+    renderHistoricoList();
     closePedidoSheet();
   });
 
-  btnHistorico?.addEventListener('click', () => {
-    customAlert('Histórico de pedidos em breve.', 'Histórico', 'history');
+  // ── Histórico de pedidos ──
+  const historicoSheet = document.getElementById('historico-sheet');
+  const historicoList  = document.getElementById('historico-list');
+
+  // Renderiza a lista do histórico, mais recentes no topo.
+  function renderHistoricoList() {
+    if (!historicoList) return;
+    if (pedidoHistory.length === 0) {
+      historicoList.innerHTML = `<p class="historico-empty">Você ainda não fez nenhum pedido.</p>`;
+      return;
+    }
+    const ordered = [...pedidoHistory].sort((a, b) => b.createdAt - a.createdAt);
+    historicoList.innerHTML = ordered.map(p => {
+      const active = p.status === 'active';
+      const statusCls   = active ? 'historico-item__status--active' : 'historico-item__status--done';
+      const statusLabel = active ? 'Ativo' : 'Concluído';
+      const statusIcon  = active ? 'bolt' : 'check_circle';
+      const urgentBadge = p.urgency === 'urgent'
+        ? `<span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>`
+        : '';
+      return `
+        <article class="historico-item" data-pedido-id="${p.id}" role="button" tabindex="0">
+          <div class="historico-item__top">
+            <span class="historico-item__status ${statusCls}">
+              <span class="material-symbols-rounded" aria-hidden="true">${statusIcon}</span>${statusLabel}
+            </span>
+            <span class="historico-item__date">${formatPedidoDate(p.createdAt)}</span>
+            <button type="button" class="historico-item__delete" data-delete-id="${p.id}" aria-label="Excluir pedido">
+              <span class="material-symbols-rounded" aria-hidden="true">delete</span>
+            </button>
+          </div>
+          <p class="historico-item__text">${urgentBadge}${p.text}</p>
+          <span class="historico-item__count">
+            <span class="material-symbols-rounded" aria-hidden="true">groups</span>${p.indicated.length}/3 indicações
+          </span>
+        </article>
+      `;
+    }).join('');
+  }
+
+  const openHistorico  = () => { renderHistoricoList(); historicoSheet?.classList.add('indicated-popup--open'); };
+  const closeHistorico = () => historicoSheet?.classList.remove('indicated-popup--open');
+
+  document.getElementById('btn-close-historico')?.addEventListener('click', closeHistorico);
+  document.getElementById('historico-sheet-backdrop')?.addEventListener('click', closeHistorico);
+
+  // Delegação: excluir (botão) tem prioridade; senão, abre o detalhe do item.
+  historicoList?.addEventListener('click', async (e) => {
+    const delBtn = e.target.closest('.historico-item__delete');
+    if (delBtn) {
+      e.stopPropagation();
+      const id = parseInt(delBtn.dataset.deleteId, 10);
+      if (!getPedidoById(id)) return;
+      const ok = await customConfirm('Deseja excluir este pedido do seu histórico? Esta ação não pode ser desfeita.', 'Excluir pedido', 'delete');
+      if (!ok) return;
+      const idx = pedidoHistory.findIndex(p => p.id === id);
+      if (idx !== -1) pedidoHistory.splice(idx, 1);
+      if (detailPedidoId === id) closePedidoSheet();
+      renderMyPedidoButton();
+      renderHistoricoList();
+      return;
+    }
+    const item = e.target.closest('.historico-item');
+    if (item) openPedidoDetail(parseInt(item.dataset.pedidoId, 10));
   });
 
-  // Botão principal da barra: criação ou detalhes conforme o estado
+  btnHistorico?.addEventListener('click', openHistorico);
+
+  // Botão principal: detalhe do pedido atual (se ativo) ou formulário de criação.
   btnMyPedido?.addEventListener('click', () => {
-    openPedidoSheet(hasPedido ? 'details' : 'form');
-  });
-
-  // Badge ao lado → popup "Indicações para você" (título personalizado)
-  myPedidoInfo?.addEventListener('click', () => {
-    if (!hasPedido) return;
-    const titleEl = document.getElementById('indicated-popup-title');
-    if (titleEl) titleEl.textContent = 'Indicações recebidas';
-    openIndicatedPopup('my');
+    const active = getActivePedido();
+    if (active) openPedidoDetail(active.id);
+    else openPedidoForm();
   });
 
   renderMyPedidoButton();
