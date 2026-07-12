@@ -321,7 +321,7 @@
 
             <!-- ── Localização ──────────────────────────────────────────── -->
             <div class="form-group">
-                <button type="button" id="btn-register-location" class="location-check">
+                <button type="button" id="btn-register-location" class="card location-check">
                     <span class="material-symbols-rounded location-check__icon" aria-hidden="true">location_on</span>
                     <div class="location-check__content">
                         <strong id="text-location-status">Registrar sua região atual</strong>
@@ -503,7 +503,7 @@
                  rodapé e colunas escondem via @media (max-height) — o medidor com
                  os 4 escudos e o hero 70% ficam SEMPRE. Ver onboarding.css. -->
             <div class="form-group form-group--ic-fill">
-                <div class="ic-card">
+                <div class="card card--shadow ic-card">
                     <button type="button" id="btn-ic-info" class="ic-card__info-btn" aria-label="Mais informações sobre o Índice de Confiança">
                         <span class="material-symbols-rounded" aria-hidden="true">help</span>
                     </button>
@@ -515,7 +515,7 @@
                     </div>
 
                     <!-- Card INTERNO com o subtítulo + frase + moldura-escudo/70 -->
-                    <div class="ic-card__intro">
+                    <div class="card card--soft ic-card__intro">
                         <div class="ic-hero">
                             <div class="ic-hero__info">
                                 <strong class="eyebrow ic-hero__title">Índice de Confiança</strong>
@@ -615,15 +615,15 @@
             <!-- Bloco iOS/Safari: não existe prompt nativo — passo a passo manual -->
             <div id="install-block-ios" class="install-guide u-hidden">
                 <ol class="install-guide__steps">
-                    <li class="install-guide__step">
+                    <li class="card card--soft card--bordered install-guide__step">
                         <span class="material-symbols-rounded" aria-hidden="true">ios_share</span>
                         <span>Toque em <strong>Compartilhar</strong> na barra do Safari</span>
                     </li>
-                    <li class="install-guide__step">
+                    <li class="card card--soft card--bordered install-guide__step">
                         <span class="material-symbols-rounded" aria-hidden="true">add_box</span>
                         <span>Escolha <strong>Adicionar à Tela de Início</strong></span>
                     </li>
-                    <li class="install-guide__step">
+                    <li class="card card--soft card--bordered install-guide__step">
                         <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
                         <span>Confirme tocando em <strong>Adicionar</strong></span>
                     </li>
@@ -633,11 +633,11 @@
             <!-- Bloco GENÉRICO: navegador sem prompt capturado (Firefox, Samsung etc.) -->
             <div id="install-block-generic" class="install-guide u-hidden">
                 <ol class="install-guide__steps">
-                    <li class="install-guide__step">
+                    <li class="card card--soft card--bordered install-guide__step">
                         <span class="material-symbols-rounded" aria-hidden="true">more_vert</span>
                         <span>Abra o <strong>menu do navegador</strong></span>
                     </li>
-                    <li class="install-guide__step">
+                    <li class="card card--soft card--bordered install-guide__step">
                         <span class="material-symbols-rounded" aria-hidden="true">add_to_home_screen</span>
                         <span>Toque em <strong>Adicionar à tela inicial</strong> ou <strong>Instalar app</strong></span>
                     </li>
@@ -649,7 +649,7 @@
                  andamento, avisa que a aba pode ser fechada e oferece um retry
                  discreto. Neste estágio o acesso ao feed por esta tela é removido. -->
             <div id="install-block-progress" class="install-guide u-hidden">
-                <p class="install-progress__note">
+                <p class="card card--soft card--bordered install-progress__note">
                     <span class="material-symbols-rounded" aria-hidden="true">info</span>
                     <span>Se o navegador pedir, confirme a instalação. Você pode <strong>fechar esta aba</strong> quando quiser — o app continuará sendo instalado normalmente.</span>
                 </p>
@@ -1170,7 +1170,7 @@
                 <div id="contracts-list" class="contracts-list">
 
                     <!-- Contrato ATIVO -->
-                    <article class="contract-card">
+                    <article class="card card--bordered card--shadow contract-card">
                         <div class="contract-card__main">
                             <div class="contract-card__client">
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
@@ -1199,7 +1199,7 @@
                     </article>
 
                     <!-- Contrato ATIVO -->
-                    <article class="contract-card">
+                    <article class="card card--bordered card--shadow contract-card">
                         <div class="contract-card__main">
                             <div class="contract-card__client">
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
@@ -1228,7 +1228,7 @@
                     </article>
 
                     <!-- Contrato CONCLUÍDO -->
-                    <article class="contract-card">
+                    <article class="card card--bordered card--shadow contract-card">
                         <div class="contract-card__main">
                             <div class="contract-card__client">
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">

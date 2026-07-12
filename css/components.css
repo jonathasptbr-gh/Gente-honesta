@@ -275,6 +275,33 @@
 
 
 /* ===========================================
+   SUPERFÍCIES / CARDS
+   Casco compartilhado das superfícies claras do app (cadastro, feed, install).
+   Invariante universal: raio --radius-md + fundo claro; fundo, borda e sombra
+   variam por modificador. Superfícies com geometria própria (raio só embaixo do
+   painel colapsável, borda colorida da busca de área, gradiente do ic-card,
+   borda 1.5px do display de serviço) mantêm sua regra bespoke SOBRE esta base.
+   ======================================== */
+.card {
+  background: var(--bg-white);
+  border: none;   /* zera a borda de UA de <button>/<input> usados como card; --bordered readiciona */
+  border-radius: var(--radius-md);
+}
+
+.card--soft {
+  background: var(--bg-soft);
+}
+
+.card--bordered {
+  border: 1px solid var(--border-light);
+}
+
+.card--shadow {
+  box-shadow: var(--shadow-sm);
+}
+
+
+/* ===========================================
    ÍNDICE DE CONFIANÇA — Componente ic-bar
    Reutilizado em cards do feed e na agenda
    ======================================== */

@@ -448,15 +448,12 @@
   gap: var(--space-sm);
 }
 
+/* fundo/borda/raio/sombra vêm de .card .card--bordered .card--shadow (HTML) */
 .contract-card {
-  background: var(--bg-white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
   padding: var(--space-sm);
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  box-shadow: var(--shadow-sm);
 }
 
 .contract-card--cancelled {

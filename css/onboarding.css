@@ -299,9 +299,8 @@
   gap: var(--space-sm);
   width: 100%;
   padding: 16px;
-  border: none;   /* sem borda: o card branco contrasta sozinho no fundo verde */
-  border-radius: var(--radius-md);
-  background: var(--bg-white);
+  /* fundo branco (sem borda) e raio --radius-md vêm de .card no HTML —
+     contrasta sozinho no fundo verde */
   cursor: pointer;
   transition: var(--transition);
   text-align: left;
@@ -646,17 +645,15 @@
    dos cards claros da tela (títulos --p-green-dark, corpo --t-sub). Conteúdo
    (de cima p/ baixo): cabeçalho, hero 70 na moldura-escudo, medidor
    segmentado com os 4 escudos do sistema e pino, nota e rodapé-lema. */
+/* raio --radius-md e sombra vêm de .card .card--shadow (HTML); o fundo aqui é o
+   gradiente VERDE (sobrepõe o branco da base); sem borda (contrasta sozinho). */
 .ic-card {
   position: relative;
-  border: none;   /* sem borda: o card branco contrasta sozinho no fundo verde */
-  border-radius: var(--radius-md);
-  /* brilho radial VERDE no canto (era dourado) */
   background:
     radial-gradient(130% 90% at 100% 0%, rgba(var(--p-green-rgb), 0.10), transparent 55%),
     var(--bg-white);
   padding: 14px var(--space-md);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
 }
 
 .ic-card__info-btn {
@@ -701,9 +698,8 @@
 }
 
 /* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70) */
+/* fundo soft e raio vêm de .card .card--soft (HTML) */
 .ic-card__intro {
-  background: var(--bg-soft);
-  border-radius: var(--radius-md);
   padding: 10px 12px;
 }
 

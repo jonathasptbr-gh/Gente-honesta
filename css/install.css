@@ -8,14 +8,12 @@
 }
 
 /* Estágio "instalação em andamento": nota informativa + retry discreto */
+/* fundo soft, borda 1px e raio vêm de .card .card--soft .card--bordered (HTML) */
 .install-progress__note {
   display: flex;
   align-items: flex-start;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
-  background: var(--bg-soft);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
   font-size: var(--fs-5);
   line-height: 1.5;
   color: var(--t-sub);
@@ -48,14 +46,12 @@
   counter-reset: install-step;
 }
 
+/* fundo soft, borda 1px e raio vêm de .card .card--soft .card--bordered (HTML) */
 .install-guide__step {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
-  background: var(--bg-soft);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
   text-align: left;
   font-size: var(--fs-7);
   color: var(--t-main);
