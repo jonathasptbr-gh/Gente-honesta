@@ -3690,6 +3690,12 @@
    sorteado reutiliza as classes .pro-card__* dos cards de profissional.
    =========================================================================== */
 
+/* Fundo do sheet um pouco mais escuro, igual ao fundo do feed (--bg-canvas,
+   atrás dos cards). Escopado ao #ajudante-sheet — não afeta pedido/vaga. */
+#ajudante-sheet .pedido-sheet__panel {
+  background: var(--bg-canvas);
+}
+
 /* Seção de função + título com ícone */
 .ajudante-section {
   display: flex;
