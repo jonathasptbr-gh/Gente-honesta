@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v238</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v239</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -314,13 +314,13 @@
                 <div class="profile-header-row__fields">
                     <div class="form-group form-group--no-margin">
                         <div class="input-float">
-                            <input type="text" id="inp-name" class="input-text input-text--float" maxlength="40" placeholder=" " required>
+                            <input type="text" id="inp-name" name="given-name" autocomplete="given-name" class="input-text input-text--float" maxlength="40" placeholder=" " required>
                             <label class="input-float__label" for="inp-name">Nome</label>
                         </div>
                     </div>
                     <div class="form-group form-group--no-margin">
                         <div class="input-float">
-                            <input type="text" id="inp-surname" class="input-text input-text--float" maxlength="60" placeholder=" " required>
+                            <input type="text" id="inp-surname" name="family-name" autocomplete="family-name" class="input-text input-text--float" maxlength="60" placeholder=" " required>
                             <label class="input-float__label" for="inp-surname">Sobrenome</label>
                         </div>
                     </div>

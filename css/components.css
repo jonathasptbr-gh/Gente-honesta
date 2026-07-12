@@ -215,6 +215,22 @@
   background: var(--p-green-light);
 }
 
+/* Autofill do navegador (Chrome/Samsung Internet): por padrão pinta o campo de
+   AZUL-CLARO e mantém a cor mesmo após perder o foco. Repintamos o fundo com a
+   cor normal do campo via box-shadow inset (preservando a --shadow-sm), fixamos
+   o texto escuro e travamos a transição de fundo para o azul não voltar/piscar. */
+.input-text:-webkit-autofill,
+.input-text:-webkit-autofill:hover,
+.input-text:-webkit-autofill:active {
+  -webkit-box-shadow: inset 0 0 0 1000px var(--bg-white), var(--shadow-sm);
+  -webkit-text-fill-color: var(--t-main);
+  caret-color: var(--t-main);
+  transition: background-color 9999s ease-in-out 0s;
+}
+.input-text:-webkit-autofill:focus {
+  -webkit-box-shadow: inset 0 0 0 1000px var(--p-green-light), var(--shadow-sm);
+}
+
 /* Hint (placeholder) um pouco menor: evita corte em campos de 1 linha
    e reduz o volume do placeholder longo no textarea de habilidades */
 .input-text::placeholder {

@@ -254,7 +254,11 @@ na estética não muda o papel: se o elemento AGE (compartilhar, candidatar, fil
 3. **Token / Pílula (`.chip` + `--sm/--md`)** — item selecionável/filtro/toggle. Tag: `<button>`. Estado
    ativo por CONTEXTO (verde-sólido no feed, tint-azul no cadastro, dourado nas pílulas sobre verde).
 4. **Campo (`.input-text`)** — entrada de texto. Tag: `<input>`/`<textarea>`; sem borda, foco por mudança
-   de cor do fundo (`--p-green-light`).
+   de cor do fundo (`--p-green-light`). **Autofill do navegador:** o azul-claro padrão do `:-webkit-autofill`
+   é repintado com a cor normal do campo via `-webkit-box-shadow: inset 0 0 0 1000px …` (+ `--shadow-sm`) e
+   `transition: background-color 9999s` (senão volta/pisca após o blur). Nome e sobrenome do cadastro são um
+   PAR de autofill (`autocomplete="given-name"`/`"family-name"` + `name` correspondentes), para o navegador
+   oferecer preencher os dois juntos, não um por vez.
 
 Ao criar um elemento novo, escolha a categoria pelo papel e reuse a base — não crie uma árvore de classe
 paralela (foi o que gerava divergências, ex.: dois "compartilhar" com bases diferentes → um com bug de
@@ -581,7 +585,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v238`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v239`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a

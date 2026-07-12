@@ -126,9 +126,7 @@
   transition: border var(--transition);
 }
 
-.media-capture__display--captured {
-  border: 3px solid var(--p-green);
-}
+/* Foto capturada: SEM moldura verde — a própria foto preenche o slot claro. */
 
 .media-capture__placeholder {
   display: flex;
