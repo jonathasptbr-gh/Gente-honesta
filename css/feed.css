@@ -1588,6 +1588,16 @@
   opacity: 1;
 }
 
+/* Abertura do detalhe a partir de um item do histórico (FLIP): o painel aparece
+   INSTANTANEAMENTE (mesmo --bg-canvas do histórico, sem slide/flash) e a animação
+   fica por conta do card (que sobe da posição do item) e das indicações (que
+   entram depois) — controlados por estilo inline em openPedidoDetail. */
+.pedido-sheet--morph .pedido-sheet__panel {
+  transition: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
 /* O detalhe do pedido agora também é um DROPDOWN (mesmo slide-down do histórico),
    não mais tela cheia — herda .pedido-sheet__panel acima. */
 

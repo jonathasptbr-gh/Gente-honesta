@@ -2138,11 +2138,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Botão "Fazer pedido"/"Pedido atual" vira um botão de fechar (X) enquanto o
-  // sheet de pedido está aberto; ao fechar, restaura o rótulo/ícone correto.
-  const setMyPedidoClose = (isClose) => {
-    btnMyPedido?.classList.toggle('action-close-mode', isClose);
-    if (isClose) {
+  // O botão "Fazer pedido"/"Pedido atual" assume 3 estados:
+  //  'natural'  → "Fazer pedido"/"Pedido atual" (via renderMyPedidoButton)
+  //  'close'    → "Fechar" (fecha o formulário)
+  //  'conclude' → "Concluir pedido" (dourado; no detalhe do pedido ATIVO — fica no
+  //               lado do "Pedido atual", enquanto o Histórico vira "Fechar")
+  const setMyPedidoButton = (mode) => {
+    btnMyPedido?.classList.toggle('action-close-mode', mode === 'close');
+    btnMyPedido?.classList.toggle('action-conclude-mode', mode === 'conclude');
+    if (mode === 'conclude') {
+      if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'check_circle';
+      if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Concluir pedido';
+    } else if (mode === 'close') {
       if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'close';
       if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Fechar';
     } else {
@@ -2187,10 +2194,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const closePedidoSheet = () => {
     pedidoSheet?.classList.remove('pedido-sheet--open');
+    pedidoSheet?.classList.remove('pedido-sheet--morph');
     stopPedidoTimer();
     detailPedidoId = null;
     pedidoDetailMode = null;
-    setMyPedidoClose(false);
+    setMyPedidoButton('natural');
     // Restaura o botão Histórico: se o histórico continua aberto atrás, volta a
     // "Fechar"; senão, ao estado natural "Histórico".
     const historicoOpen = document.getElementById('historico-sheet')?.classList.contains('historico-sheet--open');
@@ -2228,38 +2236,16 @@ document.addEventListener('DOMContentLoaded', () => {
     timerEl.textContent = hoursLeft > 0 ? `${hoursLeft}h restantes` : 'Expirado';
   };
 
-  // Preenche o detalhe (card do pedido + fração + lista de indicados) a partir
-  // de um pedido do histórico. Pedido ativo mostra timer + "Concluir"; concluído
-  // mostra o selo "Concluído" e nenhuma ação.
+  // Preenche o detalhe: card de REFERÊNCIA no topo (MESMO modelo do histórico,
+  // via historicoItemHTML) + fração + lista de indicados. O card de baixo
+  // (Concluir) fica sempre oculto; concluir vive no topo (botão Pedido atual).
   const renderPedidoDetails = (pedido) => {
-    const avatarSrc = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>`;
-    const displayName = window.auth?.currentUser?.displayName || 'Você';
-    const urgent = pedido.urgency === 'urgent';
-    const active = pedido.status === 'active';
-    const metaRight = active
-      ? `<span class="pedido-item__timer"><span class="material-symbols-rounded" aria-hidden="true">hourglass_bottom</span><span id="pedido-detail-timer-text">—</span></span>`
-      : `<span class="pedido-item__timer pedido-item__timer--done"><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluído</span>`;
     const container = document.getElementById('pedido-detail-card-container');
-    if (container) {
-      container.innerHTML = `
-        <article class="pedido-item pedido-detail-preview${urgent ? ' pedido-item--urgent' : ''}">
-          <div class="pedido-item__meta">
-            <img class="pedido-item__avatar" src="${avatarSrc}" alt="">
-            <span class="pedido-item__name">${displayName}</span>
-            ${icBarHTML(100)}
-            ${metaRight}
-          </div>
-          ${urgent ? `<p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>${pedido.text}</p>` : `<p class="pedido-item__text">${pedido.text}</p>`}
-        </article>
-      `;
-    }
+    if (container) container.innerHTML = historicoItemHTML(pedido);
     const fractionEl = document.getElementById('pedido-detail-fraction');
     if (fractionEl) fractionEl.textContent = `${pedido.indicated.length}/3`;
     const listEl = document.getElementById('pedido-detail-indicated-list');
     if (listEl) renderFlippableProCards(listEl, pedido.indicated);
-    // Concluir vive no topo (botão Histórico vira "Concluir" no pedido ativo);
-    // o bloco de ação de baixo fica sempre oculto para não duplicar.
-    updatePedidoTimer();
   };
 
   // Abre o formulário de criação (não há pedido ativo) como DROPDOWN que desce
@@ -2273,15 +2259,16 @@ document.addEventListener('DOMContentLoaded', () => {
     detailPedidoId = null;
     pedidoDetailMode = null;   // formulário não é um detalhe
     anchorBelowActionBar(pedidoSheet);
-    pedidoSheet?.classList.remove('pedido-sheet--full');
+    pedidoSheet?.classList.remove('pedido-sheet--full', 'pedido-sheet--morph');
     pedidoSheet?.classList.add('pedido-sheet--open');
-    setMyPedidoClose(true);
+    setMyPedidoButton('close');
   };
 
-  // Abre o detalhe unificado (pedido + indicações) de um pedido específico como
-  // DROPDOWN que desce da base da action bar — mesmo slide-down do histórico e do
-  // formulário. O corpo do sheet rola internamente se a lista de indicados crescer.
-  const openPedidoDetail = (id) => {
+  // Abre o detalhe unificado (pedido + indicações). `sourceEl` = o item do
+  // histórico tocado: quando presente, a abertura ANIMA (FLIP) — o card sobe da
+  // posição do item até o topo do detalhe e só então deslizam as indicações, para
+  // parecer que continua no histórico vendo mais detalhes do item.
+  const openPedidoDetail = (id, sourceEl) => {
     const pedido = getPedidoById(id);
     if (!pedido) return;
     detailPedidoId = id;
@@ -2292,19 +2279,52 @@ document.addEventListener('DOMContentLoaded', () => {
     pedidoDetailsState?.classList.remove('u-hidden');
     renderPedidoDetails(pedido);
     stopPedidoTimer();
-    if (active) pedidoTimerInterval = setInterval(updatePedidoTimer, 60 * 1000);
     anchorBelowActionBar(pedidoSheet);
     pedidoSheet?.classList.remove('pedido-sheet--full');
-    pedidoSheet?.classList.add('pedido-sheet--open');
-    if (active) {
-      // Pedido ATIVO: Histórico → "Concluir pedido"; Fazer/Pedido atual → "Fechar".
-      setHistoricoButton('conclude');
-      setMyPedidoClose(true);
+    // Botões do topo: Histórico → "Fechar" (nos dois casos); o botão "Pedido atual"
+    // vira "Concluir pedido" quando o pedido é ATIVO, ou fica natural quando é
+    // ANTIGO (para pular direto ao pedido atual / fazer um novo).
+    setHistoricoButton('close');
+    setMyPedidoButton(active ? 'conclude' : 'natural');
+
+    const cardEl = document.querySelector('#pedido-detail-card-container .historico-item');
+    const indicatedEl = pedidoSheet?.querySelector('.pedido-detail-indicated');
+    // limpa estilos inline de uma animação anterior
+    if (indicatedEl) { indicatedEl.style.transition = ''; indicatedEl.style.opacity = ''; indicatedEl.style.transform = ''; }
+
+    const sourceRect = sourceEl ? sourceEl.getBoundingClientRect() : null;
+    if (sourceRect && cardEl) {
+      // FLIP: painel aparece na hora (mesmo --bg-canvas do histórico, sem "flash"),
+      // o card sobe da posição do item tocado e as indicações entram depois.
+      pedidoSheet.classList.add('pedido-sheet--morph');
+      pedidoSheet.classList.add('pedido-sheet--open');
+      const last = cardEl.getBoundingClientRect();
+      const dy = Math.round(sourceRect.top - last.top);
+      cardEl.style.transition = 'none';
+      cardEl.style.transform = `translateY(${dy}px)`;
+      if (indicatedEl) { indicatedEl.style.transition = 'none'; indicatedEl.style.opacity = '0'; indicatedEl.style.transform = 'translateY(18px)'; }
+      void cardEl.offsetWidth; // reflow: fixa o estado inicial
+      cardEl.style.transition = 'transform 0.42s var(--sheet-ease, cubic-bezier(0.32,0.72,0,1))';
+      cardEl.style.transform = 'translateY(0)';
+      const revealIndicated = () => {
+        if (!indicatedEl) return;
+        indicatedEl.style.transition = 'opacity 0.3s ease, transform 0.38s var(--sheet-ease, cubic-bezier(0.32,0.72,0,1))';
+        indicatedEl.style.opacity = '1';
+        indicatedEl.style.transform = 'translateY(0)';
+      };
+      let revealed = false;
+      const onEnd = (ev) => { if (ev.propertyName !== 'transform') return; cardEl.removeEventListener('transitionend', onEnd); if (!revealed) { revealed = true; revealIndicated(); } };
+      cardEl.addEventListener('transitionend', onEnd);
+      setTimeout(() => { if (!revealed) { revealed = true; revealIndicated(); } }, 480); // fallback
+      setTimeout(() => { // limpeza pós-animação
+        pedidoSheet.classList.remove('pedido-sheet--morph');
+        cardEl.style.transition = ''; cardEl.style.transform = '';
+        if (indicatedEl) { indicatedEl.style.transition = ''; indicatedEl.style.opacity = ''; indicatedEl.style.transform = ''; }
+      }, 950);
     } else {
-      // Pedido ANTIGO: só Histórico → "Fechar"; Fazer/Pedido atual fica natural,
-      // para pular direto de um pedido antigo para fazer/ver o pedido atual.
-      setHistoricoButton('close');
-      setMyPedidoClose(false);
+      // Sem item de origem (ex.: abriu pelo botão "Pedido atual"): slide-down padrão.
+      pedidoSheet?.classList.remove('pedido-sheet--morph');
+      pedidoSheet?.classList.add('pedido-sheet--open');
     }
   };
 
@@ -2348,10 +2368,19 @@ document.addEventListener('DOMContentLoaded', () => {
   //  - qualquer outro toque fora do painel → fecha.
   pedidoSheet?.addEventListener('click', (e) => {
     if (e.target.closest('.pedido-sheet__panel')) return;
-    if (pedidoDetailMode === 'active' && tapHitsButton(e, btnHistorico)) { concluirDetailPedido(); return; }
+    // O botão do lado "Pedido atual" (btnMyPedido) tem ação própria: conclui (pedido
+    // ativo) ou navega (pedido antigo). O botão Histórico é "Fechar" (default abaixo).
+    if (pedidoDetailMode === 'active' && tapHitsButton(e, btnMyPedido)) { concluirDetailPedido(); return; }
     if (pedidoDetailMode === 'old' && tapHitsButton(e, btnMyPedido)) { myPedidoNavigate(); return; }
     closePedidoSheet();
   });
+  // O card de referência do topo do detalhe é um item de histórico completo —
+  // inclui a lixeira. Excluir dali confirma, remove e fecha o detalhe.
+  document.getElementById('pedido-detail-card-container')?.addEventListener('click', (e) => {
+    const delBtn = e.target.closest('.historico-item__delete');
+    if (delBtn) { e.stopPropagation(); deletePedido(parseInt(delBtn.dataset.deleteId, 10)); }
+  });
+
   bindProCardFlip(document.getElementById('pedido-detail-indicated-list'));
 
   // Contador de caracteres do texto do pedido
@@ -2432,6 +2461,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const historicoSheet = document.getElementById('historico-sheet');
   const historicoList  = document.getElementById('historico-list');
 
+  // Markup de UM item de pedido — usado tanto na lista do histórico quanto como
+  // card de referência no TOPO do detalhe (mesmo modelo de card). function
+  // declaration → hoistada, usável por renderPedidoDetails (definida acima).
+  function historicoItemHTML(p) {
+    const active = p.status === 'active';
+    const statusCls = active ? 'historico-item__status--active' : 'historico-item__status--done';
+    const statusInner = active
+      ? `<span class="material-symbols-rounded" aria-hidden="true">bolt</span>Ativo · ${pedidoHoursLeft(p) > 0 ? pedidoHoursLeft(p) + 'h' : 'Expirado'}`
+      : `<span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluído`;
+    const urgentBadge = p.urgency === 'urgent'
+      ? `<span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>`
+      : '';
+    return `
+      <article class="historico-item" data-pedido-id="${p.id}" role="button" tabindex="0">
+        <div class="historico-item__top">
+          <span class="historico-item__date">${formatPedidoDate(p.createdAt)}</span>
+          <button type="button" class="historico-item__delete" data-delete-id="${p.id}" aria-label="Excluir pedido">
+            <span class="material-symbols-rounded" aria-hidden="true">delete</span>
+          </button>
+        </div>
+        <p class="historico-item__text">${urgentBadge}${p.text}</p>
+        <div class="historico-item__footer">
+          <span class="historico-item__status ${statusCls}">${statusInner}</span>
+          <span class="historico-item__count">
+            <span class="material-symbols-rounded" aria-hidden="true">groups</span>${p.indicated.length}/3 indicações
+          </span>
+        </div>
+      </article>`;
+  }
+
   // Renderiza a lista do histórico, mais recentes no topo.
   function renderHistoricoList() {
     if (!historicoList) return;
@@ -2440,35 +2499,20 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const ordered = [...pedidoHistory].sort((a, b) => b.createdAt - a.createdAt);
-    historicoList.innerHTML = ordered.map(p => {
-      const active = p.status === 'active';
-      const statusCls = active ? 'historico-item__status--active' : 'historico-item__status--done';
-      // Badge de status na base: ativo carrega o tempo restante; concluído só o rótulo.
-      const statusInner = active
-        ? `<span class="material-symbols-rounded" aria-hidden="true">bolt</span>Ativo · ${pedidoHoursLeft(p) > 0 ? pedidoHoursLeft(p) + 'h' : 'Expirado'}`
-        : `<span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluído`;
-      const urgentBadge = p.urgency === 'urgent'
-        ? `<span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>`
-        : '';
-      return `
-        <article class="historico-item" data-pedido-id="${p.id}" role="button" tabindex="0">
-          <div class="historico-item__top">
-            <span class="historico-item__date">${formatPedidoDate(p.createdAt)}</span>
-            <button type="button" class="historico-item__delete" data-delete-id="${p.id}" aria-label="Excluir pedido">
-              <span class="material-symbols-rounded" aria-hidden="true">delete</span>
-            </button>
-          </div>
-          <p class="historico-item__text">${urgentBadge}${p.text}</p>
-          <div class="historico-item__footer">
-            <span class="historico-item__status ${statusCls}">${statusInner}</span>
-            <span class="historico-item__count">
-              <span class="material-symbols-rounded" aria-hidden="true">groups</span>${p.indicated.length}/3 indicações
-            </span>
-          </div>
-        </article>
-      `;
-    }).join('');
+    historicoList.innerHTML = ordered.map(historicoItemHTML).join('');
   }
+
+  // Exclui um pedido do histórico (usado pela lista e pelo card do detalhe).
+  const deletePedido = async (id) => {
+    if (!getPedidoById(id)) return;
+    const ok = await customConfirm('Deseja excluir este pedido do seu histórico? Esta ação não pode ser desfeita.', 'Excluir pedido', 'delete');
+    if (!ok) return;
+    const idx = pedidoHistory.findIndex(p => p.id === id);
+    if (idx !== -1) pedidoHistory.splice(idx, 1);
+    if (detailPedidoId === id) closePedidoSheet();
+    renderMyPedidoButton();
+    renderHistoricoList();
+  };
 
   // Dropdown que desce da BASE da action bar (topo da caixa do feed).
   const openHistorico = () => {
@@ -2479,33 +2523,26 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   const closeHistorico = () => {
     historicoSheet?.classList.remove('historico-sheet--open');
-    // Se um detalhe de pedido ativo está aberto sobre o histórico, o botão fica em
-    // "Concluir"; senão volta ao natural.
-    setHistoricoButton(pedidoDetailMode === 'active' ? 'conclude' : 'natural');
+    // Se um detalhe (ativo ou antigo) está aberto sobre o histórico, o botão
+    // Histórico segue como "Fechar"; senão volta ao natural.
+    setHistoricoButton(pedidoDetailMode ? 'close' : 'natural');
   };
 
   historicoSheet?.addEventListener('click', (e) => {
     if (!e.target.closest('.historico-sheet__panel')) closeHistorico();
   });
 
-  // Delegação: excluir (botão) tem prioridade; senão, abre o detalhe do item.
+  // Delegação: excluir (botão) tem prioridade; senão, abre o detalhe do item
+  // com a animação FLIP (o card tocado sobe até o topo do detalhe).
   historicoList?.addEventListener('click', async (e) => {
     const delBtn = e.target.closest('.historico-item__delete');
     if (delBtn) {
       e.stopPropagation();
-      const id = parseInt(delBtn.dataset.deleteId, 10);
-      if (!getPedidoById(id)) return;
-      const ok = await customConfirm('Deseja excluir este pedido do seu histórico? Esta ação não pode ser desfeita.', 'Excluir pedido', 'delete');
-      if (!ok) return;
-      const idx = pedidoHistory.findIndex(p => p.id === id);
-      if (idx !== -1) pedidoHistory.splice(idx, 1);
-      if (detailPedidoId === id) closePedidoSheet();
-      renderMyPedidoButton();
-      renderHistoricoList();
+      await deletePedido(parseInt(delBtn.dataset.deleteId, 10));
       return;
     }
     const item = e.target.closest('.historico-item');
-    if (item) openPedidoDetail(parseInt(item.dataset.pedidoId, 10));
+    if (item) openPedidoDetail(parseInt(item.dataset.pedidoId, 10), item);
   });
 
   btnHistorico?.addEventListener('click', openHistorico);
