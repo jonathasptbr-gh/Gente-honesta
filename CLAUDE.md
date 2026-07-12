@@ -751,6 +751,33 @@ filterState {
 
 Candidatura mockada: sem persistência no Firestore. O flip usa o mesmo motor genérico de animação 3D dos cards de profissional.
 
+### Sheet "Criar vaga" (`#vaga-sheet`)
+
+Bottom sheet de criação de vaga, acionado pelo `#btn-criar-vaga` da action bar (estado vagas).
+**Reaproveita o scaffolding do `pedido-sheet`** (mesmas classes `.pedido-sheet*`, `.pedido-field*`,
+`.pedido-chip*` — o bottom-sheet-formulário padrão do app), com estilos próprios só para as listas
+dinâmicas (`css/feed.css`, bloco "Sheet Criar vaga"): `.vaga-dyn-list` / `.vaga-dyn-row` (input +
+botão remover `.vaga-dyn-remove`), `.vaga-add-btn` (botão tracejado dourado "Adicionar…") e
+`.vaga-card--highlight` (destaque dourado temporário ao tocar "Ver vaga").
+
+Campos (todos obrigatórios exceto benefícios): empresa, endereço, cargo, **número de vagas** (chips
+1–5, seleção única, padrão 1), **requisitos** (lista dinâmica, ≥1 preenchido), carga horária, salário
+e **benefícios** (lista dinâmica, opcional). Cada benefício recebe um ícone Material inferido por
+palavra-chave (`benefitIcon()` em `feed.js`; fallback `redeem`).
+
+Lógica em `feed.js` (bloco "Sheet Criar vaga", IIFE após `renderVagasList`):
+- `addDynRow(listEl, placeholder)` — cria uma linha de input dinâmico com botão remover
+- `resetVagaForm()` — zera o formulário (1 requisito vazio, sem benefícios, contagem = 1)
+- `openVagaSheet()` / `closeVagaSheet()` — alternam `.pedido-sheet--open`
+- Publicar: valida obrigatórios (destaca vazios com `input-text--error` + rola até o 1º),
+  faz `mockVagas.unshift(novaVaga)` (poster = usuário atual, IC mock 100) + `renderVagasList()`,
+  e **transforma o `#btn-criar-vaga` em "Ver vaga"** (ícone `visibility`)
+- Com vaga publicada, `#btn-criar-vaga` chama `scrollToMyVaga()` (rola até o card + `--highlight`)
+  em vez de reabrir o formulário. `myVagaId` guarda o id da vaga do usuário.
+
+MOCK: sem persistência no Firestore. `renderVagasList` só renderiza a seção "Benefícios" se a vaga
+tiver algum (vagas do usuário podem não ter benefícios, evitando cabeçalho vazio).
+
 ### Classes CSS notáveis em feed.css
 
 | Classe | Descrição |

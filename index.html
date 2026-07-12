@@ -820,6 +820,84 @@
             </div>
         </div>
 
+        <!-- ── Sheet "Criar vaga" ─────────────────────────────────────────── -->
+        <!-- Reaproveita o scaffolding do pedido-sheet (bottom-sheet padrão do app). -->
+        <!-- Contrato: visibilidade controlada por .pedido-sheet--open. -->
+        <div id="vaga-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
+            <div class="pedido-sheet__backdrop" id="vaga-sheet-backdrop"></div>
+            <div class="pedido-sheet__panel">
+                <div class="pedido-sheet__header">
+                    <p class="pedido-sheet__title">Criar vaga</p>
+                    <button type="button" id="btn-close-vaga-sheet" class="agenda-indicated__cancel" aria-label="Fechar">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
+                    </button>
+                </div>
+
+                <div class="pedido-sheet__body">
+                    <div class="pedido-sheet__state">
+
+                        <div class="pedido-field">
+                            <label class="pedido-field__label" for="inp-vaga-empresa">Nome da empresa</label>
+                            <input type="text" id="inp-vaga-empresa" class="input-text" maxlength="60" placeholder="Ex: Restaurante da Esquina">
+                        </div>
+
+                        <div class="pedido-field">
+                            <label class="pedido-field__label" for="inp-vaga-endereco">Endereço</label>
+                            <input type="text" id="inp-vaga-endereco" class="input-text" maxlength="100" placeholder="Ex: Rua das Acácias, 142 - Centro">
+                        </div>
+
+                        <div class="pedido-field">
+                            <label class="pedido-field__label" for="inp-vaga-cargo">Cargo / função</label>
+                            <input type="text" id="inp-vaga-cargo" class="input-text" maxlength="60" placeholder="Ex: Auxiliar de Cozinha">
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Número de vagas</span>
+                            <div class="pedido-chip-row" id="vaga-count">
+                                <button type="button" class="pedido-chip pedido-chip--active" data-count="1">1</button>
+                                <button type="button" class="pedido-chip" data-count="2">2</button>
+                                <button type="button" class="pedido-chip" data-count="3">3</button>
+                                <button type="button" class="pedido-chip" data-count="4">4</button>
+                                <button type="button" class="pedido-chip" data-count="5">5+</button>
+                            </div>
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Requisitos</span>
+                            <div class="vaga-dyn-list" id="vaga-req-list"></div>
+                            <button type="button" class="vaga-add-btn" id="btn-add-req">
+                                <span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar requisito
+                            </button>
+                        </div>
+
+                        <div class="pedido-field">
+                            <label class="pedido-field__label" for="inp-vaga-horario">Carga horária</label>
+                            <input type="text" id="inp-vaga-horario" class="input-text" maxlength="60" placeholder="Ex: 08:00 às 18:00 · Seg–Sáb">
+                        </div>
+
+                        <div class="pedido-field">
+                            <label class="pedido-field__label" for="inp-vaga-salario">Salário</label>
+                            <input type="text" id="inp-vaga-salario" class="input-text" maxlength="60" placeholder="Ex: R$ 1.600/mês + benefícios">
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Benefícios <span class="vaga-field__optional">(opcional)</span></span>
+                            <div class="vaga-dyn-list" id="vaga-benefit-list"></div>
+                            <button type="button" class="vaga-add-btn" id="btn-add-benefit">
+                                <span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar benefício
+                            </button>
+                        </div>
+
+                        <div class="pedido-sheet__actions">
+                            <button type="button" id="btn-vaga-cancel" class="btn btn--danger">Cancelar</button>
+                            <button type="button" id="btn-vaga-publish" class="btn btn--accent">Publicar vaga</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ── Borda azul de tela durante modo indicação ── -->
         <div id="indicate-screen-border" class="indicate-screen-border" aria-hidden="true"></div>
 

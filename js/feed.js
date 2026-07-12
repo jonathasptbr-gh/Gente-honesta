@@ -815,6 +815,14 @@ document.addEventListener('DOMContentLoaded', () => {
         `<span class="vaga-card__benefit"><span class="material-symbols-rounded" aria-hidden="true">${b.icon}</span>${b.label}</span>`
       ).join('');
 
+      // Seção de benefícios só aparece se a vaga tiver algum (vagas do usuário
+      // podem não ter benefícios — evita um cabeçalho "Benefícios" vazio).
+      const benefitSectionHTML = vaga.beneficios.length ? `
+              <div class="vaga-card__section">
+                <p class="vaga-card__section-label">Benefícios</p>
+                <div class="vaga-card__benefits">${benefitHTML}</div>
+              </div>` : '';
+
       const vagasLabel = vaga.vagas === 1 ? '1 vaga disponível' : `${vaga.vagas} vagas disponíveis`;
 
       const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(vaga.mapsQuery)}`;
@@ -879,10 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   </span>
                 </div>
               </div>
-              <div class="vaga-card__section">
-                <p class="vaga-card__section-label">Benefícios</p>
-                <div class="vaga-card__benefits">${benefitHTML}</div>
-              </div>
+              ${benefitSectionHTML}
               <div class="vaga-card__actions">
                 <button type="button" class="vaga-card__btn-apply">
                   Me candidatar
@@ -1205,10 +1210,180 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Botões da action bar de vagas
-  document.getElementById('btn-criar-vaga')?.addEventListener('click', () => {
-    customAlert('Criar nova vaga — funcionalidade em breve.', 'Criar Vaga', 'post_add');
-  });
+  // ── Sheet "Criar vaga" ─────────────────────────────────────────────────
+  // Formulário de criação de vaga (mock, sem persistência no Firestore).
+  // Ao publicar, a vaga entra no topo de mockVagas + re-renderiza a lista, e o
+  // botão "Criar vaga" da action bar vira "Ver vaga" (rola até o card criado).
+  {
+    const vagaSheet   = document.getElementById('vaga-sheet');
+    const btnCriarVaga = document.getElementById('btn-criar-vaga');
+    const reqList     = document.getElementById('vaga-req-list');
+    const benefitList = document.getElementById('vaga-benefit-list');
+    const inpEmpresa  = document.getElementById('inp-vaga-empresa');
+    const inpEndereco = document.getElementById('inp-vaga-endereco');
+    const inpCargo    = document.getElementById('inp-vaga-cargo');
+    const inpHorario  = document.getElementById('inp-vaga-horario');
+    const inpSalario  = document.getElementById('inp-vaga-salario');
+    const countGroup  = document.getElementById('vaga-count');
+
+    let vagaCount = 1;
+    let myVagaId  = null;
+
+    // Mapeia palavras-chave do benefício para um ícone Material coerente.
+    const benefitIcon = (label) => {
+      const l = label.toLowerCase();
+      if (/alimenta|refei|lanche/.test(l))   return 'lunch_dining';
+      if (/transporte|ônibus|onibus/.test(l)) return 'directions_bus';
+      if (/sa[úu]de|m[ée]dic|plano/.test(l))  return 'health_and_safety';
+      if (/vida|seguro/.test(l))              return 'medical_services';
+      if (/carteira|assinad|clt/.test(l))     return 'receipt_long';
+      if (/trein|curso|capacita/.test(l))     return 'school';
+      if (/comiss|b[ôo]nus|bonus/.test(l))    return 'paid';
+      return 'redeem';
+    };
+
+    // Cria uma linha de input dinâmico (requisito ou benefício) com botão remover.
+    const addDynRow = (listEl, placeholder, value = '') => {
+      const row = document.createElement('div');
+      row.className = 'vaga-dyn-row';
+      row.innerHTML = `
+        <input type="text" class="input-text vaga-dyn-input" maxlength="80" placeholder="${placeholder}">
+        <button type="button" class="vaga-dyn-remove" aria-label="Remover">
+          <span class="material-symbols-rounded" aria-hidden="true">close</span>
+        </button>
+      `;
+      const input = row.querySelector('.vaga-dyn-input');
+      input.value = value;
+      input.addEventListener('input', () => input.classList.remove('input-text--error'));
+      row.querySelector('.vaga-dyn-remove').addEventListener('click', () => row.remove());
+      listEl.appendChild(row);
+      return input;
+    };
+
+    // Zera o formulário para o estado inicial (1 requisito vazio, sem benefícios).
+    const resetVagaForm = () => {
+      [inpEmpresa, inpEndereco, inpCargo, inpHorario, inpSalario].forEach(el => {
+        if (el) { el.value = ''; el.classList.remove('input-text--error'); }
+      });
+      vagaCount = 1;
+      countGroup?.querySelectorAll('.pedido-chip').forEach(c =>
+        c.classList.toggle('pedido-chip--active', c.dataset.count === '1'));
+      if (reqList)     { reqList.innerHTML = '';     addDynRow(reqList, 'Ex: Experiência com atendimento'); }
+      if (benefitList) { benefitList.innerHTML = ''; }
+    };
+
+    const openVagaSheet = () => {
+      vagaSheet?.classList.add('pedido-sheet--open');
+    };
+    const closeVagaSheet = () => {
+      vagaSheet?.classList.remove('pedido-sheet--open');
+    };
+
+    // Rola a lista de vagas até o card criado e destaca-o brevemente.
+    const scrollToMyVaga = () => {
+      if (!myVagaId) return;
+      const card = document.getElementById(myVagaId);
+      const scroller = document.getElementById('vagas-scroll');
+      if (!card) return;
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      card.classList.remove('vaga-card--highlight');
+      void card.offsetWidth; // reinicia a animação se já aplicada
+      card.classList.add('vaga-card--highlight');
+    };
+
+    // Botão da action bar: cria (sem vaga) ou vê a vaga já publicada.
+    btnCriarVaga?.addEventListener('click', () => {
+      if (myVagaId) scrollToMyVaga();
+      else openVagaSheet();
+    });
+
+    document.getElementById('btn-close-vaga-sheet')?.addEventListener('click', closeVagaSheet);
+    document.getElementById('vaga-sheet-backdrop')?.addEventListener('click', closeVagaSheet);
+    document.getElementById('btn-vaga-cancel')?.addEventListener('click', closeVagaSheet);
+
+    document.getElementById('btn-add-req')?.addEventListener('click', () =>
+      addDynRow(reqList, 'Ex: Disponibilidade imediata').focus());
+    document.getElementById('btn-add-benefit')?.addEventListener('click', () =>
+      addDynRow(benefitList, 'Ex: Vale-transporte').focus());
+
+    // Seleção única do número de vagas
+    countGroup?.addEventListener('click', (e) => {
+      const chip = e.target.closest('.pedido-chip');
+      if (!chip) return;
+      countGroup.querySelectorAll('.pedido-chip').forEach(c => c.classList.remove('pedido-chip--active'));
+      chip.classList.add('pedido-chip--active');
+      vagaCount = parseInt(chip.dataset.count, 10);
+    });
+
+    // Limpa o destaque de erro ao digitar nos campos de texto simples
+    [inpEmpresa, inpEndereco, inpCargo, inpHorario, inpSalario].forEach(el =>
+      el?.addEventListener('input', () => el.classList.remove('input-text--error')));
+
+    // Publicar vaga
+    document.getElementById('btn-vaga-publish')?.addEventListener('click', async () => {
+      // Validação dos obrigatórios: empresa, endereço, cargo, carga horária,
+      // salário e ao menos 1 requisito preenchido.
+      const requiredFields = [
+        { el: inpEmpresa,  name: 'empresa'  },
+        { el: inpEndereco, name: 'endereço' },
+        { el: inpCargo,    name: 'cargo'    },
+        { el: inpHorario,  name: 'carga horária' },
+        { el: inpSalario,  name: 'salário'  },
+      ];
+      let firstError = null;
+      requiredFields.forEach(({ el }) => {
+        if (!el.value.trim()) { el.classList.add('input-text--error'); if (!firstError) firstError = el; }
+      });
+
+      const reqInputs = [...reqList.querySelectorAll('.vaga-dyn-input')];
+      const requisitos = reqInputs.map(i => i.value.trim()).filter(Boolean);
+      if (requisitos.length === 0) {
+        const firstReq = reqInputs[0];
+        if (firstReq) { firstReq.classList.add('input-text--error'); if (!firstError) firstError = firstReq; }
+      }
+
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        await customAlert('Preencha os campos obrigatórios destacados em vermelho para publicar a vaga.', 'Vaga incompleta', 'edit_note');
+        return;
+      }
+
+      const beneficios = [...benefitList.querySelectorAll('.vaga-dyn-input')]
+        .map(i => i.value.trim())
+        .filter(Boolean)
+        .map(label => ({ icon: benefitIcon(label), label }));
+
+      const endereco = inpEndereco.value.trim();
+      const displayName = window.auth?.currentUser?.displayName || 'Você';
+
+      myVagaId = `vaga-user-${Date.now()}`;
+      mockVagas.unshift({
+        id: myVagaId,
+        empresa: inpEmpresa.value.trim(),
+        endereco,
+        mapsQuery: endereco.replace(/\s*-\s*/g, ', '),
+        poster: { name: displayName, ic: 100 },
+        cargo: inpCargo.value.trim(),
+        vagas: vagaCount,
+        requisitos,
+        cargaHoraria: inpHorario.value.trim(),
+        salario: inpSalario.value.trim(),
+        beneficios,
+      });
+      renderVagasList();
+
+      // Transforma o botão "Criar vaga" em "Ver vaga"
+      if (btnCriarVaga) {
+        btnCriarVaga.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">visibility</span>Ver vaga';
+      }
+
+      closeVagaSheet();
+      resetVagaForm();
+      await customAlert('Sua vaga está no ar! Os profissionais da plataforma já podem se candidatar.', 'Vaga publicada', 'check_circle');
+    });
+
+    resetVagaForm();
+  }
 
   document.getElementById('btn-chamar-ajudante')?.addEventListener('click', () => {
     customAlert('Serviço de ajudantes — funcionalidade em breve.', 'Serviço de Ajudantes', 'handshake');
