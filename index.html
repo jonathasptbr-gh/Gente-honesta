@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v239</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v240</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -235,7 +235,7 @@
             <h1 class="auth-section__title">Acesse com seu número de celular</h1>
             <p class="auth-section__text">Enviaremos um código de 6 dígitos via SMS para validar seu acesso.</p>
 
-            <input type="tel" id="inp-phone" class="input-text input-text--center" inputmode="tel" placeholder="(00) 0 0000-0000" required>
+            <input type="tel" id="inp-phone" name="tel" autocomplete="tel" class="input-text input-text--center" inputmode="tel" placeholder="(00) 0 0000-0000" required>
             <button type="submit" id="btn-send-sms" class="btn btn--primary btn--large">Enviar SMS</button>
 
             <!-- Intencional: container vazio gerenciado dinamicamente pelo Firebase reCAPTCHA (auth.js) -->
