@@ -653,11 +653,13 @@
    dos cards claros da tela (títulos --p-green-dark, corpo --t-sub). Conteúdo
    (de cima p/ baixo): cabeçalho, hero 70 na moldura-escudo, medidor
    segmentado com os 4 escudos do sistema e pino, nota e rodapé-lema. */
-/* Card "Sua reputação na plataforma" no MESMO tom verde-claro translúcido dos
-   cards de pedido (--card-on-green sobre o --bg-canvas); textos internos claros. */
+/* Card "Sua reputação na plataforma" (o card EXTERNO/maior): verde escuro em
+   degradê com sombra nas bordas — é o card ESCURO da dupla; o card interno do
+   hero é o mais claro (lógica invertida). Textos internos já são claros. */
 .ic-card {
   position: relative;
-  background: var(--card-on-green);
+  background: linear-gradient(145deg, var(--p-green), var(--p-green-dark));
+  box-shadow: var(--shadow-lg);
   padding: 14px var(--space-md);
   overflow: hidden;
 }
@@ -703,14 +705,13 @@
   color: var(--t-light);   /* título branco sobre o card verde */
 }
 
-/* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70): o card PRINCIPAL
-   da seção — verde escuro em degradê (destaca sobre o card externo claro), com
-   sombra nas bordas para lift; título dourado e subtítulo branco, o 70 e o escudo
-   dourados destacam sobre o verde escuro. */
+/* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70): agora é o card
+   MAIS CLARO da dupla (branco translúcido), destacando sobre o card externo verde
+   escuro (lógica invertida); título dourado e subtítulo branco, o 70 e o escudo
+   dourados destacam. */
 .ic-card__intro {
   padding: 10px 12px;
-  background: linear-gradient(145deg, var(--p-green), var(--p-green-dark));
-  box-shadow: var(--shadow-lg);
+  background: var(--on-green-faint);
 }
 
 /* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca
