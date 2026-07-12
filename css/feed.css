@@ -705,7 +705,7 @@
   align-items: center;
   gap: 2px;
   background: var(--danger);
-  color: #fff;
+  color: var(--t-light);
   font-size: var(--fs-2);
   font-weight: 700;
   padding: 2px 7px 2px 4px;
@@ -913,7 +913,7 @@
 }
 
 .post-card__report:active {
-  color: #fff;
+  color: var(--t-light);
   background: var(--danger);
   border-color: var(--danger);
 }
@@ -1002,7 +1002,7 @@
   right: 0;
   max-height: 92dvh;
   background: var(--bg-white);
-  border-radius: 20px 20px 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   z-index: 110;
   display: flex;
   flex-direction: column;
@@ -1137,7 +1137,7 @@
 .indicated-popup__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--overlay);
   opacity: 0;
   transition: opacity 0.28s ease;
 }
@@ -1150,7 +1150,7 @@
   position: relative;
   z-index: 1;
   background: var(--p-green);
-  border-radius: 20px 20px 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: var(--space-md);
   display: flex;
   flex-direction: column;
@@ -1220,7 +1220,7 @@
 .pedido-sheet__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--overlay);
   opacity: 0;
   transition: opacity 0.28s ease;
 }
@@ -1231,7 +1231,7 @@
   position: relative;
   z-index: 1;
   background: var(--p-green);
-  border-radius: 20px 20px 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   padding: var(--space-md);
   display: flex;
   flex-direction: column;
@@ -1393,7 +1393,7 @@
   width: 21px;
   height: 21px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--bg-white);
   transition: transform 0.2s ease;
 }
 
@@ -2105,7 +2105,7 @@
   flex: 1;
   padding: 10px var(--space-sm);
   background: var(--p-green);
-  color: #fff;
+  color: var(--t-light);
 }
 
 .pro-card__back-btn--back {
@@ -2155,7 +2155,7 @@
   flex: 1;
   padding: 10px var(--space-sm);
   background: var(--p-green);
-  color: #fff;
+  color: var(--t-light);
 }
 
 .pro-card__back-btn .material-symbols-rounded {
@@ -3081,7 +3081,7 @@
   gap: 6px;
   padding: 11px var(--space-md);
   background: var(--surface-dark);
-  color: #fff;
+  color: var(--t-light);
   border: none;
   border-radius: var(--radius-md);
   font-size: var(--fs-6);

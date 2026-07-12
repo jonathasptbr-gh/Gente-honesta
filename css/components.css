@@ -42,13 +42,30 @@
 }
 
 .btn--white {
-  background: #fff;
+  background: var(--bg-white);
   color: #000;
 }
 
 .btn--danger {
   background: var(--danger);
-  color: #fff;
+  color: var(--t-light);
+}
+
+/* Spinner de carregamento dos botões (SMS / reenvio) — extraído do inline-style
+   duplicado em auth.js. Base: glifo autorenew girando, peso 700 (o padrão 500
+   fica fino demais ao lado do texto em negrito). --sm para o link de reenvio. */
+.btn__spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: var(--space-xs);
+  font-size: 22px;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
+  animation: spin 1s linear infinite;
+}
+
+.btn__spinner--sm {
+  margin-right: 4px;
+  font-size: 16px;
 }
 
 .btn--text {
@@ -178,7 +195,7 @@
 .input-text:focus {
   border-color: var(--p-green);
   background: var(--bg-white);
-  box-shadow: 0 0 0 3px rgba(24, 78, 27, 0.08);
+  box-shadow: 0 0 0 3px rgba(var(--p-green-rgb), 0.08);
 }
 
 /* Hint (placeholder) um pouco menor: evita corte em campos de 1 linha
@@ -465,11 +482,8 @@ html.is-desktop .desktop-block {
   gap: var(--space-md);
   padding: var(--space-xl);
   text-align: center;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(24, 78, 27, 0.8) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(3, 32, 4, 0.9) 0%, transparent 40%),
-    linear-gradient(135deg, var(--p-green-dark) 0%, #0a1f0b 100%);
-  color: #fff;
+  background: var(--block-bg);
+  color: var(--t-light);
 }
 
 html.is-desktop .desktop-block__icon {
@@ -523,11 +537,8 @@ html.is-desktop .overlay-dialog {
     gap: var(--space-sm);
     padding: var(--space-lg);
     text-align: center;
-    background:
-      radial-gradient(circle at 20% 30%, rgba(24, 78, 27, 0.8) 0%, transparent 40%),
-      radial-gradient(circle at 80% 70%, rgba(3, 32, 4, 0.9) 0%, transparent 40%),
-      linear-gradient(135deg, var(--p-green-dark) 0%, #0a1f0b 100%);
-    color: #fff;
+    background: var(--block-bg);
+    color: var(--t-light);
   }
 
   /* Em paisagem, nada do app deve aparecer ou disputar a tela com o bloqueio */

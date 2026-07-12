@@ -510,7 +510,7 @@
 .service-choice__card--active {
   border-color: var(--p-green);
   background: var(--p-green-light);
-  box-shadow: 0 0 0 3px rgba(24, 78, 27, 0.10);
+  box-shadow: 0 0 0 3px rgba(var(--p-green-rgb), 0.10);
 }
 
 .service-choice__icon {
@@ -662,7 +662,7 @@
   border-radius: var(--radius-md);
   /* brilho radial VERDE no canto (era dourado) */
   background:
-    radial-gradient(130% 90% at 100% 0%, rgba(24, 78, 27, 0.10), transparent 55%),
+    radial-gradient(130% 90% at 100% 0%, rgba(var(--p-green-rgb), 0.10), transparent 55%),
     var(--bg-white);
   padding: 14px var(--space-md);
   overflow: hidden;
@@ -844,9 +844,9 @@
 }
 
 @keyframes icPinPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(24, 78, 27, 0.40); }
-  70%  { box-shadow: 0 0 0 7px rgba(24, 78, 27, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(24, 78, 27, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(var(--p-green-rgb), 0.40); }
+  70%  { box-shadow: 0 0 0 7px rgba(var(--p-green-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--p-green-rgb), 0); }
 }
 
 .ic-meter__track {
