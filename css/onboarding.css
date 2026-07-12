@@ -703,12 +703,14 @@
   color: var(--t-light);   /* título branco sobre o card verde */
 }
 
-/* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70): highlight um
-   pouco mais claro que o card externo (branco translúcido sobre o verde),
-   título dourado e subtítulo branco; o 70 e o escudo dourados destacam. */
+/* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70): o card PRINCIPAL
+   da seção — verde escuro em degradê (destaca sobre o card externo claro), com
+   sombra nas bordas para lift; título dourado e subtítulo branco, o 70 e o escudo
+   dourados destacam sobre o verde escuro. */
 .ic-card__intro {
   padding: 10px 12px;
-  background: rgba(var(--on-green-rgb), 0.13);
+  background: linear-gradient(145deg, var(--p-green), var(--p-green-dark));
+  box-shadow: var(--shadow-lg);
 }
 
 /* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca

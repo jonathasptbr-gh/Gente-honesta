@@ -349,8 +349,9 @@ distribuir a altura extra):**
 1. **Cabeçalho `.ic-card__head`** — no PADRÃO dos TÍTULOS do cadastro ("Detalhes profissionais",
    "Registrar sua região atual"): ícone `verified_user` VERDE 1.5rem + texto "Sua reputação na
    plataforma" (`--fs-7`, 800, `--p-green-dark`, sem uppercase).
-2. **Card interno `.ic-card__intro`** — CARD VERDE (`--p-green` + `--shadow-sm`, sobrepondo o `--bg-soft`
-   que viria de `.card--soft`) contendo o `.ic-hero`:
+2. **Card interno `.ic-card__intro`** (o "card PRINCIPAL" da seção) — CARD VERDE ESCURO EM DEGRADÊ
+   (`linear-gradient(145deg, --p-green, --p-green-dark)`) com **sombra nas bordas** (`--shadow-lg`) para
+   lift sobre o card externo claro, contendo o `.ic-hero`:
    - **Subtítulo `.ic-hero__title`** "Índice de Confiança" — `.eyebrow` (`--fs-5`, 700, uppercase) mas
      DOURADO (`--a-gold`, sobrepõe o verde do eyebrow) sobre o card verde; + frase de responsabilidade
      `.ic-hero__text` em BRANCO (`--t-light`), em bloco à esquerda com largura contida (`flex: 0 1 62%`).
@@ -580,7 +581,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v234`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v235`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
