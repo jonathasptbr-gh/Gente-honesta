@@ -75,14 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // TELA - PRINCIPAL (FEED) - MODO INDICAÇÃO (roda na tela principal de contatos)
   // Ao tocar "Indicar alguém" num pedido (dentro do popup), fechamos o popup e
-  // ligamos o modo: a top-bar verde da home é SUBSTITUÍDA por uma top-bar AZUL
-  // "Profissionais já indicados:" (com o X para cancelar) e a cor da barra de
-  // status do sistema passa a azul. Ao escolher um profissional na lista, o bloco
-  // de confirmação aparece fixo na base.
-  const FEED_THEME_COLOR     = '#184e1b'; // = var(--p-green)
+  // ligamos o modo: a top-bar da home é SUBSTITUÍDA pelo bloco "Profissionais já
+  // indicados:" (com o X para cancelar) e uma borda de destaque envolve a tela.
+  // Ao escolher um profissional na lista, o bloco de confirmação aparece fixo na
+  // base. A barra de status permanece verde (todo o app é verde — controlada
+  // globalmente em app.js), então este modo não mexe no theme-color.
   const feedTopBar    = document.querySelector('#feed-top-bar');
   const feedBottomBar = document.querySelector('#feed-bottom-bar');
-  const themeMeta     = document.querySelector('meta[name="theme-color"]');
   const screenBorder  = document.getElementById('indicate-screen-border');
 
   const openIndicatedPopup = (postId) => {
@@ -138,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
     feedBottomBar?.classList.add('u-hidden');
     indicatedBlock?.classList.remove('u-hidden');
     screenBorder?.classList.add('indicate-screen-border--active');
-    themeMeta?.setAttribute('content', FEED_THEME_COLOR);
   };
 
   const exitIndicateMode = () => {
@@ -149,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
     feedTopBar?.classList.remove('u-hidden');
     feedBottomBar?.classList.remove('u-hidden');
     screenBorder?.classList.remove('indicate-screen-border--active');
-    themeMeta?.setAttribute('content', FEED_THEME_COLOR);
     document.getElementById('agenda-list')?.classList.remove('agenda-list--indicate-mode');
     const postRef = document.getElementById('indicate-post-ref');
     if (postRef) postRef.innerHTML = '';
@@ -1662,6 +1659,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (confirmouLogout) {
       document.getElementById('loader-global')?.classList.remove('u-hidden');
+      // Encerra o timer do sheet de pedido se estava aberto — senão o setInterval
+      // de 60s continua disparando após o feed ser desmontado no logout.
+      stopPedidoTimer();
 
       try {
         window.appState.photoBlob = null;

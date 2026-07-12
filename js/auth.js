@@ -49,9 +49,9 @@ const onlyDigits = (value) => value.replace(/\D/g, "");
 
 function setButtonLoading(btn, label) {
   btn.disabled = true;
-  // 'wght' 700 no ícone: o padrão dos ícones é 500, que fica fino demais ao
-  // lado do texto em negrito do botão
-  btn.innerHTML = `<span class="material-symbols-rounded" style="display:inline-block;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px;font-size:22px;font-variation-settings:'FILL' 1,'wght' 700,'GRAD' 25,'opsz' 48">autorenew</span> ${label}`;
+  // Spinner via classe .btn__spinner (components.css) — antes o estilo era
+  // inline e duplicado aqui e no handler de reenvio.
+  btn.innerHTML = `<span class="material-symbols-rounded btn__spinner">autorenew</span> ${label}`;
   btn.classList.add('btn--loading');
 }
 
@@ -119,8 +119,15 @@ window.sendOTP = async function(isResend = false) {
   }
 
   const parentContainer = document.getElementById('recaptcha-container');
-  if (parentContainer) parentContainer.innerHTML = '';
-  else console.error("Elemento pai #recaptcha-container não foi encontrado no HTML.");
+  if (!parentContainer) {
+    // Sem o container não há como montar o reCAPTCHA — aborta com o mesmo
+    // tratamento da falha catastrófica abaixo (antes, o appendChild seguinte
+    // lançava TypeError justamente no caso que este guarda previa).
+    console.error("Elemento pai #recaptcha-container não foi encontrado no HTML.");
+    if (!isResend) restoreButton(btn, originalText);
+    return await customAlert("Erro na inicialização do módulo de segurança. Recarregue o app.", "Falha Interna", "sync");
+  }
+  parentContainer.innerHTML = '';
 
   const uniqueId = "recaptcha_" + Date.now();
   const dynamicChild = document.createElement('div');
@@ -148,7 +155,8 @@ window.sendOTP = async function(isResend = false) {
         window.appState.confirmationResult = result;
 
         if (!isResend) {
-          document.getElementById('text-display-phone').innerText = rawPhone;
+          const phoneDisplay = document.getElementById('text-display-phone');
+          if (phoneDisplay) phoneDisplay.innerText = rawPhone;
           restoreButton(btn, originalText);
           navigateTo('form-otp');
         }
@@ -404,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Feedback visual — muda o texto do link para "Enviando..." e desabilita
     const originalHTML = btnResend.innerHTML;
     btnResend.disabled = true;
-    btnResend.innerHTML = '<span class="material-symbols-rounded" style="display:inline-block;animation:spin 1s linear infinite;vertical-align:middle;font-size:16px;margin-right:4px;font-variation-settings:\'FILL\' 1,\'wght\' 700,\'GRAD\' 25,\'opsz\' 48">autorenew</span>Enviando...';
+    btnResend.innerHTML = '<span class="material-symbols-rounded btn__spinner btn__spinner--sm">autorenew</span>Enviando...';
 
     // Chama sendOTP em modo reenvio — não navega, não pisca, retorna Promise real
     const result = await sendOTP(true);

@@ -156,18 +156,12 @@ window.appState = {
 // Contrato: screens são controladas EXCLUSIVAMENTE por .screen--active.
 // u-hidden NUNCA deve ser aplicado ou removido de elementos .screen aqui.
 //
-// Cor da barra de status (theme-color): segue o topo de cada tela para ficar
-// mesclada. O feed tem top-bar verde → barra verde; intro e onboarding têm fundo
-// branco (sem top-bar) → barra branca. Centralizado aqui pois é o único ponto que
-// troca de tela.
-// Todas as telas hoje têm fundo verde (auth, onboarding, install, feed), então
-// a barra de status é verde em todas. (Mantém o mapa por clareza/extensão.)
-const THEME_COLOR_BY_VIEW = {
-  'view-feed': '#184e1b', // = var(--p-green), igual ao fundo da .top-bar
-  'view-auth': '#184e1b',
-  'view-onboarding': '#184e1b',
-  'view-install': '#184e1b'
-};
+// Cor da barra de status (theme-color): centralizada aqui pois este é o único
+// ponto que troca de tela. Todas as telas hoje têm fundo verde (auth, onboarding,
+// install, feed), então a barra é verde em todas — uma constante única. Se algum
+// dia uma tela precisar de outra cor, trocar por um mapa view→cor aqui.
+const THEME_COLOR = '#184e1b'; // = var(--p-green)
+window.THEME_COLOR = THEME_COLOR; // exposto p/ outros módulos (ex.: feed.js)
 
 window.showView = function(viewId) {
   document.querySelectorAll('.screen').forEach(el => {
@@ -185,9 +179,9 @@ window.showView = function(viewId) {
     // com o session.js é seguro e restaura a transição suave pós-splash.
   }
 
-  // Atualiza a cor da barra de status conforme a tela ativa (branco por padrão)
+  // Atualiza a cor da barra de status (verde em todas as telas)
   const themeMeta = document.querySelector('meta[name="theme-color"]');
-  if (themeMeta) themeMeta.setAttribute('content', THEME_COLOR_BY_VIEW[viewId] || '#FFFFFF');
+  if (themeMeta) themeMeta.setAttribute('content', THEME_COLOR);
 };
 
 // MAQUINÁRIO DO ROTEADOR SPA - Alternância de Sub-fluxos Internos (Sub-telas / Passos)

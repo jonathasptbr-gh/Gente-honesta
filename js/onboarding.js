@@ -317,7 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tags e localização
     window.appState.selectedTags = [];
     window.appState.locationConfirmed = false;
-    window.appState.serviceProfile = { quality: 0, agility: 0, price: 0 };
+    // serviceProfile é redefinido logo abaixo por applyServiceCard(padraoCard)
+    // (card "Padrão" = {5,5,5}) — não zerar aqui, evita divergir do default.
     const tagsContainer = document.getElementById('container-tags');
     if (tagsContainer) tagsContainer.innerHTML = '';
     const locBtn = document.getElementById('btn-register-location');
@@ -749,14 +750,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fv) fv.style.width = `${v * 10}%`;
   };
 
-  const applyServiceCard = (card) => {
+  // function declaration (hoistada): resetOnboardingForm, definida bem antes no
+  // callback, a chama — como os flip-helpers de feed.js, precisa ser callable
+  // antes de sua posição textual para não depender só da chamada ser assíncrona.
+  function applyServiceCard(card) {
     serviceCards.forEach(c => setServiceCardActive(c, c === card));
     const q = Number(card.dataset.q);
     const a = Number(card.dataset.a);
     const v = Number(card.dataset.v);
     window.appState.serviceProfile = { quality: q, agility: a, price: v };
     updateServiceDisplay(q, a, v);
-  };
+  }
 
   serviceCards.forEach(card => {
     card.addEventListener('click', () => {
@@ -768,12 +772,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // INTERAÇÕES DO DOM - TELA - ONBOARDING - Métodos de pagamento aceitos
   // Além da cor, cada pílula sinaliza a seleção com um check circular
   // (radio_button_unchecked → check_circle) no lugar do ícone de tipo.
-  const setPaymentChipActive = (chip, active) => {
+  // function declaration (hoistada): chamada por resetOnboardingForm, acima.
+  function setPaymentChipActive(chip, active) {
     chip.classList.toggle('chip--active', active);
     chip.setAttribute('aria-pressed', String(active));
     const check = chip.querySelector('.chip__check');
     if (check) check.innerText = active ? 'check_circle' : 'radio_button_unchecked';
-  };
+  }
 
   // Dinheiro, Pix, Nota fiscal: pílulas independentes (multi-seleção). NF fica
   // num container à parte (#container-payment-nf), fora do título "aceitos",
