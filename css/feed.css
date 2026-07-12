@@ -993,8 +993,13 @@
   background: var(--on-green-soft) !important;
   color: var(--t-light) !important;
 }
+/* Ícone de FECHAR = maior e mais bold (modelo padrão de botão de fechar). Fica no
+   .action-close-mode, então TODOS os botões que viram "Fechar" (Histórico, Pedido,
+   Criar vaga, Serviço de ajudantes) recebem o MESMO ícone de fechar, uniforme. */
 .action-close-mode .material-symbols-rounded {
   color: var(--t-light) !important;
+  font-size: 1.35rem !important;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24 !important;
 }
 
 /* MODO "CONCLUIR": ao ver o detalhe do pedido ATIVO, o botão Histórico vira o
