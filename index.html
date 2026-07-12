@@ -1011,6 +1011,21 @@
                                 <span>Seus ajudantes de hoje ficam disponíveis até a meia-noite. Depois disso você poderá chamar novamente.</span>
                             </p>
                             <div id="helper-list" class="helper-list"><!-- cards via JS --></div>
+                            <button type="button" id="btn-cancel-helper" class="btn btn--danger ajudante-cancel-btn">
+                                <span class="material-symbols-rounded" aria-hidden="true">close</span>Cancelar pedido
+                            </button>
+                        </div>
+
+                        <!-- Bloqueio após cancelar: sem contatos, botão liberado só
+                             quando o cronômetro zerar (evita cancelar e repedir na hora) -->
+                        <div id="helper-cooldown" class="u-hidden">
+                            <div class="ajudante-cooldown">
+                                <span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>
+                                <div class="ajudante-cooldown__text">
+                                    <span class="ajudante-cooldown__label">Pedido cancelado</span>
+                                    <span class="ajudante-cooldown__timer">Você poderá chamar um ajudante novamente em <strong id="helper-cooldown-timer">--</strong></span>
+                                </div>
+                            </div>
                         </div>
                     </section>
 

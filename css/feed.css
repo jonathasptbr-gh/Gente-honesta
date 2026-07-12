@@ -3795,3 +3795,51 @@
   flex-basis: 100%;
   text-decoration: none;
 }
+
+/* Botão "Cancelar pedido" — full-width, abaixo dos contatos */
+.ajudante-cancel-btn {
+  width: 100%;
+  margin-top: var(--space-sm);
+  border-radius: var(--radius-pill);
+}
+
+/* Bloco de cooldown pós-cancelamento (cronômetro até liberar o botão) */
+.ajudante-cooldown {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-md);
+}
+
+.ajudante-cooldown > .material-symbols-rounded {
+  font-size: 1.9rem;
+  color: var(--a-gold);
+  flex-shrink: 0;
+}
+
+.ajudante-cooldown__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ajudante-cooldown__label {
+  font-weight: 700;
+  font-size: var(--fs-6);
+  color: var(--t-light);
+}
+
+.ajudante-cooldown__timer {
+  font-size: var(--fs-4);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ajudante-cooldown__timer strong {
+  color: var(--a-gold);
+  font-variant-numeric: tabular-nums;
+}
