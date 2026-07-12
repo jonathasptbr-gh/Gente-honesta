@@ -218,6 +218,17 @@ input, textarea {
   touch-action: manipulation;
 }
 
+/* Zera a BORDA DE UA dos controles de formulário. O app é borderless (definição
+   por contraste/sombra); sem isto, ao remover a borda explícita de um <button>,
+   reaparecia a borda padrão do navegador — em vários mobile um bevel `outset`
+   BICOLOR (clara em cima/esquerda, escura embaixo/direita). Bordas funcionais
+   ficam em elementos que NÃO são controle (avatar, caixa do checkbox, divisores),
+   então não são afetadas. Os <select> nativos (horários da vaga) ficam de fora:
+   dependem da aparência nativa. */
+button, input, textarea {
+  border: none;
+}
+
 
 /* ===========================================
    ÍCONES (Material Symbols)

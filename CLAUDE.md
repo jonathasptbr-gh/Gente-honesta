@@ -236,7 +236,10 @@ renderiza com a face 800.
   input e seleção verde), `--ring-gold` (seleção dourada: OTP ativa, etc.), `--ring-danger` (erro: campos
   inválidos, pedido urgente). PRESERVADAS as bordas FUNCIONAIS (não são contorno de card): anéis de avatar,
   divisores internos entre seções, caixa do checkbox, checkmark desenhado com borda, anel do spinner, seta
-  do balão do tutorial e o tracejado da moldura de foto.
+  do balão do tutorial e o tracejado da moldura de foto. **Reset obrigatório** (`base.css`):
+  `button, input, textarea { border: none }` — sem isso, ao remover a borda explícita de um `<button>`
+  reaparece a borda de UA (bevel `outset` BICOLOR em vários mobile). Bordas de classe (ex.: `.vaga-add-btn`
+  tracejado) vencem o reset por especificidade e são preservadas; `<select>` nativo fica de fora.
 - **`.card` (primitiva de superfície, `components.css`)** — casco compartilhado das superfícies claras
   (cadastro/feed/install). Invariante: `--radius-md` + fundo claro + `border:none`. Modificadores: `--soft`
   (fundo `--bg-soft`), `--shadow` (`--shadow-sm`, definição sem contorno). Já usada em `.contract-card`
