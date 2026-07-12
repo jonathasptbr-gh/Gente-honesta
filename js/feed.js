@@ -1408,6 +1408,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const openVagaSheet = () => {
+      // Ancora o dropdown na base da action bar (mesmo slide-down do pedido/histórico)
+      const bar = document.getElementById('feed-action-bar');
+      if (bar) vagaSheet?.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
       vagaSheet?.classList.add('pedido-sheet--open');
     };
     const closeVagaSheet = () => {
@@ -1589,6 +1592,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const openAjudanteSheet = () => {
       renderHelperAvailability();
       renderHelperCall();
+      // Ancora o dropdown na base da action bar (mesmo slide-down do pedido/histórico)
+      const bar = document.getElementById('feed-action-bar');
+      if (bar) ajudanteSheet?.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
       ajudanteSheet?.classList.add('pedido-sheet--open');
     };
     const closeAjudanteSheet = () => ajudanteSheet?.classList.remove('pedido-sheet--open');

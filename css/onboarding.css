@@ -219,6 +219,12 @@
    A borda nasce igual nos dois estados (só a COR muda ao selecionar) para não
    deslocar as vizinhas na mesma linha. */
 
+/* Em repouso, a pílula é BRANCA para se destacar como card no corpo cinza da
+   seção de detalhes; a selecionada mantém o tint azul (regra abaixo). */
+.chip--payment:not(.chip--active) {
+  background: var(--bg-white);
+}
+
 /* Selecionada: mesmo padrão "tint preenchido" das .tag-pill (fundo tint +
    borda + texto no mesmo matiz), porém no azul do pagamento (--info-blue) em
    vez do verde — preservando a identidade herdada do rodapé do card de
@@ -400,7 +406,7 @@
   gap: var(--space-sm);
   width: 100%;
   padding: 14px 16px;
-  background: var(--bg-soft);
+  background: var(--bg-white);   /* TOPO branco da seção de detalhes profissionais */
   border: none;   /* sem borda: o card claro contrasta sozinho no fundo verde */
   border-radius: var(--radius-md);
   color: var(--p-green-dark);
@@ -455,7 +461,7 @@
   border: none;   /* sem borda, como o gatilho acima */
   border-bottom-left-radius: var(--radius-md);
   border-bottom-right-radius: var(--radius-md);
-  background: var(--bg-white);
+  background: var(--bg-soft);   /* CORPO cinza claro: os cards internos brancos contrastam */
 }
 
 .collapsible--open > .collapsible__trigger--gold ~ .collapsible__panel {
@@ -537,7 +543,7 @@
 .service-choice-display {
   margin-top: var(--space-sm);
   padding: 12px 14px;
-  background: var(--bg-soft);
+  background: var(--bg-white);   /* card branco no corpo cinza */
   border-radius: var(--radius-md);
 }
 

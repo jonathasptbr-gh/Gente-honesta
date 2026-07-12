@@ -220,9 +220,16 @@ recriar `box-shadow` à mão. Os cards em repouso do feed (`.post-card`, `.vaga-
 viravam linha sólida — foram REMOVIDAS (não há mais `--focus-ring`/`--ring-gold`/`--ring-danger`). O estado
 muda o FILL do próprio elemento: **foco de input** e **seleção verde** (card de serviço, pro-card
 selecionado, candidatura marcada) → fundo `--p-green-light`; **seleção dourada de pílula** (vaga-day,
-pedido-chip, benefício, helper-toggle) → preenchimento `--a-gold` + texto `--p-green-dark`; **erro** →
-fundo `--danger-soft`. Pílula/célula ativa muda cor, não ganha anel. Ao criar um estado selecionado/foco
-novo, mude a cor interna — não use `box-shadow` como destaque.
+pedido-chip, benefício, helper-toggle) → preenchimento `--a-gold` + texto `--p-green-dark`. Pílula/célula
+ativa muda cor, não ganha anel. Ao criar um estado selecionado/foco novo, mude a cor interna — não use
+`box-shadow` como destaque.
+
+**ÚNICA exceção (linha de borda):** **alerta de campo OBRIGATÓRIO** vazio no submit — os campos exigidos
+(foto, nome, sobrenome e registro de região no cadastro; obrigatórios do criar-vaga) ganham uma **linha
+vermelha** de borda (`.input-text--error`/`.location-check--error-validation`/`.media-capture__display--error`
+= `border: 2px solid var(--danger) !important` + fundo `--danger-soft`). O `!important` vence o `border:none`
+do reset e do `.card`. A validação (`finishRegistration`) marca os quatro obrigatórios juntos e o alerta diz
+"destacados em vermelho".
 
 **Toque:** `--press-scale` (0.97) é o feedback de `:active` padrão do `.btn` e da maioria dos botões/
 pílulas; `--press-scale-subtle` (0.99) é para alvos GRANDES (cards, linhas). Alvos minúsculos/precisos
@@ -517,9 +524,12 @@ Os popups de alerta/decisão/ajuda (`#dialog-global`) seguem o **padrão VERDE**
 
 **Tela de cadastro com fundo verde (`#view-onboarding`):** o fundo é `--p-green` (escopado em
 `#view-onboarding.screen` — telefone/OTP/feed não são afetados). A estratégia é que quase todos os campos
-já têm fundo claro/branco (foto `--bg-input`, inputs/localização `--bg-white`, gatilho colapsável e IC
-card `--bg-soft`, painel colapsável `--bg-white`, pro-cta `--gold-soft`) — então eles **se destacam
-sozinhos** sobre o verde e todo o conteúdo DENTRO deles segue com as cores escuras normais. Só mudam os
+já têm fundo claro/branco (foto `--bg-input`, inputs/localização `--bg-white`, IC card `--bg-soft`,
+pro-cta `--gold-soft`) — então eles **se destacam sozinhos** sobre o verde e todo o conteúdo DENTRO deles
+segue com as cores escuras normais. A seção "Detalhes profissionais" (colapsável) tem **topo (gatilho)
+BRANCO e corpo (painel) CINZA CLARO** (`--bg-soft`): os elementos internos (inputs, cards de serviço,
+`.service-choice-display`, pílulas de pagamento em repouso) ficam BRANCOS e se destacam como cards no
+corpo cinza. Só mudam os
 elementos que ficam DIRETAMENTE sobre o verde: cabeçalho (título → `--t-light`, subtítulo → `--p-green-light`,
 `#btn-onboarding-cancel` → `--a-gold` dourado, denotando ação clicável) e o botão final
 `#btn-finish-onboarding`, que passou de `btn--primary` (verde, sumiria

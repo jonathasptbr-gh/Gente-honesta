@@ -236,20 +236,25 @@
   background: var(--danger-soft);
 }
 
-/* Estados de erro (via JS no submit): mudança de COR do próprio campo (fundo de
-   alerta), sem contorno nem sombra colorida. */
+/* ALERTA DE CAMPO OBRIGATÓRIO (única exceção à regra sem-contorno): campos que
+   DEVEM ser preenchidos e ficaram vazios no submit ganham uma LINHA VERMELHA de
+   borda + fundo de alerta. Aplicado via JS (finishRegistration / criar vaga) nos
+   campos obrigatórios: foto, nome, sobrenome e registro de região no cadastro.
+   `!important` para vencer o `border:none` do reset e do `.card`. */
 .input-text--error {
+  border: 2px solid var(--danger) !important;
   background: var(--danger-soft);
 }
 
 .location-check--error-validation {
+  border: 2px solid var(--danger) !important;
   background: var(--danger-soft);
 }
 
-/* A moldura da foto mantém o tracejado (afordância "adicionar"); o erro só
-   troca o fundo para o tom de alerta. */
+/* A moldura da foto: o tracejado vira uma LINHA VERMELHA sólida no erro. */
 .media-capture__display--error {
-  background: var(--danger-soft) !important;
+  border-color: var(--danger) !important;
+  border-style: solid !important;
 }
 
 /* ── Labels flutuantes ── */
