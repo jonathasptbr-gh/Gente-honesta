@@ -34,7 +34,7 @@
 .auth-section__title {
   color: var(--t-light);
   font-size: var(--fs-13);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   line-height: 1.1;
 }
 
@@ -72,7 +72,7 @@
 
 .auth-section__legal a {
   color: var(--a-gold);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   text-decoration: underline;
 }
 
@@ -110,7 +110,7 @@
   align-items: center;
   justify-content: center;
   font-size: var(--fs-12);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   color: var(--t-main);
   transition: border-color 0.15s ease, background 0.15s ease;
 }
@@ -261,7 +261,7 @@
 
 /* Dots: inativos em branco translúcido, ativo em dourado (o verde some no fundo) */
 #step-intro .intro-carousel__dot {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(var(--on-green-rgb), 0.4);
 }
 
 #step-intro .intro-carousel__dot--active {

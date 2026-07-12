@@ -11,7 +11,7 @@
   justify-content: center;
   gap: 10px;
   padding: 16px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: var(--fs-8);
   border: none;
   border-radius: var(--radius-md);
@@ -155,7 +155,7 @@
 .form-group__label {
   color: var(--p-green);
   font-size: var(--fs-5);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
 }
 
@@ -167,7 +167,7 @@
 
 .form-group__optional {
   font-size: var(--fs-3);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
   color: var(--t-sub);
   text-transform: none;
 }
@@ -195,7 +195,7 @@
 .input-text:focus {
   border-color: var(--p-green);
   background: var(--bg-white);
-  box-shadow: 0 0 0 3px rgba(var(--p-green-rgb), 0.08);
+  box-shadow: var(--focus-ring);
 }
 
 /* Hint (placeholder) um pouco menor: evita corte em campos de 1 linha
@@ -206,7 +206,7 @@
 
 .input-text--center {
   text-align: center;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   letter-spacing: 1px;
 }
 
@@ -254,7 +254,7 @@
   transition: all 0.2s ease;
   transform-origin: left top;
   font-size: var(--fs-8);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
   color: var(--t-disabled);
   text-transform: none;
 }
@@ -263,7 +263,7 @@
 .input-text--float:not(:placeholder-shown) + .input-float__label {
   top: 6px;
   transform: translateY(0) scale(0.72);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
   color: var(--p-green);
 }
@@ -288,12 +288,12 @@
 
 .ic-bar__value {
   font-size: var(--fs-4);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 
 .ic-bar__label {
   font-size: var(--fs-4);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 
 /* Variante vertical: escudo em cima, % no meio, "Confiável" embaixo */
@@ -352,7 +352,7 @@
 .overlay-loader__spinner {
   width: 80px;
   height: 80px;
-  border: 8px solid rgba(255, 255, 255, 0.25);
+  border: 8px solid rgba(var(--on-green-rgb), 0.25);
   border-top-color: var(--t-light);
   border-radius: 50%;
   animation: spin .8s linear infinite;
@@ -387,7 +387,7 @@
 .dialog-box__title {
   margin-bottom: 10px;
   font-size: var(--fs-11);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   color: var(--p-green-dark);
 }
 
@@ -448,7 +448,7 @@
 .pwa-update-banner__text {
   flex: 1;
   font-size: var(--fs-6);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   line-height: 1.3;
 }
 
@@ -494,7 +494,7 @@ html.is-desktop .desktop-block__icon {
 
 .desktop-block__title {
   font-size: var(--fs-13);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   line-height: 1.1;
 }
 
@@ -502,7 +502,7 @@ html.is-desktop .desktop-block__icon {
   max-width: 480px;
   font-size: var(--fs-9);
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(var(--on-green-rgb), 0.85);
 }
 
 /* Em desktop, nada do app deve aparecer ou disputar a tela com o bloqueio */
@@ -559,7 +559,7 @@ html.is-landscape:not(.is-desktop) .overlay-dialog {
 
 .rotate-block__title {
   font-size: var(--fs-12);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   line-height: 1.1;
 }
 
@@ -567,5 +567,5 @@ html.is-landscape:not(.is-desktop) .overlay-dialog {
   max-width: 480px;
   font-size: var(--fs-7);
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(var(--on-green-rgb), 0.85);
 }

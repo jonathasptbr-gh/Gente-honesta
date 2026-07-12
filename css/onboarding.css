@@ -141,7 +141,7 @@
 
 .media-capture__placeholder-text {
   font-size: var(--fs-1);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   line-height: 1.15;
 }
 
@@ -170,7 +170,7 @@
   border-radius: var(--radius-pill);
   color: var(--info-blue);
   font-size: var(--fs-5);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   cursor: default;
 }
 
@@ -203,7 +203,7 @@
 .payment-methods__subgroup-label {
   margin: 0;
   font-size: var(--fs-3);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--t-sub);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -280,7 +280,7 @@
 }
 
 .area-search__results li.is-selecting {
-  font-weight: 600;
+  font-weight: var(--fw-medium);
 }
 
 .area-search__clear {
@@ -341,7 +341,7 @@
 .location-check__content strong {
   color: var(--p-green-dark);
   font-size: var(--fs-8);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 
 .location-check__status {
@@ -416,7 +416,7 @@
   border: none;   /* sem borda: o card claro contrasta sozinho no fundo verde */
   border-radius: var(--radius-md);
   color: var(--p-green-dark);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   font-size: var(--fs-7);
   cursor: pointer;
   /* SEM transição no raio/borda: os cantos inferiores precisam virar retos (e a
@@ -522,14 +522,14 @@
 
 .service-choice__title {
   font-size: var(--fs-5);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   color: var(--p-green-dark);
   line-height: 1.15;
 }
 
 .service-choice__sub {
   font-size: var(--fs-1);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--t-sub);
   line-height: 1.1;
 }
@@ -595,7 +595,7 @@
 
 .pro-cta__title {
   font-size: var(--fs-9);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   color: var(--p-green-dark);
 }
 
@@ -622,7 +622,7 @@
   border: 1px solid var(--gold-soft-border);
   border-radius: var(--radius-pill);
   font-size: var(--fs-3);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--p-green-dark);
 }
 
@@ -634,13 +634,13 @@
 .pro-cta__price {
   margin-top: 2px;
   font-size: var(--fs-9);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   color: var(--p-green-dark);
 }
 
 .pro-cta__price span {
   font-size: var(--fs-4);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   color: var(--t-sub);
 }
 
@@ -706,7 +706,7 @@
 
 .ic-card__eyebrow {
   font-size: var(--fs-7);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   color: var(--p-green-dark);
 }
 
@@ -771,7 +771,7 @@
   top: 50%;
   transform: translate(-50%, -55%);
   font-size: 1.9rem;
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   line-height: 1;
   /* degradê mais escuro (ouro → ocre): o tom claro sumia no fundo branco */
   background: linear-gradient(165deg, var(--a-gold) 20%, var(--a-gold-text) 80%);
@@ -793,7 +793,7 @@
 .ic-hero__title {
   display: block;
   font-size: var(--fs-5);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
   color: var(--p-green);
   line-height: 1.2;
@@ -826,7 +826,7 @@
 
 .ic-meter__pin-tag {
   font-size: var(--fs-1);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;   /* "Confiança atual" numa linha só */
@@ -890,7 +890,7 @@
 
 .ic-zone__range {
   font-size: var(--fs-1);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
 }
 
 /* Cores por faixa (as MESMAS do resto do app sobre fundo claro; a <25% é
@@ -935,7 +935,7 @@
 .ic-card__footer strong {
   display: block;
   color: var(--p-green-dark);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 
 /* ── Adaptativo por altura (inclui a redução pela barra do navegador): esconde
@@ -999,8 +999,8 @@
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+    linear-gradient(rgba(var(--on-green-rgb),0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--on-green-rgb),0.1) 1px, transparent 1px);
   background-size: 33.33% 33.33%;
 }
 
@@ -1018,7 +1018,7 @@
   gap: 8px;
   padding: 14px;
   font-size: var(--fs-8);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
 }
 
 .camera-view__action-btn .material-symbols-rounded {

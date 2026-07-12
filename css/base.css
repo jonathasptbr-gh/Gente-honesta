@@ -6,10 +6,12 @@
   --p-green: #184e1b;           /* Verde-Floresta Profundo — tom dos focos do bloqueio desktop */
   --p-green-rgb: 24, 78, 27;    /* mesmos canais do --p-green p/ rgba() — anéis de foco, brilhos radiais, pulso do pino */
   --p-green-dark: #0a1f0b;      /* mesmo matiz, quase preto — também é o fundo do bloqueio desktop */
+  --p-green-dark-rgb: 10, 31, 11; /* mesmos canais do --p-green-dark p/ rgba() — véus/gradientes escuros do feed */
   --p-green-light: #dde9dd;     /* tint claro no mesmo matiz */
 
   /* Cores de destaque */
   --a-gold: #e0a81c;            /* Amarelo-Ouro Vivo — mais saturado, evita aparência inativa */
+  --a-gold-rgb: 224, 168, 28;  /* mesmos canais do --a-gold p/ rgba() — brilhos/anéis dourados (tutorial, toggles) */
   --a-gold-hover: #c89210;
   --a-gold-text: #a87808;       /* ocre mais escuro p/ TEXTO colorido */
   --info-blue: #2e5898;         /* Azul-Cobalto Metálico escuro — discreto */
@@ -76,16 +78,35 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.07);
   --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.13);
 
+  /* Anel de foco/seleção padrão (verde translúcido) — receita canônica de .input-text:focus */
+  --focus-ring: 0 0 0 3px rgba(var(--p-green-rgb), 0.08);
+
+  /* Escala de toque padrão dos botões (feedback de :active) */
+  --press-scale: 0.97;
+
+  /* Pesos de fonte. NOTA: a Inter é carregada só em 400/600/800 (index.html);
+     --fw-bold (700) renderiza de fato com a face 800 — trocar 700 cru por este
+     token é byte-idêntico no render. */
+  --fw-regular: 400;
+  --fw-medium: 600;
+  --fw-bold: 700;
+  --fw-heavy: 800;
+
   /* Overlays (backdrops de diálogos, sheets e painéis) */
-  --overlay: rgba(3, 32, 4, 0.45);
-  --overlay-soft: rgba(3, 32, 4, 0.35);
+  --overlay-rgb: 3, 32, 4;      /* verde-quase-preto dos backdrops — canal único p/ rgba() */
+  --overlay: rgba(var(--overlay-rgb), 0.45);
+  --overlay-soft: rgba(var(--overlay-rgb), 0.35);
+
+  /* Branco translúcido sobre superfícies verdes (bordas/fundos/textos "on-green").
+     Só o CANAL é tokenizado; cada uso mantém seu próprio alpha por enquanto. */
+  --on-green-rgb: 255, 255, 255;
 
   /* Fundo dos bloqueios de tela cheia (desktop e paisagem) — verde escuro com
      dois brilhos radiais. Token único: os dois blocos compartilhavam o mesmo
      gradiente copiado à mão. */
   --block-bg:
     radial-gradient(circle at 20% 30%, rgba(var(--p-green-rgb), 0.8) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(3, 32, 4, 0.9) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(var(--overlay-rgb), 0.9) 0%, transparent 40%),
     linear-gradient(135deg, var(--p-green-dark) 0%, var(--p-green-dark) 100%);
 
   /* Transição padrão */
@@ -254,7 +275,7 @@ input, textarea {
   flex: 1;
   text-align: left;
   font-size: var(--fs-11);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   color: var(--p-green-dark);
 }
 
@@ -287,7 +308,7 @@ input, textarea {
 
 .text-accent {
   color: var(--a-gold);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 
 

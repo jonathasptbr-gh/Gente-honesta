@@ -31,14 +31,14 @@
   pointer-events: none;
   border: 3px solid var(--a-gold);
   border-radius: var(--radius-md);
-  box-shadow: 0 0 0 4px rgba(224, 168, 28, 0.25), 0 0 18px 4px rgba(224, 168, 28, 0.45);
+  box-shadow: 0 0 0 4px rgba(var(--a-gold-rgb), 0.25), 0 0 18px 4px rgba(var(--a-gold-rgb), 0.45);
   transition: top 0.3s ease, left 0.3s ease, width 0.3s ease, height 0.3s ease;
   animation: tutorialPulse 1.6s ease-in-out infinite;
 }
 
 @keyframes tutorialPulse {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(224, 168, 28, 0.22), 0 0 16px 4px rgba(224, 168, 28, 0.4); }
-  50%      { box-shadow: 0 0 0 8px rgba(224, 168, 28, 0.12), 0 0 26px 8px rgba(224, 168, 28, 0.55); }
+  0%, 100% { box-shadow: 0 0 0 4px rgba(var(--a-gold-rgb), 0.22), 0 0 16px 4px rgba(var(--a-gold-rgb), 0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(var(--a-gold-rgb), 0.12), 0 0 26px 8px rgba(var(--a-gold-rgb), 0.55); }
 }
 
 .tutorial-balloon {
@@ -93,7 +93,7 @@
 
 .tutorial-balloon__progress {
   font-size: var(--fs-2);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--a-gold-text);
@@ -103,7 +103,7 @@
 .tutorial-balloon__title {
   display: block;
   font-size: var(--fs-9);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   color: var(--p-green-dark);
   margin-bottom: 6px;
 }
@@ -137,7 +137,7 @@
   border: none;
   padding: 2px 0;
   font-size: var(--fs-3);
-  font-weight: 600;
+  font-weight: var(--fw-medium);
   text-decoration: underline;
   text-underline-offset: 2px;
   color: var(--t-sub);
