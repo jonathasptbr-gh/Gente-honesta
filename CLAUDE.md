@@ -585,7 +585,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v249`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v250`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -743,15 +743,24 @@ Fica abaixo da top-bar verde, muda de estado conforme a aba ativa. Possui **3 es
 
 ```
 #feed-action-bar (.agenda-filters)
-  └─ .agenda-filters__action-row  ← slot de altura fixa, position:relative
-       ├─ #bar-search-state        ← campo de busca + botão de filtros (aba Profissionais)
-       ├─ #bar-vagas-state         ← botões "Serviço de ajudantes" e "Criar vaga" (aba Vagas)
-       └─ #bar-pedidos-state       ← botão "Fazer um pedido" (aba Pedidos)
+  └─ .agenda-filters__action-row       ← viewport (overflow:hidden) que recorta o trilho
+       └─ .agenda-filters__track       ← trilho width:300%, desliza por translateX
+            ├─ #bar-vagas-state        ← "Serviço de ajudantes" + "Criar vaga" (aba Vagas, ESQUERDA)
+            ├─ #bar-search-state       ← campo de busca + botão de filtros (aba Profissionais, CENTRO)
+            └─ #bar-pedidos-state      ← "Histórico" + "Fazer pedido/Pedido atual" (aba Pedidos, DIREITA)
 ```
 O painel de filtros NÃO vive mais dentro da barra: virou o dropdown top-level `#filters-sheet` (ver
 "Submenus dropdown" abaixo).
 
-As três linhas são `position: absolute; inset: 0` sobrepostas no slot. A alternância é feita **exclusivamente por CSS** via `opacity + pointer-events + transition: 0.25s ease` — as classes `.agenda-filters--vagas` e `.agenda-filters--pedidos` no `#feed-action-bar` controlam qual linha é visível. **Nunca usar `u-hidden` / `display: none`** nessas linhas, pois quebraria a animação de fade.
+A barra é um **CARROSSEL sincronizado com o feed** (não mais fade): as três linhas ficam LADO A LADO no
+`.agenda-filters__track` (cada uma `flex: 0 0 33.3333%`), na MESMA ordem das abas (vagas | busca | pedidos),
+e o trilho desliza por `translateX` com a MESMA curva/duração do `.feed-panels`
+(`transform 0.4s cubic-bezier(0.4,0,0.2,1)`). Default = busca no centro (`translateX(-33.3333%)`); as classes
+`.agenda-filters--vagas` (→ `translateX(0)`) e `.agenda-filters--pedidos` (→ `translateX(-66.6667%)`) no
+`#feed-action-bar` (alternadas em `showVagasPanel`/`showProsPanel`/`showPedidosPanel`, junto com o feed)
+controlam a posição. Como as duas coisas trocam no mesmo clique/swipe, a barra "acompanha" a aba deslizando
+junto. Não usar `opacity`/`display:none` para alternar as linhas — quem esconde é o `overflow:hidden` do
+viewport + o `translateX` do trilho.
 
 ### Submenus dropdown + botão-abridor que vira "Fechar"
 

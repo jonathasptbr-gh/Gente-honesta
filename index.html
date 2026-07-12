@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v249</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v250</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -1367,18 +1367,12 @@
 
             <!-- Barra de busca / ação — muda de estado conforme a aba ativa -->
             <div class="agenda-filters" id="feed-action-bar">
+                <!-- Slot que RECORTA (overflow) o trilho deslizante. As 3 linhas ficam
+                     lado a lado (vagas | busca | pedidos, na MESMA ordem das abas) e o
+                     trilho desliza por translateX igual ao feed (carrossel sincronizado). -->
                 <div class="agenda-filters__action-row">
-                <!-- Estado 1: busca (Profissionais) -->
-                <div class="agenda-filters__search-row" id="bar-search-state">
-                    <div class="agenda-filters__search-wrap">
-                        <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
-                        <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar profissional...">
-                    </div>
-                    <button type="button" id="btn-toggle-filters" class="agenda-filters__icon-btn" aria-label="Filtrar contatos" aria-expanded="false">
-                        <span class="material-symbols-rounded" aria-hidden="true">tune</span>
-                    </button>
-                </div>
-                <!-- Estado 2: ações de vagas (Vagas) -->
+                <div class="agenda-filters__track">
+                <!-- Vagas (esquerda) -->
                 <div class="agenda-filters__vagas-row" id="bar-vagas-state">
                     <button type="button" id="btn-chamar-ajudante" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--ajudante">
                         Serviço de ajudantes
@@ -1388,7 +1382,17 @@
                         Criar vaga
                     </button>
                 </div>
-                <!-- Estado 3: ação de pedido (Pedidos) -->
+                <!-- Busca / Profissionais (centro) -->
+                <div class="agenda-filters__search-row" id="bar-search-state">
+                    <div class="agenda-filters__search-wrap">
+                        <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
+                        <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar profissional...">
+                    </div>
+                    <button type="button" id="btn-toggle-filters" class="agenda-filters__icon-btn" aria-label="Filtrar contatos" aria-expanded="false">
+                        <span class="material-symbols-rounded" aria-hidden="true">tune</span>
+                    </button>
+                </div>
+                <!-- Pedidos (direita) -->
                 <div class="agenda-filters__pedidos-row" id="bar-pedidos-state">
                     <button type="button" id="btn-historico-pedidos" class="btn btn--white pedido-action__btn">
                         <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">history</span>
@@ -1399,6 +1403,7 @@
                         <span id="btn-my-pedido-label">Fazer pedido</span>
                     </button>
                 </div>
+                </div><!-- /.agenda-filters__track -->
                 </div><!-- /.agenda-filters__action-row -->
                 <!-- Painel de filtros movido para o #filters-sheet (dropdown top-level,
                      mesmo padrão de submenu do histórico/fazer pedido). -->

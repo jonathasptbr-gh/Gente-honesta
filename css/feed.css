@@ -669,60 +669,45 @@
    A barra verde exibe o botão "Fazer um pedido" no lugar da busca
    ======================================== */
 
-/* Slot de altura fixa: search-row e pedidos-row são sobrepostos via position:absolute,
-   alternados com fade (opacity + pointer-events), nunca com display:none. */
+/* Slot que RECORTA (overflow) o trilho deslizante — o mesmo esquema do feed. */
 .agenda-filters__action-row {
   position: relative;
   height: 40px;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
-/* Ambas as linhas preenchem o slot e têm transição de fade */
+/* Trilho: as 3 linhas ficam LADO A LADO (300%) e o trilho desliza por translateX,
+   igual ao .feed-panels (mesma curva/duração), então a barra "acompanha" a aba em
+   carrossel. Default = busca (Profissionais) no centro → translateX(-33.3333%). */
+.agenda-filters__track {
+  display: flex;
+  width: 300%;
+  height: 100%;
+  transform: translateX(-33.3333%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modo vagas → mostra a linha da esquerda; modo pedidos → a da direita. */
+.agenda-filters--vagas .agenda-filters__track { transform: translateX(0); }
+.agenda-filters--pedidos .agenda-filters__track { transform: translateX(-66.6667%); }
+
+/* Cada linha ocupa 1/3 do trilho (= largura visível da barra). Ordem no DOM:
+   vagas | busca | pedidos (mesma ordem das abas). */
 .agenda-filters__search-row,
+.agenda-filters__vagas-row,
 .agenda-filters__pedidos-row {
-  position: absolute;
-  inset: 0;
-  transition: opacity 0.25s ease;
-}
-
-/* Linha de busca: visível por padrão */
-.agenda-filters__search-row {
-  display: flex;
-  gap: var(--space-xs);
-  align-items: center;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Linha de vagas: oculta por padrão */
-.agenda-filters__vagas-row {
-  position: absolute;
-  inset: 0;
+  flex: 0 0 33.3333%;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
 }
 
-/* Linha do botão de pedido: oculta por padrão */
+/* A linha de pedidos estica os botões à altura toda e usa gap um pouco maior */
 .agenda-filters__pedidos-row {
-  display: flex;
   align-items: stretch;
   gap: var(--space-sm);
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Quando a action bar está no modo vagas */
-.agenda-filters--vagas .agenda-filters__search-row {
-  opacity: 0;
-  pointer-events: none;
-}
-.agenda-filters--vagas .agenda-filters__vagas-row {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 /* Botões da linha de vagas — mesma altura e cantos do btn padrão (.btn = radius-md) */
@@ -767,16 +752,6 @@
 
 .agenda-filters__vagas-btn .material-symbols-rounded {
   flex-shrink: 0;   /* tamanho/peso vêm do padrão único de ícone da barra (ver .pedido-action__icon…) */
-}
-
-/* Quando a action bar está no modo pedidos: troca o estado das linhas */
-.agenda-filters--pedidos .agenda-filters__search-row {
-  opacity: 0;
-  pointer-events: none;
-}
-.agenda-filters--pedidos .agenda-filters__pedidos-row {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 /* ===========================================
