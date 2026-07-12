@@ -766,8 +766,7 @@
 }
 
 .agenda-filters__vagas-btn .material-symbols-rounded {
-  font-size: var(--fs-6);   /* mesmo tamanho de ícone dos botões padrão (não 1rem, que ficava maior) */
-  flex-shrink: 0;
+  flex-shrink: 0;   /* tamanho/peso vêm do padrão único de ícone da barra (ver .pedido-action__icon…) */
 }
 
 /* Quando a action bar está no modo pedidos: troca o estado das linhas */
@@ -993,12 +992,19 @@
   background: var(--on-green-soft) !important;
   color: var(--t-light) !important;
 }
-/* Ícone de FECHAR = maior e mais bold (modelo padrão de botão de fechar). Fica no
-   .action-close-mode, então TODOS os botões que viram "Fechar" (Histórico, Pedido,
-   Criar vaga, Serviço de ajudantes) recebem o MESMO ícone de fechar, uniforme. */
 .action-close-mode .material-symbols-rounded {
   color: var(--t-light) !important;
-  font-size: 1.35rem !important;
+}
+
+/* PADRÃO ÚNICO de ícone dos botões da barra de ação superior — Histórico, Fazer
+   pedido/Pedido atual, Serviço de ajudantes, Criar vaga (add), o botão de filtro
+   (tune, só-ícone) e o estado "Fechar" (close). Tamanho 1.1rem + bold, condizente
+   com o texto (--fs-6, bold) ao lado. Um lugar só → todos ficam iguais. */
+.pedido-action__icon,
+.agenda-filters__vagas-btn .material-symbols-rounded,
+.agenda-filters__icon-btn .material-symbols-rounded,
+.action-close-mode .material-symbols-rounded {
+  font-size: 1.1rem !important;
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24 !important;
 }
 
@@ -2565,9 +2571,7 @@
   color: var(--p-green);
 }
 
-.agenda-filters__icon-btn .material-symbols-rounded {
-  font-size: 1.25rem;
-}
+/* (tamanho/peso do ícone do botão de filtro vêm do padrão único da barra) */
 
 /* Chips dentro do painel de filtros (#filters-sheet): adaptados ao fundo verde */
 .filters-panel .chip {
