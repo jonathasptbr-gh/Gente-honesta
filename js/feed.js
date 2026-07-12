@@ -1445,7 +1445,7 @@ document.addEventListener('DOMContentLoaded', () => {
       else openVagaSheet();
     });
 
-    document.getElementById('btn-vaga-cancel')?.addEventListener('click', closeVagaSheet);
+    // Sem botão Cancelar: fecha pelo botão "Fechar" (opener) ou tocando fora do painel.
     // Fecha ao tocar fora do painel — inclui tocar no próprio botão (agora "X"),
     // que fica sob a área transparente do container sobre a barra.
     vagaSheet?.addEventListener('click', (e) => {
@@ -2360,7 +2360,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
   };
 
-  document.getElementById('btn-pedido-cancel')?.addEventListener('click', closePedidoSheet);
+  // Sem botão Cancelar: fecha pelo botão "Fechar" (opener) ou tocando fora do painel.
   // Toque FORA do painel (barra ou backdrop). Os botões do topo agora têm ação
   // própria dependendo do modo do detalhe, então roteamos o toque:
   //  - detalhe ATIVO + toque no Histórico ("Concluir") → conclui;
