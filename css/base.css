@@ -22,6 +22,7 @@
 
   /* Estados semânticos — vermelho (perigo/erro), verde (sucesso), laranja (atenção) */
   --danger: #e53935;             /* denunciar, cancelar câmera, bordas de erro */
+  --danger-rgb: 229, 57, 53;     /* canais do --danger p/ rgba() (glow de erro) */
   --danger-hover: #b71c1c;       /* vermelho pressionado */
   --danger-text: #c62828;        /* texto de alerta (IC baixo) */
   --danger-soft: #fff5f5;        /* fundo de campo com erro */
@@ -78,8 +79,19 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.07);
   --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.13);
 
-  /* Anel de foco/seleção padrão (verde translúcido) — receita canônica de .input-text:focus */
-  --focus-ring: 0 0 0 3px rgba(var(--p-green-rgb), 0.08);
+  /* Anéis/glows de estado (box-shadow) — substituem a antiga MUDANÇA DE COR DA
+     BORDA: os elementos não têm mais contorno; foco/seleção/erro viram uma
+     sombra colorida ao redor. --focus-ring é o verde sutil do input em foco;
+     --ring-gold marca seleção (cards/pílulas escolhidos); --ring-danger marca erro.
+     --card-shadow-focus soma o anel verde à sombra de repouso de um card claro. */
+  --focus-ring:  0 0 0 2.5px rgba(var(--p-green-rgb), 0.5);
+  --ring-gold:   0 0 0 2.5px rgba(var(--a-gold-rgb), 0.6);
+  --ring-danger: 0 0 0 2.5px rgba(var(--danger-rgb), 0.55);
+
+  /* Fill translúcido claro para CARDS sobre o verde (pedido/histórico): sem
+     borda, a definição vem do contraste deste fundo com o --bg-canvas escuro
+     (sombra escura não aparece sobre verde). */
+  --card-on-green: rgba(var(--on-green-rgb), 0.08);
 
   /* Escala de toque padrão dos botões (feedback de :active). --subtle para alvos
      GRANDES (cards, linhas), onde um scale forte pareceria exagerado. Alvos

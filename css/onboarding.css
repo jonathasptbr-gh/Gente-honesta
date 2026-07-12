@@ -240,7 +240,6 @@
   left: 0;
   right: 0;
   background: var(--bg-white);
-  border: 2px solid var(--p-green);
   border-radius: var(--radius-md);
   list-style: none;
   max-height: 180px;
@@ -485,7 +484,7 @@
   gap: 2px;
   padding: 14px 10px 12px;
   background: var(--bg-white);
-  border: 2px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
   border-radius: var(--radius-md);
   cursor: pointer;
   text-align: center;
@@ -497,9 +496,8 @@
 }
 
 .service-choice__card--active {
-  border-color: var(--p-green);
   background: var(--p-green-light);
-  box-shadow: 0 0 0 3px rgba(var(--p-green-rgb), 0.10);
+  box-shadow: var(--focus-ring);   /* seleção = anel verde (antes era borda verde) */
 }
 
 .service-choice__icon {
@@ -541,7 +539,6 @@
   margin-top: var(--space-sm);
   padding: 12px 14px;
   background: var(--bg-soft);
-  border: 1.5px solid var(--border-light);
   border-radius: var(--radius-md);
 }
 
@@ -565,7 +562,6 @@
   gap: var(--space-xs);
   padding: var(--space-md);
   background: var(--gold-soft);
-  border: 1px solid var(--a-gold);
   border-radius: var(--radius-md);
   text-align: center;
 }
@@ -608,7 +604,6 @@
   gap: 4px;
   padding: 4px var(--space-xs);
   background: var(--bg-white);
-  border: 1px solid var(--gold-soft-border);
   border-radius: var(--radius-pill);
   font-size: var(--fs-3);
   font-weight: var(--fw-bold);

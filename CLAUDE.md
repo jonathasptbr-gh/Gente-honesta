@@ -227,16 +227,23 @@ recriar `box-shadow` à mão. Os cards em repouso do feed (`.post-card`, `.vaga-
 renderiza com a face 800.
 
 **Helpers/padrões reutilizáveis (evitam CSS-in-JS e recortes duplicados):**
+- **DESIGN SEM CONTORNO (v226+):** o app NÃO usa mais linha de borda para definir cards, inputs,
+  pílulas, botões (fechar/outline), células OTP etc. A definição vem de: (a) **contraste** do fundo do
+  elemento com o fundo atrás dele, e (b) **sombra** (`--shadow-sm`) nos elementos sobre fundo claro/verde.
+  Sombra escura NÃO aparece sobre o verde escuro, então elementos SOBRE o verde (cards de pedido/histórico)
+  usam um **fill claro** (`--card-on-green`, branco translúcido) em vez de sombra. Os antigos efeitos que
+  mudavam a COR DA BORDA (foco/seleção/erro) agora são **glows de sombra**: `--focus-ring` (verde, foco de
+  input e seleção verde), `--ring-gold` (seleção dourada: OTP ativa, etc.), `--ring-danger` (erro: campos
+  inválidos, pedido urgente). PRESERVADAS as bordas FUNCIONAIS (não são contorno de card): anéis de avatar,
+  divisores internos entre seções, caixa do checkbox, checkmark desenhado com borda, anel do spinner, seta
+  do balão do tutorial e o tracejado da moldura de foto.
 - **`.card` (primitiva de superfície, `components.css`)** — casco compartilhado das superfícies claras
-  (cadastro/feed/install). Invariante: `--radius-md` + fundo claro + `border:none` (zera a borda de UA
-  de `<button>`/`<input>` usados como card). Modificadores: `--soft` (fundo `--bg-soft`), `--bordered`
-  (borda `1px --border-light`, readiciona por cima do `none`), `--shadow` (`--shadow-sm`). Já usada em
-  `.contract-card` (`card card--bordered card--shadow`), `.location-check` (`card`), `.ic-card`
-  (`card card--shadow` + gradiente verde próprio), `.ic-card__intro` (`card card--soft`) e nos passos do
-  install (`card card--soft card--bordered`). Superfícies de geometria própria NÃO usam a base: painel/
-  gatilho colapsável (raio stateful/só inferior), `.service-choice-display` (borda 1.5px),
-  `.area-search__results` (borda 2px verde + shadow-lg). Ao criar uma superfície clara nova, componha a
-  partir de `.card` em vez de reescrever fundo/borda/raio/sombra.
+  (cadastro/feed/install). Invariante: `--radius-md` + fundo claro + `border:none`. Modificadores: `--soft`
+  (fundo `--bg-soft`), `--shadow` (`--shadow-sm`, definição sem contorno). Já usada em `.contract-card`
+  (`card card--shadow`), `.location-check` (`card`), `.ic-card` (`card card--shadow` + gradiente verde
+  próprio), `.ic-card__intro` (`card card--soft`) e nos passos do install (`card card--soft`, contraste no
+  verde). Ao criar uma superfície clara nova, componha a partir de `.card` (+ `--shadow`) em vez de
+  reescrever fundo/raio/sombra — nunca adicione contorno.
 - **`.eyebrow` (rótulo/sobretítulo uppercase, `components.css`)** — receita única de rótulo em caixa alta
   (`--p-green`, `--fs-5`, 700, uppercase), compartilhada com `.form-group__label` num seletor agrupado.
   `.ic-hero__title` a usa no HTML (só mantém extras de layout). Novos rótulos uppercase devem receber a

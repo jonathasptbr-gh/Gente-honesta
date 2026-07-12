@@ -223,7 +223,6 @@
   justify-content: center;
   border-radius: var(--radius-md);
   background: var(--bg-white);
-  border: 1px solid var(--border-light);
   color: var(--p-green);
   cursor: pointer;
   transition: var(--transition);
@@ -274,8 +273,8 @@
   gap: var(--space-sm);
   padding: 10px var(--space-sm);
   background: var(--bg-white);
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .contract-mini__info {
@@ -331,7 +330,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-soft);
   color: var(--p-green);
@@ -356,7 +354,6 @@
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-sm) var(--space-md);
   background: var(--bg-white);
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
 }
 
@@ -378,7 +375,6 @@
   width: 100%;
   height: 42px;
   padding: 0 var(--space-sm) 0 40px;
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-pill);
   background: var(--bg-input);
   font-size: var(--fs-6);
@@ -389,7 +385,7 @@
 
 .contracts-filters__search:focus {
   background: var(--bg-white);
-  border-color: var(--p-green);
+  box-shadow: var(--focus-ring);
   box-shadow: var(--focus-ring);
 }
 
@@ -425,7 +421,6 @@
   width: 100%;
   height: 40px;
   padding: 0 10px;
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-input);
   font-size: var(--fs-5);
@@ -437,7 +432,7 @@
 
 .contracts-filters__input:focus {
   background: var(--bg-white);
-  border-color: var(--p-green);
+  box-shadow: var(--focus-ring);
 }
 
 
@@ -448,7 +443,7 @@
   gap: var(--space-sm);
 }
 
-/* fundo/borda/raio/sombra vêm de .card .card--bordered .card--shadow (HTML) */
+/* fundo/raio/sombra vêm de .card .card--shadow (HTML); sem contorno */
 .contract-card {
   padding: var(--space-sm);
   display: flex;
@@ -1011,9 +1006,8 @@
 
 .pedido-item {
   padding: 14px;
-  border: 1.5px solid var(--on-green-strong);
   border-radius: 18px 18px 18px 4px;
-  background: var(--p-green);
+  background: var(--card-on-green);   /* sem contorno: definição pelo contraste do fill claro sobre o --bg-canvas */
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1021,8 +1015,7 @@
 }
 
 .pedido-item--urgent {
-  border-color: var(--danger);
-  border-width: 2px;
+  box-shadow: var(--ring-danger);
 }
 
 /* Símbolo "Urgente" embutido antes do texto */
@@ -1091,7 +1084,6 @@
 /* Botão de denúncia: chip sutil, mesmo estilo do contexto verde */
 .pedido-item .post-card__report {
   background: var(--on-green-faint);
-  border: 1px solid var(--on-green-soft);
   color: var(--t-light);
   padding: 4px 10px;
   flex-shrink: 0;
@@ -1171,7 +1163,6 @@
    ======================================== */
 .post-card {
   background: var(--bg-white);
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-md);
   overflow: hidden;
@@ -1223,7 +1214,6 @@
   align-self: flex-start;
   gap: 4px;
   background: var(--bg-soft);
-  border: 1px solid var(--border-light);
   color: var(--t-sub);
   font-size: var(--fs-2);
   font-weight: var(--fw-medium);
@@ -1243,7 +1233,7 @@
 .post-card__report:active {
   color: var(--t-light);
   background: var(--danger);
-  border-color: var(--danger);
+  box-shadow: var(--ring-danger);
 }
 
 /* Imagem opcional — proporção 4:3 */
@@ -1364,7 +1354,7 @@
    fica amarelo em vez do verde da aba principal, reforçando o contexto de indicação. */
 .agenda-sheet .btn--primary {
   background: var(--a-gold);
-  border-color: var(--a-gold);
+  box-shadow: var(--ring-gold);
   color: var(--p-green-dark);
 }
 
@@ -1372,7 +1362,7 @@
 .agenda-sheet__header .btn--outline {
   background: var(--a-gold);
   color: var(--p-green-dark);
-  border-color: var(--a-gold);
+  box-shadow: var(--ring-gold);
 }
 
 /* Top-bar PROVISÓRIA do modo indicação — substitui a top-bar verde. */
@@ -1409,7 +1399,6 @@
   align-items: center;
   gap: 5px;
   background: var(--on-green-faint);
-  border: 1px solid var(--on-green-muted);
   border-radius: var(--radius-md);
   padding: 9px 12px;
   font-size: var(--fs-6);
@@ -1681,7 +1670,6 @@
   font-size: var(--fs-5);
   font-weight: var(--fw-bold);
   background: var(--on-green-faint);
-  border: 1.5px solid var(--on-green-soft);
   color: var(--t-light);
   cursor: pointer;
   white-space: nowrap;
@@ -1697,7 +1685,7 @@
 
 .pedido-chip--active {
   background: var(--a-gold);
-  border-color: var(--a-gold);
+  box-shadow: var(--ring-gold);
   color: var(--p-green-dark);
 }
 
@@ -1710,7 +1698,6 @@
   padding: var(--space-sm);
   border-radius: var(--radius-md);
   background: var(--on-green-faint);
-  border: 1.5px solid var(--on-green-soft);
   cursor: pointer;
   text-align: left;
   transition: var(--transition);
@@ -1778,7 +1765,6 @@
 .pedido-sheet__actions .btn { flex: 1; }
 
 .pedido-btn-cancel {
-  border-color: var(--on-green-muted);
   color: var(--t-light);
 }
 
@@ -1811,7 +1797,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid var(--on-green-soft);
   border-radius: var(--radius-md);
   background: var(--on-green-faint);
   color: var(--t-light);
@@ -1873,7 +1858,6 @@
   padding: 4px;
   border-radius: var(--radius-pill);
   background: var(--on-green-faint);
-  border: 1.5px solid var(--on-green-soft);
 }
 
 .vaga-stepper__btn {
@@ -1971,7 +1955,6 @@
   font-size: var(--fs-4);
   font-weight: var(--fw-bold);
   background: var(--on-green-faint);
-  border: 1.5px solid var(--on-green-soft);
   color: var(--t-light);
   cursor: pointer;
   transition: var(--transition);
@@ -1981,7 +1964,7 @@
 
 .vaga-day--active {
   background: var(--a-gold);
-  border-color: var(--a-gold);
+  box-shadow: var(--ring-gold);
   color: var(--p-green-dark);
 }
 
@@ -2012,7 +1995,6 @@
   padding: var(--space-sm);
   border-radius: var(--radius-md);
   background: var(--on-green-faint);
-  border: 1.5px solid var(--on-green-soft);
   cursor: pointer;
   text-align: left;
   width: 100%;
@@ -2082,7 +2064,6 @@
   font-size: var(--fs-5);
   font-weight: var(--fw-bold);
   background: var(--on-green-faint);
-  border: 1.5px solid var(--on-green-soft);
   color: var(--t-light);
   cursor: pointer;
   transition: var(--transition);
@@ -2097,14 +2078,13 @@
 
 .vaga-benefit-pill[aria-pressed="true"] {
   background: var(--a-gold);
-  border-color: var(--a-gold);
+  box-shadow: var(--ring-gold);
   color: var(--p-green-dark);
 }
 
 /* Detalhes (somente leitura) */
 .pedido-detail-card {
   background: var(--on-green-faint);
-  border: 1px solid var(--on-green-soft);
   border-radius: var(--radius-md);
   padding: var(--space-sm);
   display: flex;
@@ -2312,8 +2292,7 @@
   gap: 10px;
   padding: 14px;
   border-radius: 18px 18px 4px 18px;
-  background: transparent;
-  border: 1.5px solid var(--on-green-strong);
+  background: var(--card-on-green);   /* fill claro para contrastar com o fundo sem contorno */
   cursor: pointer;
   transition: var(--transition);
 }
@@ -2563,7 +2542,7 @@
 
 .agenda-filters__search:focus {
   background: var(--bg-white);
-  border-color: var(--p-green-light);
+  box-shadow: var(--focus-ring);
 }
 
 /* Botões ícone: brancos sobre o verde da top-bar */
@@ -2588,7 +2567,6 @@
 /* Chips dentro de .agenda-filters (painel): adaptados ao fundo verde */
 .agenda-filters .chip {
   background: var(--on-green-faint);
-  border-color: var(--on-green-soft);
   color: var(--on-green-strong);
 }
 
@@ -2616,7 +2594,6 @@
   -webkit-backdrop-filter: blur(var(--blur-sm));
   border-radius: var(--radius-md);
   padding: var(--space-xs) var(--space-sm) var(--space-sm);
-  border: 1px solid var(--on-green-faint);
   box-shadow: var(--shadow-lg);
   /* Estado fechado */
   max-height: 0;
@@ -2709,7 +2686,6 @@
   font-size: var(--fs-4);
   font-weight: var(--fw-medium);
   background: var(--bg-soft);
-  border: 1px solid var(--border-light);
   color: var(--t-sub);
   cursor: pointer;
   white-space: nowrap;
@@ -2842,15 +2818,16 @@
   padding: var(--space-sm);
   min-width: 0;
   background: var(--bg-white);
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm);   /* definição sem contorno */
   transition: border-color 0.15s, box-shadow 0.15s;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
 .pro-card--flipped .pro-card__front {
-  border-color: var(--p-green);
+  box-shadow: var(--focus-ring);
   box-shadow: 0 0 0 2px var(--p-green-light);
 }
 
@@ -2860,7 +2837,6 @@
   inset: 0;
   transform: rotateY(180deg);
   background: var(--bg-white);
-  border: 1px solid var(--p-green);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
@@ -3026,7 +3002,6 @@
   flex-shrink: 0;
   background: var(--bg-soft);
   color: var(--t-sub);
-  border: 1px solid var(--border-light);
 }
 
 .pro-card__back-btn--share {
@@ -3035,7 +3010,6 @@
   flex-shrink: 0;
   background: var(--bg-soft);
   color: var(--t-sub);
-  border: 1px solid var(--border-light);
 }
 
 /* Botões de modo indicação — ocultos por padrão, visíveis quando o card está em modo indicação */
@@ -3059,7 +3033,6 @@
   padding: 10px var(--space-sm);
   background: var(--bg-soft);
   color: var(--t-main);
-  border: 1px solid var(--border-light);
 }
 
 .agenda-list--indicate-mode .pro-card__back-btn--confirm-indicate {
@@ -3136,7 +3109,7 @@
 }
 
 .pro-card--selected .pro-card__front {
-  border-color: var(--p-green);
+  box-shadow: var(--focus-ring);
   box-shadow: 0 0 0 2px var(--p-green-light);
 }
 
@@ -3413,7 +3386,7 @@
 .vaga-card__front {
   background: var(--bg-white);
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
   /* reconciliado com o token (era sombra dupla bespoke) — mesma elevação dos
      demais cards em repouso do feed (.contract-card / .post-card) */
@@ -3429,7 +3402,6 @@
   inset: 0;
   transform: rotateY(180deg);
   background: var(--bg-white);
-  border: 1.5px solid var(--p-green);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
@@ -3470,7 +3442,6 @@
   flex-shrink: 0;
   width: 44px;
   background: var(--bg-soft);
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   cursor: pointer;
   color: var(--t-sub);
@@ -3567,7 +3538,6 @@
   color: var(--t-main);
   cursor: pointer;
   background: var(--bg-soft);
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-pill);
   padding: 5px 12px;
   transition: border-color 0.15s, background 0.15s;
@@ -3581,7 +3551,7 @@
 }
 
 .candid-radio:has(input:checked) {
-  border-color: var(--p-green);
+  box-shadow: var(--focus-ring);
   background: var(--p-green-light);
   color: var(--p-green-dark);
   font-weight: var(--fw-bold);
@@ -3601,7 +3571,6 @@
 
 /* Observações por requisito — colapsáveis via <details> */
 .candid-req-obs {
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-sm);
   background: var(--bg-soft);
   overflow: hidden;
@@ -3609,7 +3578,7 @@
 }
 
 .candid-req-obs[open] {
-  border-color: var(--p-green);
+  box-shadow: var(--focus-ring);
   background: var(--bg-white);
 }
 
@@ -3668,7 +3637,7 @@
 }
 
 .candid-req-obs-input:focus {
-  border-color: var(--p-green);
+  box-shadow: var(--focus-ring);
   background: var(--bg-white);
 }
 
@@ -3676,7 +3645,6 @@
 .candid-check--confirm {
   padding: 8px 10px;
   background: var(--p-green-light);
-  border: 1px solid rgba(0,0,0,0.07);
   border-radius: var(--radius-sm);
   font-weight: var(--fw-medium);
 }
@@ -3687,7 +3655,6 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-soft);
   cursor: pointer;
@@ -3703,7 +3670,7 @@
 }
 
 .candid-upload-btn:active {
-  border-color: var(--p-green);
+  box-shadow: var(--focus-ring);
   background: var(--p-green-light);
 }
 
@@ -3954,7 +3921,6 @@
   align-items: center;
   gap: 4px;
   background: var(--bg-soft);
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-pill);
   padding: 4px 10px;
   font-size: var(--fs-3);
@@ -4010,7 +3976,6 @@
   padding: 0 var(--space-md);
   background: var(--bg-soft);
   color: var(--t-sub);
-  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   cursor: pointer;
   flex-shrink: 0;
@@ -4086,7 +4051,6 @@
   gap: var(--space-sm);
   padding: var(--space-sm);
   background: var(--on-green-faint);
-  border: 1.5px solid var(--on-green-soft);
   border-radius: var(--radius-md);
   cursor: pointer;
   text-align: left;
@@ -4145,7 +4109,7 @@
 
 /* Estado marcado — realce dourado + check preenchido */
 .helper-toggle--on {
-  border-color: var(--a-gold);
+  box-shadow: var(--ring-gold);
   background: rgba(var(--a-gold-rgb), 0.16);
 }
 
@@ -4175,7 +4139,6 @@
   line-height: 1.35;
   color: var(--on-green-solid);
   background: var(--on-green-faint);
-  border: 1px solid var(--on-green-soft);
   border-radius: var(--radius-md);
 }
 
@@ -4251,7 +4214,6 @@
   gap: var(--space-sm);
   padding: var(--space-sm) 14px;
   background: var(--on-green-faint);
-  border: 1px solid var(--on-green-soft);
   border-radius: var(--radius-md);
 }
 

@@ -8,7 +8,7 @@
 }
 
 /* Estágio "instalação em andamento": nota informativa + retry discreto */
-/* fundo soft, borda 1px e raio vêm de .card .card--soft .card--bordered (HTML) */
+/* fundo soft e raio vêm de .card .card--soft (HTML); contraste no verde, sem contorno */
 .install-progress__note {
   display: flex;
   align-items: flex-start;
@@ -46,7 +46,7 @@
   counter-reset: install-step;
 }
 
-/* fundo soft, borda 1px e raio vêm de .card .card--soft .card--bordered (HTML) */
+/* fundo soft e raio vêm de .card .card--soft (HTML); contraste no verde, sem contorno */
 .install-guide__step {
   display: flex;
   align-items: center;

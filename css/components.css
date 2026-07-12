@@ -36,8 +36,7 @@
 }
 
 .btn--outline {
-  background: transparent;
-  border: 2px solid var(--border-light);
+  background: var(--bg-soft);
   color: var(--t-sub);
 }
 
@@ -188,19 +187,19 @@
   width: 100%;
   padding: 14px;
   font-size: var(--fs-8);
-  border: 2px solid var(--border-light);
+  border: none;                    /* sem contorno: o campo se define pelo fundo claro + sombra */
   border-radius: var(--radius-md);
   background: var(--bg-white);
   color: var(--t-main);
+  box-shadow: var(--shadow-sm);
   transition: var(--transition);
   outline: none;
   appearance: none;
 }
 
 .input-text:focus {
-  border-color: var(--p-green);
   background: var(--bg-white);
-  box-shadow: var(--focus-ring);
+  box-shadow: var(--focus-ring);   /* foco = anel verde (antes era mudança da cor da borda) */
 }
 
 /* Hint (placeholder) um pouco menor: evita corte em campos de 1 linha
@@ -221,23 +220,25 @@
 }
 
 .input-text--maxed {
-  border-color: var(--danger);
+  box-shadow: var(--ring-danger);
 }
 
-/* Estados de erro — aplicados via JS no submit */
+/* Estados de erro — aplicados via JS no submit. Antes mudavam a COR DA BORDA;
+   agora, sem contorno, viram um GLOW vermelho (--ring-danger) + fundo de alerta. */
 .input-text--error {
-  border-color: var(--danger) !important;
+  box-shadow: var(--ring-danger) !important;
   background: var(--danger-soft);
 }
 
 .location-check--error-validation {
-  border-color: var(--danger) !important;
+  box-shadow: var(--ring-danger) !important;
   background: var(--danger-soft);
 }
 
+/* A moldura da foto mantém o tracejado (afordância "adicionar"); o erro só
+   acrescenta o glow vermelho por cima. */
 .media-capture__display--error {
-  border-color: var(--danger) !important;
-  border-style: solid !important;
+  box-shadow: var(--ring-danger) !important;
 }
 
 /* ── Labels flutuantes ── */
@@ -290,10 +291,6 @@
 
 .card--soft {
   background: var(--bg-soft);
-}
-
-.card--bordered {
-  border: 1px solid var(--border-light);
 }
 
 .card--shadow {
