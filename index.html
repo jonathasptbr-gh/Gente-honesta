@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v233</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v234</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -731,13 +731,84 @@
             <div class="historico-sheet__panel">
                 <div class="historico-sheet__header">
                     <p class="historico-sheet__title">Histórico de pedidos</p>
-                    <button type="button" id="btn-close-historico" class="agenda-indicated__cancel" aria-label="Fechar">
-                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
-                    </button>
                 </div>
                 <div class="historico-sheet__scroll">
                     <div id="historico-list" class="historico-list">
                         <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Sheet: filtros da busca de profissionais ──
+             Dropdown top-level que desce da base da action bar, no MESMO padrão de
+             submenu do histórico/fazer pedido (reusa as classes .historico-sheet*). -->
+        <div id="filters-sheet" class="historico-sheet" role="dialog" aria-modal="true">
+            <div class="historico-sheet__backdrop" id="filters-sheet-backdrop"></div>
+            <div class="historico-sheet__panel">
+                <div class="historico-sheet__scroll">
+                    <div id="panel-agenda-filters" class="filters-panel">
+
+                        <!-- Ordenação: no topo -->
+                        <div class="agenda-filters__group">
+                            <p class="agenda-filters__group-label">Ordenar por:</p>
+                            <div class="agenda-filters__chips">
+                                <button type="button" class="chip chip--active" data-sort="name"    aria-pressed="true">A-Z Nome</button>
+                                <button type="button" class="chip"              data-sort="ic"      aria-pressed="false">Confiança</button>
+                                <button type="button" class="chip"              data-sort="avail"   aria-pressed="false">Disponibilidade</button>
+                                <button type="button" class="chip"              data-sort="quality" aria-pressed="false">Qualidade</button>
+                                <button type="button" class="chip"              data-sort="agility" aria-pressed="false">Agilidade</button>
+                                <button type="button" class="chip"              data-sort="value"   aria-pressed="false">Valor</button>
+                            </div>
+                        </div>
+
+                        <!-- Confiança + Salvos -->
+                        <div class="agenda-filters__group">
+                            <p class="agenda-filters__group-label">Confiança</p>
+                            <div class="agenda-filters__chips">
+                                <button type="button" class="chip chip--saved" data-filter-saved aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
+                                    Apenas salvos
+                                </button>
+                                <button type="button" class="chip chip--ic chip--ic-ok"    data-filter-ic="ok"    aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">gpp_good</span>
+                                </button>
+                                <button type="button" class="chip chip--ic chip--ic-warn"  data-filter-ic="warn"  aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">shield_question</span>
+                                </button>
+                                <button type="button" class="chip chip--ic chip--ic-alert" data-filter-ic="alert" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">gpp_maybe</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Disponibilidade -->
+                        <div class="agenda-filters__group">
+                            <p class="agenda-filters__group-label">Disponibilidade</p>
+                            <div class="agenda-filters__chips">
+                                <button type="button" class="chip" data-filter-avail="available"   aria-pressed="false">Disponível</button>
+                                <button type="button" class="chip" data-filter-avail="full"        aria-pressed="false">Agenda cheia</button>
+                                <button type="button" class="chip" data-filter-avail="unavailable" aria-pressed="false">Indisponível</button>
+                            </div>
+                        </div>
+
+                        <!-- Pagamento -->
+                        <div class="agenda-filters__group">
+                            <p class="agenda-filters__group-label">Pagamento</p>
+                            <div class="agenda-filters__chips">
+                                <button type="button" class="chip" data-filter-pay="cash" aria-pressed="false">Dinheiro</button>
+                                <button type="button" class="chip" data-filter-pay="card" aria-pressed="false">Cartão</button>
+                                <button type="button" class="chip" data-filter-pay="pix"  aria-pressed="false">Pix</button>
+                                <button type="button" class="chip" data-filter-pay="nf"   aria-pressed="false">Nota fiscal</button>
+                            </div>
+                        </div>
+
+                        <!-- Adicionar contatos -->
+                        <button type="button" id="btn-sync-contacts" class="agenda-filters__add-contacts-btn">
+                            <span class="material-symbols-rounded" aria-hidden="true">person_add</span>
+                            Adicionar seus contatos como favoritos
+                        </button>
+
                     </div>
                 </div>
             </div>
@@ -750,9 +821,6 @@
             <div class="pedido-sheet__panel">
                 <div class="pedido-sheet__header">
                     <p class="pedido-sheet__title" id="pedido-sheet-title">Fazer pedido</p>
-                    <button type="button" id="btn-close-pedido-sheet" class="agenda-indicated__cancel" aria-label="Fechar">
-                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
-                    </button>
                 </div>
 
                 <div class="pedido-sheet__body">
@@ -837,9 +905,6 @@
             <div class="pedido-sheet__panel">
                 <div class="pedido-sheet__header">
                     <p class="pedido-sheet__title">Criar vaga</p>
-                    <button type="button" id="btn-close-vaga-sheet" class="agenda-indicated__cancel" aria-label="Fechar">
-                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
-                    </button>
                 </div>
 
                 <div class="pedido-sheet__body">
@@ -985,9 +1050,6 @@
             <div class="pedido-sheet__panel">
                 <div class="pedido-sheet__header">
                     <p class="pedido-sheet__title">Serviço de ajudantes</p>
-                    <button type="button" id="btn-close-ajudante-sheet" class="agenda-indicated__cancel" aria-label="Fechar">
-                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
-                    </button>
                 </div>
 
                 <div class="pedido-sheet__body">
@@ -1330,7 +1392,7 @@
                 <div class="agenda-filters__pedidos-row" id="bar-pedidos-state">
                     <button type="button" id="btn-historico-pedidos" class="btn btn--white pedido-action__btn">
                         <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">history</span>
-                        Histórico
+                        <span data-btn-label>Histórico</span>
                     </button>
                     <button type="button" id="btn-my-pedido" class="btn btn--accent pedido-action__btn">
                         <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">add</span>
@@ -1338,71 +1400,8 @@
                     </button>
                 </div>
                 </div><!-- /.agenda-filters__action-row -->
-
-                <!-- Painel de filtros — animado, colapsado por padrão -->
-                <div id="panel-agenda-filters" class="agenda-filters__panel">
-
-                    <!-- Ordenação: dentro do painel, no topo -->
-                    <div class="agenda-filters__group">
-                        <p class="agenda-filters__group-label">Ordenar por:</p>
-                        <div class="agenda-filters__chips">
-                            <button type="button" class="chip chip--active" data-sort="name"    aria-pressed="true">A-Z Nome</button>
-                            <button type="button" class="chip"              data-sort="ic"      aria-pressed="false">Confiança</button>
-                            <button type="button" class="chip"              data-sort="avail"   aria-pressed="false">Disponibilidade</button>
-                            <button type="button" class="chip"              data-sort="quality" aria-pressed="false">Qualidade</button>
-                            <button type="button" class="chip"              data-sort="agility" aria-pressed="false">Agilidade</button>
-                            <button type="button" class="chip"              data-sort="value"   aria-pressed="false">Valor</button>
-                        </div>
-                    </div>
-
-                    <!-- Confiança + Salvos -->
-                    <div class="agenda-filters__group">
-                        <p class="agenda-filters__group-label">Confiança</p>
-                        <div class="agenda-filters__chips">
-                            <button type="button" class="chip chip--saved" data-filter-saved aria-pressed="false">
-                                <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
-                                Apenas salvos
-                            </button>
-                            <button type="button" class="chip chip--ic chip--ic-ok"    data-filter-ic="ok"    aria-pressed="false">
-                                <span class="material-symbols-rounded" aria-hidden="true">gpp_good</span>
-                            </button>
-                            <button type="button" class="chip chip--ic chip--ic-warn"  data-filter-ic="warn"  aria-pressed="false">
-                                <span class="material-symbols-rounded" aria-hidden="true">shield_question</span>
-                            </button>
-                            <button type="button" class="chip chip--ic chip--ic-alert" data-filter-ic="alert" aria-pressed="false">
-                                <span class="material-symbols-rounded" aria-hidden="true">gpp_maybe</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Disponibilidade -->
-                    <div class="agenda-filters__group">
-                        <p class="agenda-filters__group-label">Disponibilidade</p>
-                        <div class="agenda-filters__chips">
-                            <button type="button" class="chip" data-filter-avail="available"   aria-pressed="false">Disponível</button>
-                            <button type="button" class="chip" data-filter-avail="full"        aria-pressed="false">Agenda cheia</button>
-                            <button type="button" class="chip" data-filter-avail="unavailable" aria-pressed="false">Indisponível</button>
-                        </div>
-                    </div>
-
-                    <!-- Pagamento -->
-                    <div class="agenda-filters__group">
-                        <p class="agenda-filters__group-label">Pagamento</p>
-                        <div class="agenda-filters__chips">
-                            <button type="button" class="chip" data-filter-pay="cash" aria-pressed="false">Dinheiro</button>
-                            <button type="button" class="chip" data-filter-pay="card" aria-pressed="false">Cartão</button>
-                            <button type="button" class="chip" data-filter-pay="pix"  aria-pressed="false">Pix</button>
-                            <button type="button" class="chip" data-filter-pay="nf"   aria-pressed="false">Nota fiscal</button>
-                        </div>
-                    </div>
-
-                    <!-- Adicionar contatos -->
-                    <button type="button" id="btn-sync-contacts" class="agenda-filters__add-contacts-btn">
-                        <span class="material-symbols-rounded" aria-hidden="true">person_add</span>
-                        Adicionar seus contatos como favoritos
-                    </button>
-
-                </div>
+                <!-- Painel de filtros movido para o #filters-sheet (dropdown top-level,
+                     mesmo padrão de submenu do histórico/fazer pedido). -->
             </div>
 
             <!-- Painéis deslizantes: Vagas (esq.) ↔ Profissionais (centro) ↔ Pedidos (dir.) -->

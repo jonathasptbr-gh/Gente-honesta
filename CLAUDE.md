@@ -495,8 +495,9 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 telefone + OTP), onboarding, install e feed. Por isso a `meta[name="theme-color"]` é verde em todas
 (`THEME_COLOR_BY_VIEW` em `app.js` lista `view-auth/onboarding/install/feed` = `#184e1b`).
 
-**Fluxo de auth (`#view-auth`) + instalação (`#view-install`) verdes:** `#view-auth.screen` e
-`#view-install.screen` têm fundo `--p-green` (auth.css). A classe `.auth-section` só é usada nesses dois
+**Fluxo de auth (`#view-auth`) + instalação (`#view-install`) verdes:** `#view-auth.screen` tem fundo
+`--p-green`; `#view-install.screen` usa o verde escuro **`--bg-canvas`** (o MESMO do cadastro e do feed;
+os cards de passos `--bg-soft` contrastam sozinhos sobre ele). A classe `.auth-section` é usada nos dois
 containers (ambos verdes), então seus textos base já nascem claros: `.auth-section__title` → `--t-light`,
 `.auth-section__text`/`.auth-section__legal`/`.auth-section__cooldown` → `--p-green-light`, links do legal
 → `--a-gold`. Botões primários (`Enviar SMS`, `Verificar e Entrar`, `Instalar agora`) viram amarelos via
@@ -579,7 +580,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v233`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v234`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -741,10 +742,41 @@ Fica abaixo da top-bar verde, muda de estado conforme a aba ativa. Possui **3 es
        ├─ #bar-search-state        ← campo de busca + botão de filtros (aba Profissionais)
        ├─ #bar-vagas-state         ← botões "Serviço de ajudantes" e "Criar vaga" (aba Vagas)
        └─ #bar-pedidos-state       ← botão "Fazer um pedido" (aba Pedidos)
-  └─ #panel-agenda-filters         ← painel colapsável de filtros (position:absolute)
 ```
+O painel de filtros NÃO vive mais dentro da barra: virou o dropdown top-level `#filters-sheet` (ver
+"Submenus dropdown" abaixo).
 
 As três linhas são `position: absolute; inset: 0` sobrepostas no slot. A alternância é feita **exclusivamente por CSS** via `opacity + pointer-events + transition: 0.25s ease` — as classes `.agenda-filters--vagas` e `.agenda-filters--pedidos` no `#feed-action-bar` controlam qual linha é visível. **Nunca usar `u-hidden` / `display: none`** nessas linhas, pois quebraria a animação de fade.
+
+### Submenus dropdown + botão-abridor que vira "Fechar"
+
+Os quatro submenus que descem da base da action bar — **Histórico** (`#historico-sheet`), **Fazer pedido /
+Pedido atual** (`#pedido-sheet`), **Criar vaga** (`#vaga-sheet`), **Serviço de ajudantes**
+(`#ajudante-sheet`) — e agora também os **Filtros** (`#filters-sheet`) compartilham o MESMO padrão de
+dropdown: container `position:fixed; inset:0; z-index:300`, fundo do painel `--bg-canvas`, ancorado em
+`--sheet-top` (base da barra, medido em runtime), edge-to-edge com cantos inferiores arredondados,
+slide-down (`translateY(-14px)` + fade), backdrop que dim SÓ o feed abaixo da barra. `#filters-sheet` e
+`#vaga-sheet`/`#ajudante-sheet` **reusam classes existentes** (`.historico-sheet*` e `.pedido-sheet*`
+respectivamente) em vez de recriar o scaffolding.
+
+**NÃO há mais botão de fechar dedicado dentro do header do submenu.** No lugar, o **próprio botão-abridor**
+da action bar vira um **botão de fechar padrão** (ícone `close` + "Fechar") enquanto seu submenu está
+aberto, via a classe `.action-close-mode` (`feed.css`: fundo `--on-green-soft` translúcido + texto/ícone
+`--t-light`, com `!important` para vencer o fundo dourado/branco de cada botão). Helpers em `feed.js`:
+`setMyPedidoClose` (btn-my-pedido), `setHistoricoClose` (btn-historico), `setCriarVagaClose`/`setAjudanteClose`
+(nos IIFEs de vaga/ajudante, via `innerHTML`), e o toggle do `#btn-toggle-filters` (ícone `tune`↔`close`).
+Cada `open*` chama o setter com `true`, cada `close*` com `false` (restaurando rótulo/ícone). Como o
+container do submenu (z-300) cobre a barra quando aberto, **tocar no botão "Fechar" (visível sob a área
+transparente do container) dispara o handler de tap-outside** do container → fecha. Por isso todos os
+sheets têm um handler de tap-outside no container (`if (!closest('.…__panel')) close…`), inclusive vaga e
+ajudante, que antes só fechavam pelo backdrop.
+
+**`#filters-sheet`** (novo): dropdown top-level que reusa `.historico-sheet*`; o conteúdo interno
+(`#panel-agenda-filters.filters-panel`, grupos de ordenação/confiança/disponibilidade/pagamento + botão
+"Adicionar contatos") foi movido para DENTRO dele. `openFiltersSheet`/`closeFiltersSheet` (function
+declarations hoistadas — usadas por `showVagasPanel`/`showPedidosPanel`/reset ao trocar de aba) abrem/fecham
+via `historico-sheet--open` e alternam o ícone tune↔close. A delegação de clique dos chips continua em
+`#panel-agenda-filters` (id preservado).
 
 ### Lista de Pedidos
 
@@ -758,9 +790,10 @@ A `#bar-pedidos-state` tem SEMPRE dois botões lado a lado (o antigo badge `#my-
 
 ### Sheet "Fazer pedido" / detalhe unificado (`#pedido-sheet`)
 
-Container verde com backdrop. **Dois estados/animações bem diferentes** alternados por `u-hidden` + a classe `--full`:
-- `#pedido-form-state` — **criação**: DROPDOWN que desce da base da action bar (mesmo slide-down do histórico, sem `--full`), ancorado em `--sheet-top` (medido em JS via `anchorBelowActionBar`), edge-to-edge com cantos inferiores arredondados. textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botões Cancelar (`btn btn--danger`, vermelho) / Publicar. O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), mantendo a barra acesa para o painel parecer a base dela se estendendo.
-- `#pedido-details-state` — **detalhe unificado** (somente leitura): abre em **TELA CHEIA** com `.pedido-sheet--full` (painel `100dvh`, `top:0`, sem cantos, `padding-top` de safe-area, backdrop cobrindo tudo) para caber o pedido + a lista de indicados sem apertar verticalmente. **Anima em FADE** (opacity), não slide. Como abrir aplica `--full` + `--open` no mesmo clique, `openPedidoDetail` força um **reflow** (`void offsetWidth`) entre os dois para o estado inicial `opacity:0` ser pintado antes do fade-in; `closePedidoSheet()` remove só `--open` (mantém `--full`) para o fade-out respeitar a animação. Traz o **pedido no topo** (`#pedido-detail-card-container`, via `renderPedidoDetails(pedido)`) e, logo abaixo, a seção **"Indicações recebidas"** (`.pedido-detail-indicated` com fração `#pedido-detail-fraction` e lista `#pedido-detail-indicated-list`). Antes eram DOIS popups separados (detalhes + visualizador de indicações); agora são um só. O botão **Concluir pedido** (`btn btn--accent`) fica em `#pedido-detail-actions` e só aparece para pedido **ativo** (escondido via `u-hidden` em pedido concluído). `openPedidoForm()` remove `--full` (volta ao dropdown). Ambos fecham ao tocar fora do painel (handler no container que checa `closest('.pedido-sheet__panel')`).
+Container verde escuro (`--bg-canvas`) com backdrop. **Ambos os estados agora são o MESMO DROPDOWN**
+slide-down (a antiga tela cheia `--full` do detalhe foi REMOVIDA), alternados por `u-hidden`:
+- `#pedido-form-state` — **criação**: DROPDOWN que desce da base da action bar (mesmo slide-down do histórico), ancorado em `--sheet-top` (medido em JS via `anchorBelowActionBar`), edge-to-edge com cantos inferiores arredondados. textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botões Cancelar (`btn btn--danger`, vermelho) / Publicar. O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), mantendo a barra acesa para o painel parecer a base dela se estendendo.
+- `#pedido-details-state` — **detalhe unificado** (somente leitura): abre no MESMO dropdown slide-down do formulário (`openPedidoDetail` chama `anchorBelowActionBar` + `pedido-sheet--open`, sem `--full`); o corpo (`.pedido-sheet__body`) rola internamente quando a lista de indicados cresce. Traz o **pedido no topo** (`#pedido-detail-card-container`, via `renderPedidoDetails(pedido)`) e, logo abaixo, a seção **"Indicações recebidas"** (`.pedido-detail-indicated` com fração `#pedido-detail-fraction` e lista `#pedido-detail-indicated-list`). O botão **Concluir pedido** (`btn btn--accent`) fica em `#pedido-detail-actions` e só aparece para pedido **ativo** (escondido via `u-hidden` em pedido concluído). Ambos fecham ao tocar fora do painel (handler no container que checa `closest('.pedido-sheet__panel')`).
 
 `renderPedidoDetails(pedido)` recebe um pedido do histórico e monta: card (avatar, nome, IC-bar mock 100%; na meta row um **timer** de horas restantes se `status:'active'`, ou o selo verde **"Concluído"** `.pedido-item__timer--done` se `status:'completed'`), urgência como badge vermelho inline, fração `N/3` e a lista de indicados via `renderFlippableProCards`. O card tem `pointer-events: none`; os pro-cards dos indicados têm `pointer-events: auto`.
 

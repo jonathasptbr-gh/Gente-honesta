@@ -724,9 +724,6 @@
   opacity: 1;
   pointer-events: auto;
 }
-.agenda-filters--vagas .agenda-filters__panel {
-  display: none !important;
-}
 
 /* Botões da linha de vagas — mesma altura e cantos do btn padrão (.btn = radius-md) */
 .agenda-filters__vagas-btn {
@@ -781,11 +778,6 @@
 .agenda-filters--pedidos .agenda-filters__pedidos-row {
   opacity: 1;
   pointer-events: auto;
-}
-
-/* Painel de filtros: oculto no modo pedidos */
-.agenda-filters--pedidos .agenda-filters__panel {
-  display: none !important;
 }
 
 /* ===========================================
@@ -989,6 +981,18 @@
   gap: var(--space-sm);
   font-size: var(--fs-6);
   white-space: nowrap;
+}
+
+/* MODO "FECHAR": qualquer botão-abridor de submenu da action bar (Histórico,
+   Fazer pedido, Criar vaga, Serviço de ajudantes) vira um botão de fechar padrão
+   (X + "Fechar") enquanto seu submenu está aberto. Aparência neutra translúcida
+   sobre o verde da barra — vence o fundo dourado/branco de cada botão. */
+.action-close-mode {
+  background: var(--on-green-soft) !important;
+  color: var(--t-light) !important;
+}
+.action-close-mode .material-symbols-rounded {
+  color: var(--t-light) !important;
 }
 
 
@@ -1573,29 +1577,8 @@
   opacity: 1;
 }
 
-/* Detalhe do pedido = TELA CHEIA (100dvh, sem cantos, cobre tudo) com FADE puro
-   (opacity), sem movimento — por isso backdrop e painel vão a top:0 e o
-   transform é anulado. Cabe o pedido + a lista de indicados sem apertar. */
-.pedido-sheet--full .pedido-sheet__backdrop { top: 0; }
-
-.pedido-sheet--full .pedido-sheet__panel {
-  top: 0;
-  height: 100dvh;
-  max-height: 100dvh;
-  border-radius: 0;
-  box-shadow: none;
-  padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
-  transform: none;
-  opacity: 0;
-  transition: opacity 0.28s ease;
-}
-
-.pedido-sheet--full.pedido-sheet--open .pedido-sheet__panel {
-  transform: none;
-  opacity: 1;
-}
-
-.pedido-sheet--full .pedido-sheet__body { flex: 1; }
+/* O detalhe do pedido agora também é um DROPDOWN (mesmo slide-down do histórico),
+   não mais tela cheia — herda .pedido-sheet__panel acima. */
 
 .pedido-sheet__header {
   display: flex;
@@ -2558,50 +2541,25 @@
   font-size: 1.25rem;
 }
 
-/* Chips dentro de .agenda-filters (painel): adaptados ao fundo verde */
-.agenda-filters .chip {
+/* Chips dentro do painel de filtros (#filters-sheet): adaptados ao fundo verde */
+.filters-panel .chip {
   background: var(--on-green-faint);
   color: var(--on-green-strong);
 }
 
-.agenda-filters .chip--active {
+.filters-panel .chip--active {
   background: var(--bg-white);
   color: var(--p-green);
   border-color: transparent;
 }
 
-/* Painel de filtros — flutua fora da barra do topo, sempre estilizado como card.
-   Só max-height/opacity/pointer-events mudam na classe --open para evitar
-   snap de múltiplas propriedades que causa deslocamento durante a animação. */
-.agenda-filters__panel {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: var(--space-md);
-  right: var(--space-md);
-  z-index: 10;
+/* Conteúdo do painel de filtros — vive dentro do #filters-sheet (dropdown
+   top-level que reusa .historico-sheet*: fundo --bg-canvas, slide-down, backdrop).
+   Aqui só o layout interno das seções. */
+.filters-panel {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-  /* Estilo fixo do card — sempre presente */
-  background: rgba(var(--p-green-dark-rgb), 0.82); /* --p-green-dark com transparência */
-  backdrop-filter: blur(var(--blur-sm));
-  -webkit-backdrop-filter: blur(var(--blur-sm));
-  border-radius: var(--radius-md);
-  padding: var(--space-xs) var(--space-sm) var(--space-sm);
-  box-shadow: var(--shadow-lg);
-  /* Estado fechado */
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity    0.28s ease;
-}
-
-.agenda-filters__panel--open {
-  max-height: 700px;
-  opacity: 1;
-  pointer-events: auto;
+  gap: var(--space-sm);
 }
 
 .agenda-filters__group {
@@ -2661,9 +2619,9 @@
 }
 
 /* Tier colors: mantidas em ambos os estados (padrão e selecionado) */
-.agenda-filters__panel .chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
-.agenda-filters__panel .chip--ic-warn  .material-symbols-rounded { color: var(--a-gold);      }
-.agenda-filters__panel .chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
+.filters-panel .chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
+.filters-panel .chip--ic-warn  .material-symbols-rounded { color: var(--a-gold);      }
+.filters-panel .chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
 
 /* Chip "Apenas salvos": ícone no mesmo tamanho dos IC chips desta seção */
 .chip--saved .material-symbols-rounded {

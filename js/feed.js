@@ -63,8 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     feedPanels?.classList.remove('feed-panels--pedidos');
     feedActionBar?.classList.add('agenda-filters--vagas');
     feedActionBar?.classList.remove('agenda-filters--pedidos');
-    document.getElementById('panel-agenda-filters')?.classList.remove('agenda-filters__panel--open');
-    document.getElementById('btn-toggle-filters')?.setAttribute('aria-expanded', 'false');
+    closeFiltersSheet();
   };
 
   const showPedidosPanel = () => {
@@ -73,8 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     feedActionBar?.classList.remove('agenda-filters--vagas');
     feedActionBar?.classList.add('agenda-filters--pedidos');
     // fecha painel de filtros se estiver aberto
-    document.getElementById('panel-agenda-filters')?.classList.remove('agenda-filters__panel--open');
-    document.getElementById('btn-toggle-filters')?.setAttribute('aria-expanded', 'false');
+    closeFiltersSheet();
   };
 
   const showProsPanel = () => {
@@ -218,8 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const search = document.getElementById('inp-agenda-search');
     if (search) search.value = '';
     // Fecha painel de filtros se aberto
-    document.getElementById('panel-agenda-filters')?.classList.remove('agenda-filters__panel--open');
-    document.getElementById('btn-toggle-filters')?.setAttribute('aria-expanded', 'false');
+    closeFiltersSheet();
     // Re-renderiza e volta ao topo
     renderAgendaList();
     document.getElementById('agenda-list')?.scrollTo({ top: 0, behavior: 'instant' });
@@ -1407,14 +1404,28 @@ document.addEventListener('DOMContentLoaded', () => {
       if (reqList) { reqList.innerHTML = ''; addDynRow(reqList, 'Ex: Experiência com atendimento'); }
     };
 
+    // O botão "Criar vaga" vira um botão de fechar (X) enquanto o sheet está aberto.
+    const CRIAR_VAGA_HTML = '<span class="material-symbols-rounded" aria-hidden="true">add</span>Criar vaga';
+    const FECHAR_VAGA_HTML = '<span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar';
+    const setCriarVagaClose = (isClose) => {
+      if (!btnCriarVaga) return;
+      btnCriarVaga.classList.toggle('action-close-mode', isClose);
+      btnCriarVaga.innerHTML = isClose ? FECHAR_VAGA_HTML : CRIAR_VAGA_HTML;
+    };
+
     const openVagaSheet = () => {
       // Ancora o dropdown na base da action bar (mesmo slide-down do pedido/histórico)
       const bar = document.getElementById('feed-action-bar');
       if (bar) vagaSheet?.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
       vagaSheet?.classList.add('pedido-sheet--open');
+      setCriarVagaClose(true);
     };
     const closeVagaSheet = () => {
       vagaSheet?.classList.remove('pedido-sheet--open');
+      // Só restaura para "Criar vaga" se ainda não há vaga publicada; após publicar,
+      // o botão já foi trocado para "Ver vaga" e não deve ser sobrescrito.
+      if (!myVagaId) setCriarVagaClose(false);
+      else btnCriarVaga?.classList.remove('action-close-mode');
     };
 
     // Rola a lista de vagas até o card criado e destaca-o brevemente.
@@ -1434,9 +1445,12 @@ document.addEventListener('DOMContentLoaded', () => {
       else openVagaSheet();
     });
 
-    document.getElementById('btn-close-vaga-sheet')?.addEventListener('click', closeVagaSheet);
-    document.getElementById('vaga-sheet-backdrop')?.addEventListener('click', closeVagaSheet);
     document.getElementById('btn-vaga-cancel')?.addEventListener('click', closeVagaSheet);
+    // Fecha ao tocar fora do painel — inclui tocar no próprio botão (agora "X"),
+    // que fica sob a área transparente do container sobre a barra.
+    vagaSheet?.addEventListener('click', (e) => {
+      if (!e.target.closest('.pedido-sheet__panel')) closeVagaSheet();
+    });
 
     document.getElementById('btn-add-req')?.addEventListener('click', () =>
       addDynRow(reqList, 'Ex: Disponibilidade imediata').focus());
@@ -1589,6 +1603,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Sheet: abrir / fechar (as duas funções ficam sempre visíveis) ----
     const ajudanteSheet = document.getElementById('ajudante-sheet');
 
+    // O botão "Serviço de ajudantes" vira botão de fechar (X) enquanto o sheet abre.
+    const btnAjudante = document.getElementById('btn-chamar-ajudante');
+    const AJUDANTE_HTML = 'Serviço de ajudantes';
+    const FECHAR_AJUDANTE_HTML = '<span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar';
+    const setAjudanteClose = (isClose) => {
+      if (!btnAjudante) return;
+      btnAjudante.classList.toggle('action-close-mode', isClose);
+      btnAjudante.innerHTML = isClose ? FECHAR_AJUDANTE_HTML : AJUDANTE_HTML;
+    };
+
     const openAjudanteSheet = () => {
       renderHelperAvailability();
       renderHelperCall();
@@ -1596,12 +1620,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const bar = document.getElementById('feed-action-bar');
       if (bar) ajudanteSheet?.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
       ajudanteSheet?.classList.add('pedido-sheet--open');
+      setAjudanteClose(true);
     };
-    const closeAjudanteSheet = () => ajudanteSheet?.classList.remove('pedido-sheet--open');
+    const closeAjudanteSheet = () => {
+      ajudanteSheet?.classList.remove('pedido-sheet--open');
+      setAjudanteClose(false);
+    };
 
-    document.getElementById('btn-chamar-ajudante')?.addEventListener('click', openAjudanteSheet);
-    document.getElementById('btn-close-ajudante-sheet')?.addEventListener('click', closeAjudanteSheet);
-    document.getElementById('ajudante-sheet-backdrop')?.addEventListener('click', closeAjudanteSheet);
+    btnAjudante?.addEventListener('click', openAjudanteSheet);
+    // Fecha ao tocar fora do painel — inclui tocar no próprio botão (agora "X").
+    ajudanteSheet?.addEventListener('click', (e) => {
+      if (!e.target.closest('.pedido-sheet__panel')) closeAjudanteSheet();
+    });
 
     // ---- Função 1: disponibilidade (checkbox leve/pesado) ----
     const getHelperAvailability = () => readHelperJSON(LS_HELPER_AVAIL, { light: false, heavy: false });
@@ -1841,14 +1871,36 @@ document.addEventListener('DOMContentLoaded', () => {
   // TELA - PRINCIPAL (FEED) - FILTROS DA BUSCA - Painel colapsável + chips
   // =========================================================================
 
-  // Toggle de mostrar/ocultar o painel de filtros
-  document.getElementById('btn-toggle-filters')?.addEventListener('click', () => {
-    const panel = document.getElementById('panel-agenda-filters');
-    const btn   = document.getElementById('btn-toggle-filters');
-    const nowOpen = panel?.classList.toggle('agenda-filters__panel--open');
-    btn?.setAttribute('aria-expanded', String(!!nowOpen));
+  // Painel de filtros = DROPDOWN top-level (#filters-sheet), mesmo padrão de
+  // submenu do histórico/fazer pedido. O próprio botão de filtro (tune) vira um
+  // botão de fechar (X) enquanto o painel está aberto. (function declarations →
+  // hoistadas, usáveis por showVagasPanel/showPedidosPanel/reset acima.)
+  function closeFiltersSheet() {
+    document.getElementById('filters-sheet')?.classList.remove('historico-sheet--open');
+    const btn = document.getElementById('btn-toggle-filters');
+    btn?.setAttribute('aria-expanded', 'false');
     const icon = btn?.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = nowOpen ? 'expand_less' : 'tune';
+    if (icon) icon.textContent = 'tune';
+  }
+  function openFiltersSheet() {
+    const sheet = document.getElementById('filters-sheet');
+    // Ancora o dropdown na base da action bar (medido em runtime pela safe-area)
+    const bar = document.getElementById('feed-action-bar');
+    if (bar && sheet) sheet.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
+    sheet?.classList.add('historico-sheet--open');
+    const btn = document.getElementById('btn-toggle-filters');
+    btn?.setAttribute('aria-expanded', 'true');
+    const icon = btn?.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = 'close';
+  }
+
+  document.getElementById('btn-toggle-filters')?.addEventListener('click', () => {
+    const open = document.getElementById('filters-sheet')?.classList.contains('historico-sheet--open');
+    if (open) closeFiltersSheet(); else openFiltersSheet();
+  });
+  // Fecha ao tocar fora do painel (inclui tocar no próprio botão, que agora é "X")
+  document.getElementById('filters-sheet')?.addEventListener('click', (e) => {
+    if (!e.target.closest('.historico-sheet__panel')) closeFiltersSheet();
   });
 
   // Ordenação (dentro do painel) e filtros: um único handler delegado.
@@ -2081,6 +2133,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // Botão "Fazer pedido"/"Pedido atual" vira um botão de fechar (X) enquanto o
+  // sheet de pedido está aberto; ao fechar, restaura o rótulo/ícone correto.
+  const setMyPedidoClose = (isClose) => {
+    btnMyPedido?.classList.toggle('action-close-mode', isClose);
+    if (isClose) {
+      if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'close';
+      if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Fechar';
+    } else {
+      renderMyPedidoButton();
+    }
+  };
+
+  // Botão "Histórico" vira botão de fechar (X) enquanto o histórico está aberto.
+  const setHistoricoClose = (isClose) => {
+    btnHistorico?.classList.toggle('action-close-mode', isClose);
+    const icon  = btnHistorico?.querySelector('.pedido-action__icon');
+    const label = btnHistorico?.querySelector('[data-btn-label]');
+    if (icon)  icon.textContent  = isClose ? 'close'   : 'history';
+    if (label) label.textContent = isClose ? 'Fechar'  : 'Histórico';
+  };
+
   // ── Elementos do sheet de criação / detalhe ──
   const pedidoSheet        = document.getElementById('pedido-sheet');
   const pedidoSheetTitle   = document.getElementById('pedido-sheet-title');
@@ -2096,11 +2169,10 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const closePedidoSheet = () => {
-    // Remove só --open para o fecho respeitar a animação vigente (fade no
-    // detalhe --full, slide-down no formulário). --full é limpo ao abrir o form.
     pedidoSheet?.classList.remove('pedido-sheet--open');
     stopPedidoTimer();
     detailPedidoId = null;
+    setMyPedidoClose(false);
   };
 
   // Ancora um sheet-dropdown na BASE da action bar (= topo da caixa do feed),
@@ -2179,11 +2251,12 @@ document.addEventListener('DOMContentLoaded', () => {
     anchorBelowActionBar(pedidoSheet);
     pedidoSheet?.classList.remove('pedido-sheet--full');
     pedidoSheet?.classList.add('pedido-sheet--open');
+    setMyPedidoClose(true);
   };
 
-  // Abre o detalhe unificado (pedido + indicações) de um pedido específico.
-  // O detalhe é FULL-SCREEN (--full) para caber o pedido + a lista de indicados
-  // sem apertar verticalmente; mantém a mesma animação slide-up do bottom sheet.
+  // Abre o detalhe unificado (pedido + indicações) de um pedido específico como
+  // DROPDOWN que desce da base da action bar — mesmo slide-down do histórico e do
+  // formulário. O corpo do sheet rola internamente se a lista de indicados crescer.
   const openPedidoDetail = (id) => {
     const pedido = getPedidoById(id);
     if (!pedido) return;
@@ -2194,18 +2267,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPedidoDetails(pedido);
     stopPedidoTimer();
     if (pedido.status === 'active') pedidoTimerInterval = setInterval(updatePedidoTimer, 60 * 1000);
-    // Detalhe = tela cheia com FADE (não slide). Aplica --full e força um reflow
-    // para o estado inicial (opacity:0) ser pintado antes de --open disparar o
-    // fade-in; sem isso os dois estados entrariam no mesmo frame e o painel
-    // apareceria seco, sem transição.
-    if (pedidoSheet) {
-      pedidoSheet.classList.add('pedido-sheet--full');
-      void pedidoSheet.offsetWidth;
-      pedidoSheet.classList.add('pedido-sheet--open');
-    }
+    anchorBelowActionBar(pedidoSheet);
+    pedidoSheet?.classList.remove('pedido-sheet--full');
+    pedidoSheet?.classList.add('pedido-sheet--open');
+    setMyPedidoClose(true);
   };
 
-  document.getElementById('btn-close-pedido-sheet')?.addEventListener('click', closePedidoSheet);
   document.getElementById('btn-pedido-cancel')?.addEventListener('click', closePedidoSheet);
   // Fecha ao tocar fora do painel (backdrop dimmed OU a área transparente sobre
   // a barra) — o backdrop só cobre o feed abaixo, então usamos o container todo.
@@ -2344,10 +2411,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHistoricoList();
     anchorBelowActionBar(historicoSheet);
     historicoSheet?.classList.add('historico-sheet--open');
+    setHistoricoClose(true);
   };
-  const closeHistorico = () => historicoSheet?.classList.remove('historico-sheet--open');
+  const closeHistorico = () => {
+    historicoSheet?.classList.remove('historico-sheet--open');
+    setHistoricoClose(false);
+  };
 
-  document.getElementById('btn-close-historico')?.addEventListener('click', closeHistorico);
   historicoSheet?.addEventListener('click', (e) => {
     if (!e.target.closest('.historico-sheet__panel')) closeHistorico();
   });

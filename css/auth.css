@@ -222,9 +222,14 @@
    e os cards de passos da instalação têm fundo claro/soft e se destacam
    sozinhos; só os textos/botões diretos sobre o verde é que mudam de cor.
    ======================================== */
-#view-auth.screen,
-#view-install.screen {
+#view-auth.screen {
   background: var(--p-green);
+}
+
+/* A tela de instalação usa o verde escuro canvas (o mesmo do cadastro e do
+   feed); os cards de passos (--bg-soft) contrastam sozinhos sobre ele. */
+#view-install.screen {
+  background: var(--bg-canvas);
 }
 
 /* Botões primários (Enviar SMS, Verificar e Entrar, Instalar agora) ficam
