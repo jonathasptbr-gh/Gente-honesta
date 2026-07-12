@@ -715,18 +715,19 @@
             </div>
         </div>
 
-        <!-- ── Sheet: histórico de pedidos (ativo + concluídos) ── -->
-        <!-- Reusa o padrão slide-up de .indicated-popup; drill-down para o detalhe unificado. -->
-        <div id="historico-sheet" class="indicated-popup" role="dialog" aria-modal="true">
-            <div class="indicated-popup__backdrop" id="historico-sheet-backdrop"></div>
-            <div class="indicated-popup__sheet">
-                <div class="indicated-popup__header">
-                    <p class="indicated-popup__title">Histórico de pedidos</p>
+        <!-- ── Dropdown: histórico de pedidos (ativo + concluídos) ── -->
+        <!-- Desce a partir da BASE da action bar (posição medida em JS via
+             --historico-top); drill-down para o detalhe unificado. -->
+        <div id="historico-sheet" class="historico-sheet" role="dialog" aria-modal="true">
+            <div class="historico-sheet__backdrop" id="historico-sheet-backdrop"></div>
+            <div class="historico-sheet__panel">
+                <div class="historico-sheet__header">
+                    <p class="historico-sheet__title">Histórico de pedidos</p>
                     <button type="button" id="btn-close-historico" class="agenda-indicated__cancel" aria-label="Fechar">
                         <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
                     </button>
                 </div>
-                <div class="indicated-popup__scroll">
+                <div class="historico-sheet__scroll">
                     <div id="historico-list" class="historico-list">
                         <!-- Preenchido via JS -->
                     </div>

@@ -1243,14 +1243,23 @@
 
 .pedido-sheet--open .pedido-sheet__panel { transform: translateY(0); }
 
-/* Detalhe do pedido em TELA CHEIA: mesma animação slide-up, mas o painel sobe
-   até o topo (100dvh, sem cantos arredondados) para não apertar verticalmente
-   o pedido + a lista de indicações. O formulário de criação segue bottom sheet. */
+/* Detalhe do pedido em TELA CHEIA (100dvh, sem cantos) para não apertar
+   verticalmente o pedido + a lista de indicações. Diferente do formulário
+   (bottom sheet, slide-up), o detalhe entra e sai com FADE (opacity), sem
+   movimento — por isso o transform é anulado aqui e no estado aberto. */
 .pedido-sheet--full .pedido-sheet__panel {
   height: 100dvh;
   max-height: 100dvh;
   border-radius: 0;
   padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
+  transform: none;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.pedido-sheet--full.pedido-sheet--open .pedido-sheet__panel {
+  transform: none;
+  opacity: 1;
 }
 
 .pedido-sheet--full .pedido-sheet__body { flex: 1; }
@@ -1815,10 +1824,84 @@
 .pedido-item__timer--done { color: var(--success); }
 
 /* =========================================================================
-   HISTÓRICO DE PEDIDOS — lista dentro do #historico-sheet (bottom sheet verde)
-   Inclui o pedido ativo; ordenada por data (mais recente no topo). Cada item
-   abre o mesmo detalhe unificado (pedido + indicados) ao ser tocado.
+   HISTÓRICO DE PEDIDOS — dropdown que DESCE da base da action bar (#historico-
+   sheet). O painel ancora em --historico-top (medido em JS = rodapé da barra),
+   spanning edge-to-edge com cantos inferiores arredondados, e entra descendo
+   (translateY + fade). Inclui o pedido ativo; ordenada por data (mais recente no
+   topo). Cada item abre o detalhe unificado (pedido + indicados) ao ser tocado.
    ========================================================================= */
+.historico-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear 0.32s; /* mantém visível durante o fecho */
+}
+
+.historico-sheet--open {
+  pointer-events: auto;
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+.historico-sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.historico-sheet--open .historico-sheet__backdrop { opacity: 1; }
+
+.historico-sheet__panel {
+  position: absolute;
+  top: var(--historico-top, 120px);
+  left: 0;
+  right: 0;
+  max-height: calc(100dvh - var(--historico-top, 120px) - 12px);
+  background: var(--p-green);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  /* Estado fechado: recuado para cima + transparente → desce ao abrir */
+  transform: translateY(-14px);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease;
+}
+
+.historico-sheet--open .historico-sheet__panel {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.historico-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.historico-sheet__title {
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--t-light);
+  margin: 0;
+}
+
+.historico-sheet__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.historico-sheet__scroll::-webkit-scrollbar { display: none; }
+
 .historico-list {
   display: flex;
   flex-direction: column;

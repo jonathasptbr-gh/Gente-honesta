@@ -1973,7 +1973,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const closePedidoSheet = () => {
-    pedidoSheet?.classList.remove('pedido-sheet--open', 'pedido-sheet--full');
+    // Remove só --open para o fecho respeitar a animação vigente (fade no
+    // detalhe --full, slide no formulário). --full é limpo ao abrir o formulário.
+    pedidoSheet?.classList.remove('pedido-sheet--open');
     stopPedidoTimer();
     detailPedidoId = null;
   };
@@ -2059,7 +2061,15 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPedidoDetails(pedido);
     stopPedidoTimer();
     if (pedido.status === 'active') pedidoTimerInterval = setInterval(updatePedidoTimer, 60 * 1000);
-    pedidoSheet?.classList.add('pedido-sheet--open', 'pedido-sheet--full');
+    // Detalhe = tela cheia com FADE (não slide). Aplica --full e força um reflow
+    // para o estado inicial (opacity:0) ser pintado antes de --open disparar o
+    // fade-in; sem isso os dois estados entrariam no mesmo frame e o painel
+    // apareceria seco, sem transição.
+    if (pedidoSheet) {
+      pedidoSheet.classList.add('pedido-sheet--full');
+      void pedidoSheet.offsetWidth;
+      pedidoSheet.classList.add('pedido-sheet--open');
+    }
   };
 
   document.getElementById('btn-close-pedido-sheet')?.addEventListener('click', closePedidoSheet);
@@ -2192,8 +2202,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  const openHistorico  = () => { renderHistoricoList(); historicoSheet?.classList.add('indicated-popup--open'); };
-  const closeHistorico = () => historicoSheet?.classList.remove('indicated-popup--open');
+  // O dropdown desce da BASE da action bar: mede o rodapé da barra e ancora o
+  // painel ali via --historico-top (a barra tem altura variável com safe-area).
+  const openHistorico = () => {
+    renderHistoricoList();
+    const bar = document.getElementById('feed-action-bar');
+    if (bar && historicoSheet) {
+      historicoSheet.style.setProperty('--historico-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
+    }
+    historicoSheet?.classList.add('historico-sheet--open');
+  };
+  const closeHistorico = () => historicoSheet?.classList.remove('historico-sheet--open');
 
   document.getElementById('btn-close-historico')?.addEventListener('click', closeHistorico);
   document.getElementById('historico-sheet-backdrop')?.addEventListener('click', closeHistorico);
