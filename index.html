@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v250</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v251</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -804,7 +804,7 @@
                         </div>
 
                         <!-- Adicionar contatos -->
-                        <button type="button" id="btn-sync-contacts" class="agenda-filters__add-contacts-btn">
+                        <button type="button" id="btn-sync-contacts" class="btn btn--accent agenda-filters__add-contacts-btn">
                             <span class="material-symbols-rounded" aria-hidden="true">person_add</span>
                             Adicionar seus contatos como favoritos
                         </button>
@@ -1028,11 +1028,12 @@
                             </span>
                         </div>
 
-                        <div class="pedido-sheet__actions">
-                            <button type="button" id="btn-vaga-publish" class="btn btn--accent">Publicar vaga</button>
-                        </div>
-
                     </div>
+                </div>
+                <!-- Rodapé FIXO: fica FORA do body que rola, então "Publicar vaga"
+                     está sempre visível na base enquanto o formulário rola por cima. -->
+                <div class="pedido-sheet__actions pedido-sheet__actions--footer">
+                    <button type="button" id="btn-vaga-publish" class="btn btn--accent">Publicar vaga</button>
                 </div>
             </div>
         </div>
@@ -1097,9 +1098,12 @@
                         <!-- Formulário (visível enquanto não há sorteio ativo hoje) -->
                         <div id="helper-call-form">
                             <p class="ajudante-intro">Escolha o tipo de serviço e receba o contato de um ajudante disponível.</p>
-                            <div class="pedido-chip-row" id="helper-type" role="radiogroup" aria-label="Tipo de serviço">
-                                <button type="button" class="pedido-chip pedido-chip--active" data-type="light" aria-pressed="true">Serviço leve</button>
-                                <button type="button" class="pedido-chip" data-type="heavy" aria-pressed="false">Serviço pesado</button>
+                            <!-- Seletor tipo SLIDE (segmentado): o "thumb" dourado desliza
+                                 de "Serviço leve" para "Serviço pesado". -->
+                            <div class="seg-toggle" id="helper-type" role="radiogroup" aria-label="Tipo de serviço">
+                                <span class="seg-toggle__thumb" aria-hidden="true"></span>
+                                <button type="button" class="seg-toggle__opt seg-toggle__opt--active" data-type="light" aria-pressed="true">Serviço leve</button>
+                                <button type="button" class="seg-toggle__opt" data-type="heavy" aria-pressed="false">Serviço pesado</button>
                             </div>
                             <button type="button" id="btn-call-helper" class="btn btn--accent ajudante-call-btn">
                                 <span class="material-symbols-rounded" aria-hidden="true">diversity_3</span>Chamar ajudante
@@ -1115,17 +1119,6 @@
                             <div id="helper-list" class="helper-list"><!-- cards via JS --></div>
                         </div>
 
-                        <!-- Bloqueio após cancelar: sem contatos, botão liberado só
-                             quando o cronômetro zerar (evita cancelar e repedir na hora) -->
-                        <div id="helper-cooldown" class="u-hidden">
-                            <div class="ajudante-cooldown">
-                                <span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>
-                                <div class="ajudante-cooldown__text">
-                                    <span class="ajudante-cooldown__label">Pedido cancelado</span>
-                                    <span class="ajudante-cooldown__timer">Você poderá chamar um ajudante novamente em <strong id="helper-cooldown-timer">--</strong></span>
-                                </div>
-                            </div>
-                        </div>
                     </section>
 
                 </div>

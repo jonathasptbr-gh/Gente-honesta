@@ -1752,6 +1752,12 @@
 
 .pedido-sheet__actions .btn { flex: 1; }
 
+/* Rodapé fixo do sheet (fora do body que rola): sempre visível na base. */
+.pedido-sheet__actions--footer {
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
 .pedido-btn-cancel {
   color: var(--t-light);
 }
@@ -2592,26 +2598,10 @@
 }
 
 /* Botão "Adicionar seus contatos como favoritos" — dourado, centralizado */
+/* "Adicionar contatos" = botão padrão (.btn.btn--accent); só a margem própria.
+   (Antes era uma pílula bespoke; agora segue o mesmo padrão dos demais.) */
 .agenda-filters__add-contacts-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: 10px var(--space-md);
-  border-radius: var(--radius-pill);
-  background: var(--a-gold);
-  border: none;
-  color: var(--p-green-dark);
-  font-size: var(--fs-5);
-  font-weight: var(--fw-bold);
-  cursor: pointer;
-  align-self: center;
   margin-top: var(--space-sm);
-  margin-bottom: 2px;
-}
-
-.agenda-filters__add-contacts-btn .material-symbols-rounded {
-  font-size: 1.15rem;
-  flex-shrink: 0;
 }
 
 /* ── Chips de IC (ícone colorido, tamanho compacto) ──────────── */
@@ -4063,11 +4053,50 @@
   transform: scale(var(--press-scale-subtle));
 }
 
-/* Botão "Chamar ajudante" — largura total */
+/* Seletor SLIDE (segmentado) leve/pesado do "Chamar ajudante": trilho translúcido
+   com um "thumb" dourado que DESLIZA entre as duas opções. */
+.seg-toggle {
+  position: relative;
+  display: flex;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--on-green-faint);
+}
+.seg-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: var(--radius-pill);
+  background: var(--a-gold);
+  transition: transform 0.3s var(--sheet-ease);
+  z-index: 0;
+}
+.seg-toggle--heavy .seg-toggle__thumb { transform: translateX(100%); }
+.seg-toggle__opt {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  padding: 9px 8px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  color: var(--on-green-strong);   /* opção inativa: texto claro sobre o trilho */
+  cursor: pointer;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+}
+.seg-toggle__opt--active { color: var(--p-green-dark); }   /* opção ativa: texto escuro sobre o thumb dourado */
+
+/* "Chamar ajudante" = botão padrão (.btn.btn--accent); só ajusta largura/margem.
+   Sem radius-pill: fica no MESMO raio (--radius-md) dos "Publicar vaga/pedido". */
 .ajudante-call-btn {
   width: 100%;
   margin-top: var(--space-md);
-  border-radius: var(--radius-pill);
 }
 
 /* Nota "válido até a meia-noite" */

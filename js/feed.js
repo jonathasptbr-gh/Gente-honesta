@@ -1558,14 +1558,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Diárias padrão (em reais), iguais para todo usuário; pesado > leve.
     const HELPER_RATES = { light: 100, heavy: 180 };
 
-    // Ao CANCELAR um pedido, o botão fica bloqueado por este tempo (evita
-    // cancelar e repedir na hora). Ajuste único aqui.
-    const HELPER_CANCEL_COOLDOWN_HOURS = 3;
-
-    // Chaves de persistência local.
+    // Chaves de persistência local (cooldown removido — sem bloqueio de tempo).
     const LS_HELPER_AVAIL    = 'gh_helper_availability'; // { light, heavy }
     const LS_HELPER_DRAW     = 'gh_helper_draw';         // { date, type, helpers[] }
-    const LS_HELPER_COOLDOWN = 'gh_helper_cooldown';     // { until: <timestamp ms> }
 
     // Pool mock de ajudantes disponíveis (placeholder do backend).
     const mockHelpers = [
@@ -1712,91 +1707,42 @@ document.addEventListener('DOMContentLoaded', () => {
       return null;
     };
 
-    // Cooldown pós-cancelamento: retorna o timestamp-limite se ainda ativo,
-    // senão limpa a chave e retorna null.
-    const getHelperCooldownUntil = () => {
-      const cd = readHelperJSON(LS_HELPER_COOLDOWN, null);
-      if (cd && typeof cd.until === 'number' && cd.until > Date.now()) return cd.until;
-      localStorage.removeItem(LS_HELPER_COOLDOWN);
-      return null;
-    };
-
-    // Formata um intervalo (ms) como "1h 59min 07s" (horas só quando > 0).
-    const formatCooldown = (ms) => {
-      const total = Math.max(0, Math.ceil(ms / 1000));
-      const h = Math.floor(total / 3600);
-      const m = Math.floor((total % 3600) / 60);
-      const s = total % 60;
-      const pad = (n) => String(n).padStart(2, '0');
-      return h > 0 ? `${h}h ${pad(m)}min ${pad(s)}s` : `${m}min ${pad(s)}s`;
-    };
-
-    // Cronômetro do cooldown (atualiza a cada segundo enquanto ativo).
-    let cooldownTicker = null;
-    const stopCooldownTicker = () => {
-      if (cooldownTicker) { clearInterval(cooldownTicker); cooldownTicker = null; }
-    };
-
-    // Três estados mutuamente exclusivos na função "chamar ajudante":
-    //  (1) sorteio ativo → contatos + botão "Cancelar pedido";
-    //  (2) cancelado e em cooldown → cronômetro, botão de chamar bloqueado;
-    //  (3) disponível → formulário com o botão liberado.
+    // Dois estados na função "chamar ajudante" (SEM bloqueio de tempo/cooldown —
+    // removido para facilitar o teste/reteste): sorteio ativo → contatos + Cancelar;
+    // sem sorteio → formulário liberado.
     const renderHelperCall = () => {
       const form     = document.getElementById('helper-call-form');
       const result   = document.getElementById('helper-result');
-      const cooldown = document.getElementById('helper-cooldown');
       const list     = document.getElementById('helper-list');
       const cancelBtn = document.getElementById('btn-cancel-helper');
-      if (!form || !result || !cooldown || !list) return;
+      if (!form || !result || !list) return;
 
-      stopCooldownTicker();
       const draw = getActiveHelperDraw();
-
       if (draw) {
-        // (1) Sorteio válido para hoje → mostra ajudantes + botão cancelar (no topo).
         form.classList.add('u-hidden');
-        cooldown.classList.add('u-hidden');
         result.classList.remove('u-hidden');
         cancelBtn?.classList.remove('u-hidden');
         list.innerHTML = draw.helpers.map(helperPersonHTML).join('');
         return;
       }
-
-      // Sem sorteio (nunca pediu, expirou à meia-noite ou cancelou).
+      // Sem sorteio → formulário liberado na hora (nada de cooldown).
       list.innerHTML = '';
       result.classList.add('u-hidden');
       cancelBtn?.classList.add('u-hidden');
       localStorage.removeItem(LS_HELPER_DRAW);
-
-      const until = getHelperCooldownUntil();
-      if (until) {
-        // (2) Cancelou e ainda em cooldown → esconde o botão e roda o cronômetro,
-        //     que zera sozinho e libera o botão de chamar.
-        form.classList.add('u-hidden');
-        cooldown.classList.remove('u-hidden');
-        const timerEl = document.getElementById('helper-cooldown-timer');
-        const tick = () => {
-          const left = until - Date.now();
-          if (left <= 0) { stopCooldownTicker(); renderHelperCall(); return; }
-          if (timerEl) timerEl.innerText = formatCooldown(left);
-        };
-        tick();
-        cooldownTicker = setInterval(tick, 1000);
-      } else {
-        // (3) Disponível → formulário com o botão liberado.
-        form.classList.remove('u-hidden');
-        cooldown.classList.add('u-hidden');
-      }
+      form.classList.remove('u-hidden');
     };
 
-    // Seletor de tipo (leve/pesado) do formulário de chamada.
-    document.querySelectorAll('#helper-type .pedido-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        helperCallType = chip.dataset.type;
-        document.querySelectorAll('#helper-type .pedido-chip').forEach(c => {
-          const active = c === chip;
-          c.classList.toggle('pedido-chip--active', active);
-          c.setAttribute('aria-pressed', String(active));
+    // Seletor SLIDE (leve/pesado): move o thumb e atualiza o tipo escolhido.
+    document.querySelectorAll('#helper-type .seg-toggle__opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        helperCallType = opt.dataset.type;
+        const seg = document.getElementById('helper-type');
+        seg?.classList.toggle('seg-toggle--heavy', helperCallType === 'heavy');
+        seg?.querySelectorAll('.seg-toggle__opt').forEach(o => {
+          const active = o === opt;
+          o.classList.toggle('seg-toggle__opt--active', active);
+          o.setAttribute('aria-pressed', String(active));
         });
       });
     });
@@ -1812,15 +1758,15 @@ document.addEventListener('DOMContentLoaded', () => {
       renderHelperCall();
     });
 
-    // Botão "Cancelar pedido": remove os contatos e inicia o cooldown com timer.
+    // Botão "Cancelar pedido": remove os contatos e libera o formulário na HORA
+    // (sem cooldown — removido para facilitar o teste/reteste).
     document.getElementById('btn-cancel-helper')?.addEventListener('click', async () => {
       const ok = await customConfirm(
-        `Cancelar o pedido remove os ajudantes atuais e bloqueia um novo pedido por ${HELPER_CANCEL_COOLDOWN_HOURS}h. Deseja continuar?`,
+        'Cancelar remove os ajudantes chamados e libera um novo pedido. Deseja continuar?',
         'Cancelar pedido', 'help'
       );
       if (!ok) return;
       localStorage.removeItem(LS_HELPER_DRAW);
-      writeHelperJSON(LS_HELPER_COOLDOWN, { until: Date.now() + HELPER_CANCEL_COOLDOWN_HOURS * 3600 * 1000 });
       renderHelperCall();
     });
 
