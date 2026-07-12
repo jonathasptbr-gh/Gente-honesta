@@ -1900,7 +1900,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const closePedidoSheet = () => {
-    pedidoSheet?.classList.remove('pedido-sheet--open');
+    pedidoSheet?.classList.remove('pedido-sheet--open', 'pedido-sheet--full');
     stopPedidoTimer();
     detailPedidoId = null;
   };
@@ -1909,6 +1909,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const formatPedidoDate = (ts) => new Date(ts).toLocaleString('pt-BR', {
     day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
   }).replace('.', '');
+
+  // Horas restantes de um pedido ativo (arredondado para cima; 0 = expirado).
+  const pedidoHoursLeft = (pedido) => {
+    const totalMs = parseInt(pedido.duration, 10) * 3600 * 1000;
+    const remainingMs = Math.max(0, totalMs - (Date.now() - pedido.createdAt));
+    return Math.ceil(remainingMs / (3600 * 1000));
+  };
 
   // Atualiza o texto do timer (horas restantes) do pedido ativo em exibição.
   const updatePedidoTimer = () => {
@@ -1954,17 +1961,21 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePedidoTimer();
   };
 
-  // Abre o sheet no formulário de criação (não há pedido ativo).
+  // Abre o sheet no formulário de criação (não há pedido ativo). Fica como
+  // bottom sheet (sem --full), diferente do detalhe que ocupa a tela toda.
   const openPedidoForm = () => {
     if (pedidoSheetTitle) pedidoSheetTitle.textContent = 'Fazer pedido';
     pedidoFormState?.classList.remove('u-hidden');
     pedidoDetailsState?.classList.add('u-hidden');
     stopPedidoTimer();
     detailPedidoId = null;
+    pedidoSheet?.classList.remove('pedido-sheet--full');
     pedidoSheet?.classList.add('pedido-sheet--open');
   };
 
   // Abre o detalhe unificado (pedido + indicações) de um pedido específico.
+  // O detalhe é FULL-SCREEN (--full) para caber o pedido + a lista de indicados
+  // sem apertar verticalmente; mantém a mesma animação slide-up do bottom sheet.
   const openPedidoDetail = (id) => {
     const pedido = getPedidoById(id);
     if (!pedido) return;
@@ -1975,7 +1986,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPedidoDetails(pedido);
     stopPedidoTimer();
     if (pedido.status === 'active') pedidoTimerInterval = setInterval(updatePedidoTimer, 60 * 1000);
-    pedidoSheet?.classList.add('pedido-sheet--open');
+    pedidoSheet?.classList.add('pedido-sheet--open', 'pedido-sheet--full');
   };
 
   document.getElementById('btn-close-pedido-sheet')?.addEventListener('click', closePedidoSheet);
@@ -2080,27 +2091,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const ordered = [...pedidoHistory].sort((a, b) => b.createdAt - a.createdAt);
     historicoList.innerHTML = ordered.map(p => {
       const active = p.status === 'active';
-      const statusCls   = active ? 'historico-item__status--active' : 'historico-item__status--done';
-      const statusLabel = active ? 'Ativo' : 'Concluído';
-      const statusIcon  = active ? 'bolt' : 'check_circle';
+      const statusCls = active ? 'historico-item__status--active' : 'historico-item__status--done';
+      // Badge de status na base: ativo carrega o tempo restante; concluído só o rótulo.
+      const statusInner = active
+        ? `<span class="material-symbols-rounded" aria-hidden="true">bolt</span>Ativo · ${pedidoHoursLeft(p) > 0 ? pedidoHoursLeft(p) + 'h' : 'Expirado'}`
+        : `<span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluído`;
       const urgentBadge = p.urgency === 'urgent'
         ? `<span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>`
         : '';
       return `
         <article class="historico-item" data-pedido-id="${p.id}" role="button" tabindex="0">
           <div class="historico-item__top">
-            <span class="historico-item__status ${statusCls}">
-              <span class="material-symbols-rounded" aria-hidden="true">${statusIcon}</span>${statusLabel}
-            </span>
             <span class="historico-item__date">${formatPedidoDate(p.createdAt)}</span>
             <button type="button" class="historico-item__delete" data-delete-id="${p.id}" aria-label="Excluir pedido">
               <span class="material-symbols-rounded" aria-hidden="true">delete</span>
             </button>
           </div>
           <p class="historico-item__text">${urgentBadge}${p.text}</p>
-          <span class="historico-item__count">
-            <span class="material-symbols-rounded" aria-hidden="true">groups</span>${p.indicated.length}/3 indicações
-          </span>
+          <div class="historico-item__footer">
+            <span class="historico-item__status ${statusCls}">${statusInner}</span>
+            <span class="historico-item__count">
+              <span class="material-symbols-rounded" aria-hidden="true">groups</span>${p.indicated.length}/3 indicações
+            </span>
+          </div>
         </article>
       `;
     }).join('');

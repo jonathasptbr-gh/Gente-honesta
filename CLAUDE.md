@@ -478,7 +478,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v217`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v218`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
@@ -651,19 +651,18 @@ A `#bar-pedidos-state` tem SEMPRE dois botões lado a lado (o antigo badge `#my-
 
 ### Sheet "Fazer pedido" / detalhe unificado (`#pedido-sheet`)
 
-Bottom sheet verde (mesmo padrão slide-up + backdrop do `indicated-popup`). Dois estados internos alternados por `u-hidden`:
-- `#pedido-form-state` — **criação**: textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botões Cancelar (`btn btn--danger`, vermelho) / Publicar.
-- `#pedido-details-state` — **detalhe unificado** (somente leitura): o **pedido no topo** (`#pedido-detail-card-container`, via `renderPedidoDetails(pedido)`) e, logo abaixo, a seção **"Indicações recebidas"** (`.pedido-detail-indicated` com fração `#pedido-detail-fraction` e lista `#pedido-detail-indicated-list`). Antes eram DOIS popups separados (detalhes + visualizador de indicações); agora são um só. O botão **Concluir pedido** (`btn btn--accent`) fica em `#pedido-detail-actions` e só aparece para pedido **ativo** (escondido via `u-hidden` em pedido concluído).
+Sheet verde (mesmo padrão slide-up + backdrop do `indicated-popup`). Dois estados internos alternados por `u-hidden`:
+- `#pedido-form-state` — **criação**: bottom sheet (não usa `--full`). textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botões Cancelar (`btn btn--danger`, vermelho) / Publicar.
+- `#pedido-details-state` — **detalhe unificado** (somente leitura): abre em **TELA CHEIA** (a classe `.pedido-sheet--full` no `#pedido-sheet` faz o painel subir a `100dvh`, sem cantos arredondados e com `padding-top` de safe-area; mesma animação slide-up) para caber o pedido + a lista de indicados sem apertar verticalmente. Traz o **pedido no topo** (`#pedido-detail-card-container`, via `renderPedidoDetails(pedido)`) e, logo abaixo, a seção **"Indicações recebidas"** (`.pedido-detail-indicated` com fração `#pedido-detail-fraction` e lista `#pedido-detail-indicated-list`). Antes eram DOIS popups separados (detalhes + visualizador de indicações); agora são um só. O botão **Concluir pedido** (`btn btn--accent`) fica em `#pedido-detail-actions` e só aparece para pedido **ativo** (escondido via `u-hidden` em pedido concluído). `openPedidoDetail(id)` adiciona `--full`; `openPedidoForm()` e `closePedidoSheet()` removem.
 
 `renderPedidoDetails(pedido)` recebe um pedido do histórico e monta: card (avatar, nome, IC-bar mock 100%; na meta row um **timer** de horas restantes se `status:'active'`, ou o selo verde **"Concluído"** `.pedido-item__timer--done` se `status:'completed'`), urgência como badge vermelho inline, fração `N/3` e a lista de indicados via `renderFlippableProCards`. O card tem `pointer-events: none`; os pro-cards dos indicados têm `pointer-events: auto`.
 
 ### Histórico de pedidos (`#historico-sheet`)
 
-Bottom sheet (reusa as classes estruturais de `.indicated-popup` para o slide-up) acionado por `#btn-historico-pedidos`. Lista `#historico-list` com **todos** os pedidos, inclusive o ativo, ordenados por data (mais recente no topo) via `renderHistoricoList()`. Cada `.historico-item`:
-- status **"Ativo"** (`--status--active`, dourado, ícone `bolt`) ou **"Concluído"** (`--status--done`, cinza, ícone `check_circle`);
-- data curta (`formatPedidoDate` → "12 jul, 14:30");
-- botão excluir (`.historico-item__delete`, ícone `delete`) — `customConfirm` e remove do histórico; se era o pedido em exibição, fecha o detalhe;
-- texto do pedido (clamp 2 linhas) + contagem `N/3 indicações`.
+Bottom sheet (reusa as classes estruturais de `.indicated-popup` para o slide-up) acionado por `#btn-historico-pedidos`. Lista `#historico-list` com **todos** os pedidos, inclusive o ativo, ordenados por data (mais recente no topo) via `renderHistoricoList()`. Cada `.historico-item` segue o padrão visual dos cards de pedido do feed (`.pedido-item`): **borda branca** e raio de "balão", mas com o canto inferior DIREITO reto (`border-radius: 18px 18px 4px 18px`, espelho do feed que tem o inferior esquerdo reto). Estrutura:
+- `.historico-item__top` — data curta (`formatPedidoDate` → "12 jul, 14:30") à esquerda e botão excluir (`.historico-item__delete`) à direita: **sem moldura circular**, só o glifo `delete` em **vermelho** (`--danger`) para destaque; `customConfirm` e remove do histórico (se era o pedido em exibição, fecha o detalhe).
+- texto do pedido (clamp 2 linhas, com badge "Urgente" inline quando urgente).
+- `.historico-item__footer` — DOIS badges de **largura igual** (`flex: 1`) na base: à esquerda `.historico-item__status` (**"Ativo · Nh"** dourado, incluindo o tempo restante via `pedidoHoursLeft()`; ou **"Concluído"** cinza) e à direita `.historico-item__count` (**"N/3 indicações"**, fundo translúcido).
 - Tocar no item (fora do botão excluir) abre o **mesmo** detalhe unificado (`openPedidoDetail(id)`). A delegação em `historicoList` dá prioridade ao `.historico-item__delete` (com `stopPropagation`) antes de abrir o detalhe.
 
 Ao concluir um pedido a partir de um item do histórico, o detalhe fecha e o sheet de histórico (que fica aberto por baixo) se atualiza sozinho (`renderHistoricoList()` roda no handler de concluir).

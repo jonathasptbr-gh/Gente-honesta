@@ -1243,6 +1243,18 @@
 
 .pedido-sheet--open .pedido-sheet__panel { transform: translateY(0); }
 
+/* Detalhe do pedido em TELA CHEIA: mesma animação slide-up, mas o painel sobe
+   até o topo (100dvh, sem cantos arredondados) para não apertar verticalmente
+   o pedido + a lista de indicações. O formulário de criação segue bottom sheet. */
+.pedido-sheet--full .pedido-sheet__panel {
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+  padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
+}
+
+.pedido-sheet--full .pedido-sheet__body { flex: 1; }
+
 .pedido-sheet__header {
   display: flex;
   align-items: center;
@@ -1608,21 +1620,24 @@
   color: rgba(255, 255, 255, 0.75);
 }
 
+/* Cards no MESMO padrão dos pedidos do feed (.pedido-item): borda branca e
+   raio de "balão", porém com o canto inferior DIREITO reto (espelho do feed,
+   que tem o inferior esquerdo reto). */
 .historico-item {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px 14px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px 18px 4px 18px;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
   cursor: pointer;
   transition: var(--transition);
 }
 
 .historico-item:active {
   transform: scale(0.99);
-  background: rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .historico-item__top {
@@ -1631,45 +1646,31 @@
   gap: var(--space-xs);
 }
 
-.historico-item__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px 3px 7px;
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-2);
-  font-weight: 700;
-}
-
-.historico-item__status .material-symbols-rounded {
-  font-size: 0.95rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-}
-
-.historico-item__status--active { background: var(--a-gold); color: var(--p-green-dark); }
-.historico-item__status--done   { background: rgba(255, 255, 255, 0.16); color: rgba(255, 255, 255, 0.85); }
-
 .historico-item__date {
   font-size: var(--fs-2);
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* Lixeira: sem moldura circular (reset do chrome nativo do button), glifo
+   vermelho para destaque. */
 .historico-item__delete {
   margin-left: auto;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.85);
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--danger);
   transition: var(--transition);
 }
 
-.historico-item__delete:active { transform: scale(0.9); background: var(--danger); color: var(--t-light); }
-.historico-item__delete .material-symbols-rounded { font-size: 1.15rem; }
+.historico-item__delete:active { transform: scale(0.85); }
+.historico-item__delete .material-symbols-rounded {
+  font-size: 1.35rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
 
 .historico-item__text {
   margin: 0;
@@ -1682,16 +1683,44 @@
   overflow: hidden;
 }
 
-.historico-item__count {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: var(--fs-2);
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+/* Base do card: dois badges de largura IGUAL (status à esquerda, indicações à
+   direita). O badge de ativo carrega o tempo restante. */
+.historico-item__footer {
+  display: flex;
+  gap: var(--space-xs);
 }
 
-.historico-item__count .material-symbols-rounded { font-size: 1rem; }
+.historico-item__status,
+.historico-item__count {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-2);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historico-item__status .material-symbols-rounded,
+.historico-item__count .material-symbols-rounded {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.historico-item__status--active { background: var(--a-gold); color: var(--p-green-dark); }
+.historico-item__status--done   { background: rgba(255, 255, 255, 0.16); color: rgba(255, 255, 255, 0.85); }
+
+.historico-item__count {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--t-light);
+}
 
 /* Cards de indicados são interativos (flip) mesmo dentro do sheet de detalhes */
 .pedido-detail-indicated__list .pro-card { pointer-events: auto; }
