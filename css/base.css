@@ -81,8 +81,11 @@
   /* Anel de foco/seleção padrão (verde translúcido) — receita canônica de .input-text:focus */
   --focus-ring: 0 0 0 3px rgba(var(--p-green-rgb), 0.08);
 
-  /* Escala de toque padrão dos botões (feedback de :active) */
+  /* Escala de toque padrão dos botões (feedback de :active). --subtle para alvos
+     GRANDES (cards, linhas), onde um scale forte pareceria exagerado. Alvos
+     pequenos/precisos (ícone de excluir, stepper) mantêm scales próprios mais fortes. */
   --press-scale: 0.97;
+  --press-scale-subtle: 0.99;
 
   /* Pesos de fonte. NOTA: a Inter é carregada só em 400/600/800 (index.html);
      --fw-bold (700) renderiza de fato com a face 800 — trocar 700 cru por este
@@ -98,8 +101,25 @@
   --overlay-soft: rgba(var(--overlay-rgb), 0.35);
 
   /* Branco translúcido sobre superfícies verdes (bordas/fundos/textos "on-green").
-     Só o CANAL é tokenizado; cada uso mantém seu próprio alpha por enquanto. */
+     Canal + escala harmonizada de opacidade (6 degraus) — usar os tokens
+     semânticos em vez de alphas soltos. faint/soft = bordas e fundos sutis;
+     muted/med = fundos e textos secundários; strong/solid = textos legíveis. */
   --on-green-rgb: 255, 255, 255;
+  --on-green-faint:  var(--on-green-faint);
+  --on-green-soft:   var(--on-green-soft);
+  --on-green-muted:  var(--on-green-muted);
+  --on-green-med:    var(--on-green-med);
+  --on-green-strong: var(--on-green-strong);
+  --on-green-solid:  var(--on-green-solid);
+
+  /* Blur de backdrop (véus de diálogos/sheets/faixas). O tutorial mantém o
+     blur(1.5px) próprio, sutil de propósito. */
+  --blur-sm: 5px;
+  --blur-lg: 14px;
+
+  /* Curva de easing padrão dos sheets deslizantes (bottom-sheets e dropdowns).
+     Fonte única do par pedido/histórico; agenda e indicados agora seguem a mesma. */
+  --sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* Fundo dos bloqueios de tela cheia (desktop e paisagem) — verde escuro com
      dois brilhos radiais. Token único: os dois blocos compartilhavam o mesmo

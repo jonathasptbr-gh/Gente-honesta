@@ -194,6 +194,10 @@ Variáveis em `css/base.css :root`:
   translúcido sobre superfícies verdes). SEMPRE usar `rgba(var(--*-rgb), α)` em vez de reescrever os
   canais à mão (ex.: brilho/anel dourado do tutorial usa `--a-gold-rgb`; véus escuros do feed usam
   `--p-green-dark-rgb`; bordas/fundos brancos sobre verde usam `--on-green-rgb`).
+- **Branco-sobre-verde (escala de opacidade):** `--on-green-faint/-soft/-muted/-med/-strong/-solid`
+  (.1/.2/.35/.5/.7/.9) — usar o degrau semântico em vez de `rgba(var(--on-green-rgb), α)` solto.
+- **Blur / sheets:** `--blur-sm` (5px) e `--blur-lg` (14px) para backdrops (tutorial mantém 1.5px próprio);
+  `--sheet-ease` (`cubic-bezier(0.32,0.72,0,1)`) é a curva única dos sheets deslizantes.
 - `--a-gold` — amarelo/dourado de destaque; `--a-gold-text` é o ocre mais escuro para TEXTO dourado sobre fundo claro
 - `--info-blue`, `--danger`, `--success`, `--whatsapp`, `--gold-soft-border`
 - `--bg-white`, `--bg-soft` — superfícies claras
@@ -214,8 +218,9 @@ recriar `box-shadow` à mão. Os cards em repouso do feed (`.post-card`, `.vaga-
 
 **Anel de foco/seleção e toque:** `--focus-ring` (`0 0 0 3px rgba(var(--p-green-rgb),0.08)`) é a receita
 única de anel verde (input em foco, busca do feed) — usar o token, não reescrever. `--press-scale`
-(0.97) é o feedback de `:active` padrão do `.btn`; alguns elementos do feed ainda usam scales próprios
-por alvo (dívida de interação, ver "Dívidas técnicas").
+(0.97) é o feedback de `:active` padrão do `.btn` e da maioria dos botões/pílulas; `--press-scale-subtle`
+(0.99) é para alvos GRANDES (cards, linhas). Alvos minúsculos/precisos mantêm scales próprios mais fortes
+(0.85 do ícone de excluir, 0.9/0.92 de mini-btn/stepper/FAB).
 
 **Pesos de fonte (tokens):** `--fw-regular` (400), `--fw-medium` (600), `--fw-bold` (700), `--fw-heavy`
 (800). Usar os tokens em `font-weight`. Nota: a Inter só carrega 400/600/800, então `--fw-bold` (700)
@@ -912,15 +917,19 @@ arriscadas que o ganho imediato. Ao mexer nessas áreas, prefira consolidar em v
 ### Padronização de estilo — pendências (auditoria de consistência)
 Consolidações de estilo ainda ABERTAS após a auditoria (as fases 1–6 e a reconciliação de sombras já
 foram feitas). Estas mudam pixel/interação e precisam de conferência no aparelho:
-- **Opacidades do branco-sobre-verde:** os canais foram tokenizados (`rgba(var(--on-green-rgb), α)`), mas
-  os ~70 valores de `α` ainda variam livremente (.08–.92). Harmonizar numa escala curta
-  (`--on-green-strong/-med/-soft/-faint`) — decisão visual, fazer com o aparelho à mão.
-- **`:active scale` do feed:** vários valores por alvo (0.85/0.9/0.92/0.94/0.95/0.96/0.99). Padronizar para
-  `--press-scale` onde fizer sentido, mantendo scales mais fortes onde o alvo é grande/pequeno de propósito.
-- **Blur de backdrop:** 4/5/6/14px espalhados (`--blur-*` a criar; preservar o `blur(1.5px)` sutil do
-  tutorial).
-- **Sheets `agenda-sheet` vs `indicated-popup`:** unificar easing/duração/backdrop (seguir o par
-  `pedido-sheet`/`historico-sheet`, já consistente); preservar a cor do título (ouro vs branco).
+- **Opacidades do branco-sobre-verde — RESOLVIDO (v224):** os ~80 alphas soltos (.08–.92) foram
+  harmonizados numa escala de 6 degraus semânticos: `--on-green-faint` (.1), `--on-green-soft` (.2),
+  `--on-green-muted` (.35), `--on-green-med` (.5), `--on-green-strong` (.7), `--on-green-solid` (.9), em
+  `base.css`. Cada uso antigo foi snapado ao degrau mais próximo (drift ≤ .1). Usar os tokens semânticos
+  em vez de `rgba(var(--on-green-rgb), α)` solto daqui pra frente.
+- **`:active scale` — RESOLVIDO (v224):** o cluster médio (0.94–0.97) virou `--press-scale` (0.97) e
+  0.99 virou `--press-scale-subtle` (alvos grandes). Extremos deliberados MANTIDOS: 0.85
+  (`historico-item__delete`, ícone minúsculo), 0.9 (`contract-mini__btn`), 0.92 (stepper e FAB).
+- **Blur de backdrop — RESOLVIDO (v224):** `--blur-sm` (5px, backdrops de diálogos/sheets/painel) e
+  `--blur-lg` (14px, faixa da bottom-bar). O `blur(1.5px)` sutil do tutorial foi preservado.
+- **Sheets — RESOLVIDO (v224):** `--sheet-ease` (`cubic-bezier(0.32,0.72,0,1)`) é a curva única dos
+  sheets; `agenda-sheet` (que usava outra curva/duração) foi alinhado, e o backdrop do `indicated-popup`
+  ganhou o mesmo `--blur-sm` do `agenda-backdrop`. Cor do título preservada (ouro vs branco).
 - **Botões do feed reimplementam `.btn` (parcial):** os dois botões de ação de largura cheia do card de
   vaga já foram migrados — `.vaga-card__btn-submit` (`btn btn--primary vaga-card__btn-submit`) e
   `.vaga-card__btn-apply` (`btn vaga-card__btn-apply`), mantendo o `:active` por opacidade via

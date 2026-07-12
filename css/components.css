@@ -21,7 +21,7 @@
 }
 
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(var(--press-scale));
 }
 
 /* — Modificadores de Estilo — */
@@ -384,7 +384,7 @@
 .overlay-loader__spinner {
   width: 80px;
   height: 80px;
-  border: 8px solid rgba(var(--on-green-rgb), 0.25);
+  border: 8px solid var(--on-green-soft);
   border-top-color: var(--t-light);
   border-radius: 50%;
   animation: spin .8s linear infinite;
@@ -393,7 +393,7 @@
 .overlay-dialog {
   padding: var(--space-lg);
   background: var(--overlay);
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(var(--blur-sm));
 }
 
 .dialog-box {
@@ -560,7 +560,7 @@ html.is-desktop .desktop-block__icon {
   max-width: 480px;
   font-size: var(--fs-9);
   line-height: 1.6;
-  color: rgba(var(--on-green-rgb), 0.85);
+  color: var(--on-green-solid);
 }
 
 /* Em desktop, nada do app deve aparecer ou disputar a tela com o bloqueio */
@@ -625,5 +625,5 @@ html.is-landscape:not(.is-desktop) .overlay-dialog {
   max-width: 480px;
   font-size: var(--fs-7);
   line-height: 1.5;
-  color: rgba(var(--on-green-rgb), 0.85);
+  color: var(--on-green-solid);
 }

@@ -981,8 +981,8 @@
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(var(--on-green-rgb),0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--on-green-rgb),0.1) 1px, transparent 1px);
+    linear-gradient(var(--on-green-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--on-green-faint) 1px, transparent 1px);
   background-size: 33.33% 33.33%;
 }
 

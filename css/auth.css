@@ -261,7 +261,7 @@
 
 /* Dots: inativos em branco translúcido, ativo em dourado (o verde some no fundo) */
 #step-intro .intro-carousel__dot {
-  background: rgba(var(--on-green-rgb), 0.4);
+  background: var(--on-green-muted);
 }
 
 #step-intro .intro-carousel__dot--active {
