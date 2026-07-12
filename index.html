@@ -25,14 +25,41 @@
     </script>
 
     <title>Gente Honesta</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <!-- Cor inicial branca = combina com o loader branco; o showView() ajusta para
-         verde no feed e mantém branco na intro/onboarding dinamicamente. -->
-    <meta name="theme-color" content="#FFFFFF">
+    <!-- interactive-widget=resizes-content: quando o teclado virtual abre, o
+         layout (ICB) ENCOLHE em vez de só sobrepor — assim o conteúdo centralizado
+         (telefone/OTP) sobe e fica acima do teclado, e o --app-height (window.innerHeight)
+         acompanha via o listener de resize em app.js. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <!-- Cor inicial verde = combina com o loader verde durante o carregamento; o
+         showView() ajusta para verde no feed e branco na verificação/onboarding. -->
+    <meta name="theme-color" content="#184e1b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
 
+    <!-- CSS crítico inline para emendar o fim do splash nativo (verde) com o
+         loader verde, sem flash branco. Garante que o html já nasça verde e que
+         o loader já cubra a viewport em verde no PRIMEIRO paint, antes de o
+         base.css/components.css carregarem. O base.css também pinta html/body de
+         verde (--p-green), então não há nenhuma superfície branca por baixo das
+         telas em nenhum momento — nem no fim do splash, nem no bounce de
+         overscroll, nem nas laterais das telas (max-width) em telas largas. -->
+    <style>
+      html{background-color:#184e1b}
+      .overlay-loader{position:fixed;inset:0;background:#184e1b;z-index:9999}
+    </style>
+
     <link rel="manifest" href="manifest.json">
+
+    <!-- Ícones do app:
+         - apple-touch-icon (iOS): usa a versão QUADRADA full-bleed. O iOS
+           ignora `purpose:"maskable"` do manifest e SEMPRE aplica a própria
+           máscara arredondada (superelipse) por cima, além de não lidar bem com
+           transparência — então dar a ele a arte quadrada cheia evita cantos
+           pretos/serrilhados; o próprio iOS arredonda.
+         - favicon (aba/atalhos): usa a versão já arredondada (cantos
+           transparentes), pois costuma ser exibida "crua", sem recorte. -->
+    <link rel="apple-touch-icon" href="icon-512-maskable.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 
     <!-- Fontes ANTES do CSS do projeto: a folha do Google define
          `.material-symbols-rounded { font-size:24px }`. Carregando-a primeiro, o CSS
@@ -45,7 +72,10 @@
 
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/tutorial.css">
     <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/onboarding.css">
+    <link rel="stylesheet" href="css/install.css">
     <link rel="stylesheet" href="css/feed.css">
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" defer></script>
@@ -66,6 +96,20 @@
         <p class="desktop-block__text">
             Este aplicativo foi feito para o seu celular.<br>
             Acesse este mesmo endereço pelo navegador do seu smartphone para começar.
+        </p>
+    </div>
+
+    <!-- =====================================================================
+         CAMADA GLOBAL — Bloqueio de orientação paisagem
+         Visível APENAS em celular deitado, via media query (components.css).
+         No PWA instalado o manifest trava a rotação e esta tela nunca aparece.
+         ===================================================================== -->
+    <div id="screen-rotate-block" class="rotate-block" aria-hidden="true">
+        <span class="material-symbols-rounded rotate-block__icon" aria-hidden="true">screen_rotation</span>
+        <h1 class="rotate-block__title">Gire o celular</h1>
+        <p class="rotate-block__text">
+            O Gente Honesta foi feito para o modo retrato.
+            Volte o aparelho para a vertical para continuar.
         </p>
     </div>
 
@@ -122,6 +166,18 @@
     </div>
 
     <!-- =====================================================================
+         CAMADA GLOBAL — Banner de atualização do PWA
+         Contrato: visibilidade controlada EXCLUSIVAMENTE por u-hidden.
+         Exibido por app.js quando um novo Service Worker fica pronto em
+         segundo plano — nunca recarrega sozinho, só com o clique aqui.
+         ===================================================================== -->
+    <div id="pwa-update-banner" class="pwa-update-banner u-hidden" role="status">
+        <span class="material-symbols-rounded pwa-update-banner__icon" aria-hidden="true">system_update</span>
+        <p id="pwa-update-text" class="pwa-update-banner__text">Nova versão disponível.</p>
+        <button type="button" id="btn-pwa-update" class="btn btn--accent btn--pill pwa-update-banner__btn">Atualizar</button>
+    </div>
+
+    <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
          Contrato de visibilidade: .screen + .screen--active (nunca u-hidden)
          Sub-passos internos: controlados EXCLUSIVAMENTE por u-hidden
@@ -137,21 +193,21 @@
                 <div id="intro-carousel-track" class="intro-carousel__track">
 
                     <div class="intro-carousel__slide">
-                        <span class="material-symbols-rounded intro-carousel__icon" aria-hidden="true">handshake</span>
-                        <h1 class="auth-section__title">Bem-vindo ao<br>Gente Honesta</h1>
+                        <img src="icon-intro.svg" alt="" class="intro-carousel__icon-img">
+                        <h1 class="auth-section__title">Gente Honesta</h1>
                         <p class="auth-section__text">A rede que conecta você a profissionais locais através de indicações de pessoas reais — sem anúncios, sem avaliações falsas.</p>
                     </div>
 
                     <div class="intro-carousel__slide">
-                        <span class="material-symbols-rounded intro-carousel__icon" aria-hidden="true">verified_user</span>
-                        <h1 class="auth-section__title">Índice de<br>Confiança</h1>
-                        <p class="auth-section__text">Cada usuário tem uma reputação viva, que sobe e desce conforme avaliações, acordos cumpridos e indicações recebidas.</p>
+                        <span class="material-symbols-rounded intro-carousel__icon" aria-hidden="true">person_search</span>
+                        <h1 class="auth-section__title">Indicações</h1>
+                        <p class="auth-section__text">Publique um pedido quando precisar de um serviço — ou indique alguém de confiança e fortaleça sua própria reputação.</p>
                     </div>
 
                     <div class="intro-carousel__slide">
-                        <span class="material-symbols-rounded intro-carousel__icon" aria-hidden="true">person_search</span>
-                        <h1 class="auth-section__title">Peça e<br>Indique</h1>
-                        <p class="auth-section__text">Publique um pedido quando precisar de um serviço — ou indique alguém de confiança e fortaleça sua própria reputação.</p>
+                        <span class="material-symbols-rounded intro-carousel__icon" aria-hidden="true">shield_question</span>
+                        <h1 class="auth-section__title">Confiança</h1>
+                        <p class="auth-section__text">Cada usuário tem uma reputação viva, que sobe e desce conforme avaliações, acordos cumpridos e indicações recebidas.</p>
                     </div>
 
                 </div>
@@ -163,12 +219,12 @@
                 </div>
             </div>
 
-            <button type="button" id="btn-start" class="btn btn--primary btn--large">Vamos começar</button>
+            <button type="button" id="btn-start" class="btn btn--accent btn--large">Vamos começar</button>
         </div>
 
         <!-- Passo 2: Telefone -->
         <form id="form-phone" class="auth-section u-hidden" novalidate>
-            <h1 class="auth-section__title">Seu Telefone</h1>
+            <h1 class="auth-section__title">Acesse com seu número de celular</h1>
             <p class="auth-section__text">Enviaremos um código de 6 dígitos via SMS para validar seu acesso.</p>
 
             <input type="tel" id="inp-phone" class="input-text input-text--center" inputmode="tel" placeholder="(00) 0 0000-0000" required>
@@ -189,17 +245,26 @@
 
         <!-- Passo 3: OTP -->
         <form id="form-otp" class="auth-section u-hidden" novalidate>
-            <button type="button" id="btn-back-phone" class="btn btn--text">← Alterar número</button>
+            <button type="button" id="btn-back-phone" class="btn btn--text">
+                <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>Alterar número
+            </button>
             <h1 class="auth-section__title">Validar Código</h1>
-            <p class="auth-section__text">Enviaremos um SMS para <b id="text-display-phone" class="text-accent"></b>.</p>
+            <p class="auth-section__text">Enviamos um código para:<br><b id="text-display-phone" class="text-accent"></b></p>
 
-            <div id="container-otp" class="otp-grid">
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
-                <input type="text" class="otp-grid__input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+            <!-- OTP: UM único input (o foco nunca sai dele → sem o "balanço" do
+                 teclado que acontecia ao pular entre 6 caixas separadas), invisível,
+                 sobreposto a 6 células que exibem os dígitos (estética de seções
+                 individuais). Lógica em auth.js (renderOtpCells). -->
+            <div id="container-otp" class="otp-field">
+                <div class="otp-cells" aria-hidden="true">
+                    <div class="otp-cell"></div>
+                    <div class="otp-cell"></div>
+                    <div class="otp-cell"></div>
+                    <div class="otp-cell"></div>
+                    <div class="otp-cell"></div>
+                    <div class="otp-cell"></div>
+                </div>
+                <input type="text" id="otp-input" class="otp-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" aria-label="Código de verificação de 6 dígitos" required>
             </div>
 
             <button type="submit" id="btn-verify-otp" class="btn btn--primary btn--large">Verificar e Entrar</button>
@@ -220,12 +285,10 @@
 
         <header class="screen__header">
             <div class="screen__header-nav">
-                <button type="button" id="btn-onboarding-back" class="btn btn--text" aria-label="Voltar e sair">
-                    ← Voltar
-                </button>
+                <h1 class="screen__title">Complete seu Perfil</h1>
+                <button type="button" id="btn-onboarding-cancel" class="btn btn--text">Cancelar</button>
             </div>
-            <h1 class="screen__title">Complete seu Perfil</h1>
-            <p class="screen__subtitle">Seus dados ajudam a gerar confiança. Você pode editá-los depois e deve mantê-los atualizados sempre que possível.</p>
+            <p class="screen__subtitle">Seus dados ajudam a gerar confiança e podem ser editados depois.</p>
         </header>
 
         <form id="form-onboarding" class="onboarding-form" novalidate>
@@ -276,25 +339,9 @@
                 </button>
                 <div id="panel-prodetails" class="collapsible__panel u-hidden">
 
-                    <!-- ── Aviso de vínculo com o Plano Pro ─────────────────────
-                         Os dados desta seção montam o PERFIL PROFISSIONAL, que só
-                         é exibido e divulgado para assinantes do Plano Pro. O
-                         aviso deixa essa dependência explícita antes do
-                         preenchimento (o comparativo completo fica no fim do
-                         formulário). -->
-                    <div class="pro-note">
-                        <span class="material-symbols-rounded pro-note__icon" aria-hidden="true">workspace_premium</span>
-                        <p class="pro-note__text">
-                            Os dados abaixo montam o seu <strong>perfil profissional</strong> — e ele só fica
-                            <strong>visível e divulgado</strong> na região para quem tem o <strong>Plano Pro</strong> ativo.
-                            Sem a assinatura, suas informações ficam guardadas, mas seu perfil não aparece
-                            nas buscas nem pode receber indicações. Veja o comparativo no fim do cadastro.
-                        </p>
-                    </div>
-
                     <!-- ── Área de atuação / Ocupação (opcional) ───────────────── -->
                     <div class="form-group">
-                        <label class="form-group__label">O que você faz? <span class="form-group__optional">(opcional)</span></label>
+                        <label class="form-group__label">O que você faz?</label>
                         <div id="container-tags" class="tag-selector__selected"></div>
                         <div class="area-search">
                             <input type="text" id="inp-area-search" class="input-text" placeholder="Buscar profissões ou áreas de atuação...">
@@ -307,208 +354,237 @@
 
                     <!-- ── Suas Habilidades (opcional) ─────────────────────────── -->
                     <div class="form-group">
-                        <label class="form-group__label" for="inp-bio">Suas Habilidades <span class="form-group__optional">(opcional)</span></label>
+                        <label class="form-group__label" for="inp-bio">Suas Habilidades</label>
                         <textarea id="inp-bio" class="input-text input-text--multiline" rows="3" maxlength="200" placeholder="Conte um pouco sobre o que você faz, seus pontos fortes e até suas limitações..."></textarea>
                         <div class="form-group__hint"><span id="text-bio-counter">0</span> / 200</div>
                     </div>
 
-                    <!-- ── Padrão de Serviço (opcional) — card ─────────────────── -->
+                    <!-- ── Padrão de Serviço — SELEÇÃO por card (lista vertical).
+                         4 perfis prontos; cada um traz uma combinação diferente das 3
+                         barras Qualidade/Agilidade/Valor no MESMO componente `.qav` dos
+                         cards de profissional do feed (feed.css / qavHTML em feed.js).
+                         Escala 0-10 (largura = valor×10%); o máximo de qualquer barra é
+                         8 (80%) — nenhuma barra chega a 100%. Seleção ÚNICA estilo rádio
+                         (sempre um ativo): "Padrão" já vem selecionado como base; tocar
+                         em outro troca a seleção (não há estado vazio). Gerenciada em
+                         onboarding.js (setServiceCardActive). ── -->
                     <div class="form-group">
-                        <div class="service-card">
-                            <div class="service-card__header">
-                                <label class="form-group__label">Padrão de Serviços <span class="form-group__optional">(opcional)</span></label>
-                                <button type="button" id="btn-service-help" class="section-help-btn" aria-label="Dúvidas sobre o padrão de serviços">
-                                    <span class="material-symbols-rounded" aria-hidden="true">help</span>
-                                </button>
+                        <div class="form-group__header">
+                            <label class="form-group__label">Padrão de Serviços</label>
+                            <button type="button" id="btn-service-help" class="section-help-btn" aria-label="Dúvidas sobre o padrão de serviços">
+                                <span class="material-symbols-rounded" aria-hidden="true">help</span>
+                            </button>
+                        </div>
+                        <p class="form-group__description">Escolha o perfil que melhor descreve seu serviço. Cada opção define sua relação entre <strong>qualidade</strong>, <strong>agilidade</strong> e <strong>valor</strong> — e vai se ajustando sozinha conforme as avaliações que você receber.</p>
+
+                        <!-- Grade 2×2 de cards compactos (ícone + título + subtítulo), SEM
+                             barras individuais. -->
+                        <div id="container-service-choice" class="service-choice">
+                            <button type="button" class="service-choice__card service-choice__card--active" data-service="padrao" data-q="5" data-a="5" data-v="5" aria-pressed="true">
+                                <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">balance</span>
+                                <span class="service-choice__title">Padrão</span>
+                                <span class="service-choice__sub">Equilibrado</span>
+                                <span class="material-symbols-rounded service-choice__check" aria-hidden="true">check_circle</span>
+                            </button>
+                            <button type="button" class="service-choice__card" data-service="premium" data-q="8" data-a="5" data-v="7" aria-pressed="false">
+                                <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">workspace_premium</span>
+                                <span class="service-choice__title">Premium</span>
+                                <span class="service-choice__sub">Alta qualidade</span>
+                                <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
+                            </button>
+                            <button type="button" class="service-choice__card" data-service="rapido" data-q="5" data-a="8" data-v="6" aria-pressed="false">
+                                <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">bolt</span>
+                                <span class="service-choice__title">Rápido</span>
+                                <span class="service-choice__sub">Alta agilidade</span>
+                                <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
+                            </button>
+                            <button type="button" class="service-choice__card" data-service="economico" data-q="4" data-a="4" data-v="3" aria-pressed="false">
+                                <span class="material-symbols-rounded service-choice__icon" aria-hidden="true">savings</span>
+                                <span class="service-choice__title">Custo-benefício</span>
+                                <span class="service-choice__sub">Econômico</span>
+                                <span class="material-symbols-rounded service-choice__check" aria-hidden="true">radio_button_unchecked</span>
+                            </button>
+                        </div>
+
+                        <!-- Display ÚNICO das barras (componente .qav do feed), animado
+                             conforme o card selecionado (svc-fill-* atualizados em
+                             onboarding.js; largura = valor×10%). Começa no "Padrão" 50/50/50. -->
+                        <div class="service-choice-display" aria-hidden="true">
+                            <div class="qav">
+                                <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div id="svc-fill-quality" class="qav__fill" style="width:50%"></div></div></div>
+                                <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div id="svc-fill-agility" class="qav__fill" style="width:50%"></div></div></div>
+                                <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div id="svc-fill-value" class="qav__fill" style="width:50%"></div></div></div>
                             </div>
-                            <p class="form-group__description">Distribua seus pontos para refletir a relação entre qualidade, agilidade e valor dos seus serviços. A distribuição mudará conforme as avaliações que receber no futuro.</p>
+                        </div>
+                    </div>
 
-                            <div class="service-bars">
-                                <div class="service-bar__pool">
-                                    <span class="material-symbols-rounded" aria-hidden="true">toll</span>
-                                    Pontos disponíveis: <strong id="val-pool">10</strong>
-                                </div>
+                    <!-- ── Métodos de pagamento aceitos — mesmas opções do rodapé do card de
+                         profissional no feed (proFooterHTML em feed.js), no mesmo tom azul
+                         (--info-blue) usado lá. O contexto "aceito" fica só no título da seção;
+                         as pílulas trazem apenas o nome do método. Cartão é um grupo à parte de
+                         seleção única (débito OU um nível de parcelamento do crédito), pois
+                         pro.pay.card no mock é um valor único (0, 'debit', ou o número máximo de
+                         parcelas) — nunca uma combinação. "Emito nota fiscal" fica numa seção
+                         separada, posterior, para não ser confundida com os métodos de pagamento
+                         "aceitos" — emitir NF não é uma forma de pagamento. Cada pílula sinaliza
+                         a seleção com um check circular à direita do texto (radio_button_unchecked
+                         → check_circle), além da cor. ── -->
+                    <div class="form-group">
+                        <label class="form-group__label">Métodos de pagamento aceitos</label>
+                        <div id="container-payment-methods" class="payment-methods">
+                            <button type="button" class="chip chip--payment chip--active" data-payment="cash" aria-pressed="true">
+                                Dinheiro<span class="material-symbols-rounded chip__check" aria-hidden="true">check_circle</span>
+                            </button>
+                            <button type="button" class="chip chip--payment" data-payment="pix" aria-pressed="false">
+                                Pix<span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>
+                            </button>
+                        </div>
+                        <p class="payment-methods__subgroup-label">Cartão</p>
+                        <div id="container-payment-card" class="payment-methods">
+                            <button type="button" class="chip chip--payment" data-card="debit" aria-pressed="false">
+                                Débito<span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>
+                            </button>
+                            <button type="button" class="chip chip--payment" data-card="1" aria-pressed="false">
+                                Crédito à vista<span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>
+                            </button>
+                            <button type="button" class="chip chip--payment" data-card="6" aria-pressed="false">
+                                Crédito até 6x<span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>
+                            </button>
+                            <button type="button" class="chip chip--payment" data-card="12" aria-pressed="false">
+                                Crédito até 12x<span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>
+                            </button>
+                        </div>
+                    </div>
 
-                                <div class="service-bar">
-                                    <div class="service-bar__header">
-                                        <span class="material-symbols-rounded" aria-hidden="true">verified</span>
-                                        <span class="service-bar__label">Qualidade</span>
-                                        <span id="val-quality" class="service-bar__value">0</span>
-                                    </div>
-                                    <div class="service-bar__row">
-                                        <button type="button" id="btn-quality-minus" class="service-bar__btn">−</button>
-                                        <div class="service-bar__track">
-                                            <div id="fill-quality" class="service-bar__fill service-bar__fill--green" style="width:0%"></div>
-                                            <div class="service-bar__pips--bg"></div>
-                                        </div>
-                                        <button type="button" id="btn-quality-plus" class="service-bar__btn">+</button>
-                                    </div>
-                                </div>
+                    <div class="form-group">
+                        <div id="container-payment-nf" class="payment-methods">
+                            <button type="button" class="chip chip--payment" data-payment="nf" aria-pressed="false">
+                                Emito nota fiscal<span class="material-symbols-rounded chip__check" aria-hidden="true">radio_button_unchecked</span>
+                            </button>
+                        </div>
+                    </div>
 
-                                <div class="service-bar service-bar--agility">
-                                    <div class="service-bar__header">
-                                        <span class="material-symbols-rounded" aria-hidden="true">bolt</span>
-                                        <span class="service-bar__label">Agilidade</span>
-                                        <span id="val-agility" class="service-bar__value">0</span>
-                                    </div>
-                                    <div class="service-bar__row">
-                                        <button type="button" id="btn-agility-minus" class="service-bar__btn">−</button>
-                                        <div class="service-bar__track">
-                                            <div id="fill-agility" class="service-bar__fill service-bar__fill--blue" style="width:0%"></div>
-                                            <div class="service-bar__pips--bg"></div>
-                                        </div>
-                                        <button type="button" id="btn-agility-plus" class="service-bar__btn">+</button>
-                                    </div>
-                                </div>
-
-                                <div class="service-bar service-bar--auto">
-                                    <div class="service-bar__header">
-                                        <span class="material-symbols-rounded" aria-hidden="true">payments</span>
-                                        <span class="service-bar__label">Valor cobrado</span>
-                                        <span id="val-price" class="service-bar__value">0</span>
-                                    </div>
-                                    <div class="service-bar__row service-bar__row--auto">
-                                        <div class="service-bar__btn-spacer"></div>
-                                        <div class="service-bar__track">
-                                            <div id="fill-price" class="service-bar__fill service-bar__fill--bronze" style="width:0%"></div>
-                                            <div class="service-bar__pips--bg"></div>
-                                        </div>
-                                        <div class="service-bar__btn-spacer"></div>
-                                    </div>
-                                    <p class="service-bar__auto-hint">O valor é ajustado automaticamente para refletir seu padrão de qualidade e agilidade.</p>
-                                </div>
+                    <!-- ── Assinatura Plano Pro — fecha os Detalhes profissionais ──────
+                         Os dados desta seção só ficam visíveis/divulgados com o Plano Pro
+                         ativo; por isso o convite de assinatura vem só ao final, depois
+                         de tudo já preenchido. Versão ilustrativa e sucinta: ícone, uma
+                         linha de contexto, "chips" de benefício e o botão de assinar. -->
+                    <div class="form-group">
+                        <div class="pro-cta">
+                            <div class="pro-cta__header">
+                                <span class="material-symbols-rounded pro-cta__icon" aria-hidden="true">workspace_premium</span>
+                                <strong class="pro-cta__title">Assine o Plano Pro</strong>
                             </div>
+                            <p class="pro-cta__text">Deixe seu perfil profissional visível na busca da região e pronto para receber indicações.</p>
+                            <div class="pro-cta__perks">
+                                <span class="pro-cta__perk"><span class="material-symbols-rounded" aria-hidden="true">visibility</span>Visível na busca</span>
+                                <span class="pro-cta__perk"><span class="material-symbols-rounded" aria-hidden="true">campaign</span>Recebe indicações</span>
+                                <span class="pro-cta__perk"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Mais pedidos</span>
+                            </div>
+                            <p class="pro-cta__price">R$ 9,99<span>/mês</span></p>
+                            <button type="button" id="btn-subscribe-pro" class="btn btn--accent btn--large">
+                                <span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span>
+                                Assinar Plano Pro
+                            </button>
                         </div>
                     </div>
 
                 </div>
             </div>
 
-            <!-- ── Índice de Confiança ──────────────────────────────────── -->
-            <div class="form-group">
+            <!-- ── Índice de Confiança ──────────────────────────────────────
+                 Card ESCURO premium (verde profundo + dourado) — o único escuro do
+                 formulário, de propósito: é o "selo de reputação" e deve chamar
+                 atenção entre os campos claros. form-group--ic-fill: cresce
+                 (flex:1 0 auto) para preencher o vão até o botão; as seções
+                 internas se distribuem (space-between). Conteúdo: cabeçalho +
+                 hero 70% + medidor de faixas (escudos do sistema) com pino "VOCÊ"
+                 em 70% + colunas "faz subir/faz cair" + rodapé. Em telas baixas,
+                 rodapé e colunas escondem via @media (max-height) — o medidor com
+                 os 4 escudos e o hero 70% ficam SEMPRE. Ver onboarding.css. -->
+            <div class="form-group form-group--ic-fill">
                 <div class="ic-card">
                     <button type="button" id="btn-ic-info" class="ic-card__info-btn" aria-label="Mais informações sobre o Índice de Confiança">
                         <span class="material-symbols-rounded" aria-hidden="true">help</span>
                     </button>
-                    <div class="ic-card__body">
-                        <div class="ic-card__gauge-wrap">
-                            <span class="material-symbols-rounded ic-card__shield ic-card__shield--warn" aria-hidden="true">shield_question</span>
-                            <span class="ic-gauge__label ic-gauge__label--warn">70%</span>
-                        </div>
-                        <div class="ic-card__content">
-                            <strong class="ic-card__title">Índice de Confiança</strong>
-                            <p class="ic-card__text">Seu IC reflete sua reputação na plataforma e é influenciado por tudo que você faz e por suas relações com outros usuários. Você começa com 70 pontos — confiança ainda em construção: é com suas ações e relações honestas que você conquista o restante.</p>
+
+                    <!-- Cabeçalho no padrão das seções: ícone verde + rótulo -->
+                    <div class="ic-card__head">
+                        <span class="material-symbols-rounded ic-card__head-icon" aria-hidden="true">verified_user</span>
+                        <span class="ic-card__eyebrow">Sua reputação na plataforma</span>
+                    </div>
+
+                    <!-- Card INTERNO com o subtítulo + frase + moldura-escudo/70 -->
+                    <div class="ic-card__intro">
+                        <div class="ic-hero">
+                            <div class="ic-hero__info">
+                                <strong class="ic-hero__title">Índice de Confiança</strong>
+                                <p class="ic-hero__text">Todo cadastro começa em 70 como nosso voto de confiança, mas cuidar dele é sua responsabilidade.</p>
+                            </div>
+                            <!-- 70 emoldurado por uma MOLDURA em linha (SVG, só o
+                                 contorno dourado) em forma de escudo, no formato
+                                 dos escudos do app. SVG em vez de glifo da fonte:
+                                 controle total de tamanho/traço, sem depender do
+                                 carregamento da fonte de ícones -->
+                            <span class="ic-hero__badge">
+                                <svg class="ic-hero__badge-shield" viewBox="0 0 24 26" aria-hidden="true">
+                                    <path d="M12 1.6 L21.4 5.4 V12 C21.4 18.1 17.3 23.3 12 24.7 C6.7 23.3 2.6 18.1 2.6 12 V5.4 Z"
+                                          fill="none" stroke="var(--a-gold)" stroke-width="1.7" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="ic-hero__value">70</span>
+                            </span>
                         </div>
                     </div>
-                    <p class="ic-card__quote">"O que se recebe de graça se perde com facilidade. O que se conquista com esforço resiste ao tempo. Cuide do seu índice."</p>
+
+                    <!-- Medidor: zonas ACIMA da barra (escudos do sistema + faixa
+                         numérica, sem nomes: os escudos coloridos já comunicam) +
+                         barra segmentada nas 4 faixas + pino "VOCÊ" ABAIXO, em 70% -->
+                    <div class="ic-meter">
+                        <div class="ic-meter__zones">
+                            <div class="ic-zone ic-zone--bad">
+                                <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">gpp_bad</span>
+                                <span class="ic-zone__range">0–24</span>
+                            </div>
+                            <div class="ic-zone ic-zone--alert">
+                                <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">gpp_maybe</span>
+                                <span class="ic-zone__range">25–49</span>
+                            </div>
+                            <div class="ic-zone ic-zone--warn ic-zone--current">
+                                <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">shield_question</span>
+                                <span class="ic-zone__range">50–74</span>
+                            </div>
+                            <div class="ic-zone ic-zone--ok">
+                                <span class="material-symbols-rounded ic-zone__shield" aria-hidden="true">gpp_good</span>
+                                <span class="ic-zone__range">75–100</span>
+                            </div>
+                        </div>
+                        <div class="ic-meter__track" aria-hidden="true">
+                            <span class="ic-meter__seg ic-meter__seg--bad"></span>
+                            <span class="ic-meter__seg ic-meter__seg--alert"></span>
+                            <span class="ic-meter__seg ic-meter__seg--warn"></span>
+                            <span class="ic-meter__seg ic-meter__seg--ok"></span>
+                        </div>
+                        <div class="ic-meter__pin" aria-hidden="true">
+                            <span class="ic-meter__pin-line"></span>
+                            <span class="ic-meter__pin-tag">Confiança atual</span>
+                        </div>
+                    </div>
+
+                    <!-- O que move o índice (resumo do diálogo de ajuda) -->
+                    <div class="ic-factors">
+                        <p class="ic-factors__note">Todas as suas ações, boas ou ruins, afetam esse índice.</p>
+                    </div>
+
+                    <p class="ic-card__footer">O Índice de Confiança é seu bem mais valioso na plataforma, <strong>seja honesto e responsável e ele lhe recompensará.</strong></p>
                 </div>
             </div>
 
-            <!-- ── Plano Pro — comparativo SEMPRE VISÍVEL (Grátis × Pro) ──────
-                 Substitui o antigo colapsável. Grid de pares: cada linha compara
-                 o mesmo recurso nas duas versões, com a coluna Pro destacada em
-                 dourado. Linhas alinhadas entre as colunas (mesma row do grid). -->
-            <div class="form-group">
-                <div class="pro-compare">
+            <button type="submit" id="btn-finish-onboarding" class="btn btn--accent btn--large">Concluir Cadastro</button>
 
-                    <div class="pro-compare__header">
-                        <span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span>
-                        <strong>Compare: Grátis × Plano Pro</strong>
-                    </div>
-
-                    <div class="pro-compare__grid">
-                        <div class="pro-compare__head pro-compare__head--free">Grátis</div>
-                        <div class="pro-compare__head pro-compare__head--pro">
-                            <span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span>Pro
-                        </div>
-
-                        <div class="pro-compare__cell pro-compare__cell--free">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--limit" aria-hidden="true">remove</span>
-                            <span>1 pedido ativo por vez</span>
-                        </div>
-                        <div class="pro-compare__cell pro-compare__cell--pro">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
-                            <span>Até 3 pedidos ativos por vez</span>
-                        </div>
-
-                        <div class="pro-compare__cell pro-compare__cell--free">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--limit" aria-hidden="true">remove</span>
-                            <span>Duração padrão dos pedidos</span>
-                        </div>
-                        <div class="pro-compare__cell pro-compare__cell--pro">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
-                            <span>Pedidos com maior duração</span>
-                        </div>
-
-                        <div class="pro-compare__cell pro-compare__cell--free">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--limit" aria-hidden="true">remove</span>
-                            <span>Busca na vizinhança próxima</span>
-                        </div>
-                        <div class="pro-compare__cell pro-compare__cell--pro">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
-                            <span>Maior área de busca na região</span>
-                        </div>
-
-                        <div class="pro-compare__cell pro-compare__cell--free">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--no" aria-hidden="true">close</span>
-                            <span>Não recebe indicações de serviços</span>
-                        </div>
-                        <div class="pro-compare__cell pro-compare__cell--pro">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
-                            <span>Perfil disponível para indicações</span>
-                        </div>
-
-                        <div class="pro-compare__cell pro-compare__cell--free">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--no" aria-hidden="true">close</span>
-                            <span>Perfil profissional oculto</span>
-                        </div>
-                        <div class="pro-compare__cell pro-compare__cell--pro">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
-                            <span>Perfil visível na agenda da região</span>
-                        </div>
-
-                        <div class="pro-compare__cell pro-compare__cell--free">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--no" aria-hidden="true">close</span>
-                            <span>Sem ajudantes ou aprendizes</span>
-                        </div>
-                        <div class="pro-compare__cell pro-compare__cell--pro">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
-                            <span>Contrate ajudantes e vincule aprendizes</span>
-                        </div>
-
-                        <div class="pro-compare__cell pro-compare__cell--free">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--no" aria-hidden="true">close</span>
-                            <span>Sem pedidos de vagas de emprego</span>
-                        </div>
-                        <div class="pro-compare__cell pro-compare__cell--pro">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
-                            <span>Crie pedidos de vagas de emprego</span>
-                        </div>
-
-                        <div class="pro-compare__cell pro-compare__cell--free">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--no" aria-hidden="true">close</span>
-                            <span>Sem destaque no outdoor</span>
-                        </div>
-                        <div class="pro-compare__cell pro-compare__cell--pro">
-                            <span class="material-symbols-rounded pro-compare__ico pro-compare__ico--yes" aria-hidden="true">check_circle</span>
-                            <span>Destaque no outdoor para empresas físicas</span>
-                        </div>
-                    </div>
-
-                    <p class="pro-compare__more">
-                        <span class="material-symbols-rounded" aria-hidden="true">add_circle</span>
-                        E muito mais no Plano Pro...
-                    </p>
-
-                    <p class="pro-price">R$ 9,99<span>/mês</span></p>
-                    <button type="button" id="btn-subscribe-pro" class="btn btn--accent btn--large">
-                        <span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span>
-                        Assinar Plano Pro
-                    </button>
-                </div>
-            </div>
-
-            <button type="submit" id="btn-finish-onboarding" class="btn btn--primary btn--large u-mt-20">Concluir Cadastro</button>
+            <!-- Espaçador: garante a margem inferior do botão no fim da rolagem
+                 (a caixa do elemento entra na área rolável; padding/margin no fim
+                 não são confiáveis). Ver css/onboarding.css. -->
+            <div class="onboarding-form__bottom-spacer" aria-hidden="true"></div>
 
         </form>
     </section>
@@ -604,12 +680,13 @@
             </button>
         </header>
 
-        <!-- ── Top-bar PROVISÓRIA do modo indicação (substitui a top-bar acima) ──
-             1ª linha: título "Quem você quer indicar para esse serviço?" + "Fechar".
-             2ª linha: toggle colapsável "Ver profissionais já indicados".
-             Inicia recolhida; a lista expande ao tocar no toggle. -->
+        <!-- ── Top-bar PROVISÓRIA do modo indicação (substitui a top-bar acima) ── -->
         <header id="agenda-indicated-block" class="agenda-indicated u-hidden">
             <div class="agenda-indicated__header">
+                <div id="indicate-count-badge" class="indicate-count-badge">
+                    <span id="indicate-count-value">0/3</span>
+                    <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                </div>
                 <p class="agenda-indicated__title">Quem você quer indicar para este serviço?</p>
                 <button type="button" id="btn-cancel-indicate-mode" class="agenda-indicated__cancel" aria-label="Cancelar indicação">
                     <span class="material-symbols-rounded" aria-hidden="true">close</span>
@@ -618,14 +695,375 @@
             </div>
             <!-- Card do pedido que está sendo indicado (sem botões) — injetado via JS -->
             <div id="indicate-post-ref" class="indicate-post-ref"></div>
-            <button type="button" id="btn-toggle-indicated" class="agenda-indicated__toggle" aria-expanded="false">
-                <span class="material-symbols-rounded agenda-indicated__chevron" aria-hidden="true">expand_more</span>
-                <span class="agenda-indicated__label">Ver profissionais já indicados</span>
-            </button>
-            <div id="agenda-indicated-list" class="agenda-indicated__list u-hidden">
-                <!-- Preenchido via JS: cards dos já indicados (oculto até expandir) -->
-            </div>
         </header>
+
+        <!-- ── Popup: profissionais já indicados ── -->
+        <div id="indicated-popup" class="indicated-popup" role="dialog" aria-modal="true">
+            <div class="indicated-popup__backdrop" id="indicated-popup-backdrop"></div>
+            <div class="indicated-popup__sheet">
+                <div class="indicated-popup__header">
+                    <p class="indicated-popup__title" id="indicated-popup-title">Profissionais indicados</p>
+                    <button type="button" id="btn-close-indicated-popup" class="agenda-indicated__cancel" aria-label="Fechar">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
+                    </button>
+                </div>
+                <div class="indicated-popup__scroll">
+                    <div id="agenda-indicated-list" class="indicated-popup__list">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Dropdown: histórico de pedidos (ativo + concluídos) ── -->
+        <!-- Desce a partir da BASE da action bar (posição medida em JS via
+             --historico-top); drill-down para o detalhe unificado. -->
+        <div id="historico-sheet" class="historico-sheet" role="dialog" aria-modal="true">
+            <div class="historico-sheet__backdrop" id="historico-sheet-backdrop"></div>
+            <div class="historico-sheet__panel">
+                <div class="historico-sheet__header">
+                    <p class="historico-sheet__title">Histórico de pedidos</p>
+                    <button type="button" id="btn-close-historico" class="agenda-indicated__cancel" aria-label="Fechar">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
+                    </button>
+                </div>
+                <div class="historico-sheet__scroll">
+                    <div id="historico-list" class="historico-list">
+                        <!-- Preenchido via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Sheet: criar / gerenciar meu pedido ── -->
+        <!-- Contrato: visibilidade controlada por .pedido-sheet--open (slide-up, padrão indicated-popup). -->
+        <div id="pedido-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
+            <div class="pedido-sheet__backdrop" id="pedido-sheet-backdrop"></div>
+            <div class="pedido-sheet__panel">
+                <div class="pedido-sheet__header">
+                    <p class="pedido-sheet__title" id="pedido-sheet-title">Fazer pedido</p>
+                    <button type="button" id="btn-close-pedido-sheet" class="agenda-indicated__cancel" aria-label="Fechar">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
+                    </button>
+                </div>
+
+                <div class="pedido-sheet__body">
+
+                    <!-- ESTADO: CRIAÇÃO (formulário) -->
+                    <div id="pedido-form-state" class="pedido-sheet__state">
+                        <div class="pedido-field">
+                            <label class="pedido-field__label" for="inp-pedido-text">O que você precisa?</label>
+                            <textarea id="inp-pedido-text" class="input-text input-text--multiline pedido-textarea" rows="4" maxlength="280" placeholder="Descreva o serviço que você procura, com o máximo de detalhes…"></textarea>
+                            <span class="pedido-field__hint"><span id="pedido-char-count">0</span>/280</span>
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Urgência</span>
+                            <div class="pedido-chip-row" id="pedido-urgency">
+                                <button type="button" class="pedido-chip pedido-chip--active" data-urgency="normal">
+                                    <span class="material-symbols-rounded" aria-hidden="true">schedule</span>Normal
+                                </button>
+                                <button type="button" class="pedido-chip" data-urgency="urgent">
+                                    <span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Deixar online por</span>
+                            <div class="pedido-chip-row" id="pedido-duration">
+                                <button type="button" class="pedido-chip pedido-chip--active" data-duration="12">12h</button>
+                                <button type="button" class="pedido-chip" data-duration="24">24h</button>
+                                <button type="button" class="pedido-chip" data-duration="36">36h</button>
+                                <button type="button" class="pedido-chip" data-duration="48">48h</button>
+                            </div>
+                        </div>
+
+                        <button type="button" class="pedido-toggle" id="pedido-neighbors" aria-pressed="false">
+                            <span class="pedido-toggle__info">
+                                <span class="material-symbols-rounded" aria-hidden="true">travel_explore</span>
+                                <span class="pedido-toggle__text">
+                                    <span class="pedido-toggle__title">Buscar em cidades vizinhas</span>
+                                    <span class="pedido-toggle__sub">Amplia o alcance do seu pedido</span>
+                                </span>
+                            </span>
+                            <span class="pedido-switch" aria-hidden="true"><span class="pedido-switch__knob"></span></span>
+                        </button>
+
+                        <div class="pedido-sheet__actions">
+                            <button type="button" id="btn-pedido-cancel" class="btn btn--danger">Cancelar</button>
+                            <button type="button" id="btn-pedido-publish" class="btn btn--accent">Publicar pedido</button>
+                        </div>
+                    </div>
+
+                    <!-- ESTADO: DETALHES (somente leitura) — pedido no topo + indicações abaixo -->
+                    <div id="pedido-details-state" class="pedido-sheet__state u-hidden">
+                        <div id="pedido-detail-card-container"></div>
+                        <div class="pedido-detail-indicated">
+                            <p class="pedido-detail-indicated__header">
+                                <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                                Indicações recebidas
+                                <span class="pedido-detail-indicated__fraction" id="pedido-detail-fraction">0/3</span>
+                            </p>
+                            <div id="pedido-detail-indicated-list" class="pedido-detail-indicated__list">
+                                <!-- Preenchido via JS -->
+                            </div>
+                        </div>
+                        <div class="pedido-sheet__actions" id="pedido-detail-actions">
+                            <button type="button" id="btn-pedido-concluir" class="btn btn--accent">
+                                <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
+                                Concluir pedido
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Sheet "Criar vaga" ─────────────────────────────────────────── -->
+        <!-- Reaproveita o scaffolding do pedido-sheet (bottom-sheet padrão do app). -->
+        <!-- Contrato: visibilidade controlada por .pedido-sheet--open. -->
+        <div id="vaga-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
+            <div class="pedido-sheet__backdrop" id="vaga-sheet-backdrop"></div>
+            <div class="pedido-sheet__panel">
+                <div class="pedido-sheet__header">
+                    <p class="pedido-sheet__title">Criar vaga</p>
+                    <button type="button" id="btn-close-vaga-sheet" class="agenda-indicated__cancel" aria-label="Fechar">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
+                    </button>
+                </div>
+
+                <div class="pedido-sheet__body">
+                    <div class="pedido-sheet__state">
+
+                        <div class="pedido-field">
+                            <label class="pedido-field__label" for="inp-vaga-cnpj">CNPJ da empresa</label>
+                            <input type="text" id="inp-vaga-cnpj" class="input-text" inputmode="numeric" maxlength="18" placeholder="00.000.000/0000-00">
+                            <span class="pedido-field__hint pedido-field__hint--left">Os dados da empresa serão buscados no sistema oficial pelo CNPJ.</span>
+                        </div>
+
+                        <div class="pedido-field">
+                            <label class="pedido-field__label" for="inp-vaga-cargo">Cargo / função</label>
+                            <input type="text" id="inp-vaga-cargo" class="input-text" maxlength="60" placeholder="Ex: Auxiliar de Cozinha">
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Número de vagas</span>
+                            <div class="vaga-stepper" id="vaga-count">
+                                <button type="button" class="vaga-stepper__btn" id="vaga-count-dec" aria-label="Diminuir número de vagas">
+                                    <span class="material-symbols-rounded" aria-hidden="true">remove</span>
+                                </button>
+                                <span class="vaga-stepper__value" id="vaga-count-value" aria-live="polite">1</span>
+                                <button type="button" class="vaga-stepper__btn" id="vaga-count-inc" aria-label="Aumentar número de vagas">
+                                    <span class="material-symbols-rounded" aria-hidden="true">add</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Requisitos</span>
+                            <div class="vaga-dyn-list" id="vaga-req-list"></div>
+                            <button type="button" class="vaga-add-btn" id="btn-add-req">
+                                <span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar requisito
+                            </button>
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Carga horária</span>
+                            <div class="vaga-time-row">
+                                <div class="vaga-time">
+                                    <span class="vaga-time__label">Início</span>
+                                    <div class="vaga-select-wrap">
+                                        <span class="material-symbols-rounded vaga-select-wrap__icon" aria-hidden="true">schedule</span>
+                                        <select class="input-text vaga-time__select" id="inp-vaga-hora-inicio" aria-label="Horário de início"></select>
+                                    </div>
+                                </div>
+                                <div class="vaga-time">
+                                    <span class="vaga-time__label">Fim</span>
+                                    <div class="vaga-select-wrap">
+                                        <span class="material-symbols-rounded vaga-select-wrap__icon" aria-hidden="true">schedule</span>
+                                        <select class="input-text vaga-time__select" id="inp-vaga-hora-fim" aria-label="Horário de término"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vaga-days" id="vaga-days" role="group" aria-label="Dias de trabalho">
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Seg">Seg</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Ter">Ter</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Qua">Qua</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Qui">Qui</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Sex">Sex</button>
+                                <button type="button" class="vaga-day" data-day="Sáb">Sáb</button>
+                                <button type="button" class="vaga-day" data-day="Dom">Dom</button>
+                            </div>
+                        </div>
+
+                        <div class="pedido-field">
+                            <label class="pedido-field__label" for="inp-vaga-salario">Salário</label>
+                            <div class="vaga-salary">
+                                <span class="vaga-salary__prefix">R$</span>
+                                <input type="text" id="inp-vaga-salario" class="input-text vaga-salary__input" inputmode="numeric" maxlength="9" placeholder="1.500">
+                                <span class="vaga-salary__suffix">/mês</span>
+                            </div>
+                        </div>
+
+                        <div class="pedido-field">
+                            <span class="pedido-field__label">Benefícios <span class="vaga-field__optional">(opcional)</span></span>
+                            <div class="vaga-benefit-pills" id="vaga-benefit-pills">
+                                <button type="button" class="vaga-benefit-pill" data-label="Alimentação" data-icon="lunch_dining" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">lunch_dining</span>Alimentação
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Vale alimentação" data-icon="restaurant" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">restaurant</span>Vale alimentação
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Transporte" data-icon="directions_bus" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">directions_bus</span>Transporte
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Vale transporte" data-icon="commute" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">commute</span>Vale transporte
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Plano de saúde" data-icon="health_and_safety" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">health_and_safety</span>Plano de saúde
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Moradia" data-icon="home" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">home</span>Moradia
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Comissão" data-icon="paid" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">paid</span>Comissão
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" id="vaga-benefit-outros" data-label="Outros" data-icon="more_horiz" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">more_horiz</span>Outros
+                                </button>
+                            </div>
+                            <div class="vaga-dyn-list u-hidden" id="vaga-benefit-list"></div>
+                            <button type="button" class="vaga-add-btn u-hidden" id="btn-add-benefit">
+                                <span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar outro benefício
+                            </button>
+                        </div>
+
+                        <div class="pedido-field">
+                            <button type="button" class="vaga-check" id="chk-vaga-curriculo" aria-pressed="false">
+                                <span class="vaga-check__box" aria-hidden="true">
+                                    <span class="material-symbols-rounded">check</span>
+                                </span>
+                                <span class="vaga-check__text">Exigir currículo em PDF ou foto</span>
+                            </button>
+                            <span class="pedido-field__hint pedido-field__hint--left vaga-warn">
+                                <span class="material-symbols-rounded" aria-hidden="true">warning</span>
+                                Pedir um currículo individual extra pode fazer você perder candidatos.
+                            </span>
+                        </div>
+
+                        <div class="pedido-sheet__actions">
+                            <button type="button" id="btn-vaga-cancel" class="btn btn--danger">Cancelar</button>
+                            <button type="button" id="btn-vaga-publish" class="btn btn--accent">Publicar vaga</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Sheet: Serviço de ajudantes (2 funções) ──────────────────────
+             Reaproveita o scaffolding do pedido-sheet (bottom-sheet verde).
+             Duas funções alternadas por u-hidden via o switch do topo:
+               (1) Disponibilizar-me — checkbox leve/pesado, diária padrão
+                   (pesado > leve), iguais para todo usuário.
+               (2) Chamar ajudante — sorteia 2 contatos por dia, expostos até
+                   a meia-noite; depois o botão volta e os antigos somem.
+             Lógica em feed.js (bloco "SERVIÇO DE AJUDANTES"). -->
+        <div id="ajudante-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
+            <div class="pedido-sheet__backdrop" id="ajudante-sheet-backdrop"></div>
+            <div class="pedido-sheet__panel">
+                <div class="pedido-sheet__header">
+                    <p class="pedido-sheet__title">Serviço de ajudantes</p>
+                    <button type="button" id="btn-close-ajudante-sheet" class="agenda-indicated__cancel" aria-label="Fechar">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
+                    </button>
+                </div>
+
+                <div class="pedido-sheet__body">
+
+                    <!-- Função 1: disponibilizar-se como ajudante (sempre visível, em cima) -->
+                    <section class="ajudante-section">
+                        <h3 class="ajudante-section__title">
+                            <span class="material-symbols-rounded" aria-hidden="true">how_to_reg</span>Disponibilizar-me como ajudante
+                        </h3>
+                        <p class="ajudante-intro">Ative para aparecer quando alguém chamar um ajudante. Você pode desativar quando quiser.</p>
+
+                        <button type="button" class="helper-toggle" data-avail="light" aria-pressed="false">
+                            <span class="material-symbols-rounded helper-toggle__check" aria-hidden="true">check_box_outline_blank</span>
+                            <span class="helper-toggle__info">
+                                <span class="helper-toggle__name">Serviço leve</span>
+                                <span class="helper-toggle__desc">Tarefas simples, sem esforço físico intenso.</span>
+                            </span>
+                            <span class="helper-toggle__rate"><small>diária</small><span data-rate="light">R$ 100</span></span>
+                        </button>
+
+                        <button type="button" class="helper-toggle" data-avail="heavy" aria-pressed="false">
+                            <span class="material-symbols-rounded helper-toggle__check" aria-hidden="true">check_box_outline_blank</span>
+                            <span class="helper-toggle__info">
+                                <span class="helper-toggle__name">Serviço pesado</span>
+                                <span class="helper-toggle__desc">Carga, mudança e trabalho braçal.</span>
+                            </span>
+                            <span class="helper-toggle__rate"><small>diária</small><span data-rate="heavy">R$ 180</span></span>
+                        </button>
+                    </section>
+
+                    <div class="ajudante-divider" aria-hidden="true"></div>
+
+                    <!-- Função 2: chamar um ajudante (sempre visível, embaixo) -->
+                    <section class="ajudante-section">
+                        <div class="ajudante-section__head">
+                            <h3 class="ajudante-section__title">
+                                <span class="material-symbols-rounded" aria-hidden="true">campaign</span>Chamar um ajudante
+                            </h3>
+                            <!-- Cancelar: à direita do título, visível só quando há contatos -->
+                            <button type="button" id="btn-cancel-helper" class="ajudante-cancel-btn u-hidden">
+                                <span class="material-symbols-rounded" aria-hidden="true">close</span>Cancelar
+                            </button>
+                        </div>
+
+                        <!-- Formulário (visível enquanto não há sorteio ativo hoje) -->
+                        <div id="helper-call-form">
+                            <p class="ajudante-intro">Escolha o tipo de serviço e receba o contato de um ajudante disponível.</p>
+                            <div class="pedido-chip-row" id="helper-type" role="radiogroup" aria-label="Tipo de serviço">
+                                <button type="button" class="pedido-chip pedido-chip--active" data-type="light" aria-pressed="true">Serviço leve</button>
+                                <button type="button" class="pedido-chip" data-type="heavy" aria-pressed="false">Serviço pesado</button>
+                            </div>
+                            <button type="button" id="btn-call-helper" class="btn btn--accent ajudante-call-btn">
+                                <span class="material-symbols-rounded" aria-hidden="true">diversity_3</span>Chamar ajudante
+                            </button>
+                        </div>
+
+                        <!-- Resultado: 2 ajudantes expostos até a meia-noite -->
+                        <div id="helper-result" class="u-hidden">
+                            <p class="ajudante-note">
+                                <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+                                <span>Seus ajudantes de hoje ficam disponíveis até a meia-noite. Depois disso você poderá chamar novamente.</span>
+                            </p>
+                            <div id="helper-list" class="helper-list"><!-- cards via JS --></div>
+                        </div>
+
+                        <!-- Bloqueio após cancelar: sem contatos, botão liberado só
+                             quando o cronômetro zerar (evita cancelar e repedir na hora) -->
+                        <div id="helper-cooldown" class="u-hidden">
+                            <div class="ajudante-cooldown">
+                                <span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>
+                                <div class="ajudante-cooldown__text">
+                                    <span class="ajudante-cooldown__label">Pedido cancelado</span>
+                                    <span class="ajudante-cooldown__timer">Você poderá chamar um ajudante novamente em <strong id="helper-cooldown-timer">--</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Borda azul de tela durante modo indicação ── -->
+        <div id="indicate-screen-border" class="indicate-screen-border" aria-hidden="true"></div>
 
         <!-- ── Aba de Contratos (tela cheia, desliza do topo) ──────────────
              Substitui o antigo painel de notificações. Ocupa toda a área do
@@ -857,13 +1295,11 @@
              A barra inferior flutua por cima. -->
         <main class="feed-body">
 
-            <!-- Barra de busca e filtros -->
-            <div class="agenda-filters">
-                <!-- Linha única: [modo de exibição] [busca] [filtrar] [adicionar] -->
-                <div class="agenda-filters__search-row">
-                    <button type="button" id="btn-toggle-agenda-view" class="agenda-filters__icon-btn" aria-label="Mudar exibição">
-                        <span class="material-symbols-rounded" aria-hidden="true">view_list</span>
-                    </button>
+            <!-- Barra de busca / ação — muda de estado conforme a aba ativa -->
+            <div class="agenda-filters" id="feed-action-bar">
+                <div class="agenda-filters__action-row">
+                <!-- Estado 1: busca (Profissionais) -->
+                <div class="agenda-filters__search-row" id="bar-search-state">
                     <div class="agenda-filters__search-wrap">
                         <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
                         <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar profissional...">
@@ -871,45 +1307,154 @@
                     <button type="button" id="btn-toggle-filters" class="agenda-filters__icon-btn" aria-label="Filtrar contatos" aria-expanded="false">
                         <span class="material-symbols-rounded" aria-hidden="true">tune</span>
                     </button>
-                    <button type="button" id="btn-sync-contacts" class="agenda-filters__icon-btn" aria-label="Importar contatos">
-                        <span class="material-symbols-rounded" aria-hidden="true">person_add</span>
+                </div>
+                <!-- Estado 2: ações de vagas (Vagas) -->
+                <div class="agenda-filters__vagas-row" id="bar-vagas-state">
+                    <button type="button" id="btn-chamar-ajudante" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--ajudante">
+                        Serviço de ajudantes
+                    </button>
+                    <button type="button" id="btn-criar-vaga" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--criar">
+                        <span class="material-symbols-rounded" aria-hidden="true">add</span>
+                        Criar vaga
                     </button>
                 </div>
+                <!-- Estado 3: ação de pedido (Pedidos) -->
+                <div class="agenda-filters__pedidos-row" id="bar-pedidos-state">
+                    <button type="button" id="btn-historico-pedidos" class="btn btn--white pedido-action__btn">
+                        <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">history</span>
+                        Histórico
+                    </button>
+                    <button type="button" id="btn-my-pedido" class="btn btn--accent pedido-action__btn">
+                        <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">add</span>
+                        <span id="btn-my-pedido-label">Fazer pedido</span>
+                    </button>
+                </div>
+                </div><!-- /.agenda-filters__action-row -->
 
-                <!-- Painel de filtros — colapsado por padrão -->
-                <div id="panel-agenda-filters" class="agenda-filters__panel u-hidden">
+                <!-- Painel de filtros — animado, colapsado por padrão -->
+                <div id="panel-agenda-filters" class="agenda-filters__panel">
+
+                    <!-- Ordenação: dentro do painel, no topo -->
                     <div class="agenda-filters__group">
-                        <p class="agenda-filters__group-label">Índice de Confiança</p>
+                        <p class="agenda-filters__group-label">Ordenar por:</p>
                         <div class="agenda-filters__chips">
-                            <button type="button" class="chip chip--active" data-filter-ic="all">Todos</button>
-                            <button type="button" class="chip" data-filter-ic="high">≥ 75%</button>
-                            <button type="button" class="chip" data-filter-ic="mid">≥ 50%</button>
-                            <button type="button" class="chip" data-filter-ic="low">≥ 25%</button>
+                            <button type="button" class="chip chip--active" data-sort="name"    aria-pressed="true">A-Z Nome</button>
+                            <button type="button" class="chip"              data-sort="ic"      aria-pressed="false">Confiança</button>
+                            <button type="button" class="chip"              data-sort="avail"   aria-pressed="false">Disponibilidade</button>
+                            <button type="button" class="chip"              data-sort="quality" aria-pressed="false">Qualidade</button>
+                            <button type="button" class="chip"              data-sort="agility" aria-pressed="false">Agilidade</button>
+                            <button type="button" class="chip"              data-sort="value"   aria-pressed="false">Valor</button>
                         </div>
                     </div>
+
+                    <!-- Confiança + Salvos -->
+                    <div class="agenda-filters__group">
+                        <p class="agenda-filters__group-label">Confiança</p>
+                        <div class="agenda-filters__chips">
+                            <button type="button" class="chip chip--saved" data-filter-saved aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
+                                Apenas salvos
+                            </button>
+                            <button type="button" class="chip chip--ic chip--ic-ok"    data-filter-ic="ok"    aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">gpp_good</span>
+                            </button>
+                            <button type="button" class="chip chip--ic chip--ic-warn"  data-filter-ic="warn"  aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">shield_question</span>
+                            </button>
+                            <button type="button" class="chip chip--ic chip--ic-alert" data-filter-ic="alert" aria-pressed="false">
+                                <span class="material-symbols-rounded" aria-hidden="true">gpp_maybe</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Disponibilidade -->
                     <div class="agenda-filters__group">
                         <p class="agenda-filters__group-label">Disponibilidade</p>
                         <div class="agenda-filters__chips">
-                            <button type="button" class="chip chip--active" data-filter-avail="all">Todos</button>
-                            <button type="button" class="chip" data-filter-avail="available">Disponível</button>
-                            <button type="button" class="chip" data-filter-avail="full">Agenda cheia</button>
-                            <button type="button" class="chip" data-filter-avail="unavailable">Indisponível</button>
+                            <button type="button" class="chip" data-filter-avail="available"   aria-pressed="false">Disponível</button>
+                            <button type="button" class="chip" data-filter-avail="full"        aria-pressed="false">Agenda cheia</button>
+                            <button type="button" class="chip" data-filter-avail="unavailable" aria-pressed="false">Indisponível</button>
                         </div>
                     </div>
+
+                    <!-- Pagamento -->
                     <div class="agenda-filters__group">
-                        <p class="agenda-filters__group-label">Padrões mínimos</p>
+                        <p class="agenda-filters__group-label">Pagamento</p>
                         <div class="agenda-filters__chips">
-                            <button type="button" class="chip chip--active" data-filter-qav="all">Todos</button>
-                            <button type="button" class="chip" data-filter-qav="high">Alto</button>
-                            <button type="button" class="chip" data-filter-qav="mid">Médio</button>
+                            <button type="button" class="chip" data-filter-pay="cash" aria-pressed="false">Dinheiro</button>
+                            <button type="button" class="chip" data-filter-pay="card" aria-pressed="false">Cartão</button>
+                            <button type="button" class="chip" data-filter-pay="pix"  aria-pressed="false">Pix</button>
+                            <button type="button" class="chip" data-filter-pay="nf"   aria-pressed="false">Nota fiscal</button>
                         </div>
                     </div>
+
+                    <!-- Adicionar contatos -->
+                    <button type="button" id="btn-sync-contacts" class="agenda-filters__add-contacts-btn">
+                        <span class="material-symbols-rounded" aria-hidden="true">person_add</span>
+                        Adicionar seus contatos como favoritos
+                    </button>
+
                 </div>
             </div>
 
-            <!-- Lista de profissionais — preenchida via JS (renderAgendaList) -->
-            <div id="agenda-list" class="agenda-list">
-                <!-- Cards/linhas de profissionais inseridos dinamicamente -->
+            <!-- Painéis deslizantes: Vagas (esq.) ↔ Profissionais (centro) ↔ Pedidos (dir.) -->
+            <div class="feed-panels" id="feed-panels">
+
+                <!-- Painel 0 — vagas de emprego (preenchido via JS) -->
+                <div class="feed-panel feed-panel--vagas">
+                    <div class="vagas-scroll" id="vagas-scroll">
+                        <div id="vagas-list" class="vagas-list">
+                            <!-- Cards inseridos dinamicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Painel 1 — lista de profissionais (preenchida via JS) -->
+                <div class="feed-panel feed-panel--pros">
+                    <div id="agenda-list" class="agenda-list">
+                        <!-- Cards inseridos dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Painel 2 — pedidos de indicação -->
+                <div class="feed-panel feed-panel--pedidos">
+                    <div class="scroll-area" id="pedidos-scroll">
+                        <div id="list-feed" class="pedidos-list">
+
+                            <!-- ── Pedido (mock) ── -->
+                            <article id="post-card-0" class="pedido-item pedido-item--urgent" data-post-id="0">
+                                <div class="pedido-item__meta">
+                                    <img class="pedido-item__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
+                                    <span class="pedido-item__name">João Silva</span>
+                                    <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">95%</span></div>
+                                    <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
+                                </div>
+                                <p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>Preciso de um eletricista de confiança para instalação de tomadas e revisão do quadro de luz. Apartamento no centro.</p>
+                                <div class="pedido-item__actions">
+                                    <button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-0" data-post-id="0"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
+                                    <div class="post-card__indicate-info" aria-label="2 de 3 indicados"><span class="post-card__indicate-count">2/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
+                                </div>
+                            </article>
+
+                            <!-- ── Pedido (mock) ── -->
+                            <article id="post-card-1" class="pedido-item" data-post-id="1">
+                                <div class="pedido-item__meta">
+                                    <img class="pedido-item__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
+                                    <span class="pedido-item__name">Maria Souza</span>
+                                    <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">88%</span></div>
+                                    <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
+                                </div>
+                                <p class="pedido-item__text">Alguém conhece uma diarista de confiança para limpeza semanal? Zona Sul. Boa remuneração garantida.</p>
+                                <div class="pedido-item__actions">
+                                    <button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-1" data-post-id="1"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
+                                    <div class="post-card__indicate-info" aria-label="2 de 3 indicados"><span class="post-card__indicate-count">2/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
+                                </div>
+                            </article>
+
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </main>
@@ -918,123 +1463,25 @@
         <div id="feed-bottom-bar" class="bottom-bar">
             <!-- Botão Pedidos: pílula AZUL no mesmo estilo das abas (ícone + texto
                  dentro da pílula), em vez do antigo círculo com rótulo externo. -->
-            <button type="button" id="btn-open-agenda" class="bottom-bar__pedidos" aria-label="Abrir pedidos">
-                <span class="material-symbols-rounded" aria-hidden="true">view_agenda</span>
-                <span class="bottom-bar__pedidos-label">Pedidos</span>
-            </button>
             <nav class="feed-tabs-pill" role="tablist" aria-label="Seções do app">
+                <!-- Indicador deslizante — posicionado via JS (translateX) -->
+                <div class="feed-tabs-pill__slider" aria-hidden="true"></div>
                 <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="vagas" aria-label="Vagas">
                     <span class="material-symbols-rounded" aria-hidden="true">work</span>
                     <span class="feed-tabs-pill__tab-label">Vagas</span>
                 </button>
-                <button type="button" class="feed-tabs-pill__tab feed-tabs-pill__tab--active" role="tab" data-tab="home" aria-label="Buscar contatos">
+                <button type="button" class="feed-tabs-pill__tab feed-tabs-pill__tab--active" role="tab" data-tab="home" aria-label="Profissionais">
                     <span class="material-symbols-rounded" aria-hidden="true">person_search</span>
-                    <span class="feed-tabs-pill__tab-label">Buscar</span>
+                    <span class="feed-tabs-pill__tab-label">Profissionais</span>
                 </button>
-                <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="eventos" aria-label="Eventos">
-                    <span class="material-symbols-rounded" aria-hidden="true">event</span>
-                    <span class="feed-tabs-pill__tab-label">Eventos</span>
+                <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="pedidos" aria-label="Pedidos">
+                    <span class="material-symbols-rounded" aria-hidden="true">view_agenda</span>
+                    <span class="feed-tabs-pill__tab-label">Pedidos</span>
                 </button>
             </nav>
         </div>
 
     </section>
-
-    <!-- =====================================================================
-         OVERLAY GLOBAL — Agenda / Indicação
-         Contrato: visibilidade controlada por u-hidden + .agenda-sheet--open
-         ===================================================================== -->
-    <div id="overlay-agenda-backdrop" class="agenda-backdrop u-hidden"></div>
-    <div id="sheet-agenda" class="agenda-sheet u-hidden">
-
-        <!-- Cabeçalho fixo do popup — tratado como UM bloco único:
-             linha 1: título + Fechar · linha 2: botão de pedido + indicador de
-             indicações recebidas (badge separado, no mesmo sistema dos cards). -->
-        <div class="pedidos-head">
-            <div class="agenda-sheet__header">
-                <span id="agenda-sheet-title" class="agenda-sheet__title">Pedidos de indicação</span>
-                <button type="button" id="btn-close-agenda" class="btn btn--outline btn--close" aria-label="Fechar pedidos">
-                    <span class="material-symbols-rounded" aria-hidden="true">close</span>
-                    Fechar
-                </button>
-            </div>
-
-            <div class="pedidos-head__action">
-                <!-- Alterna "Fazer um pedido" / "Detalhes do meu pedido" -->
-                <button type="button" id="btn-my-pedido" class="btn btn--primary pedido-action__btn">
-                    <span class="material-symbols-rounded pedido-action__icon" aria-hidden="true">add</span>
-                    <span id="btn-my-pedido-label" class="pedido-action__label">Fazer um pedido</span>
-                </button>
-                <!-- Indicador SEPARADO das indicações recebidas — mesmo sistema dos cards (X/3 + grupo) -->
-                <div id="my-pedido-info" class="post-card__indicate-info u-hidden" aria-label="Indicações recebidas no meu pedido">
-                    <span id="my-pedido-count" class="post-card__indicate-count">0/3</span>
-                    <span class="material-symbols-rounded" aria-hidden="true">groups</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Scroll dos cards de pedido (movidos da antiga tela principal) -->
-        <div class="scroll-area">
-            <div id="list-feed">
-
-                <!-- ── Card de post (mock) ── -->
-                <article id="post-card-0" class="post-card">
-                    <div class="post-card__header">
-                        <div class="post-card__author">
-                            <img class="post-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do autor">
-                            <div class="post-card__author-info">
-                                <span class="post-card__author-name">João Silva</span>
-                                <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">95%</span><span class="ic-bar__label">Confiável</span></div>
-                            </div>
-                        </div>
-                        <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
-                    </div>
-
-                    <div class="post-card__body">
-                        <p class="post-card__text">Preciso de um eletricista de confiança para instalação de tomadas e revisão do quadro de luz. Apartamento no centro.</p>
-                    </div>
-
-                    <div class="post-card__footer">
-                        <button type="button" class="btn btn--primary post-card__indicate-btn" id="btn-indicate-0" data-post-id="0"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
-                        <div class="post-card__indicate-info" aria-label="1 de 3 indicados"><span class="post-card__indicate-count">1/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
-                        <button type="button" class="btn btn--outline post-card__share-btn" aria-label="Compartilhar">
-                            <span class="material-symbols-rounded" aria-hidden="true">share</span>
-                            Compartilhar
-                        </button>
-                    </div>
-                </article>
-
-                <!-- ── Card de post sem imagem (mock) ── -->
-                <article id="post-card-1" class="post-card">
-                    <div class="post-card__header">
-                        <div class="post-card__author">
-                            <img class="post-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Foto do autor">
-                            <div class="post-card__author-info">
-                                <span class="post-card__author-name">Maria Souza</span>
-                                <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">88%</span><span class="ic-bar__label">Confiável</span></div>
-                            </div>
-                        </div>
-                        <button type="button" class="post-card__report" aria-label="Denunciar publicação"><span class="material-symbols-rounded" aria-hidden="true">flag</span>Denunciar</button>
-                    </div>
-
-                    <div class="post-card__body">
-                        <p class="post-card__text">Alguém conhece uma diarista de confiança para limpeza semanal? Zona Sul. Boa remuneração garantida.</p>
-                    </div>
-
-                    <div class="post-card__footer">
-                        <button type="button" class="btn btn--primary post-card__indicate-btn" id="btn-indicate-1" data-post-id="1"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
-                        <div class="post-card__indicate-info" aria-label="0 de 3 indicados"><span class="post-card__indicate-count">0/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
-                        <button type="button" class="btn btn--outline post-card__share-btn" aria-label="Compartilhar">
-                            <span class="material-symbols-rounded" aria-hidden="true">share</span>
-                            Compartilhar
-                        </button>
-                    </div>
-                </article>
-
-            </div>
-        </div>
-
-    </div>
 
     <!-- Confirmação de indicação — dock fixo na base durante o modo indicação (na home) -->
     <div id="agenda-indicate-confirm" class="agenda-confirm u-hidden">
@@ -1049,8 +1496,14 @@
         </div>
     </div>
 
+    <!-- Ordem importa: app.js define os globals (Firebase, roteador, diálogos)
+         que os módulos seguintes consomem. -->
     <script src="js/app.js" defer></script>
+    <script src="js/tutorial.js" defer></script>
+    <script src="js/install.js" defer></script>
+    <script src="js/session.js" defer></script>
     <script src="js/auth.js" defer></script>
+    <script src="js/onboarding.js" defer></script>
     <script src="js/feed.js" defer></script>
 </body>
 </html>

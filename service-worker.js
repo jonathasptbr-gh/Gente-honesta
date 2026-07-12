@@ -4,7 +4,10 @@
 // CONFIGURAÇÃO DO SERVICE WORKER - Definições de Cache
 // =========================================================================
 
-const CACHE_NAME = "gentehonesta-v48";
+const CACHE_NAME = "gentehonesta-v221";
+// Versão legível derivada do CACHE_NAME ("v188") — enviada à página sob demanda
+// (mensagem GET_VERSION) para exibir no banner "Nova versão disponível".
+const APP_VERSION = CACHE_NAME.replace("gentehonesta-", "");
 
 // CONFIGURAÇÃO DO SERVICE WORKER - Lista de Recursos Core para Cache Inicial
 const urlsToCache = [
@@ -13,13 +16,24 @@ const urlsToCache = [
   "./manifest.json",
   "./css/base.css",
   "./css/components.css",
+  "./css/tutorial.css",
   "./css/auth.css",
+  "./css/onboarding.css",
+  "./css/install.css",
   "./css/feed.css",
   "./js/app.js",
+  "./js/tutorial.js",
+  "./js/install.js",
+  "./js/session.js",
   "./js/auth.js",
+  "./js/onboarding.js",
   "./js/feed.js",
   "./icon-192.png",
-  "./icon-512.png"
+  "./icon-512.png",
+  "./icon-192-maskable.png",
+  "./icon-512-maskable.png",
+  "./icon-transparent.svg",
+  "./icon-intro.svg"
 ];
 
 // =========================================================================
@@ -37,7 +51,24 @@ self.addEventListener("install", event => {
       );
     })
   );
-  self.skipWaiting();
+  // SEM self.skipWaiting() aqui: o novo worker fica em "waiting" até o usuário
+  // confirmar a atualização no app (banner "Nova versão disponível") — só então
+  // a página envia a mensagem SKIP_WAITING abaixo. Isso evita trocar a versão
+  // no meio de uma ação do usuário sem ele saber.
+});
+
+// SISTEMA DE ATUALIZAÇÃO - Só assume o controle quando o usuário confirma
+// (postMessage disparado pelo clique em "Atualizar" — ver js/app.js)
+self.addEventListener("message", event => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  } else if (event.data && event.data.type === "GET_VERSION") {
+    // Responde a versão deste worker pela porta do MessageChannel (a página usa
+    // para exibir "Nova versão disponível (vN)"). event.source como fallback.
+    const reply = { type: "VERSION", version: APP_VERSION };
+    if (event.ports && event.ports[0]) event.ports[0].postMessage(reply);
+    else if (event.source) event.source.postMessage(reply);
+  }
 });
 
 // =========================================================================

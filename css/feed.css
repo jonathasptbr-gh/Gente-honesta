@@ -36,8 +36,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 64px;
-  padding: var(--space-sm) var(--space-md) 0; /* sem bottom: a busca abaixo já tem top padding */
+  min-height: 48px;
+  padding: var(--space-xs) var(--space-md) 0; /* sem bottom: a busca abaixo já tem top padding */
   background: var(--p-green);
   border-bottom: none;
   z-index: 10;
@@ -45,7 +45,7 @@
 }
 
 .top-bar__brand {
-  font-size: 1.2rem;
+  font-size: var(--fs-10);
   font-weight: 800;
   color: var(--t-light);
 }
@@ -67,7 +67,7 @@
 }
 
 .top-bar__action-label {
-  font-size: 0.6rem;
+  font-size: var(--fs-1);
   font-weight: 600;
   line-height: 1;
   color: var(--t-sub);
@@ -98,7 +98,7 @@
 .avatar-img {
   width: 36px;
   height: 48px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   border: 2.5px solid var(--t-light);
   background: var(--border-light);
   object-fit: cover;
@@ -115,9 +115,9 @@
   padding: 0 4px;
   background: var(--danger);
   color: var(--t-light);
-  font-size: 0.65rem;
+  font-size: var(--fs-2);
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -165,7 +165,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.15rem;
+  font-size: var(--fs-9);
   font-weight: 800;
   color: var(--t-light);
 }
@@ -221,7 +221,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
   border-radius: var(--radius-md);
   background: var(--bg-white);
   border: 1px solid var(--border-light);
@@ -260,7 +259,7 @@
 }
 
 .contracts-recent__label {
-  font-size: 0.72rem;
+  font-size: var(--fs-2);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -289,7 +288,7 @@
 .contract-mini__avatar {
   width: 34px;
   height: 44px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   object-fit: cover;
   border: 2px solid var(--border-light);
   background: var(--bg-soft);
@@ -304,7 +303,7 @@
 }
 
 .contract-mini__name {
-  font-size: 0.9rem;
+  font-size: var(--fs-6);
   font-weight: 700;
   color: var(--t-main);
   white-space: nowrap;
@@ -313,7 +312,7 @@
 }
 
 .contract-mini__sub {
-  font-size: 0.78rem;
+  font-size: var(--fs-4);
   color: var(--t-sub);
   white-space: nowrap;
   overflow: hidden;
@@ -382,7 +381,7 @@
   border: 1px solid var(--border-light);
   border-radius: var(--radius-pill);
   background: var(--bg-input);
-  font-size: 0.9rem;
+  font-size: var(--fs-6);
   color: var(--t-main);
   outline: none;
   transition: var(--transition);
@@ -415,7 +414,7 @@
 }
 
 .contracts-filters__field-label {
-  font-size: 0.68rem;
+  font-size: var(--fs-1);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -429,7 +428,7 @@
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-input);
-  font-size: 0.85rem;
+  font-size: var(--fs-5);
   color: var(--t-main);
   outline: none;
   appearance: none;
@@ -482,7 +481,7 @@
 .contract-card__avatar {
   width: 42px;
   height: 56px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   object-fit: cover;
   border: 2px solid var(--border-light);
   background: var(--bg-soft);
@@ -497,7 +496,7 @@
 }
 
 .contract-card__name {
-  font-size: 0.95rem;
+  font-size: var(--fs-7);
   font-weight: 700;
   color: var(--t-main);
   line-height: 1.2;
@@ -511,7 +510,7 @@
   flex-shrink: 0;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
-  font-size: 0.72rem;
+  font-size: var(--fs-2);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -556,7 +555,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.78rem;
+  font-size: var(--fs-4);
   font-weight: 600;
   color: var(--t-sub);
 }
@@ -575,7 +574,7 @@
 
 .contract-card__desc {
   flex: 1;
-  font-size: 0.85rem;
+  font-size: var(--fs-5);
   line-height: 1.45;
   color: var(--t-main);
   min-width: 0;
@@ -594,7 +593,7 @@
 }
 
 .contract-card__value {
-  font-size: 1.35rem;
+  font-size: var(--fs-11);
   font-weight: 800;
   color: var(--p-green);
   line-height: 1;
@@ -605,7 +604,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.72rem;
+  font-size: var(--fs-2);
   font-weight: 700;
   color: var(--t-sub);
   white-space: nowrap;
@@ -625,6 +624,177 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* ===========================================
+   PAINÉIS DESLIZANTES — Profissionais ↔ Pedidos
+   O .feed-body é o viewport de recorte (overflow:hidden já declarado acima).
+   .feed-panels tem largura dupla e desliza via transform.
+   ======================================== */
+.feed-panels {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  width: 300%;
+  /* Default: mostra o painel central (Profissionais) */
+  transform: translateX(-33.3333%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Slide para a esquerda: mostra o painel de Vagas */
+.feed-panels--vagas {
+  transform: translateX(0);
+}
+
+/* Slide para a direita: mostra o painel de Pedidos */
+.feed-panels--pedidos {
+  transform: translateX(-66.6667%);
+}
+
+/* Cada painel ocupa exatamente a largura visível (33.333% do container de 300%) */
+.feed-panel {
+  flex: 0 0 33.3333%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* O scroll do painel de pedidos herda o mesmo visual da lista principal */
+.feed-panel--pedidos .scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-canvas);
+  padding: var(--space-md);
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  scrollbar-width: none;
+}
+
+.feed-panel--pedidos .scroll-area::-webkit-scrollbar { display: none; }
+
+/* ===========================================
+   ACTION BAR — estado Pedidos
+   A barra verde exibe o botão "Fazer um pedido" no lugar da busca
+   ======================================== */
+
+/* Slot de altura fixa: search-row e pedidos-row são sobrepostos via position:absolute,
+   alternados com fade (opacity + pointer-events), nunca com display:none. */
+.agenda-filters__action-row {
+  position: relative;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+/* Ambas as linhas preenchem o slot e têm transição de fade */
+.agenda-filters__search-row,
+.agenda-filters__pedidos-row {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.25s ease;
+}
+
+/* Linha de busca: visível por padrão */
+.agenda-filters__search-row {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Linha de vagas: oculta por padrão */
+.agenda-filters__vagas-row {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+/* Linha do botão de pedido: oculta por padrão */
+.agenda-filters__pedidos-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-sm);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Quando a action bar está no modo vagas */
+.agenda-filters--vagas .agenda-filters__search-row {
+  opacity: 0;
+  pointer-events: none;
+}
+.agenda-filters--vagas .agenda-filters__vagas-row {
+  opacity: 1;
+  pointer-events: auto;
+}
+.agenda-filters--vagas .agenda-filters__panel {
+  display: none !important;
+}
+
+/* Botões da linha de vagas — mesma altura e cantos do btn padrão (.btn = radius-md) */
+.agenda-filters__vagas-btn {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-6);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  white-space: nowrap;
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+/* "Criar vaga" — proporcional ao próprio texto */
+.agenda-filters__vagas-btn--criar {
+  flex: 0 0 auto;
+  padding: 0 var(--space-md);
+  background: var(--bg-white);
+  color: #000;
+}
+
+.agenda-filters__vagas-btn--criar:active {
+  background: var(--bg-soft);
+}
+
+/* "Chamar ajudante do dia" — ocupa o espaço restante */
+.agenda-filters__vagas-btn--ajudante {
+  flex: 1;
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.agenda-filters__vagas-btn--ajudante:active {
+  opacity: 0.88;
+}
+
+.agenda-filters__vagas-btn .material-symbols-rounded {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Quando a action bar está no modo pedidos: troca o estado das linhas */
+.agenda-filters--pedidos .agenda-filters__search-row {
+  opacity: 0;
+  pointer-events: none;
+}
+.agenda-filters--pedidos .agenda-filters__pedidos-row {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Painel de filtros: oculto no modo pedidos */
+.agenda-filters--pedidos .agenda-filters__panel {
+  display: none !important;
 }
 
 /* ===========================================
@@ -661,7 +831,7 @@
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  background: linear-gradient(to top, rgba(10, 31, 11, 0.55), rgba(10, 31, 11, 0));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   -webkit-mask-image: linear-gradient(to top, #000 60%, transparent);
@@ -670,7 +840,7 @@
 }
 
 /* Botões circulares laterais — FABs verdes flutuando sobre o feed */
-/* Botão Pedidos: pílula AZUL no mesmo estilo visual das abas (feed-tabs-pill) —
+/* Botão Pedidos: pílula AMARELA no mesmo estilo visual das abas (feed-tabs-pill) —
    ícone + texto DENTRO da pílula, mesma altura e mesmo raio. */
 .bottom-bar__pedidos {
   display: flex;
@@ -682,8 +852,8 @@
   padding: 4px 16px;
   border-radius: var(--radius-pill);
   border: none;
-  background: var(--info-blue);
-  color: var(--t-light);
+  background: var(--a-gold);
+  color: var(--p-green-dark);
   cursor: pointer;
   box-shadow: var(--shadow-lg);
   transition: transform 0.2s ease, background 0.2s ease;
@@ -695,7 +865,7 @@
 }
 
 .bottom-bar__pedidos-label {
-  font-size: 0.6rem;
+  font-size: var(--fs-1);
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
@@ -707,18 +877,34 @@
 
 
 /* ===========================================
-   FEED TABS — pílula central na bottom-bar
+   FEED TABS — barra central na bottom-bar
    ======================================== */
 .feed-tabs-pill {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
+  align-items: stretch;        /* tabs preenchem toda a altura */
+  position: relative;          /* âncora do slider absoluto */
+  gap: 0;
   background: var(--p-green);
   border-radius: var(--radius-pill);
-  padding: 4px 6px;
+  padding: 4px;
   box-shadow: var(--shadow-lg);
+  overflow: hidden;            /* slider não vaza fora da barra */
+}
+
+/* Indicador deslizante — substitui o background do tab ativo */
+.feed-tabs-pill__slider {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / 3);    /* 1/3 da área interna */
+  background: var(--a-gold);
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+  transform: translateX(100%);      /* posição inicial: aba home (índice 1) */
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 .feed-tabs-pill__tab {
@@ -735,11 +921,13 @@
   background: transparent;
   color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
-  transition: var(--transition);
+  position: relative;     /* fica acima do slider (z-index) */
+  z-index: 1;
+  transition: color var(--transition);
 }
 
 .feed-tabs-pill__tab-label {
-  font-size: 0.6rem;
+  font-size: var(--fs-1);
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0.2px;
@@ -747,11 +935,11 @@
 
 .feed-tabs-pill__tab .material-symbols-rounded {
   font-size: 1.4rem;
-  transition: var(--transition);
+  transition: font-variation-settings var(--transition);
 }
 
+/* Aba ativa: só cor muda (o slider amarelo é o fundo) */
 .feed-tabs-pill__tab--active {
-  background: var(--a-gold);
   color: var(--p-green-dark);
 }
 
@@ -760,7 +948,6 @@
 }
 
 .feed-tabs-pill__tab:not(.feed-tabs-pill__tab--active):active {
-  background: rgba(255, 255, 255, 0.15);
   color: var(--t-light);
 }
 
@@ -775,8 +962,8 @@
 }
 
 /* Dentro da sheet de pedidos não há barra inferior flutuante por cima:
-   remove o espaço extra reservado para ela. O fundo cinza (--bg-canvas) dá
-   contraste entre o topo fixo branco e os cards brancos de pedido. */
+   remove o espaço extra reservado para ela. O fundo verde-escuro (--bg-canvas)
+   dá contraste entre o topo fixo branco e os cards brancos de pedido. */
 .agenda-sheet .scroll-area {
   padding-bottom: var(--space-md);
   background: var(--bg-canvas);
@@ -809,6 +996,176 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
+  font-size: var(--fs-6);
+  white-space: nowrap;
+}
+
+
+/* ===========================================
+   LISTA DE PEDIDOS — estética plana com dividers
+   Sem sombra, sem borda arredondada de card.
+   ======================================== */
+.pedidos-list {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.pedido-item {
+  padding: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  border-radius: 18px 18px 18px 4px;
+  background: var(--p-green);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.pedido-item--urgent {
+  border-color: var(--danger);
+  border-width: 2px;
+}
+
+/* Símbolo "Urgente" embutido antes do texto */
+.pedido-item__urgent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--danger);
+  color: var(--t-light);
+  font-size: var(--fs-2);
+  font-weight: 700;
+  padding: 2px 7px 2px 4px;
+  border-radius: var(--radius-pill);
+  margin-right: 6px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.pedido-item__urgent-badge .material-symbols-rounded {
+  font-size: 0.95rem;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 20;
+}
+
+/* Linha de meta: avatar pequeno + nome + IC + flag */
+.pedido-item__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.pedido-item__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.pedido-item__name {
+  font-size: var(--fs-6);
+  font-weight: 700;
+  color: var(--t-light);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* IC compacto na lista de pedidos: apenas escudo + % (sem a palavra "Confiável") */
+.pedido-item .ic-bar {
+  flex-shrink: 0;
+}
+
+.pedido-item .ic-bar__label {
+  display: none;
+}
+
+.pedido-item .ic-bar--ok .ic-bar__shield,
+.pedido-item .ic-bar--ok .ic-bar__value { color: var(--t-light); }
+
+.pedido-item .ic-bar--warn .ic-bar__shield,
+.pedido-item .ic-bar--warn .ic-bar__value { color: var(--a-gold); }
+
+/* Botão de denúncia: chip sutil, mesmo estilo do contexto verde */
+.pedido-item .post-card__report {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--t-light);
+  padding: 4px 10px;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-2);
+  font-weight: 600;
+}
+
+.pedido-item .post-card__report .material-symbols-rounded {
+  font-size: 0.85rem;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Timer de horas restantes — ocupa o slot do Denunciar no card de detalhes */
+.pedido-item__timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-4);
+  font-weight: 600;
+  color: var(--a-gold);
+  flex-shrink: 0;
+}
+
+.pedido-item__timer .material-symbols-rounded {
+  font-size: 0.9rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 20;
+  color: var(--a-gold);
+}
+
+/* Texto do pedido */
+.pedido-item__text {
+  font-size: var(--fs-6);
+  line-height: 1.45;
+  color: var(--t-light);
+}
+
+/* Ações: botão indicar + badge de contagem */
+.pedido-item__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: 2px;
+}
+
+.pedido-item__actions .post-card__indicate-btn {
+  flex: 1;
+  height: 36px;
+  padding: 0 var(--space-sm);
+  font-size: var(--fs-5);
+}
+
+.pedido-item__actions .post-card__indicate-info {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--t-light);
+  border-radius: var(--radius-md);
+  padding: 0 10px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-5);
+  font-weight: 700;
+}
+
+.pedido-item__actions .post-card__indicate-info .material-symbols-rounded {
+  font-size: 1.1rem;
 }
 
 
@@ -840,7 +1197,7 @@
 .post-card__avatar {
   width: 42px;
   height: 56px;
-  border-radius: 6px;
+  border-radius: var(--radius-xs);
   object-fit: cover;
   border: 2px solid var(--border-light);
   background: var(--bg-soft);
@@ -854,7 +1211,7 @@
 }
 
 .post-card__author-name {
-  font-size: 0.95rem;
+  font-size: var(--fs-7);
   font-weight: 700;
   color: var(--t-main);
   line-height: 1.2;
@@ -869,7 +1226,7 @@
   background: var(--bg-soft);
   border: 1px solid var(--border-light);
   color: var(--t-sub);
-  font-size: 0.72rem;
+  font-size: var(--fs-2);
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
@@ -877,7 +1234,6 @@
   padding: 5px 10px;
   border-radius: var(--radius-pill);
   transition: color 0.15s, background 0.15s, border-color 0.15s;
-  font-family: 'Inter', sans-serif;
   white-space: nowrap;
 }
 
@@ -886,8 +1242,8 @@
 }
 
 .post-card__report:active {
-  color: var(--danger);
-  background: var(--danger-soft);
+  color: var(--t-light);
+  background: var(--danger);
   border-color: var(--danger);
 }
 
@@ -897,7 +1253,7 @@
 }
 
 .post-card__text {
-  font-size: 0.93rem;
+  font-size: var(--fs-7);
   line-height: 1.45;                   /* levemente mais compacto */
   color: var(--t-main);
 }
@@ -914,7 +1270,7 @@
   flex: 3 1 55%;
   gap: 8px;
   padding: 9px var(--space-sm);        /* reduzido: de 14px para 9px */
-  font-size: 0.9rem;
+  font-size: var(--fs-6);
 }
 
 .post-card__indicate-count {
@@ -932,7 +1288,7 @@
   border-radius: var(--radius-md);
   background: var(--bg-soft);
   color: var(--t-sub);
-  font-size: 0.9rem;
+  font-size: var(--fs-6);
   font-weight: 700;
 }
 
@@ -947,7 +1303,7 @@
   justify-content: center;
   gap: 6px;
   padding: 9px var(--space-sm);    /* igualado ao indicate-btn (antes era 14px) */
-  font-size: 0.85rem;
+  font-size: var(--fs-5);
   border-radius: var(--radius-md);
 }
 
@@ -962,7 +1318,7 @@
 .agenda-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(3, 32, 4, 0.45);
+  background: var(--overlay);
   backdrop-filter: blur(4px);
   z-index: 100;
   transition: opacity 0.3s ease;
@@ -975,7 +1331,7 @@
   right: 0;
   max-height: 92dvh;
   background: var(--bg-white);
-  border-radius: 20px 20px 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   z-index: 110;
   display: flex;
   flex-direction: column;
@@ -1000,42 +1356,38 @@
 }
 
 .agenda-sheet__title {
-  font-size: 1.1rem;
+  font-size: var(--fs-9);
   font-weight: 800;
-  color: var(--info-blue);   /* AZUL (agilidade): popup de pedidos = contexto de indicação */
+  color: var(--a-gold-text);   /* OURO: popup de pedidos = contexto de indicação */
 }
 
-/* Acento AZUL no popup de pedidos: o destaque (botões primários e o "Fechar")
-   fica azul em vez do verde da aba principal, reforçando o contexto de indicação. */
+/* Acento OURO no popup de pedidos: o destaque (botões primários e o "Fechar")
+   fica amarelo em vez do verde da aba principal, reforçando o contexto de indicação. */
 .agenda-sheet .btn--primary {
-  background: var(--info-blue);
-  border-color: var(--info-blue);
+  background: var(--a-gold);
+  border-color: var(--a-gold);
+  color: var(--p-green-dark);
 }
 
-/* Botão "Fechar" do popup: azul sólido com texto branco */
+/* Botão "Fechar" do popup: ouro sólido com texto verde-escuro */
 .agenda-sheet__header .btn--outline {
-  background: var(--info-blue);
-  color: var(--t-light);
-  border-color: var(--info-blue);
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+  border-color: var(--a-gold);
 }
 
-/* Top-bar PROVISÓRIA do modo indicação — substitui a top-bar verde da home.
-   Fundo azul (agilidade) p/ sinalizar o processo de indicação; ocupa o slot da
-   top-bar (flex-shrink:0) e rola internamente se a lista de indicados crescer. */
+/* Top-bar PROVISÓRIA do modo indicação — substitui a top-bar verde. */
 .agenda-indicated {
   flex-shrink: 0;
   z-index: 10;
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  max-height: 60dvh;             /* aumentado: garante espaço para os cards */
-  overflow: hidden;              /* o scroll fica na lista, não no container todo */
-  background: var(--info-blue);
-  padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
+  overflow: hidden;
+  background: var(--p-green);
+  padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) 0;
 }
 
-/* Cabeçalho da top-bar provisória: toggle "Ver profissionais já indicados"
-   (expande/colapsa a lista) + botão "Fechar" (ícone + texto). */
 .agenda-indicated__header {
   display: flex;
   align-items: center;
@@ -1044,46 +1396,44 @@
   min-height: 40px;
 }
 
-/* Título em destaque: "Quem você quer indicar para esse serviço?" */
 .agenda-indicated__title {
-  font-size: 1.15rem;
+  font-size: var(--fs-6);
   font-weight: 800;
-  color: var(--t-main);   /* preto sobre azul — contraste 7.8:1, muito legível */
+  color: var(--t-light);
   margin: 0;
   flex: 1;
 }
 
-/* Toggle de expandir/colapsar a lista de indicados — linha autônoma abaixo do título */
-.agenda-indicated__toggle {
-  display: flex;
-  width: 100%;
+/* Badge de contagem de indicados no header */
+.indicate-count-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  border: none;
-  background: rgba(255, 255, 255, 0.12);  /* leve destaque para separar do título */
-  color: var(--t-light);
-  cursor: pointer;
-  padding: 7px var(--space-xs);
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-md);
-}
-
-.agenda-indicated__chevron {
-  font-size: 1.4rem;
+  padding: 9px 12px;
+  font-size: var(--fs-6);
+  font-weight: 700;
+  color: var(--t-light);
   flex-shrink: 0;
 }
 
-/* Botão "Fechar" (cancela a indicação): ícone + texto, retangular com cantos arredondados —
-   mesmo formato que o "Fechar" do popup de pedidos (radius-md, não pílula). */
+.indicate-count-badge .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
+/* Botão "Fechar" no modo indicação e no popup */
 .agenda-indicated__cancel {
   border: none;
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.15);
   color: var(--t-light);
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-weight: 700;
-  font-size: 0.85rem;
-  padding: 7px 12px;
+  font-size: var(--fs-5);
+  padding: 9px 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
   flex-shrink: 0;
@@ -1093,24 +1443,1011 @@
   font-size: 1.1rem;
 }
 
-.agenda-indicated__label {
-  font-size: 0.95rem;
+/* Popup de profissionais já indicados */
+.indicated-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none;
+  visibility: hidden;
+  /* Mantém visível durante a animação de fechamento */
+  transition: visibility 0s linear 0.35s;
+}
+
+.indicated-popup--open {
+  pointer-events: auto;
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+.indicated-popup__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.indicated-popup--open .indicated-popup__backdrop {
+  opacity: 1;
+}
+
+.indicated-popup__sheet {
+  position: relative;
+  z-index: 1;
+  background: var(--p-green);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-height: 92dvh;
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.indicated-popup--open .indicated-popup__sheet {
+  transform: translateY(0);
+}
+
+.indicated-popup__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.indicated-popup__title {
+  font-size: var(--fs-9);
   font-weight: 800;
   color: var(--t-light);
+  margin: 0;
+}
+
+.indicated-popup__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.indicated-popup__scroll::-webkit-scrollbar { display: none; }
+
+.indicated-popup__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* =========================================================================
+   PEDIDO SHEET — criar / gerenciar meu pedido (bottom sheet verde)
+   Mesmo padrão de slide-up + backdrop do indicated-popup.
+   ========================================================================= */
+.pedido-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none;
+  visibility: hidden;
+  /* Mantém visível durante a animação de fechamento */
+  transition: visibility 0s linear 0.35s;
+}
+
+.pedido-sheet--open {
+  pointer-events: auto;
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+/* Formulário (padrão) = DROPDOWN: o backdrop dim SÓ o feed abaixo da action bar
+   (top: --sheet-top), mantendo a barra acesa para o painel parecer a base dela
+   se estendendo. No detalhe (--full) cobre a tela toda. */
+.pedido-sheet__backdrop {
+  position: absolute;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.pedido-sheet--open .pedido-sheet__backdrop { opacity: 1; }
+
+/* Formulário "Fazer pedido" = DROPDOWN que desce da base da action bar (mesmo
+   slide-down do histórico): ancora em --sheet-top, edge-to-edge, cantos
+   inferiores arredondados, entra descendo (translateY -14px) + fade. */
+.pedido-sheet__panel {
+  position: absolute;
+  z-index: 1;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  background: var(--p-green);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-height: calc(100dvh - var(--sheet-top, 0px) - 12px);
+  transform: translateY(-14px);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease;
+}
+
+.pedido-sheet--open .pedido-sheet__panel {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Detalhe do pedido = TELA CHEIA (100dvh, sem cantos, cobre tudo) com FADE puro
+   (opacity), sem movimento — por isso backdrop e painel vão a top:0 e o
+   transform é anulado. Cabe o pedido + a lista de indicados sem apertar. */
+.pedido-sheet--full .pedido-sheet__backdrop { top: 0; }
+
+.pedido-sheet--full .pedido-sheet__panel {
+  top: 0;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+  box-shadow: none;
+  padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
+  transform: none;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.pedido-sheet--full.pedido-sheet--open .pedido-sheet__panel {
+  transform: none;
+  opacity: 1;
+}
+
+.pedido-sheet--full .pedido-sheet__body { flex: 1; }
+
+.pedido-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.pedido-sheet__title {
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--t-light);
+  margin: 0;
+}
+
+.pedido-sheet__body {
+  overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: none;
+  /* respiro para o último controle não colar na borda inferior do aparelho */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pedido-sheet__body::-webkit-scrollbar { display: none; }
+
+.pedido-sheet__state {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Campo: label + controle */
+.pedido-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.pedido-field__label {
+  font-size: var(--fs-5);
+  font-weight: 700;
+  color: var(--t-light);
+}
+
+.pedido-field__hint {
+  align-self: flex-end;
+  font-size: var(--fs-2);
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: -4px;
+}
+
+.pedido-textarea { resize: none; }
+
+/* Linha de chips de seleção única (urgência / duração) */
+.pedido-chip-row {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.pedido-chip {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 14px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-5);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: var(--t-light);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+}
+
+.pedido-chip .material-symbols-rounded {
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.pedido-chip:active { transform: scale(0.96); }
+
+.pedido-chip--active {
+  background: var(--a-gold);
+  border-color: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+/* Toggle (cidades vizinhas) */
+.pedido-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.pedido-toggle__info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.pedido-toggle__info > .material-symbols-rounded {
+  color: var(--a-gold);
+  font-size: 1.5rem;
+}
+
+.pedido-toggle__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pedido-toggle__title {
+  font-size: var(--fs-5);
+  font-weight: 700;
+  color: var(--t-light);
+}
+
+.pedido-toggle__sub {
+  font-size: var(--fs-2);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.pedido-switch {
+  flex-shrink: 0;
+  width: 46px;
+  height: 27px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.22);
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.pedido-switch__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--bg-white);
+  transition: transform 0.2s ease;
+}
+
+.pedido-toggle[aria-pressed="true"] .pedido-switch { background: var(--a-gold); }
+.pedido-toggle[aria-pressed="true"] .pedido-switch__knob { transform: translateX(19px); }
+
+/* Ações (Cancelar / Publicar) */
+.pedido-sheet__actions {
+  display: flex;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.pedido-sheet__actions .btn { flex: 1; }
+
+.pedido-btn-cancel {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--t-light);
+}
+
+/* ── Sheet "Criar vaga": listas dinâmicas (requisitos / benefícios) ── */
+.vaga-field__optional {
+  font-size: var(--fs-2);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.vaga-dyn-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.vaga-dyn-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.vaga-dyn-row .input-text { flex: 1; }
+
+/* Botão de remover linha (X) — discreto, sobre o fundo verde */
+.vaga-dyn-remove {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--t-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-dyn-remove:active { transform: scale(0.94); }
+.vaga-dyn-remove .material-symbols-rounded { font-size: 1.2rem; }
+
+/* Botão "Adicionar requisito / benefício" — tracejado, dourado */
+.vaga-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px dashed rgba(255, 255, 255, 0.4);
+  background: transparent;
+  color: var(--a-gold);
+  font-size: var(--fs-5);
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-add-btn:active { transform: scale(0.97); }
+.vaga-add-btn .material-symbols-rounded { font-size: 1.1rem; }
+
+/* Card de vaga recém-criado: destaque temporário ao tocar "Ver vaga" */
+.vaga-card--highlight {
+  animation: vagaHighlight 1.6s ease;
+}
+
+@keyframes vagaHighlight {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--p-green-rgb), 0); }
+  25%      { box-shadow: 0 0 0 4px var(--a-gold); }
+}
+
+/* Hint alinhado à esquerda (padrão do hint é à direita) */
+.pedido-field__hint--left { align-self: flex-start; }
+
+/* Endereço pendente no card (vaga criada por CNPJ, sem dados oficiais ainda) */
+.vaga-card__company-address--pending {
+  color: var(--t-sub);
+  font-style: italic;
+  text-decoration: none;
+  cursor: default;
+}
+
+/* ── Stepper +/- do número de vagas ── */
+.vaga-stepper {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-sm);
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+}
+
+.vaga-stepper__btn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-stepper__btn:active { transform: scale(0.92); }
+.vaga-stepper__btn:disabled { opacity: 0.4; cursor: default; }
+.vaga-stepper__btn .material-symbols-rounded {
+  font-size: 1.3rem;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+}
+
+.vaga-stepper__value {
+  min-width: 2ch;
+  text-align: center;
+  font-size: var(--fs-8);
+  font-weight: 800;
+  color: var(--t-light);
+}
+
+/* ── Carga horária: seletores de hora (meia em meia) + dias ── */
+.vaga-time-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.vaga-time {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vaga-time__label {
+  font-size: var(--fs-2);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Wrapper do <select> — reaproveita .input-text; ícone à esquerda + seta à direita */
+.vaga-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.vaga-select-wrap__icon {
+  position: absolute;
+  left: 12px;
+  font-size: 1.2rem;
+  color: var(--p-green);
+  pointer-events: none;
+}
+
+.vaga-select-wrap::after {
+  content: 'expand_more';
+  font-family: 'Material Symbols Rounded';
+  position: absolute;
+  right: 10px;
+  font-size: 1.3rem;
+  color: var(--t-sub);
+  pointer-events: none;
+}
+
+.vaga-time__select {
+  padding: 12px 34px 12px 38px;
+  font-size: var(--fs-7);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vaga-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--space-xs);
+}
+
+.vaga-day {
+  flex: 1;
+  min-width: 42px;
+  padding: 9px 0;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-4);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: var(--t-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-day:active { transform: scale(0.95); }
+
+.vaga-day--active {
+  background: var(--a-gold);
+  border-color: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.vaga-days--error { box-shadow: 0 0 0 2px var(--danger); border-radius: var(--radius-md); }
+
+/* ── Salário: campo numérico com R$ e /mês externos ── */
+.vaga-salary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.vaga-salary__prefix,
+.vaga-salary__suffix {
+  font-size: var(--fs-8);
+  font-weight: 800;
+  color: var(--t-light);
+  flex-shrink: 0;
+}
+
+.vaga-salary__input { flex: 1; }
+
+/* ── Check "Exigir currículo" + aviso ── */
+.vaga-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: var(--transition);
+}
+
+.vaga-check__box {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  transition: var(--transition);
+}
+
+.vaga-check__box .material-symbols-rounded {
+  font-size: 1.1rem;
+  color: var(--p-green-dark);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.vaga-check[aria-pressed="true"] .vaga-check__box {
+  background: var(--a-gold);
+  border-color: var(--a-gold);
+}
+
+.vaga-check[aria-pressed="true"] .vaga-check__box .material-symbols-rounded { opacity: 1; }
+
+.vaga-check__text {
+  font-size: var(--fs-5);
+  font-weight: 700;
+  color: var(--t-light);
+}
+
+.vaga-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--a-gold);
+  font-style: normal;
+}
+
+.vaga-warn .material-symbols-rounded {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Benefícios: pílulas de seleção (ícone + texto, mesmo padrão dos cards) ── */
+.vaga-benefit-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vaga-benefit-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-5);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  color: var(--t-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-benefit-pill:active { transform: scale(0.96); }
+
+.vaga-benefit-pill .material-symbols-rounded {
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.vaga-benefit-pill[aria-pressed="true"] {
+  background: var(--a-gold);
+  border-color: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+/* Detalhes (somente leitura) */
+.pedido-detail-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.pedido-detail-card__text {
+  margin: 0;
+  font-size: var(--fs-7);
+  color: var(--t-light);
+  line-height: 1.4;
+}
+
+.pedido-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.pedido-detail-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-3);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--t-light);
+}
+
+.pedido-detail-tag .material-symbols-rounded {
+  font-size: 1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.pedido-detail-tag--urgent {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.pedido-detail-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-3);
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.pedido-detail-note .material-symbols-rounded { font-size: 1.05rem; }
+
+/* Timer de horas restantes */
+.pedido-detail-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-5);
+  font-weight: 700;
+  color: var(--a-gold);
+}
+
+.pedido-detail-timer .material-symbols-rounded {
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+/* Lista de indicados inline dentro do sheet de detalhes */
+.pedido-detail-indicated {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.pedido-detail-indicated__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-5);
+  font-weight: 800;
+  color: var(--t-light);
+  margin: 0;
+}
+
+.pedido-detail-indicated__header .material-symbols-rounded { font-size: 1.2rem; }
+
+.pedido-detail-indicated__fraction {
+  margin-left: auto;
+  font-size: var(--fs-5);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Preview do pedido no formato balão — igual ao feed, sem botões */
+.pedido-detail-preview { pointer-events: none; }
+
+/* Selo "Concluído" no lugar do timer, em pedidos já finalizados */
+.pedido-item__timer--done { color: var(--success); }
+
+/* =========================================================================
+   HISTÓRICO DE PEDIDOS — dropdown que DESCE da base da action bar (#historico-
+   sheet). O painel ancora em --sheet-top (medido em JS = rodapé da barra = topo
+   da caixa do feed), spanning edge-to-edge com cantos inferiores arredondados,
+   entra descendo (translateY + fade) e parece a base do módulo dos botões se
+   estendendo: o backdrop dim SÓ o feed abaixo (top: --sheet-top), a barra fica
+   acesa. Inclui o pedido ativo; ordenada por data (mais recente no topo). Cada
+   item abre o detalhe unificado (pedido + indicados) ao ser tocado.
+   ========================================================================= */
+.historico-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none;
+  visibility: hidden;
+  transition: visibility 0s linear 0.32s; /* mantém visível durante o fecho */
+}
+
+.historico-sheet--open {
+  pointer-events: auto;
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+.historico-sheet__backdrop {
+  position: absolute;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.historico-sheet--open .historico-sheet__backdrop { opacity: 1; }
+
+.historico-sheet__panel {
+  position: absolute;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  max-height: calc(100dvh - var(--sheet-top, 0px) - 12px);
+  background: var(--p-green);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  /* Estado fechado: recuado para cima + transparente → desce ao abrir */
+  transform: translateY(-14px);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease;
+}
+
+.historico-sheet--open .historico-sheet__panel {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.historico-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.historico-sheet__title {
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--t-light);
+  margin: 0;
+}
+
+.historico-sheet__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.historico-sheet__scroll::-webkit-scrollbar { display: none; }
+
+.historico-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.historico-empty {
+  margin: 0;
+  padding: var(--space-md) 0;
+  text-align: center;
+  font-size: var(--fs-4);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Cards no MESMO padrão dos pedidos do feed (.pedido-item): borda branca e
+   raio de "balão", porém com o canto inferior DIREITO reto (espelho do feed,
+   que tem o inferior esquerdo reto). */
+.historico-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px 18px 4px 18px;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.historico-item:active {
+  transform: scale(0.99);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.historico-item__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.historico-item__date {
+  font-size: var(--fs-2);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Lixeira: sem moldura circular (reset do chrome nativo do button), glifo
+   vermelho para destaque. */
+.historico-item__delete {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--danger);
+  transition: var(--transition);
+}
+
+.historico-item__delete:active { transform: scale(0.85); }
+.historico-item__delete .material-symbols-rounded {
+  font-size: 1.35rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.historico-item__text {
+  margin: 0;
+  font-size: var(--fs-4);
+  line-height: 1.35;
+  color: var(--t-light);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Base do card: dois badges de largura IGUAL (status à esquerda, indicações à
+   direita). O badge de ativo carrega o tempo restante. */
+.historico-item__footer {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.historico-item__status,
+.historico-item__count {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-2);
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.agenda-indicated__list {
-  /* Grid responsivo: 1 card = coluna única; 2 cards = lado a lado em telas maiores.
-     minmax 200px garante espaço suficiente para IC bar e badge de disponibilidade. */
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+.historico-item__status .material-symbols-rounded,
+.historico-item__count .material-symbols-rounded {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.historico-item__status--active { background: var(--a-gold); color: var(--p-green-dark); }
+.historico-item__status--done   { background: rgba(255, 255, 255, 0.16); color: rgba(255, 255, 255, 0.85); }
+
+.historico-item__count {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--t-light);
+}
+
+/* Cards de indicados são interativos (flip) mesmo dentro do sheet de detalhes */
+.pedido-detail-indicated__list .pro-card { pointer-events: auto; }
+
+.pedido-detail-indicated__list {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-xs);
-  overflow-y: auto;              /* só esta parte rola */
-  min-height: 0;                 /* essencial para flex filho poder scrollar */
+}
+
+/* Borda dourada nas bordas da tela durante modo indicação */
+.indicate-screen-border {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 200;
+  background:
+    linear-gradient(to bottom, rgba(224, 168, 28, 0.22) 0%, transparent 7%),
+    linear-gradient(to top,    rgba(224, 168, 28, 0.22) 0%, transparent 7%),
+    linear-gradient(to right,  rgba(224, 168, 28, 0.18) 0%, transparent 5%),
+    linear-gradient(to left,   rgba(224, 168, 28, 0.18) 0%, transparent 5%);
+  box-shadow: inset 0 0 0 2px rgba(224, 168, 28, 0.7);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.indicate-screen-border--active {
+  opacity: 1;
+}
+
+/* Card de referência: text + badge de contagem lado a lado */
+.indicate-ref__body-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 4px var(--space-sm) 10px;
+}
+
+.indicate-ref__body-row .pedido-item__text {
   flex: 1;
+  padding: 0;
+}
+
+.indicate-ref__body-row .post-card__indicate-info {
+  flex-shrink: 0;
 }
 
 /* Componente QAV (Qualidade / Agilidade / Valor) — ícone + barra colorida,
@@ -1119,23 +2456,28 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  width: 100%;    /* preenche os 48px do col-left para o flex:1 das barras resolver */
 }
 
 .qav__item {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;    /* cada linha ocupa toda a largura disponível */
 }
 
-.qav__item .material-symbols-rounded {
-  font-size: 0.85rem;
-  flex-shrink: 0;
+.qav__label {
+  font-size: 0.55rem; /* exceção abaixo de --fs-1: com 0.6rem o rótulo trunca na coluna de 48px */
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .qav__bar {
-  width: 34px;
-  height: 3px;
-  border-radius: 2px;
+  height: 6px;
+  border-radius: 3px;
   background: var(--border-light);
   overflow: hidden;
 }
@@ -1145,21 +2487,21 @@
   border-radius: 2px;
 }
 
-.qav__item--quality .material-symbols-rounded { color: var(--p-green); }
-.qav__item--quality .qav__fill { background: var(--p-green); }
-.qav__item--agility .material-symbols-rounded { color: var(--info-blue); }
-.qav__item--agility .qav__fill { background: var(--info-blue); }
-.qav__item--value   .material-symbols-rounded { color: var(--tier-bronze); }
-.qav__item--value   .qav__fill { background: var(--tier-bronze); }
+.qav__item--quality .qav__label { color: var(--success-fill); }
+.qav__item--quality .qav__fill  { background: var(--success-fill); }
+.qav__item--agility .qav__label { color: var(--info-blue); }
+.qav__item--agility .qav__fill  { background: var(--info-blue); }
+.qav__item--value   .qav__label { color: var(--a-gold-text); }
+.qav__item--value   .qav__fill  { background: var(--a-gold); }
 
 /* ── Disponibilidade do profissional (ponto + rótulo) — mesma lógica de cor da ic-bar ──
    available = verde · full = amarelo · unavailable = vermelho */
 .avail {
   display: inline-flex;
   align-items: center;
-  align-self: flex-start;   /* não estica em colunas flex (pro-row__info) */
+  align-self: flex-start;   /* não estica em colunas flex (pro-card__head-text) */
   gap: 5px;
-  font-size: 0.72rem;
+  font-size: var(--fs-2);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -1171,31 +2513,23 @@
   flex-shrink: 0;
 }
 
-.avail--available   { color: var(--success-fill); }
+.avail--available   { color: var(--t-sub); }
 .avail--available   .avail__dot { background: var(--success-fill); }
 
-.avail--full        { color: var(--a-gold-text); }
+.avail--full        { color: var(--t-sub); }
 .avail--full        .avail__dot { background: var(--a-gold-text); }
 
-.avail--unavailable { color: var(--danger); }
+.avail--unavailable { color: var(--t-sub); }
 .avail--unavailable .avail__dot { background: var(--danger); }
 
 /* Filtros da agenda */
 .agenda-filters {
-  /* Integrado à top-bar: mesmo fundo verde, sem gap visual entre os dois.
-     Padding inferior adicionado — estava faltando após a última atualização. */
   padding: var(--space-sm) var(--space-md) var(--space-sm);
   background: var(--p-green);
   flex-shrink: 0;
+  position: relative; /* ancora o painel absoluto */
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.agenda-filters__search-row {
-  display: flex;
-  gap: var(--space-xs);
-  align-items: center;
 }
 
 .agenda-filters__search-wrap {
@@ -1221,7 +2555,7 @@
   border: 1px solid transparent;
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.92);
-  font-size: 0.9rem;
+  font-size: var(--fs-6);
   color: var(--t-main);
   outline: none;
 }
@@ -1250,48 +2584,119 @@
   font-size: 1.25rem;
 }
 
-/* Painel de filtros colapsável — adapta labels e chips para o fundo verde */
+/* Chips dentro de .agenda-filters (painel): adaptados ao fundo verde */
+.agenda-filters .chip {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.agenda-filters .chip--active {
+  background: var(--bg-white);
+  color: var(--p-green);
+  border-color: transparent;
+}
+
+/* Painel de filtros — flutua fora da barra do topo, sempre estilizado como card.
+   Só max-height/opacity/pointer-events mudam na classe --open para evitar
+   snap de múltiplas propriedades que causa deslocamento durante a animação. */
 .agenda-filters__panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: var(--space-md);
+  right: var(--space-md);
+  z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-sm) 0 var(--space-xs);
+  gap: var(--space-xs);
+  /* Estilo fixo do card — sempre presente */
+  background: rgba(10, 31, 11, 0.82); /* --p-green-dark com transparência */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: var(--radius-md);
+  padding: var(--space-xs) var(--space-sm) var(--space-sm);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: var(--shadow-lg);
+  /* Estado fechado */
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity    0.28s ease;
+}
+
+.agenda-filters__panel--open {
+  max-height: 700px;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .agenda-filters__group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
-/* Rótulo dos grupos: branco semi-transparente sobre o verde */
 .agenda-filters__group-label {
-  font-size: 0.72rem;
+  font-size: var(--fs-2);
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.70);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin: 0;
 }
 
+/* Chips: quebra de linha, alinhados à esquerda */
 .agenda-filters__chips {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
-  overflow-x: auto;
-  padding-bottom: var(--space-xs);
 }
 
-/* Chips no painel de filtros (sobre fundo verde) */
-.agenda-filters__panel .chip {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.30);
-  color: var(--t-light);
+/* Botão "Adicionar seus contatos como favoritos" — dourado, centralizado */
+.agenda-filters__add-contacts-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 10px var(--space-md);
+  border-radius: var(--radius-pill);
+  background: var(--a-gold);
+  border: none;
+  color: var(--p-green-dark);
+  font-size: var(--fs-5);
+  font-weight: 700;
+  cursor: pointer;
+  align-self: center;
+  margin-top: var(--space-sm);
+  margin-bottom: 2px;
 }
 
-.agenda-filters__panel .chip--active {
-  background: var(--bg-white);
-  color: var(--p-green);
-  border-color: transparent;
+.agenda-filters__add-contacts-btn .material-symbols-rounded {
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+
+/* ── Chips de IC (ícone colorido, tamanho compacto) ──────────── */
+.chip--ic {
+  padding: 5px 10px;
+  gap: 0;
+}
+
+.chip--ic .material-symbols-rounded {
+  font-size: 1.15rem;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+}
+
+/* Tier colors: mantidas em ambos os estados (padrão e selecionado) */
+.agenda-filters__panel .chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
+.agenda-filters__panel .chip--ic-warn  .material-symbols-rounded { color: var(--a-gold);      }
+.agenda-filters__panel .chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
+
+/* Chip "Apenas salvos": ícone no mesmo tamanho dos IC chips desta seção */
+.chip--saved .material-symbols-rounded {
+  font-size: 1.05rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
 }
 
 /* Chips de filtro (fora do painel — estilo base preservado) */
@@ -1300,7 +2705,7 @@
   align-items: center;
   padding: 6px 14px;
   border-radius: var(--radius-pill);
-  font-size: 0.82rem;
+  font-size: var(--fs-4);
   font-weight: 600;
   background: var(--bg-soft);
   border: 1px solid var(--border-light);
@@ -1328,168 +2733,321 @@
 
 /* Na home a lista de contatos é o conteúdo principal e a barra inferior flutua
    por cima — reserva espaço no fim para o último card não ficar coberto.
-   Fundo cinza (--bg-canvas) dá o mesmo contraste do popup: topo branco x lista. */
+   Fundo verde-escuro (--bg-canvas) dá o mesmo contraste do popup: topo branco x lista. */
 #view-feed .agenda-list {
   padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
   background: var(--bg-canvas);
+  scrollbar-width: none;
 }
 
-/* Modo compacto (linha) */
-.pro-row {
-  display: flex;
-  align-items: flex-start;         /* topo alinhado: mesmo padrão do card expandido */
-  gap: var(--space-sm);
-  padding: var(--space-sm);        /* padding uniforme, igual ao pro-card */
-  background: var(--bg-white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--space-xs);
+#view-feed .agenda-list::-webkit-scrollbar { display: none; }
+
+/* Label "Estes são os profissionais na sua região" */
+.agenda-list__region-label {
+  text-align: center;
+  font-size: var(--fs-4);
+  color: rgba(255, 255, 255, 0.75); /* legível sobre o --bg-canvas escuro */
+  padding: var(--space-xs) 0 var(--space-sm);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* Base do card — overflow:hidden para animação de altura; sem perspective aqui
+   (overflow:hidden + preserve-3d no mesmo ancestral quebra o flip em WebKit/Blink). */
+.pro-card {
   cursor: pointer;
-  transition: background 0.15s;
+  overflow: hidden;
+  border-radius: var(--radius-md);
 }
 
-.pro-row:active,
-.pro-row--selected {
-  background: var(--p-green-light);
+/* Wrapper de perspectiva separado do overflow */
+.pro-card__3d {
+  perspective: 1800px;
 }
 
 /* ===========================================
-   PAINEL DE AÇÕES DO CARD DE CONTATO
-   Aparece ao clicar num card (fora do modo indicação).
-   Dois botões largos à esquerda + dois ícones à direita.
+   FLIP DO CARD
+   Ao clicar, o card gira 180° e expande para
+   mostrar todo o conteúdo do verso.
    ======================================== */
 
-/* .card-normal = conteúdo normal do card; oculto quando ações estão abertas */
-.pro-row .card-normal,
-.pro-card .card-normal {
+.pro-card__flipper {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pro-card--flipped .pro-card__flipper {
+  transform: rotateY(180deg);
+}
+
+/* Estado expandido — frente colapsa (já invisível pelo backface-hidden),
+   verso sai do absolute e ocupa o fluxo normal. Mesmo padrão do vaga-card:
+   o verso MANTÉM rotateY(180deg) dentro do flipper rotateY(180deg) (net 0 =
+   legível), e a clipagem fica por conta do overflow:hidden do .pro-card. */
+.pro-card--expanded .pro-card__front {
+  height: 0;
+  /* O padding e a borda ficam DIRETO na frente (diferente do vaga-card, cujo
+     padding está nos filhos). Com box-sizing:border-box, height:0 zera só o
+     conteúdo — sem zerar padding/borda sobram ~26px residuais que empurram o
+     verso para baixo (margem no topo) e dessincronizam o footer (delta errado). */
+  padding: 0;
+  border-width: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.pro-card--expanded .pro-card__back {
+  position: relative;
+  inset: auto;
+  overflow: visible;
+}
+
+.pro-card--expanded .pro-card__back-comments {
+  overflow: visible;
+  flex: none;
+}
+
+/* Frente: layout normal do card (foto + QAV + cabeçalho + bio + rodapé) */
+.pro-card__front {
   display: flex;
-  flex: 1;
-  gap: var(--space-sm);
-  align-items: flex-start;
-  min-width: 0;
-}
-
-/* No card EXPANDIDO, o .card-normal é o container real das colunas + rodapé:
-   o wrap permite que o __meta (flex-basis:100%) caia numa linha própria,
-   abaixo de tudo, sem espremer as colunas superiores. */
-.pro-card .card-normal {
   flex-wrap: wrap;
-}
-
-/* .card-actions = painel de ações; oculto por padrão, exibido no estado ativo */
-.card-actions {
-  display: none;
-  flex: 1;
   gap: var(--space-sm);
-  align-items: stretch;
-  min-height: 80px;
+  padding: var(--space-sm);
+  min-width: 0;
+  background: var(--bg-white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
-.card--open-actions .card-normal { display: none; }
-.card--open-actions .card-actions { display: flex; }
+.pro-card--flipped .pro-card__front {
+  border-color: var(--p-green);
+  box-shadow: 0 0 0 2px var(--p-green-light);
+}
 
-/* Coluna esquerda: Contratar + WhatsApp empilhados */
-.card-actions__left {
-  flex: 1;
+/* Verso: posicionado sobre a frente, rotacionado 180° inicialmente (invisível) */
+.pro-card__back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  background: var(--bg-white);
+  border: 1px solid var(--p-green);
+  border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  /* Sem padding-bottom: o footer (.pro-card__back-actions) tem padding-bottom
+     próprio e background:white, cobrindo visualmente toda a base do card.
+     Isso elimina a faixa "nua" abaixo dos botões que causava flash transparente
+     ao início da animação de expansão. */
+  padding: var(--space-sm) var(--space-sm) 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
 }
 
-.card-actions__btn {
+/* Cabeçalho da seção de comentários */
+.pro-card__comments-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-2);
+  font-weight: 700;
+  color: var(--p-green);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: var(--space-xs);
+  flex-shrink: 0;
+}
+.pro-card__comments-header .material-symbols-rounded {
+  font-size: 0.9rem;
+}
+
+/* Área de comentários */
+.pro-card__back-comments {
   flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: none;
+  padding-bottom: var(--space-xs);
+  padding-right: 4px;
+}
+
+.pro-card__back-comments::-webkit-scrollbar { display: none; }
+
+.pro-card__comments-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.pro-card__load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  margin-top: var(--space-xs);
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--info-blue);
+  font-size: var(--fs-4);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pro-card__load-more .material-symbols-rounded {
+  font-size: 1rem;
+  font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+}
+
+.comment {
+  padding: var(--space-xs) 0;
+}
+
+/* Animação de entrada de novos comentários (carregados pelo "ver mais") */
+@keyframes commentFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.comment--entering {
+  animation: commentFadeIn 0.22s ease forwards;
+}
+
+.comment__text {
+  font-size: var(--fs-3);
+  line-height: 1.4;
+  color: var(--t-sub);
+  margin: 0;
+}
+
+.comment__author {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.comment__ic {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--fs-2);
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.comment__ic .material-symbols-rounded {
+  font-size: 0.9rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+.comment__ic.ic-bar--ok    { color: var(--success-fill); }
+.comment__ic.ic-bar--warn  { color: var(--a-gold); }
+.comment__ic.ic-bar--alert { color: var(--danger); }
+.comment__ic.ic-bar--bad   { color: var(--t-main); }
+
+/* Barra de ações no verso */
+.pro-card__back-actions {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-xs);
+  padding-top: var(--space-sm);
+  padding-bottom: var(--space-sm);
+  border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
+  background: var(--bg-white);
+}
+
+/* Pré-promove a camada GPU do footer JÁ no flip (500ms antes do slide de
+   expansão começar). Sem isso, o translateY aplicado no início da expansão
+   cria a GraphicsLayer só naquele instante e o primeiro frame composto sai
+   transparente — revelando os comentários atrás dos botões por um piscar.
+   Promover durante o flip dá tempo de rasterizar o fundo branco antes do
+   movimento. Restrito a --flipped para não manter camadas vivas em todos os
+   cards da lista (o vaga-card evita o mesmo flash via box-shadow no footer). */
+.pro-card--flipped .pro-card__back-actions {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.pro-card__back-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
   font-weight: 700;
-  font-size: 0.88rem;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
+  font-size: var(--fs-6);
+  touch-action: manipulation;
+  transition: var(--transition);
 }
 
-.card-actions__btn--hire {
-  background: var(--a-gold);
-  color: var(--p-green-dark);
-}
-
-.card-actions__btn--whatsapp {
-  background: #25D366;   /* verde WhatsApp oficial */
-  color: #fff;
-}
-
-/* Coluna direita: X (fechar, vermelho) + Share (branco), só ícones */
-.card-actions__right {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  flex-shrink: 0;
-}
-
-.card-actions__icon {
+.pro-card__back-btn--whatsapp {
   flex: 1;
-  width: 46px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
+  padding: 10px var(--space-sm);
+  background: var(--p-green);
+  color: var(--t-light);
 }
 
-.card-actions__icon--close {
-  background: var(--danger);
-  color: #fff;
-}
-
-.card-actions__icon--share {
-  background: var(--bg-white);
-  color: var(--t-main);
-  border: 1px solid var(--border-light);
-}
-
-.pro-row__avatar-wrap {
-  position: relative;
+.pro-card__back-btn--back {
+  width: 44px;
+  padding: 0;
   flex-shrink: 0;
-}
-
-.pro-row__avatar {
-  width: 48px;          /* mesmo que .pro-card__avatar */
-  height: 64px;
-  border-radius: 8px;   /* mesmo que .pro-card__avatar */
-  object-fit: cover;
-  border: 1px solid var(--border-light);
   background: var(--bg-soft);
-  display: block;
-}
-
-.pro-row__info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pro-row__name {
-  font-size: 0.95rem;   /* igualado a .pro-card__name */
-  font-weight: 700;
-  color: var(--t-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pro-row__tags {
-  font-size: 0.8rem;    /* igualado a .pro-card__tags */
   color: var(--t-sub);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  border: 1px solid var(--border-light);
 }
 
-/* Modo completo (card) */
+.pro-card__back-btn--share {
+  width: 44px;
+  padding: 0;
+  flex-shrink: 0;
+  background: var(--bg-soft);
+  color: var(--t-sub);
+  border: 1px solid var(--border-light);
+}
+
+/* Botões de modo indicação — ocultos por padrão, visíveis quando o card está em modo indicação */
+.pro-card__back-btn--cancel-indicate,
+.pro-card__back-btn--confirm-indicate {
+  display: none;
+}
+
+/* Em modo indicação (classe na LISTA, não no card): esconde voltar/whatsapp/
+   share e exibe Cancelar + Indicar. Dirigir pela lista evita que um flip-back
+   individual troque os botões no meio da animação. */
+.agenda-list--indicate-mode .pro-card__back-btn--back,
+.agenda-list--indicate-mode .pro-card__back-btn--whatsapp,
+.agenda-list--indicate-mode .pro-card__back-btn--share {
+  display: none;
+}
+
+.agenda-list--indicate-mode .pro-card__back-btn--cancel-indicate {
+  display: inline-flex;
+  flex: 1;
+  padding: 10px var(--space-sm);
+  background: var(--bg-soft);
+  color: var(--t-main);
+  border: 1px solid var(--border-light);
+}
+
+.agenda-list--indicate-mode .pro-card__back-btn--confirm-indicate {
+  display: inline-flex;
+  flex: 1;
+  padding: 10px var(--space-sm);
+  background: var(--p-green);
+  color: var(--t-light);
+}
+
+.pro-card__back-btn .material-symbols-rounded {
+  font-size: 1.2rem;
+}
+
 /* Animação de entrada — disparada cada vez que .pro-card é inserido no DOM */
 @keyframes cardExpand {
   from { opacity: 0; transform: scaleY(0.88); transform-origin: top; }
@@ -1497,16 +3055,7 @@
 }
 
 .pro-card {
-  background: var(--bg-white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: var(--space-sm);
   margin-bottom: var(--space-sm);
-  display: flex;
-  flex-wrap: wrap;           /* permite o rodapé (__meta) quebrar p/ linha própria */
-  gap: var(--space-sm);
-  cursor: pointer;
-  transition: box-shadow 0.15s;
   animation: cardExpand 0.2s ease-out;
 }
 
@@ -1514,37 +3063,53 @@
    opaco/discreto (informação secundária de apoio à decisão). */
 .pro-card__meta {
   flex-basis: 100%;
-  min-width: 0;              /* nunca alarga o card além do container */
+  min-width: 0;
   display: flex;
-  flex-wrap: wrap;           /* em telas muito estreitas, os 2 itens podem empilhar */
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;  /* itens equidistantes na largura do card */
-  gap: 4px var(--space-md);
+  gap: 4px 0;        /* row-gap p/ quebra de linha; col-gap zerado (flex:1 cuida) */
   padding-top: 6px;
   border-top: 1px solid var(--border-light);
 }
 
 .pro-card__meta-item {
+  flex: 1;                   /* célula de largura igual para cada item */
   display: inline-flex;
   align-items: center;
+  justify-content: center;   /* centraliza ícone + texto dentro da célula */
   gap: 5px;
-  font-size: 0.72rem;
+  font-size: var(--fs-2);
   font-weight: 600;
-  color: var(--t-disabled);
+  color: var(--t-sub);
   white-space: nowrap;
 }
 
 .pro-card__meta-item .material-symbols-rounded {
   font-size: 1rem;
-  color: var(--t-disabled);
+  color: var(--info-blue);
   font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 
-.pro-card:active {
+/* Item de pagamento que o profissional não oferece — esmaecido */
+.pro-card__meta-item--inactive {
+  opacity: 0.22;
+}
+
+/* O risco fica só no texto (glifo de ícone riscado fica visualmente
+   estranho) — por isso é aplicado direto no span do rótulo, e não herdado
+   de .pro-card__meta-item--inactive. Herdar do item não funciona de forma
+   confiável aqui porque .pro-card__meta-item é um flex container: o Chrome
+   "blockifica" o ícone como item flex e ignora o text-decoration:none que
+   se tentaria colocar nele para escapar do risco do pai. */
+.pro-card__meta-item--inactive .pro-card__meta-item__label {
+  text-decoration: line-through;
+}
+
+.pro-card:active .pro-card__front {
   box-shadow: var(--shadow-sm);
 }
 
-.pro-card--selected {
+.pro-card--selected .pro-card__front {
   border-color: var(--p-green);
   box-shadow: 0 0 0 2px var(--p-green-light);
 }
@@ -1556,7 +3121,7 @@
 .pro-card__avatar {
   width: 48px;
   height: 64px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   object-fit: cover;
   border: 1px solid var(--border-light);
   background: var(--bg-soft);
@@ -1582,13 +3147,14 @@
 }
 
 .indicate-post-ref .post-card__text {
-  font-size: 0.88rem;
+  font-size: var(--fs-6);
   line-height: 1.4;
   /* Sem line-clamp: todo o texto do pedido é visível */
 }
 
 /* Coluna esquerda: foto e, abaixo dela, os índices Q/A/V */
 .pro-card__col-left {
+  width: 48px;           /* igual à largura do avatar no compacto */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1607,32 +3173,88 @@
 
 .pro-card__head {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
   gap: var(--space-sm);
 }
 
 .pro-card__head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   min-width: 0;
+  flex: 1;
+}
+
+/* Coluna direita do cabeçalho: botão fixar (topo) + índice de confiança (base) */
+.pro-card__head-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.pro-card__pin-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--p-green);
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  touch-action: manipulation;
+}
+
+.pro-card__pin-btn .material-symbols-rounded {
+  font-size: 2.2rem;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+.pro-card__pin-btn--pinned {
+  color: var(--p-green);
+}
+
+.pro-card__pin-btn--pinned .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Ícone riscado na diagonal (ex: sem nota fiscal) */
+.icon-crossed {
+  position: relative;
+  display: inline-block;
+}
+
+.icon-crossed::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  right: -1px;
+  height: 1.5px;
+  background: currentColor;
+  transform: rotate(-35deg);
+  pointer-events: none;
 }
 
 .pro-card__name {
-  font-size: 0.95rem;
+  font-size: var(--fs-7);
   font-weight: 700;
   color: var(--t-main);
 }
 
 .pro-card__tags {
-  font-size: 0.8rem;
+  font-size: var(--fs-4);
   color: var(--t-sub);
-  margin: 2px 0 2px;   /* menor gap inferior: aproxima a disponibilidade dos tags */
+  margin: 2px 0 2px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .pro-card__bio {
-  font-size: 0.8rem;
+  font-size: var(--fs-4);
   color: var(--t-sub);
   line-height: 1.35;
   margin: 4px 0 0;
@@ -1649,14 +3271,14 @@
   padding-bottom: max(var(--space-md), env(safe-area-inset-bottom, 0px));
   border: none;
   border-radius: var(--radius-md) var(--radius-md) 0 0;
-  background: var(--info-blue);   /* AZUL: parte do processo de indicação */
+  background: var(--a-gold);   /* OURO: parte do processo de indicação */
   box-shadow: var(--shadow-lg);
 }
 
 .agenda-confirm__title {
-  color: var(--t-light);
+  color: var(--p-green-dark);
   font-weight: 800;
-  font-size: 1.2rem;
+  font-size: var(--fs-10);
   text-align: center;
   margin-bottom: var(--space-sm);
 }
@@ -1681,12 +3303,968 @@
 }
 
 .agenda-confirm__btn--confirm {
-  background: var(--a-gold);
-  color: var(--p-green-dark);
+  background: var(--p-green);
+  color: var(--t-light);
 }
 
 .agenda-confirm__actions {
   display: flex;
   flex-direction: row;
   gap: var(--space-xs);
+}
+
+
+/* ===========================================
+   PAINEL DE VAGAS — scroll area e lista
+   ======================================== */
+.vagas-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-sm) var(--space-md);
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-canvas);
+  scrollbar-width: none;
+}
+
+.vagas-scroll::-webkit-scrollbar { display: none; }
+
+.vagas-list {
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ===========================================
+   CARD DE VAGA — estilo cartaz/documento A4
+   ======================================== */
+
+/* Container externo: controla altura e overflow para a animação de expansão.
+   NÃO tem perspective — overflow:hidden e preserve-3d num mesmo ancestral
+   quebra o flip em WebKit/Blink. A perspective fica num filho separado. */
+.vaga-card {
+  margin-bottom: var(--space-md);
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+/* Container 3D: perspective isolada, sem overflow */
+.vaga-card__3d {
+  perspective: 1800px;
+}
+
+/* Flipper: carrega a animação 3D */
+.vaga-card__flipper {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vaga-card--flipped .vaga-card__flipper {
+  transform: rotateY(180deg);
+}
+
+/* Estado expandido — frente colapsa (já invisível pelo backface-hidden),
+   verso sai do absolute e ocupa o fluxo normal */
+.vaga-card--expanded .vaga-card__front {
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.vaga-card--expanded .vaga-card__back {
+  position: relative;
+  inset: auto;
+  overflow: visible;
+}
+
+.vaga-card--expanded .vaga-card__back-form {
+  overflow: visible;
+  flex: none;
+}
+
+/* Frente: visual original do card */
+.vaga-card__front {
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10), 0 6px 20px rgba(0, 0, 0, 0.06);
+  animation: cardExpand 0.2s ease-out;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Verso: formulário de candidatura */
+.vaga-card__back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  background: var(--bg-white);
+  border: 1.5px solid var(--p-green);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Área de scroll do formulário (sem header) */
+.vaga-card__back-form {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: var(--space-sm) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vaga-card__back-form::-webkit-scrollbar { display: none; }
+
+/* Footer: botão voltar + botão enviar lado a lado */
+.vaga-card__back-footer {
+  display: flex;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
+  background: var(--bg-white);
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.07);
+}
+
+/* Botão voltar no footer — quadrado, mesmo height que o submit */
+.vaga-card__btn-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--t-sub);
+  touch-action: manipulation;
+  transition: background 0.15s;
+}
+
+.vaga-card__btn-back:active { background: var(--border-light); }
+
+.vaga-card__btn-back .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
+.vaga-card__btn-submit {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  background: var(--p-green);
+  color: var(--t-light);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-8);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s;
+}
+
+.vaga-card__btn-submit:active { opacity: 0.88; }
+
+.vaga-card__btn-submit .material-symbols-rounded {
+  font-size: 1.05rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Seção genérica do formulário de candidatura */
+.candid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.candid-section-label {
+  font-size: var(--fs-2);
+  font-weight: 700;
+  color: var(--p-green);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.candid-section-hint {
+  font-size: var(--fs-3);
+  color: var(--t-sub);
+  margin-top: -4px;
+}
+
+/* Carro + Moto lado a lado */
+.candid-check-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.candid-check-row .candid-check {
+  flex: 1;
+}
+
+/* Checkbox genérico */
+.candid-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--fs-5);
+  color: var(--t-main);
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.candid-check input[type="checkbox"] {
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--p-green);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Grupo de radio (disponibilidade) */
+.candid-radio-group {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.candid-radio {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-5);
+  color: var(--t-main);
+  cursor: pointer;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.candid-radio input[type="radio"] {
+  accent-color: var(--p-green);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.candid-radio:has(input:checked) {
+  border-color: var(--p-green);
+  background: var(--p-green-light);
+  color: var(--p-green-dark);
+  font-weight: 700;
+}
+
+/* Flexibilidade + Transporte lado a lado */
+.candid-two-col {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+}
+
+.candid-two-col > .candid-section {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Observações por requisito — colapsáveis via <details> */
+.candid-req-obs {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.candid-req-obs[open] {
+  border-color: var(--p-green);
+  background: var(--bg-white);
+}
+
+.candid-req-obs[open] > .candid-req-obs-input {
+  animation: commentFadeIn 0.22s ease forwards;
+}
+
+.candid-req-obs-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  font-size: var(--fs-4);
+  color: var(--t-main);
+  line-height: 1.3;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  gap: 8px;
+}
+
+.candid-req-obs-label::-webkit-details-marker { display: none; }
+
+.candid-req-obs-label::after {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid var(--p-green);
+  border-bottom: 2px solid var(--p-green);
+  transform: rotate(45deg);
+  transition: transform 0.2s;
+  margin-top: -3px;
+}
+
+.candid-req-obs[open] > .candid-req-obs-label::after {
+  transform: rotate(225deg);
+  margin-top: 3px;
+}
+
+.candid-req-obs-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px;
+  border: none;
+  border-top: 1px solid var(--border-light);
+  border-radius: 0;
+  font-size: var(--fs-4);
+  color: var(--t-main);
+  background: transparent;
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.candid-req-obs-input:focus {
+  border-color: var(--p-green);
+  background: var(--bg-white);
+}
+
+/* Checkbox de confirmação destacado (dentro da seção de observações) */
+.candid-check--confirm {
+  padding: 8px 10px;
+  background: var(--p-green-light);
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+
+/* Upload de currículo — botão compacto */
+.candid-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  background: var(--bg-soft);
+  cursor: pointer;
+  color: var(--t-sub);
+  font-size: var(--fs-4);
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.candid-upload-btn:active {
+  border-color: var(--p-green);
+  background: var(--p-green-light);
+}
+
+.candid-upload-btn .material-symbols-rounded {
+  font-size: 1.1rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+}
+
+.candid-upload-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.candid-upload-input {
+  display: none;
+}
+
+/* Faixa cinza do topo: nome da empresa em destaque */
+.vaga-card__company-strip {
+  background: var(--surface-company);
+  padding: var(--space-sm) var(--space-md);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.vaga-card__company-icon {
+  font-size: 1.6rem;
+  color: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.vaga-card__company-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.vaga-card__company-name {
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--t-light);
+  line-height: 1.15;
+}
+
+.vaga-card__company-address {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--fs-3);
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration: none;
+  line-height: 1.2;
+}
+
+.vaga-card__company-address:active {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.vaga-card__company-address .material-symbols-rounded {
+  font-size: 0.8rem;
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Linha do divulgador — bem discreta, fundo levemente off-white */
+.vaga-card__poster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--space-md);
+  background: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.vaga-card__poster-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--border-light);
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
+.vaga-card__poster-name {
+  font-size: var(--fs-3);
+  color: var(--t-sub);
+  flex: 1;
+}
+
+.vaga-card__poster-name strong {
+  font-weight: 700;
+  color: var(--t-main);
+}
+
+/* IC compacto do divulgador */
+.vaga-card__poster-ic {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--fs-2);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.vaga-card__poster-ic .material-symbols-rounded {
+  font-size: 0.85rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+}
+
+.vaga-card__poster-ic.ic-bar--ok    { color: var(--success-fill); }
+.vaga-card__poster-ic.ic-bar--warn  { color: var(--a-gold-text);  }
+.vaga-card__poster-ic.ic-bar--alert { color: var(--danger);       }
+.vaga-card__poster-ic.ic-bar--bad   { color: var(--t-sub);        }
+
+/* Corpo do card: informações da vaga */
+.vaga-card__body {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.vaga-card__role-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vaga-card__role {
+  font-size: var(--fs-10);
+  font-weight: 800;
+  color: var(--p-green-dark);
+  line-height: 1.15;
+  margin: 0;
+}
+
+/* Badge de vagas disponíveis */
+.vaga-card__vacancies {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--p-green-light);
+  color: var(--p-green);
+  font-size: var(--fs-4);
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  align-self: flex-start;
+}
+
+.vaga-card__vacancies .material-symbols-rounded {
+  font-size: 1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Seção genérica: label + conteúdo */
+.vaga-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vaga-card__section-label {
+  font-size: var(--fs-2);
+  font-weight: 700;
+  color: var(--t-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* Lista de requisitos */
+.vaga-card__requirements {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vaga-card__req {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--fs-5);
+  color: var(--t-main);
+  line-height: 1.35;
+}
+
+.vaga-card__req .material-symbols-rounded {
+  font-size: 0.95rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Metadados: carga e salário */
+.vaga-card__meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.vaga-card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-5);
+  color: var(--t-main);
+}
+
+.vaga-card__meta-item .material-symbols-rounded {
+  font-size: 1.05rem;
+  color: var(--t-sub);
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Salário com destaque */
+.vaga-card__salary {
+  font-size: var(--fs-7);
+  font-weight: 800;
+  color: var(--p-green-dark);
+}
+
+.vaga-card__salary .material-symbols-rounded {
+  color: var(--p-green);
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Chips de benefícios */
+.vaga-card__benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vaga-card__benefit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  font-size: var(--fs-3);
+  color: var(--t-sub);
+  font-weight: 600;
+}
+
+.vaga-card__benefit .material-symbols-rounded {
+  font-size: 0.9rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Rodapé de ações — stretch garante mesma altura para os dois botões */
+.vaga-card__actions {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-xs);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-light);
+}
+
+/* Botão "Me candidatar" — preto/dark, cantos padrão do feed (radius-md) */
+.vaga-card__btn-apply {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px var(--space-md);
+  background: var(--surface-dark);
+  color: var(--t-light);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-6);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.15s;
+}
+
+.vaga-card__btn-apply:active {
+  opacity: 0.82;
+}
+
+.vaga-card__btn-apply .material-symbols-rounded {
+  font-size: 1.05rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Botão "Compartilhar" — mesmo radius-md, padding lateral para ocupar espaço equilibrado */
+.vaga-card__btn-share {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-md);
+  background: var(--bg-soft);
+  color: var(--t-sub);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  transition: background 0.15s;
+}
+
+.vaga-card__btn-share:active {
+  background: var(--border-light);
+}
+
+.vaga-card__btn-share .material-symbols-rounded {
+  font-size: 1.2rem;
+}
+
+
+/* ===========================================================================
+   SERVIÇO DE AJUDANTES (sheet #ajudante-sheet)
+   Reaproveita o scaffolding verde do .pedido-sheet. As duas funções ficam
+   sempre visíveis (disponibilizar-se em cima, chamar embaixo), separadas por
+   um divisor. Os checkbox de disponibilidade são próprios; o card do ajudante
+   sorteado reutiliza as classes .pro-card__* dos cards de profissional.
+   =========================================================================== */
+
+/* Fundo do sheet um pouco mais escuro, igual ao fundo do feed (--bg-canvas,
+   atrás dos cards). Escopado ao #ajudante-sheet — não afeta pedido/vaga. */
+#ajudante-sheet .pedido-sheet__panel {
+  background: var(--bg-canvas);
+}
+
+/* Seção de função + título com ícone */
+.ajudante-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.ajudante-section__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-7);
+  font-weight: 800;
+  color: var(--t-light);
+}
+
+.ajudante-section__title .material-symbols-rounded {
+  font-size: 1.4rem;
+  color: var(--a-gold);
+  flex-shrink: 0;
+}
+
+/* Divisor entre as duas funções */
+.ajudante-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.18);
+  margin: var(--space-md) 0;
+}
+
+/* Texto introdutório de cada função (sobre o fundo verde do sheet) */
+.ajudante-intro {
+  font-size: var(--fs-5);
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 var(--space-md);
+}
+
+/* ── Checkbox de disponibilidade (leve / pesado) ── */
+.helper-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.helper-toggle + .helper-toggle {
+  margin-top: var(--space-sm);
+}
+
+.helper-toggle__check {
+  font-size: 1.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.helper-toggle__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.helper-toggle__name {
+  font-weight: 700;
+  font-size: var(--fs-7);
+  color: var(--t-light);
+}
+
+.helper-toggle__desc {
+  font-size: var(--fs-3);
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.35;
+}
+
+.helper-toggle__rate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  font-weight: 800;
+  font-size: var(--fs-9);
+  color: var(--a-gold);
+  line-height: 1.1;
+}
+
+.helper-toggle__rate small {
+  font-size: var(--fs-2);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Estado marcado — realce dourado + check preenchido */
+.helper-toggle--on {
+  border-color: var(--a-gold);
+  background: rgba(224, 168, 28, 0.16);
+}
+
+.helper-toggle--on .helper-toggle__check {
+  color: var(--a-gold);
+}
+
+.helper-toggle:active {
+  transform: scale(0.99);
+}
+
+/* Botão "Chamar ajudante" — largura total */
+.ajudante-call-btn {
+  width: 100%;
+  margin-top: var(--space-md);
+  border-radius: var(--radius-pill);
+}
+
+/* Nota "válido até a meia-noite" */
+.ajudante-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 var(--space-md);
+  padding: 10px 12px;
+  font-size: var(--fs-4);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-md);
+}
+
+.ajudante-note .material-symbols-rounded {
+  font-size: 1.15rem;
+  color: var(--a-gold);
+  flex-shrink: 0;
+}
+
+/* ── Lista de ajudantes sorteados ── */
+.helper-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Card do ajudante: mesmo padrão dos cards de profissional (.pro-card__front),
+   com elementos reduzidos. O botão WhatsApp (.pro-card__back-btn--whatsapp)
+   passa a ser um item de largura total abaixo do cabeçalho. */
+.pro-card__front--helper {
+  align-items: center;
+}
+
+.pro-card__front--helper .helper-wa {
+  flex-basis: 100%;
+  text-decoration: none;
+}
+
+/* Cabeçalho da seção "chamar": título à esquerda, botão cancelar à direita.
+   min-height fixa evita que a linha cresça quando o botão aparece/some. */
+.ajudante-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-height: 34px;
+  margin-bottom: var(--space-xs);
+}
+
+.ajudante-section__head .ajudante-section__title {
+  margin: 0;
+}
+
+/* Botão "Cancelar" — compacto, encaixa na altura da linha do título */
+.ajudante-cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--danger);
+  color: var(--t-light);
+  font-size: var(--fs-5);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.ajudante-cancel-btn .material-symbols-rounded {
+  font-size: 1.05rem;
+}
+
+.ajudante-cancel-btn:active {
+  transform: scale(0.96);
+}
+
+/* Bloco de cooldown pós-cancelamento (cronômetro até liberar o botão) */
+.ajudante-cooldown {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-md);
+}
+
+.ajudante-cooldown > .material-symbols-rounded {
+  font-size: 1.9rem;
+  color: var(--a-gold);
+  flex-shrink: 0;
+}
+
+.ajudante-cooldown__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ajudante-cooldown__label {
+  font-weight: 700;
+  font-size: var(--fs-6);
+  color: var(--t-light);
+}
+
+.ajudante-cooldown__timer {
+  font-size: var(--fs-4);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ajudante-cooldown__timer strong {
+  color: var(--a-gold);
+  font-variant-numeric: tabular-nums;
 }

@@ -1,0 +1,1038 @@
+/* ===========================================
+   ONBOARDING — FORMULÁRIO DE PERFIL
+   Componentes reutilizáveis: o mesmo formulário
+   servirá de base para a futura edição de perfil.
+   ======================================== */
+
+/* ===========================================
+   FUNDO VERDE DA TELA DE CADASTRO
+   O #view-onboarding tem fundo --p-green. Os campos e cards (foto, inputs,
+   localização, colapsável + painel, IC card, pro-cta) mantêm fundo
+   claro/branco e por isso se DESTACAM sobre o verde — todo o conteúdo dentro
+   deles segue com as cores escuras normais. Só os elementos que ficam
+   DIRETAMENTE sobre o verde mudam: o cabeçalho (título/subtítulo/cancelar,
+   agora claros) e o botão final (agora amarelo, via btn--accent no HTML, pois
+   verde sobre verde sumiria). Escopo estrito ao #view-onboarding para não
+   afetar telefone/OTP/feed. */
+#view-onboarding.screen {
+  background: var(--p-green);
+}
+
+#view-onboarding .screen__title {
+  color: var(--t-light);
+}
+
+#view-onboarding .screen__subtitle {
+  color: var(--p-green-light);
+}
+
+/* "Cancelar" DOURADO (não verde-claro): denota ação clicável sobre o verde,
+   em vez de se camuflar como texto comum (mesmo critério dos botões de texto
+   do fluxo de auth). */
+#view-onboarding #btn-onboarding-cancel {
+  color: var(--a-gold);
+}
+
+/* Distribui o formulário pela altura restante da tela (depois do cabeçalho)
+   quando o conteúdo é mais curto que a viewport (ex.: "Detalhes
+   profissionais" fechado) — sem isso os campos ficavam agrupados no topo,
+   terminando no meio da tela. flex:1 (não min-height:100%) é essencial: o
+   formulário é irmão do <header> dentro do mesmo .screen flex-column, então
+   min-height:100% contaria a altura TOTAL do .screen, ignorando o espaço já
+   ocupado pelo cabeçalho, e estouraria a tela; flex:1 ocupa exatamente o
+   espaço que sobra. min-height:0 permite que, quando o colapsável abre e o
+   conteúdo passa a ser mais alto que a tela, o formulário cresça livremente
+   e o próprio .screen (overflow-y:auto) assuma o scroll normalmente. */
+.onboarding-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Empurra o botão final para a base da tela, absorvendo sozinho o espaço
+   sobrando — os campos acima mantêm o espaçamento normal entre si. */
+#btn-finish-onboarding {
+  margin-top: auto;
+  padding-top: var(--space-md);
+}
+
+/* Margem inferior mínima do botão "Concluir" quando a tela ROLA (ex.: "Detalhes
+   profissionais" aberto). Nem o padding-bottom do .screen nem o do .onboarding-form
+   funcionam aqui: o form é flex:1 e seu conteúdo TRANSBORDA para baixo, passando
+   POR CIMA de qualquer padding-bottom (o botão acabava colado na base). Tornar o
+   FORM o container de scroll também não serve — `margin-top:auto` (que fixa o
+   botão na base quando o conteúdo é curto) é resolvido como 0 dentro de um flex
+   container com overflow. Solução: manter o .screen como container de scroll e
+   usar um ELEMENTO espaçador após o botão. A caixa de um elemento SEMPRE entra na
+   área rolável (ao contrário de padding/margin no fim), então o respiro aparece
+   de forma confiável no fim da rolagem; quando o conteúdo é curto, o
+   `margin-top:auto` do botão empurra botão + espaçador juntos para a base. O
+   .screen zera seu padding-bottom para o respiro vir só do espaçador (sem somar
+   duas vezes no caso curto). */
+#view-onboarding.screen {
+  padding-bottom: 0;
+}
+
+.onboarding-form__bottom-spacer {
+  flex-shrink: 0;
+  height: max(var(--space-lg), env(safe-area-inset-bottom, 0px));
+}
+
+/* Destaque de "faltando" na seção de padrão de serviços (obrigatoriedade
+   condicional dos dados profissionais). Outline não empurra o layout. */
+.service-choice--error {
+  outline: 2px solid var(--danger);
+  outline-offset: 6px;
+  border-radius: var(--radius-sm);
+}
+
+/* Linha foto + campos de nome lado a lado */
+.profile-header-row {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.profile-header-row__photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.profile-header-row__fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Captura de mídia — formato 3x4 */
+.media-capture__display {
+  width: 90px;
+  height: 120px;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  border: 3px dashed var(--t-disabled);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: border var(--transition);
+}
+
+.media-capture__display--captured {
+  border: 3px solid var(--p-green);
+}
+
+.media-capture__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--t-sub);
+  text-align: center;
+  padding: 0 6px;
+}
+
+.media-capture__placeholder-text {
+  font-size: var(--fs-1);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.media-capture__placeholder .material-symbols-rounded {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 2rem;
+  color: var(--t-disabled);
+}
+
+/* Tag Selector — pílulas selecionadas */
+.tag-selector__selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.tag-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--info-blue-light);
+  border: 1.5px solid var(--info-blue);
+  border-radius: var(--radius-pill);
+  color: var(--info-blue);
+  font-size: var(--fs-5);
+  font-weight: 600;
+  cursor: default;
+}
+
+.tag-pill__remove {
+  font-size: var(--fs-8);
+  cursor: pointer;
+  color: var(--info-blue);
+  line-height: 1;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* Métodos de pagamento aceitos — pílulas de seleção (mesmo .chip usado nos
+   filtros do feed; aqui só define o wrap do grupo e o espaçamento entre o
+   check circular e o texto). */
+.payment-methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.payment-methods .chip {
+  gap: 6px;
+}
+
+/* Rótulo do subgrupo "Cartão" — mais discreto que .form-group__label,
+   já que o contexto "Métodos de pagamento aceitos" já foi dado acima. */
+.payment-methods__subgroup-label {
+  margin: 0;
+  font-size: var(--fs-3);
+  font-weight: 700;
+  color: var(--t-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Check circular de seleção à direita do texto: substitui o ícone de tipo —
+   a cor de fundo do chip já indica o estado, o ícone reforça visualmente sem
+   depender só de cor. */
+.chip--payment .chip__check {
+  font-size: 1.05rem;
+}
+
+/* Alinha as pílulas de pagamento à mesma linguagem visual das pílulas de
+   profissão (.tag-pill), para o cadastro ter um padrão único: mesmo tamanho
+   de fonte (--fs-5), padding (8px 14px) e espessura de borda (1.5px). A borda
+   nasce igual nos dois estados — só a COR muda ao selecionar — para não
+   deslocar as vizinhas na mesma linha. Seletor .chip.chip--payment (2 classes)
+   é necessário para vencer .chip sozinho de feed.css, carregado DEPOIS de
+   onboarding.css com a mesma especificidade de uma classe só. */
+.chip.chip--payment {
+  padding: 8px 14px;
+  font-size: var(--fs-5);
+  border-width: 1.5px;
+}
+
+/* Selecionada: mesmo padrão "tint preenchido" das .tag-pill (fundo tint +
+   borda + texto no mesmo matiz), porém no azul do pagamento (--info-blue) em
+   vez do verde — preservando a identidade herdada do rodapé do card de
+   profissional e, ao mesmo tempo, mantendo os dois grupos distinguíveis. */
+.chip--payment.chip--active {
+  background: var(--info-blue-light);
+  border-color: var(--info-blue);
+  color: var(--info-blue);
+}
+
+/* Busca de áreas */
+.area-search {
+  position: relative;
+}
+
+.area-search__results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-white);
+  border: 2px solid var(--p-green);
+  border-radius: var(--radius-md);
+  list-style: none;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 50;
+  box-shadow: var(--shadow-lg);
+}
+
+.area-search__results li {
+  padding: 12px 14px;
+  font-size: var(--fs-6);
+  color: var(--t-main);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.area-search__results li:last-child {
+  border-bottom: none;
+}
+
+.area-search__results li:hover,
+.area-search__results li:active,
+.area-search__results li.is-selecting {
+  background: var(--p-green-light);
+  color: var(--p-green);
+}
+
+.area-search__results li.is-selecting {
+  font-weight: 600;
+}
+
+.area-search__clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--t-sub);
+  padding: 2px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.area-search__clear .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
+/* Botão de localização */
+.location-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: 16px;
+  border: none;   /* sem borda: o card branco contrasta sozinho no fundo verde */
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+}
+
+.location-check__icon {
+  font-size: 1.5rem;
+  color: var(--t-sub);
+  flex-shrink: 0;
+  transition: color var(--transition);
+}
+
+/* Carregamento: gira o ícone de STATUS (direita, que recebe o progress_activity
+   via JS) — o pino de localização à esquerda fica parado. */
+.location-check--loading .location-check__status {
+  display: inline-block;     /* necessário para a rotação ter efeito */
+  color: var(--p-green);
+  animation: spin 0.8s linear infinite;
+}
+
+.location-check__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.location-check__content strong {
+  color: var(--p-green-dark);
+  font-size: var(--fs-8);
+  font-weight: 700;
+}
+
+.location-check__status {
+  font-size: 1.4rem;
+  color: var(--t-disabled);
+  flex-shrink: 0;
+  transition: color var(--transition);
+}
+
+/* Localização confirmada: sem realce de fundo/borda no card inteiro — o check verde
+   (ícone de status) já sinaliza a seleção. */
+.location-check--confirmed .location-check__icon,
+.location-check--confirmed .location-check__status {
+  color: var(--p-green);
+}
+
+.location-check--error {
+  /* sem borda real (não desloca o layout): o anel de erro vem por box-shadow */
+  box-shadow: inset 0 0 0 2px var(--danger);
+  background: var(--danger-soft);
+}
+
+.location-check--error .location-check__icon,
+.location-check--error .location-check__status {
+  color: var(--danger);
+}
+
+/* Cabeçalho de seção com botão de ajuda ao lado do label (ex.: Padrão de
+   Serviços) — mesma linha do label, sem card/fundo próprio. */
+.form-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xs);
+}
+
+.form-group__header .form-group__label {
+  margin-bottom: 0;
+}
+
+/* Botão de interrogação genérico */
+.section-help-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-help-btn .material-symbols-rounded {
+  font-size: 1.2rem;
+  color: var(--t-sub);
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Seções colapsáveis */
+.collapsible {
+  margin-bottom: var(--space-md);
+}
+
+.collapsible__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-soft);
+  border: none;   /* sem borda: o card claro contrasta sozinho no fundo verde */
+  border-radius: var(--radius-md);
+  color: var(--p-green-dark);
+  font-weight: 800;
+  font-size: var(--fs-7);
+  cursor: pointer;
+  /* SEM transição no raio/borda: os cantos inferiores precisam virar retos (e a
+     borda inferior sumir) INSTANTANEAMENTE quando o painel aparece — se
+     animassem, durante a abertura o canto ficaria arredondado sobre o topo reto
+     do painel e o fundo verde vazava nos cantos (um "rasgo"). Só o fundo tem
+     transição (para eventuais estados de toque). */
+  transition: background 0.2s ease;
+  text-align: left;
+}
+
+.collapsible__trigger--gold {
+  border-color: var(--a-gold);
+  background: var(--gold-soft);
+}
+
+.collapsible__trigger .material-symbols-rounded:first-child {
+  color: var(--p-green);
+}
+
+.collapsible__trigger--gold .material-symbols-rounded:first-child {
+  color: var(--a-gold);
+}
+
+.collapsible__chevron {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+  color: var(--t-sub);
+}
+
+.collapsible--open .collapsible__chevron {
+  transform: rotate(180deg);
+}
+
+/* Cantos inferiores retos + borda inferior transparente enquanto o painel está
+   PRESENTE (aberto ou animando). Ligado a `collapsible--connected` (JS), que vive
+   de open-start até close-END — ao contrário de `collapsible--open`, que é
+   removida no INÍCIO do fechamento (para o chevron girar de volta na hora). Assim
+   o "cap" reto do gatilho acompanha o painel por toda a animação, sem rasgo. */
+.collapsible--connected .collapsible__trigger {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+}
+
+.collapsible__panel {
+  padding: var(--space-md);
+  border: none;   /* sem borda, como o gatilho acima */
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+  background: var(--bg-white);
+}
+
+.collapsible--open > .collapsible__trigger--gold ~ .collapsible__panel {
+  border-color: var(--a-gold);
+  border-top: none;
+}
+
+/* ── Padrão de Serviços — SELEÇÃO por card + display único de barras ─────────
+   Grade 2×2 de cards COMPACTOS (ícone + título + subtítulo, sem barras). Abaixo,
+   um único `.service-choice-display` com as 3 barras Qualidade/Agilidade/Valor no
+   MESMO componente `.qav` dos cards de profissional do feed (estilos em feed.css),
+   que ANIMAM (transição de width) conforme o card selecionado. Seleção única
+   estilo rádio: `.service-choice__card--active` (JS). */
+.service-choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.service-choice__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 10px 12px;
+  background: var(--bg-white);
+  border: 2px solid var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.service-choice__card:active {
+  transform: scale(0.99);
+}
+
+.service-choice__card--active {
+  border-color: var(--p-green);
+  background: var(--p-green-light);
+  box-shadow: 0 0 0 3px rgba(var(--p-green-rgb), 0.10);
+}
+
+.service-choice__icon {
+  font-size: 1.6rem;
+  color: var(--p-green);
+  margin-bottom: 2px;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.service-choice__title {
+  font-size: var(--fs-5);
+  font-weight: 800;
+  color: var(--p-green-dark);
+  line-height: 1.15;
+}
+
+.service-choice__sub {
+  font-size: var(--fs-1);
+  font-weight: 600;
+  color: var(--t-sub);
+  line-height: 1.1;
+}
+
+/* Check de seleção no canto superior direito do card */
+.service-choice__check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 1.1rem;
+  color: var(--t-disabled);
+}
+
+.service-choice__card--active .service-choice__check {
+  color: var(--p-green);
+}
+
+/* Display único das barras — animado conforme a seleção */
+.service-choice-display {
+  margin-top: var(--space-sm);
+  padding: 12px 14px;
+  background: var(--bg-soft);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.service-choice-display .qav { gap: 6px; }
+.service-choice-display .qav__label { font-size: var(--fs-2); }
+.service-choice-display .qav__bar { height: 9px; }
+
+/* A ANIMAÇÃO: a largura da barra desliza suave ao trocar de card. Escopo só ao
+   display do cadastro — as barras dos cards do feed continuam sem transição. */
+.service-choice-display .qav__fill {
+  transition: width 0.45s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* ── Convite de assinatura do Plano Pro (fecha os Detalhes profissionais) ──
+   Card ilustrativo e sucinto: ícone + título, uma linha de contexto, chips
+   de benefício, preço e botão de assinar. */
+.pro-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  background: var(--gold-soft);
+  border: 1px solid var(--a-gold);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.pro-cta__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.pro-cta__icon {
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+  font-size: 1.4rem;
+  color: var(--a-gold);
+}
+
+.pro-cta__title {
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--p-green-dark);
+}
+
+.pro-cta__text {
+  font-size: var(--fs-5);
+  line-height: 1.5;
+  color: var(--t-main);
+}
+
+.pro-cta__perks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs);
+  margin-top: 2px;
+}
+
+.pro-cta__perk {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px var(--space-xs);
+  background: var(--bg-white);
+  border: 1px solid var(--gold-soft-border);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-3);
+  font-weight: 700;
+  color: var(--p-green-dark);
+}
+
+.pro-cta__perk .material-symbols-rounded {
+  font-size: 1rem;
+  color: var(--a-gold-text);
+}
+
+.pro-cta__price {
+  margin-top: 2px;
+  font-size: var(--fs-9);
+  font-weight: 800;
+  color: var(--p-green-dark);
+}
+
+.pro-cta__price span {
+  font-size: var(--fs-4);
+  font-weight: 600;
+  color: var(--t-sub);
+}
+
+.pro-cta #btn-subscribe-pro {
+  width: 100%;
+  margin-top: var(--space-xs);
+}
+
+
+/* ── Índice de Confiança (card do onboarding) — "SELO DE REPUTAÇÃO" ──
+   Card BRANCO como os demais campos do cadastro, distinguido pela borda
+   dourada suave e pelo leve brilho dourado no canto. Textos nas cores padrão
+   dos cards claros da tela (títulos --p-green-dark, corpo --t-sub). Conteúdo
+   (de cima p/ baixo): cabeçalho, hero 70 na moldura-escudo, medidor
+   segmentado com os 4 escudos do sistema e pino, nota e rodapé-lema. */
+.ic-card {
+  position: relative;
+  border: none;   /* sem borda: o card branco contrasta sozinho no fundo verde */
+  border-radius: var(--radius-md);
+  /* brilho radial VERDE no canto (era dourado) */
+  background:
+    radial-gradient(130% 90% at 100% 0%, rgba(var(--p-green-rgb), 0.10), transparent 55%),
+    var(--bg-white);
+  padding: 14px var(--space-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.ic-card__info-btn {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px;
+  z-index: 2;
+}
+
+.ic-card__info-btn .material-symbols-rounded {
+  font-size: 1.2rem;
+  color: var(--t-sub);
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Cabeçalho no PADRÃO dos TÍTULOS do cadastro ("Detalhes profissionais",
+   "Registrar sua região atual"): ícone verde 24px + texto --fs-7, 800,
+   --p-green-dark, sem uppercase */
+.ic-card__head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-right: 26px;  /* espaço p/ o botão de ajuda (?) */
+}
+
+.material-symbols-rounded.ic-card__head-icon {
+  font-size: 1.5rem;
+  color: var(--p-green);
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
+}
+
+.ic-card__eyebrow {
+  font-size: var(--fs-7);
+  font-weight: 800;
+  color: var(--p-green-dark);
+}
+
+/* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70) */
+.ic-card__intro {
+  background: var(--bg-soft);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+/* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca
+   encolhe abaixo do conteúdo). Em telas curtas fica na altura do conteúdo e a
+   página rola. As seções internas se distribuem (space-between) para ocupar a
+   altura extra sem sobrar vão em uma ponta só. */
+.form-group--ic-fill {
+  flex: 1 0 auto;
+}
+
+.form-group--ic-fill .ic-card {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* ── Hero: título + mensagem de responsabilidade à esquerda, 70 à direita ──
+   SEM gap: a caixa do 70 deve começar exatamente onde o texto termina, para a
+   centralização considerar a zona real disponível (ver .ic-hero__value). */
+.ic-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* A moldura-escudo (com o 70 dentro) se CENTRALIZA na zona REAL disponível:
+   do fim do bloco de texto até a BORDA do card interno (a margem negativa
+   anula o padding direito do .ic-card__intro, e o hero sem gap faz a caixa
+   começar rente ao texto). */
+.ic-hero__badge {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: -12px;
+}
+
+/* Moldura em forma de escudo: SVG só de contorno (stroke dourado, sem
+   preenchimento), no formato dos escudos do app */
+.ic-hero__badge-shield {
+  display: block;
+  width: 4.9rem;
+  height: 5.3rem;
+}
+
+/* O 70 fica DENTRO da moldura; o centro visual do escudo é um pouco acima do
+   centro da caixa (o desenho afunila para baixo), daí o -55%. */
+.ic-hero__value {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -55%);
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+  /* degradê mais escuro (ouro → ocre): o tom claro sumia no fundo branco */
+  background: linear-gradient(165deg, var(--a-gold) 20%, var(--a-gold-text) 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Texto à esquerda, com largura contida para dar mais respiro ao 70 */
+.ic-hero__info {
+  min-width: 0;
+  flex: 0 1 62%;
+  text-align: left;
+}
+
+/* O SUBTÍTULO do card vive no hero, ao lado do 70 (nunca é escondido) —
+   no MESMO padrão de subtítulo de "O que você faz?"/"Suas Habilidades"
+   (.form-group__label: --p-green, --fs-5, 700, uppercase) */
+.ic-hero__title {
+  display: block;
+  font-size: var(--fs-5);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--p-green);
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.ic-hero__text {
+  font-size: var(--fs-3);
+  line-height: 1.45;
+  color: var(--t-sub);
+}
+
+/* ── Medidor: zonas ACIMA da barra segmentada (4 faixas); pino "VOCÊ" em 70%
+   ABAIXO dela (linha subindo até a barra + etiqueta pulsante) ── */
+.ic-meter {
+  position: relative;
+  padding-bottom: 26px;  /* espaço do pino abaixo da barra */
+}
+
+.ic-meter__pin {
+  position: absolute;
+  bottom: 0;
+  left: 70%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.ic-meter__pin-tag {
+  font-size: var(--fs-1);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;   /* "Confiança atual" numa linha só */
+  color: var(--p-green-dark);
+  background: var(--a-gold);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  animation: icPinPulse 2.2s ease-out infinite;
+}
+
+.ic-meter__pin-line {
+  width: 2px;
+  height: 7px;
+  background: var(--a-gold);
+}
+
+@keyframes icPinPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(var(--p-green-rgb), 0.40); }
+  70%  { box-shadow: 0 0 0 7px rgba(var(--p-green-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--p-green-rgb), 0); }
+}
+
+.ic-meter__track {
+  display: flex;
+  gap: 3px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.ic-meter__seg {
+  flex: 1;
+}
+
+.ic-meter__seg--bad   { background: #000000; }
+.ic-meter__seg--alert { background: var(--danger); }
+.ic-meter__seg--warn  { background: var(--a-gold); }
+.ic-meter__seg--ok    { background: var(--success-fill); }
+
+/* Zonas (ACIMA da barra): escudo do sistema + faixa numérica, uma por segmento */
+.ic-meter__zones {
+  display: flex;
+  margin-bottom: 6px;
+}
+
+.ic-zone {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1px;
+  opacity: 0.78;   /* zonas "futuras" levemente apagadas; a atual acende */
+}
+
+.ic-zone__shield {
+  font-size: 1.35rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.ic-zone__range {
+  font-size: var(--fs-1);
+  font-weight: 800;
+}
+
+/* Cores por faixa (as MESMAS do resto do app sobre fundo claro; a <25% é
+   PRETA, como o segmento da barra: a zona "morta" do índice). O texto da
+   faixa dourada usa o ocre --a-gold-text para legibilidade no branco. */
+.ic-zone--bad   .ic-zone__shield, .ic-zone--bad   .ic-zone__range { color: #000000; }
+.ic-zone--alert .ic-zone__shield, .ic-zone--alert .ic-zone__range { color: var(--danger); }
+.ic-zone--warn  .ic-zone__shield { color: var(--a-gold); }
+.ic-zone--warn  .ic-zone__range { color: var(--a-gold-text); }
+.ic-zone--ok    .ic-zone__shield, .ic-zone--ok    .ic-zone__range { color: var(--success-fill); }
+
+/* Zona atual (50–74, onde o usuário começa): acesa e com o escudo maior */
+.ic-zone--current {
+  opacity: 1;
+}
+
+.ic-zone--current .ic-zone__shield {
+  font-size: 1.6rem;
+}
+
+/* ── O que move o índice: nota única (a antiga tabela sobe/desce foi removida;
+   some nas telas baixas via @media, junto com o container) ── */
+.ic-factors__note {
+  font-size: var(--fs-1);
+  font-style: italic;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--t-sub);
+}
+
+/* ── Rodapé-lema (mesmo tamanho de fonte da nota, centralizado como ela) ── */
+.ic-card__footer {
+  font-size: var(--fs-1);
+  line-height: 1.45;
+  text-align: center;
+  color: var(--t-sub);
+  border-top: 1px solid var(--p-green-light);
+  padding-top: 6px;
+}
+
+/* Destaque em VERDE (era dourado), em linha própria (display:block quebra) */
+.ic-card__footer strong {
+  display: block;
+  color: var(--p-green-dark);
+  font-weight: 700;
+}
+
+/* ── Adaptativo por altura (inclui a redução pela barra do navegador): esconde
+   extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
+   fechado. O hero 70 e o medidor com os 4 escudos ficam SEMPRE. Limiares
+   MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
+   fonte): completo ~819px, sem rodapé ~776px, sem nota ~751px, compacto
+   ~689px. */
+@media (max-height: 823px) {
+  #view-onboarding .ic-card__footer { display: none; }
+}
+
+@media (max-height: 780px) {
+  #view-onboarding .ic-factors { display: none; }
+  #view-onboarding .ic-card { padding: var(--space-sm) var(--space-md); }
+}
+
+@media (max-height: 755px) {
+  /* Telas bem curtas: compacta cabeçalho, card interno, hero e medidor
+     (nada mais é escondido) */
+  #view-onboarding .ic-card { padding: 10px var(--space-md); }
+  #view-onboarding .ic-card__eyebrow { font-size: var(--fs-6); }
+  #view-onboarding .ic-card__head-icon { font-size: 1.3rem; }
+  #view-onboarding .ic-card__intro { padding: 6px 10px; }
+  #view-onboarding .ic-hero__badge { margin-right: -10px; }
+  #view-onboarding .ic-hero__badge-shield { width: 3.1rem; height: 3.4rem; }
+  #view-onboarding .ic-hero__value { font-size: 1.2rem; }
+  #view-onboarding .ic-hero__text { display: none; }
+  #view-onboarding .ic-meter { padding-bottom: 20px; }
+  #view-onboarding .ic-meter__zones { margin-bottom: 4px; }
+  #view-onboarding .ic-meter__track { height: 8px; }
+  #view-onboarding .ic-zone__shield { font-size: 1.15rem; }
+  #view-onboarding .ic-zone--current .ic-zone__shield { font-size: 1.35rem; }
+}
+
+/* ── Dialog da câmera ── */
+.dialog-box--camera {
+  padding: var(--space-md);
+  position: relative;
+}
+
+.camera-view {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--camera-bg);
+  margin: var(--space-sm) 0;
+}
+
+.camera-view__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.camera-view__guide {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+  background-size: 33.33% 33.33%;
+}
+
+.camera-view__actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.camera-view__action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  font-size: var(--fs-8);
+  font-weight: 600;
+}
+
+.camera-view__action-btn .material-symbols-rounded {
+  font-size: 1.4rem;
+}
+
+.camera-view__action-btn--cancel {
+  background: var(--danger);
+  color: var(--t-light);
+  border-color: var(--danger);
+}
+
+.camera-view__action-btn--confirm {
+  background: var(--success);
+  color: var(--t-light);
+  border-color: var(--success);
+}

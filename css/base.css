@@ -3,56 +3,90 @@
    ======================================== */
 :root {
   /* Cores principais */
-  --p-green: #184e1b;
-  --p-green-dark: #032004;
-  --p-green-light: #e8f5e9;
+  --p-green: #184e1b;           /* Verde-Floresta Profundo — tom dos focos do bloqueio desktop */
+  --p-green-rgb: 24, 78, 27;    /* mesmos canais do --p-green p/ rgba() — anéis de foco, brilhos radiais, pulso do pino */
+  --p-green-dark: #0a1f0b;      /* mesmo matiz, quase preto — também é o fundo do bloqueio desktop */
+  --p-green-light: #dde9dd;     /* tint claro no mesmo matiz */
 
   /* Cores de destaque */
-  --a-gold: #FFC107;
-  --a-gold-hover: #FFB300;
-  --a-gold-text: #E6A700;        /* amarelo levemente mais escuro p/ TEXTO colorido (substitui a sombra escura) */
-  --info-blue: #42a5f5;
-  --gold-soft: #fffdf0;          /* fundo creme (gatilho Pro) */
+  --a-gold: #e0a81c;            /* Amarelo-Ouro Vivo — mais saturado, evita aparência inativa */
+  --a-gold-hover: #c89210;
+  --a-gold-text: #a87808;       /* ocre mais escuro p/ TEXTO colorido */
+  --info-blue: #2e5898;         /* Azul-Cobalto Metálico escuro — discreto */
+  --info-blue-light: #dee5f2;   /* tint claro no mesmo matiz (paralelo a --p-green-light) */
+  --gold-soft: #fdf8ee;         /* fundo creme (gatilho Pro) */
+  --gold-soft-border: #f3e8c0;  /* borda das células Pro do comparativo */
+  --whatsapp: #25D366;          /* verde oficial do botão WhatsApp */
 
   /* Estados semânticos — vermelho (perigo/erro), verde (sucesso), laranja (atenção) */
   --danger: #e53935;             /* denunciar, cancelar câmera, bordas de erro */
   --danger-hover: #b71c1c;       /* vermelho pressionado */
   --danger-text: #c62828;        /* texto de alerta (IC baixo) */
   --danger-soft: #fff5f5;        /* fundo de campo com erro */
-  --success: #2e7d32;            /* confirmar foto, texto verde positivo */
-  --success-fill: #43a047;       /* preenchimento de barra "bom" / ponto de status */
+  --success: #2c6e42;            /* confirmar foto, texto verde positivo */
+  --success-fill: #3d8a58;       /* preenchimento de barra "bom" / ponto de status */
   --warn-text: #f57c00;          /* laranja claro do IC (faixa alerta) — distinto do vermelho */
-
-  /* Tiers de valor (medalhas) — ouro usa --a-gold; verde usa --p-green */
-  --tier-bronze: #cd7f32;
-  --tier-silver: #9e9e9e;
 
   /* Superfícies específicas */
   --camera-bg: #111111;          /* fundo da área da câmera */
+  --surface-company: #555558;    /* faixa de empresa nos cards de vaga */
+  --surface-dark: #1c1c1e;       /* superfície escura (botão primário alternativo) */
 
   /* Fundos */
   --bg-white: #FFFFFF;
   --bg-soft: #F2F4F3;
   --bg-input: #ECEEED;
-  --bg-canvas: #E3E7E6; /* cinza do fundo das listas/scroll — dá contraste aos cards brancos */
+  --bg-canvas: #124014; /* verde ligeiramente mais escuro que --p-green — fundo das listas, atrás dos cards */
 
   /* Bordas */
   --border-light: #D4D8D5;
   --border-mid: #B0B8B2;
 
   /* Tipografia */
-  --t-main: #1A1A1A;
+  --t-main: #1c2a30;            /* Cinza-Petróleo Suave — mais legível que preto puro */
   --t-sub: #5A6360;
   --t-light: #FFFFFF;
   --t-disabled: #B8BFBC;
 
+  /* Escala tipográfica — do menor ao maior (px aproximado @16px root).
+     Todo font-size de TEXTO usa um token; exceções: clamp() responsivos
+     e ícones Material Symbols (dimensionam glifo, não texto). */
+  --fs-1: 0.6rem;    /* ~10px — micro-rótulos: tabs, QAV, badges */
+  --fs-2: 0.7rem;    /* ~11px — meta de cards, labels pequenos */
+  --fs-3: 0.75rem;   /*  12px — hints, legal, timestamps */
+  --fs-4: 0.8rem;    /* ~13px — bio, tags, células de comparativo */
+  --fs-5: 0.85rem;   /* ~14px — labels de form, chips, botões compactos */
+  --fs-6: 0.9rem;    /* ~14px — busca, botões de card, barras de serviço */
+  --fs-7: 0.95rem;   /* ~15px — corpo: posts, nomes, subtítulos */
+  --fs-8: 1rem;      /*  16px — inputs e botões (≥16px evita zoom iOS) */
+  --fs-9: 1.1rem;    /* ~18px — títulos de painel/sheet, botão grande */
+  --fs-10: 1.2rem;   /* ~19px — marca, títulos de confirmação */
+  --fs-11: 1.3rem;   /* ~21px — título de diálogo */
+  --fs-12: 1.5rem;   /*  24px — título de tela, dígitos OTP */
+  --fs-13: 2.2rem;   /* ~35px — hero (título auth / bloqueio desktop) */
+
   /* Raios */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
   --radius-md: 12px;
+  --radius-lg: 20px;             /* topo arredondado dos bottom-sheets (agenda, indicados, pedido) */
   --radius-pill: 28px;
 
   /* Sombras */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.07);
   --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.13);
+
+  /* Overlays (backdrops de diálogos, sheets e painéis) */
+  --overlay: rgba(3, 32, 4, 0.45);
+  --overlay-soft: rgba(3, 32, 4, 0.35);
+
+  /* Fundo dos bloqueios de tela cheia (desktop e paisagem) — verde escuro com
+     dois brilhos radiais. Token único: os dois blocos compartilhavam o mesmo
+     gradiente copiado à mão. */
+  --block-bg:
+    radial-gradient(circle at 20% 30%, rgba(var(--p-green-rgb), 0.8) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(3, 32, 4, 0.9) 0%, transparent 40%),
+    linear-gradient(135deg, var(--p-green-dark) 0%, var(--p-green-dark) 100%);
 
   /* Transição padrão */
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -89,7 +123,15 @@ body.app-body {
   min-height: 100vh;
   min-height: 100dvh;
   min-height: var(--app-height, 100dvh);
-  background-color: var(--bg-white);
+  /* Fundo VERDE, não branco: todo o app é verde (auth, onboarding, install,
+     feed) e o splash nativo usa background_color verde do manifest. Se html/body
+     ficassem brancos, qualquer frame em que o loader/tela verde ainda não pintou
+     — fim do splash no Android, parse progressivo, bounce de overscroll no iOS,
+     ou as laterais das telas (max-width:500px) em telas largas — vazaria branco.
+     O <style> crítico inline no <head> já pinta o html de verde no 1º paint;
+     esta regra (carregada depois) PRECISA manter o verde, senão reverteria o
+     html para branco e recriaria o flash que o inline tentava evitar. */
+  background-color: var(--p-green);
   color: var(--t-main);
   overflow: hidden;
   overscroll-behavior: none;
@@ -165,7 +207,11 @@ input, textarea {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   touch-action: pan-y;
-  animation: screenIn 0.4s ease-out forwards;
+  /* Sem animação de entrada: a tela aparece opaca e imediata. Um translateY
+     de entrada deixava uma tira do body (branco) aparecendo no topo por um
+     instante antes de a tela subir e cobri-la; e um fade de opacidade deixava
+     o body vazar no meio do fade-out do loader (flash claro). A transição
+     entre telas fica por conta do fade-out do próprio loader. */
 }
 
 /* Padding padrão para telas com scroll livre (auth, onboarding).
@@ -187,24 +233,34 @@ input, textarea {
 .screen__header {
   width: 100%;
   margin-bottom: var(--space-lg);
-  text-align: center;
+  text-align: left;
 }
 
+/* Título e botão "Cancelar" na mesma linha (economiza altura) — título ocupa
+   o espaço restante, alinhado à esquerda; o botão fica à direita, afastado do
+   título e respeitando a margem direita da tela via o padding do próprio
+   .screen. */
 .screen__header-nav {
   display: flex;
   align-items: center;
-  margin-bottom: var(--space-xs);
+  gap: var(--space-sm);
+}
+
+.screen__header-nav .btn {
+  flex-shrink: 0;
 }
 
 .screen__title {
-  font-size: 1.5rem;
+  flex: 1;
+  text-align: left;
+  font-size: var(--fs-11);
   font-weight: 800;
   color: var(--p-green-dark);
 }
 
 .screen__subtitle {
   margin-top: 4px;
-  font-size: 0.95rem;
+  font-size: var(--fs-7);
   color: var(--t-sub);
 }
 
@@ -241,11 +297,6 @@ input, textarea {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
-}
-
-@keyframes screenIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes dialogScaleUp {

@@ -12,7 +12,7 @@
   gap: 10px;
   padding: 16px;
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--fs-8);
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -41,6 +41,33 @@
   color: var(--t-sub);
 }
 
+.btn--white {
+  background: var(--bg-white);
+  color: #000;
+}
+
+.btn--danger {
+  background: var(--danger);
+  color: var(--t-light);
+}
+
+/* Spinner de carregamento dos botões (SMS / reenvio) — extraído do inline-style
+   duplicado em auth.js. Base: glifo autorenew girando, peso 700 (o padrão 500
+   fica fino demais ao lado do texto em negrito). --sm para o link de reenvio. */
+.btn__spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: var(--space-xs);
+  font-size: 22px;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
+  animation: spin 1s linear infinite;
+}
+
+.btn__spinner--sm {
+  margin-right: 4px;
+  font-size: 16px;
+}
+
 .btn--text {
   background: none;
   padding: 8px 0;
@@ -48,6 +75,14 @@
   text-align: left;
   line-height: 1;
   vertical-align: middle;
+}
+
+/* Ícone de seta (ex.: "← Voltar") como Material Symbol em vez de caractere
+   de texto — um glifo de seta comum não se alinha verticalmente ao centro
+   do texto ao lado (métrica de fonte diferente); dentro do .btn flex com
+   align-items:center, o ícone fica perfeitamente centrado com o rótulo. */
+.btn--text .material-symbols-rounded {
+  font-size: 1.1rem;
 }
 
 .btn--text:active {
@@ -58,7 +93,7 @@
 /* Botão "Fechar" / dispensar — caixa compacta para cabeçalhos de painéis */
 .btn--close {
   padding: 7px 12px;
-  font-size: 0.82rem;
+  font-size: var(--fs-4);
   gap: 5px;
   border-radius: var(--radius-md);
 }
@@ -71,13 +106,13 @@
 .btn--large {
   width: 100%;
   border-radius: var(--radius-pill);
-  font-size: 18px;
+  font-size: var(--fs-9);
 }
 
 .btn--pill {
   padding: 10px 20px;
   border-radius: var(--radius-pill);
-  font-size: 14px;
+  font-size: var(--fs-6);
 }
 
 /* FAB: posicionamento gerenciado pelo .fab-group no feed */
@@ -119,26 +154,26 @@
 
 .form-group__label {
   color: var(--p-green);
-  font-size: 0.85rem;
+  font-size: var(--fs-5);
   font-weight: 700;
   text-transform: uppercase;
 }
 
 .form-group__hint {
   text-align: right;
-  font-size: 0.75rem;
+  font-size: var(--fs-3);
   color: var(--t-sub);
 }
 
 .form-group__optional {
-  font-size: 0.75rem;
+  font-size: var(--fs-3);
   font-weight: 400;
   color: var(--t-sub);
   text-transform: none;
 }
 
 .form-group__description {
-  font-size: 0.82rem;
+  font-size: var(--fs-4);
   color: var(--t-sub);
   line-height: 1.4;
   margin-bottom: var(--space-xs);
@@ -147,7 +182,7 @@
 .input-text {
   width: 100%;
   padding: 14px;
-  font-size: 16px;
+  font-size: var(--fs-8);
   border: 2px solid var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-white);
@@ -160,13 +195,13 @@
 .input-text:focus {
   border-color: var(--p-green);
   background: var(--bg-white);
-  box-shadow: 0 0 0 3px rgba(24, 78, 27, 0.08);
+  box-shadow: 0 0 0 3px rgba(var(--p-green-rgb), 0.08);
 }
 
 /* Hint (placeholder) um pouco menor: evita corte em campos de 1 linha
    e reduz o volume do placeholder longo no textarea de habilidades */
 .input-text::placeholder {
-  font-size: 0.875rem;
+  font-size: var(--fs-5);
 }
 
 .input-text--center {
@@ -218,7 +253,7 @@
   pointer-events: none;
   transition: all 0.2s ease;
   transform-origin: left top;
-  font-size: 1rem;
+  font-size: var(--fs-8);
   font-weight: 400;
   color: var(--t-disabled);
   text-transform: none;
@@ -252,12 +287,12 @@
 }
 
 .ic-bar__value {
-  font-size: 0.78rem;
+  font-size: var(--fs-4);
   font-weight: 700;
 }
 
 .ic-bar__label {
-  font-size: 0.78rem;
+  font-size: var(--fs-4);
   font-weight: 700;
 }
 
@@ -275,26 +310,25 @@
 }
 
 /* Cor do escudo, porcentagem E palavra variam pela faixa do índice (100→0 em 4 partes) */
-/* 75–100: verde — verificado (gpp_good) */
+/* 75–100: verde médio — verificado (gpp_good); --success-fill é mais legível que --p-green em tamanhos pequenos */
 .ic-bar--ok .ic-bar__shield,
 .ic-bar--ok .ic-bar__value,
 .ic-bar--ok .ic-bar__label { color: var(--success-fill); }
 
-/* 50–74: amarelo — em construção (shield_question)
-   Amarelo de texto levemente mais escuro: sem sombra, legível sobre fundo claro */
+/* 50–74: amarelo principal do tema */
 .ic-bar--warn .ic-bar__shield,
 .ic-bar--warn .ic-bar__value,
-.ic-bar--warn .ic-bar__label { color: var(--a-gold-text); }
+.ic-bar--warn .ic-bar__label { color: var(--a-gold); }
 
 /* 25–49: vermelho — alerta (gpp_maybe) */
 .ic-bar--alert .ic-bar__shield,
 .ic-bar--alert .ic-bar__value,
 .ic-bar--alert .ic-bar__label { color: var(--danger); }
 
-/* 0–24: preto — condenado (gpp_bad) */
+/* 0–24: cinza-petróleo escuro — condenado (gpp_bad) */
 .ic-bar--bad .ic-bar__shield,
 .ic-bar--bad .ic-bar__value,
-.ic-bar--bad .ic-bar__label { color: #111111; }
+.ic-bar--bad .ic-bar__label { color: var(--t-main); }
 
 
 /* ===========================================
@@ -311,22 +345,22 @@
 }
 
 .overlay-loader {
-  background: var(--bg-white);
+  background: var(--p-green);
   transition: opacity .4s ease;
 }
 
 .overlay-loader__spinner {
   width: 80px;
   height: 80px;
-  border: 8px solid var(--bg-input);
-  border-top-color: var(--p-green);
+  border: 8px solid rgba(255, 255, 255, 0.25);
+  border-top-color: var(--t-light);
   border-radius: 50%;
   animation: spin .8s linear infinite;
 }
 
 .overlay-dialog {
   padding: var(--space-lg);
-  background: rgba(3, 32, 4, 0.45);
+  background: var(--overlay);
   backdrop-filter: blur(5px);
 }
 
@@ -352,7 +386,7 @@
 
 .dialog-box__title {
   margin-bottom: 10px;
-  font-size: 1.3rem;
+  font-size: var(--fs-11);
   font-weight: 800;
   color: var(--p-green-dark);
 }
@@ -380,4 +414,156 @@
   line-height: 1.6;
   padding-right: 4px;
   white-space: pre-wrap;
+}
+
+
+/* ===========================================
+   BANNER DE ATUALIZAÇÃO DO PWA
+   Faixa fixa na base da tela — nunca bloqueia o app (sem backdrop), fica
+   acima de tudo (inclusive do tutorial) e some só quando o usuário toca em
+   "Atualizar" (ver app.js). Nunca recarrega sozinha.
+   ======================================== */
+.pwa-update-banner {
+  position: fixed;
+  left: var(--space-md);
+  right: var(--space-md);
+  bottom: max(var(--space-md), env(safe-area-inset-bottom, 0px));
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 14px var(--space-md);
+  background: var(--p-green-dark);
+  color: var(--t-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  animation: stepFadeIn 0.3s ease-out;
+}
+
+.pwa-update-banner__icon {
+  flex-shrink: 0;
+  color: var(--a-gold);
+}
+
+.pwa-update-banner__text {
+  flex: 1;
+  font-size: var(--fs-6);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.pwa-update-banner__btn {
+  flex-shrink: 0;
+  padding: 8px 18px;
+}
+
+.pwa-update-banner__btn:disabled {
+  opacity: 0.6;
+}
+
+
+/* ===========================================
+   BLOQUEIO DESKTOP (html.is-desktop)
+   O app é exclusivo mobile: em desktop esta camada cobre tudo
+   e o JS aborta a inicialização (window.IS_MOBILE = false)
+   ======================================== */
+.desktop-block {
+  display: none;
+}
+
+html.is-desktop .desktop-block {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-xl);
+  text-align: center;
+  background: var(--block-bg);
+  color: var(--t-light);
+}
+
+html.is-desktop .desktop-block__icon {
+  font-size: 6rem;
+  color: var(--a-gold);
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 48;
+}
+
+.desktop-block__title {
+  font-size: var(--fs-13);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.desktop-block__text {
+  max-width: 480px;
+  font-size: var(--fs-9);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Em desktop, nada do app deve aparecer ou disputar a tela com o bloqueio */
+html.is-desktop #loader-global,
+html.is-desktop .screen,
+html.is-desktop .overlay-dialog {
+  display: none !important;
+}
+
+
+/* ===========================================
+   CAMADA GLOBAL — Bloqueio de orientação paisagem (mobile)
+   No navegador não dá para travar a rotação (screen.orientation.lock exige
+   fullscreen); instalado como PWA o manifest "orientation": "portrait" trava
+   de verdade e esta tela nunca aparece.
+   O max-height filtra celulares deitados — monitores desktop também são
+   paisagem, mas altos, e já são cobertos pelo bloqueio is-desktop acima.
+   ======================================== */
+.rotate-block {
+  display: none;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  html:not(.is-desktop) .rotate-block {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: var(--space-lg);
+    text-align: center;
+    background: var(--block-bg);
+    color: var(--t-light);
+  }
+
+  /* Em paisagem, nada do app deve aparecer ou disputar a tela com o bloqueio */
+  html:not(.is-desktop) #loader-global,
+  html:not(.is-desktop) .screen,
+  html:not(.is-desktop) .overlay-dialog {
+    display: none !important;
+  }
+}
+
+.rotate-block__icon {
+  font-size: 3.5rem;
+  color: var(--a-gold);
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 48;
+}
+
+.rotate-block__title {
+  font-size: var(--fs-12);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.rotate-block__text {
+  max-width: 480px;
+  font-size: var(--fs-7);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
 }

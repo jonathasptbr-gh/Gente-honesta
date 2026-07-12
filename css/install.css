@@ -1,0 +1,84 @@
+/* ===========================================
+   TELA — GUIA DE INSTALAÇÃO DO PWA (view-install)
+   Exibida uma vez após o cadastro, fora do modo standalone
+   ======================================== */
+.install-guide {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Estágio "instalação em andamento": nota informativa + retry discreto */
+.install-progress__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-soft);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-5);
+  line-height: 1.5;
+  color: var(--t-sub);
+  text-align: left;
+}
+
+.install-progress__note .material-symbols-rounded {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  color: var(--info-blue);
+  margin-top: 1px;
+}
+
+/* Botão de retry: deliberadamente discreto (só aparece se algo der errado) */
+.install-retry {
+  margin-top: var(--space-sm);
+  font-size: var(--fs-4);
+  font-weight: 600;
+  color: var(--t-sub);
+  text-decoration: underline;
+}
+
+.install-guide__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: var(--space-sm) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: install-step;
+}
+
+.install-guide__step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-soft);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  text-align: left;
+  font-size: var(--fs-7);
+  color: var(--t-main, #1a1a1a);
+  counter-increment: install-step;
+}
+
+.install-guide__step::before {
+  content: counter(install-step);
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--p-green);
+  color: #fff;
+  font-size: var(--fs-4);
+  font-weight: 800;
+}
+
+.install-guide__step .material-symbols-rounded {
+  flex-shrink: 0;
+  font-size: 26px;
+  color: var(--p-green);
+}

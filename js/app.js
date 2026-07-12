@@ -1,6 +1,12 @@
 "use strict";
 
 // =========================================================================
+// NÚCLEO DO APP — Firebase, roteador SPA, diálogos e estado global.
+// Carregado ANTES de todos os outros módulos (session, auth, onboarding,
+// install, feed), que dependem dos globals definidos aqui.
+// =========================================================================
+
+// =========================================================================
 // ALTURA REAL DA VIEWPORT (--app-height)
 // Fonte mais confiável que 100vh/100dvh em PWAs instalados e webviews, onde esses
 // valores às vezes não batem com a área visível — era o que fazia a barra inferior
@@ -21,40 +27,92 @@
 // CONFIGURAÇÃO CORE DO ECOSSISTEMA
 // =========================================================================
 
-// CONFIGURAÇÃO CORE DO ECOSSISTEMA - Service Worker (migrado da antiga landing)
+// CONFIGURAÇÃO CORE DO ECOSSISTEMA - Service Worker e Atualização do PWA
 // O app agora é o ponto de entrada único (index.html), então o registro do SW
-// acontece aqui. Sem auto-reload em update: recarregar a página no meio de uma
-// ação do usuário é agressivo — a nova versão assume naturalmente na próxima
-// abertura (skipWaiting + clients.claim no próprio SW).
+// acontece aqui. Sem auto-reload forçado: o novo Service Worker fica esperando
+// (self.skipWaiting() só roda quando o usuário confirma — ver service-worker.js)
+// e só assumimos/recarregamos quando o usuário toca em "Atualizar" no banner
+// (#pwa-update-banner). Verificamos updates a cada abertura/retorno ao app.
 if ('serviceWorker' in navigator && window.IS_MOBILE) {
+  // Só recarrega no controllerchange se ESTE clique em "Atualizar" pediu a
+  // troca — o próprio clients.claim() do SW (service-worker.js) já dispara
+  // "controllerchange" sozinho na primeiríssima instalação de um visitante
+  // novo (quando ainda não há nenhum controller anterior). Sem essa guarda,
+  // todo primeiro acesso recarregaria a página sozinho sem nenhum update real.
+  let updateRequested = false;
+  let reloadedForUpdate = false;
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log('[SW] registrado'))
+      .then(registration => {
+        console.log('[SW] registrado');
+
+        const banner = document.getElementById('pwa-update-banner');
+        const btnUpdate = document.getElementById('btn-pwa-update');
+
+        const showUpdateBanner = (worker) => {
+          if (!banner || !btnUpdate || !worker) return;
+          banner.classList.remove('u-hidden');
+
+          // Pergunta ao NOVO worker qual a versão dele e exibe no banner, para o
+          // usuário saber qual atualização está disponível. Via MessageChannel:
+          // a resposta chega na port1. Se o worker for de uma versão antiga (sem
+          // o handler GET_VERSION), o texto padrão permanece.
+          try {
+            const textEl = document.getElementById('pwa-update-text');
+            const channel = new MessageChannel();
+            channel.port1.onmessage = (e) => {
+              const v = e.data && e.data.version;
+              if (v && textEl) textEl.textContent = `Nova versão disponível (${v}).`;
+            };
+            worker.postMessage({ type: 'GET_VERSION' }, [channel.port2]);
+          } catch (_) { /* sem versão: mantém o texto padrão */ }
+
+          btnUpdate.onclick = () => {
+            btnUpdate.disabled = true;
+            btnUpdate.textContent = 'Atualizando...';
+            updateRequested = true;
+            worker.postMessage({ type: 'SKIP_WAITING' });
+          };
+        };
+
+        // Já existe uma versão nova pronta (instalada em segundo plano antes
+        // desta checagem, ex.: enquanto o app estava em background)
+        if (registration.waiting && navigator.serviceWorker.controller) {
+          showUpdateBanner(registration.waiting);
+        }
+
+        // Uma nova versão começou a instalar agora — acompanha até ficar pronta
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateBanner(newWorker);
+            }
+          });
+        });
+
+        // CONFIGURAÇÃO CORE DO ECOSSISTEMA - Verificação Ativa de Atualização
+        // Verifica assim que o app abre e sempre que volta ao primeiro plano
+        // (comum em PWA instalado, que fica muito tempo aberto em background).
+        const checkForUpdate = () => registration.update().catch(() => {});
+        checkForUpdate();
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') checkForUpdate();
+        });
+      })
       .catch(err => console.warn('[SW] falha no registro:', err));
+
+    // Assim que o novo SW assume o controle (pós-clique em "Atualizar"),
+    // recarrega a página para carregar os arquivos novos.
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!updateRequested || reloadedForUpdate) return;
+      reloadedForUpdate = true;
+      window.location.reload();
+    });
   });
 }
-
-// CONFIGURAÇÃO CORE DO ECOSSISTEMA - Instalação do PWA (beforeinstallprompt)
-// Capturado globalmente o quanto antes (o evento pode disparar bem cedo) e
-// guardado para a tela view-install usar depois do cadastro (auth.js).
-window.deferredInstallPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  window.deferredInstallPrompt = e;
-});
-
-window.addEventListener('appinstalled', () => {
-  window.deferredInstallPrompt = null;
-  console.log('[PWA] App instalado pelo usuário.');
-});
-
-// CONFIGURAÇÃO CORE DO ECOSSISTEMA - Detector de modo standalone (PWA instalado)
-// Função (e não constante) porque o estado pode mudar durante a sessão.
-window.isStandalone = function () {
-  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
-    || window.navigator.standalone === true;
-};
 
 // CONFIGURAÇÃO CORE DO ECOSSISTEMA - Credenciais e Conexão Firebase
 const firebaseConfig = {
@@ -83,7 +141,10 @@ window.appState = {
   selectedTags: [],
   cooldownActive: false,
   locationConfirmed: false,
-  serviceProfile: { quality: 0, agility: 0, price: 0 }
+  // "Padrão" (equilibrado) já vem selecionado como base no cadastro
+  serviceProfile: { quality: 5, agility: 5, price: 5 },
+  // Dinheiro já vem selecionado por padrão (a seção de pagamento não é obrigatória)
+  paymentMethods: { cash: true, pix: false, card: 0, nf: false }
 };
 
 
@@ -95,13 +156,12 @@ window.appState = {
 // Contrato: screens são controladas EXCLUSIVAMENTE por .screen--active.
 // u-hidden NUNCA deve ser aplicado ou removido de elementos .screen aqui.
 //
-// Cor da barra de status (theme-color): segue o topo de cada tela para ficar
-// mesclada. O feed tem top-bar verde → barra verde; intro e onboarding têm fundo
-// branco (sem top-bar) → barra branca. Centralizado aqui pois é o único ponto que
-// troca de tela.
-const THEME_COLOR_BY_VIEW = {
-  'view-feed': '#184e1b' // = var(--p-green), igual ao fundo da .top-bar
-};
+// Cor da barra de status (theme-color): centralizada aqui pois este é o único
+// ponto que troca de tela. Todas as telas hoje têm fundo verde (auth, onboarding,
+// install, feed), então a barra é verde em todas — uma constante única. Se algum
+// dia uma tela precisar de outra cor, trocar por um mapa view→cor aqui.
+const THEME_COLOR = '#184e1b'; // = var(--p-green)
+window.THEME_COLOR = THEME_COLOR; // exposto p/ outros módulos (ex.: feed.js)
 
 window.showView = function(viewId) {
   document.querySelectorAll('.screen').forEach(el => {
@@ -111,12 +171,17 @@ window.showView = function(viewId) {
   const target = document.getElementById(viewId);
   if (target) {
     target.classList.add('screen--active');
-    document.getElementById('loader-global')?.classList.add('u-hidden');
+    // NÃO esconder o loader aqui: quem o oculta é o onAuthStateChanged
+    // (session.js), que faz um fade-out de 0.4s sobre a tela verde já ativa.
+    // Escondê-lo instantaneamente aqui (u-hidden = display:none) matava esse
+    // fade — o loader sumia de golpe antes da transição começar. Como o loader
+    // só está visível no boot (sempre via onAuthStateChanged), deixar a ocultação
+    // com o session.js é seguro e restaura a transição suave pós-splash.
   }
 
-  // Atualiza a cor da barra de status conforme a tela ativa (branco por padrão)
+  // Atualiza a cor da barra de status (verde em todas as telas)
   const themeMeta = document.querySelector('meta[name="theme-color"]');
-  if (themeMeta) themeMeta.setAttribute('content', THEME_COLOR_BY_VIEW[viewId] || '#FFFFFF');
+  if (themeMeta) themeMeta.setAttribute('content', THEME_COLOR);
 };
 
 // MAQUINÁRIO DO ROTEADOR SPA - Alternância de Sub-fluxos Internos (Sub-telas / Passos)
@@ -140,6 +205,7 @@ window.navigateTo = function(stepId) {
     target.offsetHeight; // leitura deliberada para acionar reflow
     target.style.animation = '';
   }
+
 };
 
 
@@ -153,10 +219,17 @@ window.customAlert = function(message, title = "Aviso", iconClass = "error") {
     const dialog = document.getElementById('dialog-global');
     const btnConfirm = document.getElementById('btn-dialog-confirm');
     const btnCancel = document.getElementById('btn-dialog-cancel');
+    const titleEl = document.getElementById('dialog-title');
+    const messageEl = document.getElementById('dialog-message');
+    const iconEl = document.getElementById('dialog-icon');
+    if (!dialog || !btnConfirm || !btnCancel || !titleEl || !messageEl || !iconEl) {
+      console.warn('[dialog] elementos ausentes');
+      return resolve(true);
+    }
 
-    document.getElementById('dialog-title').innerText = title;
-    document.getElementById('dialog-message').innerText = message;
-    document.getElementById('dialog-icon').innerHTML = `<span class="material-symbols-rounded">${iconClass}</span>`;
+    titleEl.innerText = title;
+    messageEl.innerText = message;
+    iconEl.innerHTML = `<span class="material-symbols-rounded">${iconClass}</span>`;
 
     btnCancel.classList.add('u-hidden'); // Alerta padrão não exibe opção de rejeição
     btnConfirm.innerText = "Ok";
@@ -179,10 +252,17 @@ window.customConfirm = function(message, title = "Confirmação", iconClass = "h
     const dialog = document.getElementById('dialog-global');
     const btnConfirm = document.getElementById('btn-dialog-confirm');
     const btnCancel = document.getElementById('btn-dialog-cancel');
+    const titleEl = document.getElementById('dialog-title');
+    const messageEl = document.getElementById('dialog-message');
+    const iconEl = document.getElementById('dialog-icon');
+    if (!dialog || !btnConfirm || !btnCancel || !titleEl || !messageEl || !iconEl) {
+      console.warn('[dialog] elementos ausentes');
+      return resolve(false); // default seguro: equivale a cancelar a ação
+    }
 
-    document.getElementById('dialog-title').innerText = title;
-    document.getElementById('dialog-message').innerText = message;
-    document.getElementById('dialog-icon').innerHTML = `<span class="material-symbols-rounded">${iconClass}</span>`;
+    titleEl.innerText = title;
+    messageEl.innerText = message;
+    iconEl.innerHTML = `<span class="material-symbols-rounded">${iconClass}</span>`;
 
     btnCancel.classList.remove('u-hidden'); // Exibe a opção de cancelamento/recusa
     btnConfirm.innerText = "Confirmar";
@@ -210,14 +290,3 @@ window.customConfirm = function(message, title = "Confirmação", iconClass = "h
     btnCancel.addEventListener('click', cancelHandler);
   });
 };
-
-
-// =========================================================================
-// ESPAÇO FUTURO PARA SISTEMAS ASSÍNCRONOS GLOBAIS
-// =========================================================================
-
-// ESPAÇO FUTURO PARA SISTEMAS ASSÍNCRONOS GLOBAIS - Sincronização em Segundo Plano (Background Sync)
-
-// ESPAÇO FUTURO PARA SISTEMAS ASSÍNCRONOS GLOBAIS - Lifecycle de Service Workers e Cache PWA
-
-// ESPAÇO FUTURO PARA SISTEMAS ASSÍNCRONOS GLOBAIS - Notificações Push e Mensageria

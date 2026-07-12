@@ -4,7 +4,12 @@
 .auth-section {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* `safe center`: centraliza quando cabe, mas alinha ao TOPO (e deixa rolar)
+     quando o conteúdo não cabe — ex.: teclado aberto encolhendo a área
+     (interactive-widget=resizes-content). Sem o `safe`, a centralização em flex
+     empurraria o topo do conteúdo para fora da área rolável (inalcançável) e o
+     campo focado poderia ficar atrás do teclado. */
+  justify-content: safe center;
   align-items: center;
   min-height: 100%;
   gap: var(--space-md);
@@ -24,18 +29,29 @@
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
 }
 
+/* .auth-section é usada só no #view-auth (intro/telefone/OTP) e no #view-install,
+   ambos com fundo verde — por isso os textos base já nascem claros. */
 .auth-section__title {
-  color: var(--p-green);
-  font-size: 2.2rem;
+  color: var(--t-light);
+  font-size: var(--fs-13);
   font-weight: 800;
   line-height: 1.1;
 }
 
 .auth-section__text {
   max-width: 420px;
-  color: var(--t-sub);
-  font-size: 1.05rem;
+  color: var(--p-green-light);
+  font-size: var(--fs-9);
   line-height: 1.5;
+}
+
+/* Número de telefone na tela do OTP: cor de texto NEUTRA (não dourada). O
+   dourado passou a denotar ação clicável — o número é só informação, então não
+   deve parecer um link. Preto seria ilegível no fundo verde escuro; --t-light
+   (branco) é o "texto normal" deste tema escuro, prominente mas sem cara de
+   link. Sobrepõe o dourado de `.text-accent` (id > classe). */
+#text-display-phone {
+  color: var(--t-light);
 }
 
 /* Intencional: container vazio gerenciado dinamicamente pelo Firebase reCAPTCHA */
@@ -49,877 +65,79 @@
 .auth-section__legal {
   margin-top: 15px;
   padding: 0 10px;
-  color: var(--t-sub);
-  font-size: 0.75rem;
+  color: var(--p-green-light);
+  font-size: var(--fs-3);
   line-height: 1.4;
 }
 
 .auth-section__legal a {
-  color: var(--p-green);
+  color: var(--a-gold);
   font-weight: 600;
   text-decoration: underline;
 }
 
 .auth-section__cooldown {
   margin-top: var(--space-md);
-  color: var(--t-sub);
-  font-size: 0.9rem;
+  color: var(--p-green-light);
+  font-size: var(--fs-6);
 }
 
-/* OTP Grid */
-.otp-grid {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-xs);
+/* OTP — UM input invisível sobre 6 células visuais.
+   Um único campo mantém o foco o tempo todo, então o teclado não "pisca"/balança
+   como acontecia ao mover o foco entre 6 inputs separados. As 6 células dão a
+   estética de dígitos individuais; o input (texto/caret transparentes) cobre
+   toda a área para capturar toque e teclado. Estados das células em auth.js:
+   `otp-cell--filled` (tem dígito) e `otp-cell--active` (célula do cursor). */
+.otp-field {
+  position: relative;
   margin: var(--space-md) 0;
 }
 
-.otp-grid__input {
+.otp-cells {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-xs);
+  pointer-events: none; /* cliques atravessam para o input por cima */
+}
+
+.otp-cell {
   width: 45px;
   height: 55px;
   border: 2px solid var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-soft);
-  text-align: center;
-  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-12);
   font-weight: 800;
-  transition: var(--transition);
-}
-
-.otp-grid__input:focus {
-  border-color: var(--a-gold);
-  background: var(--bg-white);
-  outline: none;
-}
-
-
-/* ===========================================
-   ONBOARDING — COMPONENTES
-   ======================================== */
-
-/* Linha foto + campos de nome lado a lado */
-.profile-header-row {
-  display: flex;
-  gap: var(--space-md);
-  align-items: center;
-  margin-bottom: var(--space-md);
-}
-
-.profile-header-row__photo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.profile-header-row__fields {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-/* Captura de mídia — formato 3x4 */
-.media-capture__display {
-  width: 90px;
-  height: 120px;
-  border-radius: 12px;
-  background: var(--bg-input);
-  border: 3px dashed var(--t-disabled);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-  transition: border var(--transition);
-}
-
-.media-capture__display--captured {
-  border: 3px solid var(--p-green);
-}
-
-.media-capture__placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--t-sub);
-  text-align: center;
-  padding: 0 6px;
-}
-
-.media-capture__placeholder-text {
-  font-size: 0.58rem;
-  font-weight: 600;
-  line-height: 1.15;
-}
-
-.media-capture__placeholder .material-symbols-rounded {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 2rem;
-  color: var(--t-disabled);
-}
-
-/* Tag Selector — pílulas selecionadas */
-.tag-selector__selected {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-  margin-top: var(--space-xs);
-}
-
-.tag-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: var(--p-green-light);
-  border: 1.5px solid var(--p-green);
-  border-radius: var(--radius-pill);
-  color: var(--p-green);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: default;
-}
-
-.tag-pill__remove {
-  font-size: 1rem;
-  cursor: pointer;
-  color: var(--p-green);
-  line-height: 1;
-  background: none;
-  border: none;
-  padding: 0;
-}
-
-/* Busca de áreas */
-.area-search {
-  position: relative;
-}
-
-.area-search__results {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  background: var(--bg-white);
-  border: 2px solid var(--p-green);
-  border-radius: var(--radius-md);
-  list-style: none;
-  max-height: 180px;
-  overflow-y: auto;
-  z-index: 50;
-  box-shadow: var(--shadow-lg);
-}
-
-.area-search__results li {
-  padding: 12px 14px;
-  font-size: 0.9rem;
   color: var(--t-main);
-  cursor: pointer;
-  transition: background 0.15s ease;
-  border-bottom: 1px solid var(--border-light);
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
-.area-search__results li:last-child {
-  border-bottom: none;
-}
-
-.area-search__results li:hover,
-.area-search__results li:active,
-.area-search__results li.is-selecting {
-  background: var(--p-green-light);
-  color: var(--p-green);
-}
-
-.area-search__results li.is-selecting {
-  font-weight: 600;
-}
-
-.area-search__clear {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--t-sub);
-  padding: 2px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-}
-
-.area-search__clear .material-symbols-rounded {
-  font-size: 1.1rem;
-}
-
-/* Botão de localização */
-.location-check {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  width: 100%;
-  padding: 16px;
-  border: 2px solid var(--border-light);
-  border-radius: var(--radius-md);
-  background: var(--bg-white);
-  cursor: pointer;
-  transition: var(--transition);
-  text-align: left;
-}
-
-.location-check__icon {
-  font-size: 1.5rem;
-  color: var(--t-sub);
-  flex-shrink: 0;
-  transition: color var(--transition);
-}
-
-/* Carregamento: gira o ícone de STATUS (direita, que recebe o progress_activity
-   via JS) — o pino de localização à esquerda fica parado. */
-.location-check--loading .location-check__status {
-  display: inline-block;     /* necessário para a rotação ter efeito */
-  color: var(--p-green);
-  animation: spin 0.8s linear infinite;
-}
-
-.location-check__content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.location-check__content strong {
-  color: var(--p-green-dark);
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.location-check__status {
-  font-size: 1.4rem;
-  color: var(--t-disabled);
-  flex-shrink: 0;
-  transition: color var(--transition);
-}
-
-/* Localização confirmada: sem realce de fundo/borda no card inteiro — o check verde
-   (ícone de status) já sinaliza a seleção. */
-.location-check--confirmed .location-check__icon,
-.location-check--confirmed .location-check__status {
-  color: var(--p-green);
-}
-
-.location-check--error {
-  border-color: var(--danger);
-  background: var(--danger-soft);
-}
-
-.location-check--error .location-check__icon,
-.location-check--error .location-check__status {
-  color: var(--danger);
-}
-
-/* Card do padrão de serviços */
-.service-card {
-  background: var(--bg-soft);
-  border: 2px solid var(--border-light);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-}
-
-.service-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-xs);
-}
-
-.service-card__header .form-group__label {
-  margin-bottom: 0;
-}
-
-/* Botão de interrogação genérico */
-.section-help-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.section-help-btn .material-symbols-rounded {
-  font-size: 1.2rem;
-  color: var(--t-sub);
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-/* Seções colapsáveis */
-.collapsible {
-  margin-bottom: var(--space-md);
-}
-
-.collapsible__trigger {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  width: 100%;
-  padding: 14px 16px;
-  background: var(--bg-soft);
-  border: 2px solid var(--border-light);
-  border-radius: var(--radius-md);
-  color: var(--p-green-dark);
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: var(--transition);
-  text-align: left;
-}
-
-.collapsible__trigger--gold {
-  border-color: var(--a-gold);
-  background: var(--gold-soft);
-}
-
-.collapsible__trigger .material-symbols-rounded:first-child {
-  color: var(--p-green);
-}
-
-.collapsible__trigger--gold .material-symbols-rounded:first-child {
-  color: var(--a-gold);
-}
-
-.collapsible__chevron {
-  margin-left: auto;
-  transition: transform 0.3s ease;
-  color: var(--t-sub);
-}
-
-.collapsible--open .collapsible__chevron {
-  transform: rotate(180deg);
-}
-
-.collapsible--open .collapsible__trigger {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  border-bottom-color: transparent;
-}
-
-.collapsible__panel {
-  padding: var(--space-md);
-  border: 2px solid var(--border-light);
-  border-top: none;
-  border-bottom-left-radius: var(--radius-md);
-  border-bottom-right-radius: var(--radius-md);
+.otp-cell--filled {
   background: var(--bg-white);
 }
 
-.collapsible--open > .collapsible__trigger--gold ~ .collapsible__panel {
+.otp-cell--active {
   border-color: var(--a-gold);
-  border-top: none;
+  background: var(--bg-white);
 }
 
-/* Sistema de barras de serviços */
-.service-bars {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.service-bar__header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-xs);
-  margin-bottom: var(--space-xs);
-}
-
-.service-bar__header .material-symbols-rounded {
-  font-size: 1.1rem;
-  color: var(--p-green);
-}
-
-.service-bar--auto .service-bar__header .material-symbols-rounded {
-  color: var(--a-gold);
-}
-
-.service-bar--agility .service-bar__header .material-symbols-rounded {
-  color: var(--info-blue);
-}
-
-.service-bar__label {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--t-main);
-}
-
-.service-bar__value {
-  font-weight: 800;
-  font-size: 1rem;
-  color: var(--p-green);
-  min-width: 24px;
-  text-align: center;
-}
-
-.service-bar--auto .service-bar__value {
-  color: var(--a-gold);
-}
-
-.service-bar--agility .service-bar__value {
-  color: var(--info-blue);
-}
-
-.service-bar__row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.service-bar__btn-spacer {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-}
-
-.service-bar__track {
-  flex: 1;
-  height: 28px;
-  background: var(--border-light);
-  border-radius: var(--radius-pill);
-  overflow: hidden;
-  position: relative;
-}
-
-.service-bar__fill {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  border-radius: var(--radius-pill);
-  transition: width 0.3s ease, background 0.4s ease;
-}
-
-.service-bar__fill--green  { background: var(--p-green); }
-.service-bar__fill--bronze { background: var(--tier-bronze); }
-.service-bar__fill--silver { background: var(--tier-silver); }
-.service-bar__fill--gold   { background: var(--a-gold); }
-.service-bar__fill--blue   { background: var(--info-blue); }
-
-/* Divisórias internas via CSS puro */
-.service-bar__pips--bg {
-  position: absolute;
-  left: 0; top: 0; right: 0; bottom: 0;
-  pointer-events: none;
-}
-
-.service-bar__pips--bg::before {
-  content: '';
+.otp-input {
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    to right,
-    transparent,
-    transparent calc(10% - 1.5px),
-    rgba(255,255,255,0.35) calc(10% - 1.5px),
-    rgba(255,255,255,0.35) 10%
-  );
-}
-
-.service-bar__btn {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  border: 2px solid var(--border-light);
-  background: var(--bg-white);
-  color: var(--p-green);
-  font-size: 1.3rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-}
-
-.service-bar__btn:active {
-  background: var(--p-green-light);
-  border-color: var(--p-green);
-}
-
-.service-bar__btn:disabled {
-  color: var(--t-disabled);
-  border-color: var(--border-light);
-  cursor: not-allowed;
-}
-
-.service-bar__auto-hint {
-  font-size: 0.75rem;
-  color: var(--t-sub);
-  font-style: italic;
-  text-align: center;
-}
-
-.service-bar__pool {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--p-green-light);
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  color: var(--p-green-dark);
-}
-
-.service-bar__pool .material-symbols-rounded {
-  font-size: 1.1rem;
-  color: var(--p-green);
-}
-
-.service-bar__pool strong {
-  font-size: 1.1rem;
-  font-weight: 800;
-}
-
-/* ── Aviso de vínculo com o Plano Pro (topo dos Detalhes Profissionais) ──
-   Deixa explícito que os dados da seção montam o perfil profissional e que
-   ele só é exibido/divulgado com a assinatura Pro ativa. */
-.pro-note {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  margin-bottom: var(--space-md);
-  background: var(--gold-soft);
-  border: 1px solid var(--a-gold);
-  border-left: 4px solid var(--a-gold);
-  border-radius: var(--radius-md);
-  text-align: left;
-}
-
-.pro-note__icon {
-  flex-shrink: 0;
-  font-size: 1.4rem;
-  color: var(--a-gold);
-  margin-top: 2px;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-}
-
-.pro-note__text {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--t-main);
-}
-
-.pro-note__text strong {
-  color: var(--p-green-dark);
-}
-
-
-/* ── Comparativo Grátis × Pro (sempre visível, substitui o colapsável) ──
-   Grid de 2 colunas com linhas pareadas: cada recurso ocupa a mesma row nas
-   duas colunas, garantindo alinhamento visual da comparação. A coluna Pro é
-   destacada com o fundo creme/dourado contínuo célula a célula. */
-.pro-compare {
-  border: 2px solid var(--a-gold);
-  border-radius: var(--radius-md);
-  background: var(--bg-white);
-  overflow: hidden; /* mantém os cantos arredondados sobre os fundos internos */
-}
-
-.pro-compare__header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  padding: 14px 16px;
-  background: var(--gold-soft);
-  border-bottom: 1px solid var(--a-gold);
-  color: var(--p-green-dark);
-  font-size: 0.95rem;
-}
-
-.pro-compare__header .material-symbols-rounded {
-  color: var(--a-gold);
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-}
-
-.pro-compare__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.pro-compare__head {
-  padding: 10px 8px;
-  text-align: center;
-  font-size: 0.85rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.pro-compare__head--free {
-  background: var(--bg-soft);
-  color: var(--t-sub);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.pro-compare__head--pro {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  background: var(--a-gold);
-  color: var(--p-green-dark);
-  border-bottom: 1px solid var(--a-gold);
-}
-
-.pro-compare__head--pro .material-symbols-rounded {
-  font-size: 1.1rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-}
-
-.pro-compare__cell {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 10px 10px;
-  font-size: 0.8rem;
-  line-height: 1.35;
-  text-align: left;
-}
-
-/* Linhas zebradas por par (head ocupa a row 1; pares começam na row 2) */
-.pro-compare__cell--free {
-  background: var(--bg-soft);
-  color: var(--t-sub);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.pro-compare__cell--pro {
-  background: var(--gold-soft);
-  color: var(--t-main);
-  font-weight: 600;
-  border-bottom: 1px solid #f3e8c0;
-  border-left: 1px solid var(--a-gold);
-}
-
-.pro-compare__ico {
-  flex-shrink: 0;
-  font-size: 1rem;
-  margin-top: 1px;
-}
-
-.pro-compare__ico--yes   { color: var(--success); }
-.pro-compare__ico--no    { color: var(--danger); font-variation-settings: 'FILL' 0, 'wght' 600; }
-.pro-compare__ico--limit { color: var(--t-disabled); font-variation-settings: 'FILL' 0, 'wght' 600; }
-
-.pro-compare__more {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: var(--space-sm) var(--space-md);
-  font-size: 0.85rem;
-  font-style: italic;
-  color: var(--t-sub);
-}
-
-.pro-compare__more .material-symbols-rounded {
-  font-size: 1.1rem;
-  color: var(--a-gold);
-}
-
-.pro-compare .pro-price {
-  margin-bottom: var(--space-sm);
-}
-
-.pro-compare .btn--accent {
-  width: calc(100% - 2 * var(--space-md));
-  margin: 0 var(--space-md) var(--space-md);
-}
-
-.pro-price {
-  text-align: center;
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--p-green-dark);
-  margin-bottom: var(--space-md);
-}
-
-.pro-price span {
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--t-sub);
-}
-
-/* ── Índice de Confiança (card do onboarding) ── */
-.ic-card {
-  position: relative;
-  border: 2px solid var(--border-light);
-  border-radius: var(--radius-md);
-  background: var(--bg-soft);
-  padding: var(--space-md);
-  overflow: hidden;
-}
-
-.ic-card__info-btn {
-  position: absolute;
-  top: var(--space-sm);
-  right: var(--space-sm);
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--t-sub);
-  line-height: 1;
-  padding: 2px;
-}
-
-.ic-card__info-btn .material-symbols-rounded {
-  font-size: 1.2rem;
-  color: var(--t-sub);
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-.ic-card__body {
-  display: flex;
-  gap: var(--space-md);
-  align-items: center;
-  margin-bottom: var(--space-md);
-}
-
-.ic-card__gauge-wrap {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.ic-card__shield {
-  font-size: 4.5rem;
-  line-height: 1;
-  color: var(--success-fill);
-  font-variation-settings: 'FILL' 1;
-}
-
-.ic-gauge__label {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--success);
-  line-height: 1;
-}
-
-/* Variante AMARELA — estado inicial do cadastro (IC 70, em construção):
-   escudo com interrogação + amarelo de texto levemente escurecido */
-.ic-card__shield--warn {
-  color: var(--a-gold-text);
-}
-
-.ic-gauge__label--warn {
-  color: var(--a-gold-text);
-}
-
-.ic-card__content {
-  flex: 1;
-  padding-right: 20px;
-}
-
-.ic-card__title {
-  display: block;
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: var(--p-green-dark);
-  margin-bottom: 6px;
-}
-
-.ic-card__text {
-  font-size: 0.8rem;
-  color: var(--t-sub);
-  line-height: 1.45;
-}
-
-.ic-card__quote {
-  font-size: 0.78rem;
-  font-style: italic;
-  color: var(--t-sub);
-  line-height: 1.4;
-  border-top: 1px solid var(--border-light);
-  padding-top: var(--space-sm);
-  margin: 0;
-  text-align: center;
-}
-
-/* ── Dialog da câmera ── */
-.dialog-box--camera {
-  padding: var(--space-md);
-  position: relative;
-}
-
-.camera-view {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 3 / 4;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--camera-bg);
-  margin: var(--space-sm) 0;
-}
-
-.camera-view__video {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.camera-view__guide {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-  background-size: 33.33% 33.33%;
-}
-
-.camera-view__actions {
-  display: flex;
-  gap: var(--space-sm);
-  margin-top: var(--space-sm);
-}
-
-.camera-view__action-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.camera-view__action-btn .material-symbols-rounded {
-  font-size: 1.4rem;
-}
-
-.camera-view__action-btn--cancel {
-  background: var(--danger);
-  color: var(--t-light);
-  border-color: var(--danger);
-}
-
-.camera-view__action-btn--confirm {
-  background: var(--success);
-  color: var(--t-light);
-  border-color: var(--success);
+  border: none;
+  outline: none;
+  background: transparent;
+  color: transparent;        /* o dígito aparece nas células, não no input */
+  caret-color: transparent;  /* cursor simulado pela célula --active */
+  text-align: center;
+  font-size: var(--fs-12);   /* mantém o teclado numérico; texto é invisível */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 
@@ -959,10 +177,17 @@
 }
 
 /* Mesmo truque de especificidade composta do icon-hero, em escala menor
-   para caber junto do título + texto + dots + botão sem rolagem vertical. */
+   para caber junto do título + texto + dots + botão sem rolagem vertical.
+   ALTURA FIXA (= font-size) + centralização flex: define o "slot" de ícone que
+   TODOS os 3 slides compartilham (glifos e logo), garantindo que título e texto
+   comecem no mesmo Y — sem isso, ícones de alturas diferentes desalinhavam o
+   conteúdo ao deslizar entre os painéis. */
 .material-symbols-rounded.intro-carousel__icon {
   font-size: clamp(5.5rem, 26vw, 8.5rem);
-  display: block;
+  height: clamp(5.5rem, 26vw, 8.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 1rem;
   color: var(--a-gold);
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
@@ -991,142 +216,54 @@
   background: var(--p-green);
 }
 
-
 /* ===========================================
-   TELA — GUIA DE INSTALAÇÃO DO PWA (view-install)
-   Exibida uma vez após o cadastro, fora do modo standalone
+   FUNDO VERDE — fluxo de auth (intro + telefone + OTP) e tela de instalação
+   Todo o #view-auth e o #view-install têm fundo verde. Inputs (telefone, OTP)
+   e os cards de passos da instalação têm fundo claro/soft e se destacam
+   sozinhos; só os textos/botões diretos sobre o verde é que mudam de cor.
    ======================================== */
-.install-guide {
-  width: 100%;
-  max-width: 420px;
-}
-
-/* Estágio "instalação em andamento": nota informativa + retry discreto */
-.install-progress__note {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--bg-soft);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--t-sub);
-  text-align: left;
-}
-
-.install-progress__note .material-symbols-rounded {
-  flex-shrink: 0;
-  font-size: 1.2rem;
-  color: var(--info-blue);
-  margin-top: 1px;
-}
-
-/* Botão de retry: deliberadamente discreto (só aparece se algo der errado) */
-.install-retry {
-  margin-top: var(--space-sm);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--t-sub);
-  text-decoration: underline;
-}
-
-.install-guide__steps {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  margin: var(--space-sm) 0 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: install-step;
-}
-
-.install-guide__step {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--bg-soft);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  text-align: left;
-  font-size: 0.95rem;
-  color: var(--t-main, #1a1a1a);
-  counter-increment: install-step;
-}
-
-.install-guide__step::before {
-  content: counter(install-step);
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
+#view-auth.screen,
+#view-install.screen {
   background: var(--p-green);
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 800;
 }
 
-.install-guide__step .material-symbols-rounded {
-  flex-shrink: 0;
-  font-size: 26px;
-  color: var(--p-green);
+/* Botões primários (Enviar SMS, Verificar e Entrar, Instalar agora) ficam
+   amarelos — verde sobre verde sumiria. */
+#view-auth .btn--primary,
+#view-install .btn--primary {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
 }
 
-
-/* ===========================================
-   BLOQUEIO DESKTOP (html.is-desktop)
-   O app é exclusivo mobile: em desktop esta camada cobre tudo
-   e o JS aborta a inicialização (window.IS_MOBILE = false)
-   ======================================== */
-.desktop-block {
-  display: none;
-}
-
-html.is-desktop .desktop-block {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-md);
-  padding: var(--space-xl);
-  text-align: center;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(24, 78, 27, 0.8) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(3, 32, 4, 0.9) 0%, transparent 40%),
-    linear-gradient(135deg, var(--p-green-dark) 0%, #0a1f0b 100%);
-  color: #fff;
-}
-
-html.is-desktop .desktop-block__icon {
-  font-size: 6rem;
+/* Botões de texto (Alterar número, Reenviar SMS, Continuar no navegador, etc.):
+   DOURADO em vez do verde-claro. O verde-claro se camuflava no texto comum e não
+   parecia clicável; o --a-gold (mesmo dos links legais) denota ação/link sobre o
+   verde. */
+#view-auth .btn--text,
+#view-install .btn--text {
   color: var(--a-gold);
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 48;
 }
 
-.desktop-block__title {
-  font-size: 2.2rem;
-  font-weight: 800;
-  line-height: 1.1;
+/* Logo (capacete) do 1º slide — fundo transparente, funde com o verde da tela;
+   o check continua verde. Fonte: icon-intro.svg, um recorte JUSTO do operário
+   (viewBox só ao redor da arte, ~pequena margem) em vez de icon-transparent.svg
+   (que tem ~23% de margem transparente embutida e deixava o operário menor que
+   os glifos). Ocupa o MESMO slot de altura dos glifos Material dos outros slides
+   (clamp igual) — então título/texto continuam alinhados ao deslizar —, mas por
+   ser recortado o operário PREENCHE mais o box, ficando um pouco maior que os
+   glifos. width:auto preserva a proporção; margin-top igual mantém o espaçamento. */
+.intro-carousel__icon-img {
+  height: clamp(5.5rem, 26vw, 8.5rem);
+  width: auto;
+  display: block;
+  margin-top: 1rem;
 }
 
-.desktop-block__text {
-  max-width: 480px;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.85);
+/* Dots: inativos em branco translúcido, ativo em dourado (o verde some no fundo) */
+#step-intro .intro-carousel__dot {
+  background: rgba(255, 255, 255, 0.4);
 }
 
-/* Em desktop, nada do app deve aparecer ou disputar a tela com o bloqueio */
-html.is-desktop #loader-global,
-html.is-desktop .screen,
-html.is-desktop .overlay-dialog {
-  display: none !important;
+#step-intro .intro-carousel__dot--active {
+  background: var(--a-gold);
 }
