@@ -105,12 +105,12 @@
      semânticos em vez de alphas soltos. faint/soft = bordas e fundos sutis;
      muted/med = fundos e textos secundários; strong/solid = textos legíveis. */
   --on-green-rgb: 255, 255, 255;
-  --on-green-faint:  var(--on-green-faint);
-  --on-green-soft:   var(--on-green-soft);
-  --on-green-muted:  var(--on-green-muted);
-  --on-green-med:    var(--on-green-med);
-  --on-green-strong: var(--on-green-strong);
-  --on-green-solid:  var(--on-green-solid);
+  --on-green-faint:  rgba(var(--on-green-rgb), 0.15);
+  --on-green-soft:   rgba(var(--on-green-rgb), 0.26);
+  --on-green-muted:  rgba(var(--on-green-rgb), 0.35);
+  --on-green-med:    rgba(var(--on-green-rgb), 0.5);
+  --on-green-strong: rgba(var(--on-green-rgb), 0.7);
+  --on-green-solid:  rgba(var(--on-green-rgb), 0.9);
 
   /* Blur de backdrop (véus de diálogos/sheets/faixas). O tutorial mantém o
      blur(1.5px) próprio, sutil de propósito. */
