@@ -1234,6 +1234,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCriarVaga = document.getElementById('btn-criar-vaga');
     const reqList      = document.getElementById('vaga-req-list');
     const benefitList  = document.getElementById('vaga-benefit-list');
+    const benefitPills = document.getElementById('vaga-benefit-pills');
+    const benefitOutros = document.getElementById('vaga-benefit-outros');
     const inpCnpj      = document.getElementById('inp-vaga-cnpj');
     const inpCargo     = document.getElementById('inp-vaga-cargo');
     const inpSalario   = document.getElementById('inp-vaga-salario');
@@ -1351,6 +1353,27 @@ document.addEventListener('DOMContentLoaded', () => {
       return input;
     };
 
+    // Benefícios "Outros": revela a lista de texto livre para benefícios extras.
+    const btnAddBenefit = document.getElementById('btn-add-benefit');
+    const setOutrosOpen = (open) => {
+      benefitList?.classList.toggle('u-hidden', !open);
+      btnAddBenefit?.classList.toggle('u-hidden', !open);
+      if (open) {
+        if (benefitList && !benefitList.querySelector('.vaga-dyn-input')) addDynRow(benefitList, 'Ex: Auxílio creche');
+      } else if (benefitList) {
+        benefitList.innerHTML = '';
+      }
+    };
+
+    // Pílulas de benefício: seleção múltipla; "Outros" abre a lista de texto livre.
+    benefitPills?.addEventListener('click', (e) => {
+      const pill = e.target.closest('.vaga-benefit-pill');
+      if (!pill) return;
+      const on = pill.getAttribute('aria-pressed') === 'true';
+      pill.setAttribute('aria-pressed', String(!on));
+      if (pill === benefitOutros) setOutrosOpen(!on);
+    });
+
     // Zera o formulário para o estado inicial.
     const resetVagaForm = () => {
       [inpCnpj, inpCargo, inpSalario].forEach(el => {
@@ -1364,8 +1387,9 @@ document.addEventListener('DOMContentLoaded', () => {
         d.classList.toggle('vaga-day--active', ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'].includes(d.dataset.day)));
       daysGroup?.classList.remove('vaga-days--error');
       chkCurriculo?.setAttribute('aria-pressed', 'false');
-      if (reqList)     { reqList.innerHTML = '';     addDynRow(reqList, 'Ex: Experiência com atendimento'); }
-      if (benefitList) { benefitList.innerHTML = ''; }
+      benefitPills?.querySelectorAll('.vaga-benefit-pill').forEach(p => p.setAttribute('aria-pressed', 'false'));
+      setOutrosOpen(false);
+      if (reqList) { reqList.innerHTML = ''; addDynRow(reqList, 'Ex: Experiência com atendimento'); }
     };
 
     const openVagaSheet = () => {
@@ -1398,8 +1422,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btn-add-req')?.addEventListener('click', () =>
       addDynRow(reqList, 'Ex: Disponibilidade imediata').focus());
-    document.getElementById('btn-add-benefit')?.addEventListener('click', () =>
-      addDynRow(benefitList, 'Ex: Vale-transporte').focus());
+    btnAddBenefit?.addEventListener('click', () =>
+      addDynRow(benefitList, 'Ex: Auxílio creche').focus());
 
     // Limpa o destaque de erro ao digitar no cargo
     inpCargo?.addEventListener('input', () => inpCargo.classList.remove('input-text--error'));
@@ -1441,10 +1465,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      const beneficios = [...benefitList.querySelectorAll('.vaga-dyn-input')]
+      // Benefícios = pílulas selecionadas (exceto "Outros") + entradas de texto livre.
+      const pillBenefits = [...benefitPills.querySelectorAll('.vaga-benefit-pill[aria-pressed="true"]')]
+        .filter(p => p !== benefitOutros)
+        .map(p => ({ icon: p.dataset.icon, label: p.dataset.label }));
+      const customBenefits = [...benefitList.querySelectorAll('.vaga-dyn-input')]
         .map(i => i.value.trim())
         .filter(Boolean)
         .map(label => ({ icon: benefitIcon(label), label }));
+      const beneficios = [...pillBenefits, ...customBenefits];
 
       const cnpj = formatCnpj(inpCnpj.value);
       const cargaHoraria = `${selInicio.value} às ${selFim.value} · ${formatDays(dias)}`;

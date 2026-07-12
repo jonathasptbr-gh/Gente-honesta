@@ -774,8 +774,12 @@ Campos:
   final: `"08:00 às 18:00 · Seg–Sex"`.
 - **Salário** — campo numérico (só dígitos, separador de milhar automático via `toLocaleString('pt-BR')`),
   com `R$` e `/mês` **externos** ao input (`.vaga-salary__prefix`/`__suffix`). Gera `"R$ 1.500/mês"`.
-- **Benefícios** — lista dinâmica opcional; cada um recebe um ícone Material inferido por palavra-chave
-  (`benefitIcon()` em `feed.js`; fallback `redeem`).
+- **Benefícios** — **pílulas de seleção múltipla** (`.vaga-benefit-pill`, ícone + texto, ativo dourado
+  em `aria-pressed`): Alimentação, Vale alimentação, Transporte, Vale transporte, Plano de saúde,
+  Moradia, Comissão e **Outros**. Cada pílula carrega `data-icon`/`data-label` para renderizar no card
+  no mesmo padrão do feed (`.vaga-card__benefit`). "Outros" (`#vaga-benefit-outros`) revela a lista de
+  texto livre `#vaga-benefit-list` (`setOutrosOpen`) para benefícios extras, cujo ícone é inferido por
+  palavra-chave (`benefitIcon()`; fallback `redeem`). Opcional.
 - **Exigir currículo (PDF/foto)** — check (`#chk-vaga-curriculo`, `.vaga-check`, estado em `aria-pressed`)
   com aviso de que pedir currículo individual extra pode fazer perder candidatos. Grava `exigeCurriculo`
   na vaga; a seção de upload de currículo no verso de candidatura só é renderizada quando

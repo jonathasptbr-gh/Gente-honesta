@@ -909,9 +909,35 @@
 
                         <div class="pedido-field">
                             <span class="pedido-field__label">Benefícios <span class="vaga-field__optional">(opcional)</span></span>
-                            <div class="vaga-dyn-list" id="vaga-benefit-list"></div>
-                            <button type="button" class="vaga-add-btn" id="btn-add-benefit">
-                                <span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar benefício
+                            <div class="vaga-benefit-pills" id="vaga-benefit-pills">
+                                <button type="button" class="vaga-benefit-pill" data-label="Alimentação" data-icon="lunch_dining" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">lunch_dining</span>Alimentação
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Vale alimentação" data-icon="restaurant" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">restaurant</span>Vale alimentação
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Transporte" data-icon="directions_bus" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">directions_bus</span>Transporte
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Vale transporte" data-icon="commute" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">commute</span>Vale transporte
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Plano de saúde" data-icon="health_and_safety" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">health_and_safety</span>Plano de saúde
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Moradia" data-icon="home" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">home</span>Moradia
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" data-label="Comissão" data-icon="paid" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">paid</span>Comissão
+                                </button>
+                                <button type="button" class="vaga-benefit-pill" id="vaga-benefit-outros" data-label="Outros" data-icon="more_horiz" aria-pressed="false">
+                                    <span class="material-symbols-rounded" aria-hidden="true">more_horiz</span>Outros
+                                </button>
+                            </div>
+                            <div class="vaga-dyn-list u-hidden" id="vaga-benefit-list"></div>
+                            <button type="button" class="vaga-add-btn u-hidden" id="btn-add-benefit">
+                                <span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar outro benefício
                             </button>
                         </div>
 
