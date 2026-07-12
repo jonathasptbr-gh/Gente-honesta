@@ -1385,9 +1385,241 @@ document.addEventListener('DOMContentLoaded', () => {
     resetVagaForm();
   }
 
-  document.getElementById('btn-chamar-ajudante')?.addEventListener('click', () => {
-    customAlert('Serviço de ajudantes — funcionalidade em breve.', 'Serviço de Ajudantes', 'handshake');
-  });
+  // =========================================================================
+  // FEED - ABA VAGAS - SERVIÇO DE AJUDANTES (sheet #ajudante-sheet)
+  // Duas funções independentes:
+  //  (1) Disponibilizar-me — checkbox leve/pesado, com diária padrão
+  //      (pesado > leve), iguais para todo usuário.
+  //  (2) Chamar ajudante — sorteia 2 contatos por dia, expostos até a
+  //      meia-noite daquele dia; depois o botão de chamar volta a ficar
+  //      disponível e os ajudantes antigos somem da visualização.
+  // Sorteio e persistência são MOCK (localStorage) — placeholder do backend,
+  // onde a entrega real seria "por ordem de chegada". Reusa icBarHTML/avatarSvg.
+  // =========================================================================
+  {
+    // Diárias padrão (em reais), iguais para todo usuário; pesado > leve.
+    const HELPER_RATES = { light: 100, heavy: 180 };
+
+    // Chaves de persistência local.
+    const LS_HELPER_AVAIL = 'gh_helper_availability'; // { light, heavy }
+    const LS_HELPER_DRAW  = 'gh_helper_draw';         // { date, type, helpers[] }
+
+    // Pool mock de ajudantes disponíveis (placeholder do backend).
+    const mockHelpers = [
+      { id: 'help-1',  first: 'Lucas',    last: 'Andrade',  ic: 84, phone: '5511990000001', type: 'heavy' },
+      { id: 'help-2',  first: 'Bruna',    last: 'Carvalho', ic: 71, phone: '5511990000002', type: 'light' },
+      { id: 'help-3',  first: 'Diego',    last: 'Moraes',   ic: 63, phone: '5511990000003', type: 'heavy' },
+      { id: 'help-4',  first: 'Patrícia', last: 'Nogueira', ic: 90, phone: '5511990000004', type: 'light' },
+      { id: 'help-5',  first: 'Rafael',   last: 'Teixeira', ic: 55, phone: '5511990000005', type: 'heavy' },
+      { id: 'help-6',  first: 'Camila',   last: 'Barros',   ic: 78, phone: '5511990000006', type: 'light' },
+      { id: 'help-7',  first: 'Anderson', last: 'Pires',    ic: 47, phone: '5511990000007', type: 'heavy' },
+      { id: 'help-8',  first: 'Juliana',  last: 'Fonseca',  ic: 82, phone: '5511990000008', type: 'light' },
+      { id: 'help-9',  first: 'Marcelo',  last: 'Duarte',   ic: 68, phone: '5511990000009', type: 'heavy' },
+      { id: 'help-10', first: 'Tatiane',  last: 'Ribeiro',  ic: 59, phone: '5511990000010', type: 'light' },
+    ];
+
+    // Data local AAAA-MM-DD — a validade do sorteio é "até a meia-noite daquele
+    // dia", então basta comparar a data do calendário local.
+    const helperToday = () => {
+      const d = new Date();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${d.getFullYear()}-${mm}-${dd}`;
+    };
+
+    const readHelperJSON = (key, fallback) => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch { return fallback; }
+    };
+    const writeHelperJSON = (key, val) => {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch { /* storage indisponível */ }
+    };
+
+    // ---- Sheet: abrir / fechar / alternar função ----
+    const ajudanteSheet = document.getElementById('ajudante-sheet');
+
+    const setAjudanteState = (state) => {
+      document.querySelectorAll('.ajudante-switch__opt').forEach(opt => {
+        const active = opt.dataset.ajudanteState === state;
+        opt.classList.toggle('ajudante-switch__opt--active', active);
+        opt.setAttribute('aria-selected', String(active));
+      });
+      document.getElementById('ajudante-avail-state')?.classList.toggle('u-hidden', state !== 'avail');
+      document.getElementById('ajudante-call-state')?.classList.toggle('u-hidden', state !== 'call');
+    };
+
+    const openAjudanteSheet = () => {
+      renderHelperAvailability();
+      renderHelperCall();
+      setAjudanteState('avail');
+      ajudanteSheet?.classList.add('pedido-sheet--open');
+    };
+    const closeAjudanteSheet = () => ajudanteSheet?.classList.remove('pedido-sheet--open');
+
+    document.getElementById('btn-chamar-ajudante')?.addEventListener('click', openAjudanteSheet);
+    document.getElementById('btn-close-ajudante-sheet')?.addEventListener('click', closeAjudanteSheet);
+    document.getElementById('ajudante-sheet-backdrop')?.addEventListener('click', closeAjudanteSheet);
+
+    document.querySelectorAll('.ajudante-switch__opt').forEach(opt => {
+      opt.addEventListener('click', () => setAjudanteState(opt.dataset.ajudanteState));
+    });
+
+    // ---- Função 1: disponibilidade (checkbox leve/pesado) ----
+    const getHelperAvailability = () => readHelperJSON(LS_HELPER_AVAIL, { light: false, heavy: false });
+
+    const renderHelperAvailability = () => {
+      const avail = getHelperAvailability();
+      // Reflete as diárias padrão (fonte única: HELPER_RATES).
+      document.querySelectorAll('[data-rate]').forEach(el => {
+        const rate = HELPER_RATES[el.dataset.rate];
+        if (typeof rate === 'number') el.innerText = `R$ ${rate}`;
+      });
+      document.querySelectorAll('.helper-toggle[data-avail]').forEach(btn => {
+        const on = !!avail[btn.dataset.avail];
+        btn.classList.toggle('helper-toggle--on', on);
+        btn.setAttribute('aria-pressed', String(on));
+        const chk = btn.querySelector('.helper-toggle__check');
+        if (chk) chk.innerText = on ? 'check_box' : 'check_box_outline_blank';
+      });
+    };
+
+    document.querySelectorAll('.helper-toggle[data-avail]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const avail = getHelperAvailability();
+        const key = btn.dataset.avail;
+        avail[key] = !avail[key];
+        writeHelperJSON(LS_HELPER_AVAIL, avail);
+        renderHelperAvailability();
+      });
+    });
+
+    // ---- Função 2: chamar um ajudante ----
+    let helperCallType = 'light';
+
+    const helperPersonHTML = (h) => `
+      <div class="helper-person" data-id="${h.id}">
+        <img class="helper-person__avatar" src="${avatarSvg}" alt="">
+        <div class="helper-person__info">
+          <span class="helper-person__name">${h.first} ${h.last}</span>
+          ${icBarHTML(h.ic)}
+        </div>
+        <div class="helper-person__actions">
+          <a class="helper-person__wa" href="https://wa.me/${h.phone}" target="_blank" rel="noopener" aria-label="Chamar ${h.first} no WhatsApp">
+            <span class="material-symbols-rounded" aria-hidden="true">chat</span>WhatsApp
+          </a>
+          <button type="button" class="helper-person__another" data-id="${h.id}" aria-label="Pedir outro ajudante">
+            <span class="material-symbols-rounded" aria-hidden="true">refresh</span>Pedir outro
+          </button>
+        </div>
+      </div>`;
+
+    // Sorteia N ajudantes distintos de um tipo, excluindo ids já em uso.
+    // Fisher-Yates só como placeholder da entrega "aleatória" (real: ordem de chegada).
+    const drawHelpers = (type, count, excludeIds = []) => {
+      const pool = mockHelpers.filter(h => h.type === type && !excludeIds.includes(h.id));
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool.slice(0, count);
+    };
+
+    // Retorna o sorteio de hoje se ainda válido (mesma data); senão null.
+    const getActiveHelperDraw = () => {
+      const draw = readHelperJSON(LS_HELPER_DRAW, null);
+      if (draw && draw.date === helperToday() && Array.isArray(draw.helpers) && draw.helpers.length) {
+        return draw;
+      }
+      return null;
+    };
+
+    const renderHelperCall = () => {
+      const form   = document.getElementById('helper-call-form');
+      const result = document.getElementById('helper-result');
+      const list   = document.getElementById('helper-list');
+      if (!form || !result || !list) return;
+
+      const draw = getActiveHelperDraw();
+      if (draw) {
+        // Sorteio válido para hoje → mostra os ajudantes, esconde o botão de chamar.
+        form.classList.add('u-hidden');
+        result.classList.remove('u-hidden');
+        list.innerHTML = draw.helpers.map(helperPersonHTML).join('');
+      } else {
+        // Sem sorteio (ou expirou após a meia-noite) → limpa e libera o botão.
+        localStorage.removeItem(LS_HELPER_DRAW);
+        form.classList.remove('u-hidden');
+        result.classList.add('u-hidden');
+        list.innerHTML = '';
+      }
+    };
+
+    // Seletor de tipo (leve/pesado) do formulário de chamada.
+    document.querySelectorAll('#helper-type .pedido-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        helperCallType = chip.dataset.type;
+        document.querySelectorAll('#helper-type .pedido-chip').forEach(c => {
+          const active = c === chip;
+          c.classList.toggle('pedido-chip--active', active);
+          c.setAttribute('aria-pressed', String(active));
+        });
+      });
+    });
+
+    // Botão "Chamar ajudante": sorteia 2 do tipo escolhido e fixa até a meia-noite.
+    document.getElementById('btn-call-helper')?.addEventListener('click', () => {
+      const helpers = drawHelpers(helperCallType, 2);
+      if (!helpers.length) {
+        customAlert('Nenhum ajudante disponível para esse tipo de serviço no momento. Tente novamente mais tarde.', 'Sem ajudantes', 'info');
+        return;
+      }
+      writeHelperJSON(LS_HELPER_DRAW, { date: helperToday(), type: helperCallType, helpers });
+      renderHelperCall();
+    });
+
+    // "Pedir outro": troca aquele ajudante por outro do mesmo tipo ainda não exibido.
+    document.getElementById('helper-list')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.helper-person__another');
+      if (!btn) return;
+      const draw = getActiveHelperDraw();
+      if (!draw) return;
+
+      const oldId = btn.dataset.id;
+      const shownIds = draw.helpers.map(h => h.id);
+      const [replacement] = drawHelpers(draw.type, 1, shownIds);
+      if (!replacement) {
+        customAlert('Não há outro ajudante disponível para troca no momento.', 'Sem substituto', 'info');
+        return;
+      }
+      draw.helpers = draw.helpers.map(h => (h.id === oldId ? replacement : h));
+      writeHelperJSON(LS_HELPER_DRAW, draw);
+      renderHelperCall();
+    });
+
+    // Limpeza automática à meia-noite: se o app ficar aberto quando o dia virar,
+    // remove o sorteio antigo e libera o botão de chamar sozinho.
+    let helperMidnightTimer = null;
+    const scheduleHelperMidnightReset = () => {
+      if (helperMidnightTimer) clearTimeout(helperMidnightTimer);
+      const now = new Date();
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5, 0);
+      helperMidnightTimer = setTimeout(() => {
+        renderHelperCall();
+        scheduleHelperMidnightReset();
+      }, midnight.getTime() - now.getTime());
+    };
+
+    // Revalida ao voltar o foco ao app (pode ter passado da meia-noite em segundo plano).
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) renderHelperCall();
+    });
+
+    scheduleHelperMidnightReset();
+    renderHelperAvailability();
+    renderHelperCall();
+  }
 
   renderVagasList();
 

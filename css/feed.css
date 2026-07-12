@@ -3298,3 +3298,256 @@
 .vaga-card__btn-share .material-symbols-rounded {
   font-size: 1.2rem;
 }
+
+
+/* ===========================================================================
+   SERVIÇO DE AJUDANTES (sheet #ajudante-sheet)
+   Reaproveita o scaffolding verde do .pedido-sheet. Componentes próprios:
+   o switch de funções, os checkbox de disponibilidade (leve/pesado) e os
+   cards de ajudante sorteado (brancos, com IC-bar).
+   =========================================================================== */
+
+/* Switch entre "Disponibilizar-me" e "Chamar ajudante" — pílula translúcida
+   no mesmo espírito dos .pedido-chip, mas em bloco fixo abaixo do header. */
+.ajudante-switch {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.ajudante-switch__opt {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--fs-5);
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.ajudante-switch__opt .material-symbols-rounded {
+  font-size: 1.15rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.ajudante-switch__opt--active {
+  background: var(--bg-white);
+  color: var(--p-green-dark);
+}
+
+.ajudante-switch__opt:not(.ajudante-switch__opt--active):active {
+  transform: scale(0.97);
+}
+
+/* Texto introdutório de cada função (sobre fundo verde) */
+.ajudante-intro {
+  font-size: var(--fs-5);
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 var(--space-md);
+}
+
+/* ── Checkbox de disponibilidade (leve / pesado) ── */
+.helper-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.helper-toggle + .helper-toggle {
+  margin-top: var(--space-sm);
+}
+
+.helper-toggle__check {
+  font-size: 1.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.helper-toggle__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.helper-toggle__name {
+  font-weight: 700;
+  font-size: var(--fs-7);
+  color: var(--t-light);
+}
+
+.helper-toggle__desc {
+  font-size: var(--fs-3);
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.35;
+}
+
+.helper-toggle__rate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  font-weight: 800;
+  font-size: var(--fs-9);
+  color: var(--a-gold);
+  line-height: 1.1;
+}
+
+.helper-toggle__rate small {
+  font-size: var(--fs-2);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Estado marcado — borda/realce dourado + check preenchido */
+.helper-toggle--on {
+  border-color: var(--a-gold);
+  background: rgba(224, 168, 28, 0.16);
+}
+
+.helper-toggle--on .helper-toggle__check {
+  color: var(--a-gold);
+}
+
+.helper-toggle:active {
+  transform: scale(0.99);
+}
+
+/* Botão "Chamar ajudante" — largura total */
+.ajudante-call-btn {
+  width: 100%;
+  margin-top: var(--space-md);
+  border-radius: var(--radius-pill);
+}
+
+/* Nota "válido até a meia-noite" */
+.ajudante-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 var(--space-md);
+  padding: 10px 12px;
+  font-size: var(--fs-4);
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: var(--radius-md);
+}
+
+.ajudante-note .material-symbols-rounded {
+  font-size: 1.15rem;
+  color: var(--a-gold);
+  flex-shrink: 0;
+}
+
+/* ── Card de ajudante sorteado (branco, sobre o verde do sheet) ── */
+.helper-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.helper-person {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "avatar info"
+    "actions actions";
+  gap: var(--space-sm);
+  align-items: center;
+  padding: var(--space-sm);
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.helper-person__avatar {
+  grid-area: avatar;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-input);
+}
+
+.helper-person__info {
+  grid-area: info;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.helper-person__name {
+  font-weight: 700;
+  font-size: var(--fs-7);
+  color: var(--t-main);
+}
+
+.helper-person__actions {
+  grid-area: actions;
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.helper-person__wa,
+.helper-person__another {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: var(--fs-5);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+
+.helper-person__wa {
+  background: #25d366;
+  color: #fff;
+}
+
+.helper-person__another {
+  background: var(--bg-soft);
+  border: 1.5px solid var(--border-light);
+  color: var(--t-sub);
+}
+
+.helper-person__wa .material-symbols-rounded,
+.helper-person__another .material-symbols-rounded {
+  font-size: 1.15rem;
+}
+
+.helper-person__wa:active,
+.helper-person__another:active {
+  transform: scale(0.97);
+}

@@ -898,6 +898,87 @@
             </div>
         </div>
 
+        <!-- ── Sheet: Serviço de ajudantes (2 funções) ──────────────────────
+             Reaproveita o scaffolding do pedido-sheet (bottom-sheet verde).
+             Duas funções alternadas por u-hidden via o switch do topo:
+               (1) Disponibilizar-me — checkbox leve/pesado, diária padrão
+                   (pesado > leve), iguais para todo usuário.
+               (2) Chamar ajudante — sorteia 2 contatos por dia, expostos até
+                   a meia-noite; depois o botão volta e os antigos somem.
+             Lógica em feed.js (bloco "SERVIÇO DE AJUDANTES"). -->
+        <div id="ajudante-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
+            <div class="pedido-sheet__backdrop" id="ajudante-sheet-backdrop"></div>
+            <div class="pedido-sheet__panel">
+                <div class="pedido-sheet__header">
+                    <p class="pedido-sheet__title">Serviço de ajudantes</p>
+                    <button type="button" id="btn-close-ajudante-sheet" class="agenda-indicated__cancel" aria-label="Fechar">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
+                    </button>
+                </div>
+
+                <!-- Alterna entre as duas funções -->
+                <div class="ajudante-switch" role="tablist" aria-label="Funções do serviço de ajudantes">
+                    <button type="button" class="ajudante-switch__opt ajudante-switch__opt--active" data-ajudante-state="avail" role="tab" aria-selected="true">
+                        <span class="material-symbols-rounded" aria-hidden="true">how_to_reg</span>Disponibilizar-me
+                    </button>
+                    <button type="button" class="ajudante-switch__opt" data-ajudante-state="call" role="tab" aria-selected="false">
+                        <span class="material-symbols-rounded" aria-hidden="true">campaign</span>Chamar ajudante
+                    </button>
+                </div>
+
+                <div class="pedido-sheet__body">
+
+                    <!-- Função 1: disponibilizar-se como ajudante -->
+                    <div class="pedido-sheet__state" id="ajudante-avail-state">
+                        <p class="ajudante-intro">Ative para aparecer quando alguém chamar um ajudante. Você pode desativar quando quiser.</p>
+
+                        <button type="button" class="helper-toggle" data-avail="light" aria-pressed="false">
+                            <span class="material-symbols-rounded helper-toggle__check" aria-hidden="true">check_box_outline_blank</span>
+                            <span class="helper-toggle__info">
+                                <span class="helper-toggle__name">Serviço leve</span>
+                                <span class="helper-toggle__desc">Tarefas simples, sem esforço físico intenso.</span>
+                            </span>
+                            <span class="helper-toggle__rate"><small>diária</small><span data-rate="light">R$ 100</span></span>
+                        </button>
+
+                        <button type="button" class="helper-toggle" data-avail="heavy" aria-pressed="false">
+                            <span class="material-symbols-rounded helper-toggle__check" aria-hidden="true">check_box_outline_blank</span>
+                            <span class="helper-toggle__info">
+                                <span class="helper-toggle__name">Serviço pesado</span>
+                                <span class="helper-toggle__desc">Carga, mudança e trabalho braçal.</span>
+                            </span>
+                            <span class="helper-toggle__rate"><small>diária</small><span data-rate="heavy">R$ 180</span></span>
+                        </button>
+                    </div>
+
+                    <!-- Função 2: chamar um ajudante -->
+                    <div class="pedido-sheet__state u-hidden" id="ajudante-call-state">
+                        <!-- Formulário (visível enquanto não há sorteio ativo hoje) -->
+                        <div id="helper-call-form">
+                            <p class="ajudante-intro">Escolha o tipo de serviço e receba o contato de um ajudante disponível.</p>
+                            <div class="pedido-chip-row" id="helper-type" role="radiogroup" aria-label="Tipo de serviço">
+                                <button type="button" class="pedido-chip pedido-chip--active" data-type="light" aria-pressed="true">Serviço leve</button>
+                                <button type="button" class="pedido-chip" data-type="heavy" aria-pressed="false">Serviço pesado</button>
+                            </div>
+                            <button type="button" id="btn-call-helper" class="btn btn--accent ajudante-call-btn">
+                                <span class="material-symbols-rounded" aria-hidden="true">diversity_3</span>Chamar ajudante
+                            </button>
+                        </div>
+
+                        <!-- Resultado: 2 ajudantes expostos até a meia-noite -->
+                        <div id="helper-result" class="u-hidden">
+                            <p class="ajudante-note">
+                                <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+                                <span>Seus ajudantes de hoje ficam disponíveis até a meia-noite. Depois disso você poderá chamar novamente.</span>
+                            </p>
+                            <div id="helper-list" class="helper-list"><!-- cards via JS --></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
         <!-- ── Borda azul de tela durante modo indicação ── -->
         <div id="indicate-screen-border" class="indicate-screen-border" aria-hidden="true"></div>
 
