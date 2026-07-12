@@ -497,7 +497,6 @@
 
 .service-choice__card--active {
   background: var(--p-green-light);
-  box-shadow: var(--focus-ring);   /* seleção = anel verde (antes era borda verde) */
 }
 
 .service-choice__icon {

@@ -119,9 +119,9 @@
   background: var(--bg-white);
 }
 
+/* Célula ativa (posição atual) = mudança de COR (tint verde-claro), não sombra. */
 .otp-cell--active {
-  box-shadow: var(--ring-gold);
-  background: var(--bg-white);
+  background: var(--p-green-light);
 }
 
 .otp-input {

@@ -209,9 +209,10 @@
   appearance: none;
 }
 
+/* Foco = leve mudança de COR do próprio campo (tint verde-claro), não sombra —
+   sombras de destaque furavam bordas e viravam linha sólida. */
 .input-text:focus {
-  background: var(--bg-white);
-  box-shadow: var(--focus-ring);   /* foco = anel verde (antes era mudança da cor da borda) */
+  background: var(--p-green-light);
 }
 
 /* Hint (placeholder) um pouco menor: evita corte em campos de 1 linha
@@ -232,25 +233,23 @@
 }
 
 .input-text--maxed {
-  box-shadow: var(--ring-danger);
+  background: var(--danger-soft);
 }
 
-/* Estados de erro — aplicados via JS no submit. Antes mudavam a COR DA BORDA;
-   agora, sem contorno, viram um GLOW vermelho (--ring-danger) + fundo de alerta. */
+/* Estados de erro (via JS no submit): mudança de COR do próprio campo (fundo de
+   alerta), sem contorno nem sombra colorida. */
 .input-text--error {
-  box-shadow: var(--ring-danger) !important;
   background: var(--danger-soft);
 }
 
 .location-check--error-validation {
-  box-shadow: var(--ring-danger) !important;
   background: var(--danger-soft);
 }
 
 /* A moldura da foto mantém o tracejado (afordância "adicionar"); o erro só
-   acrescenta o glow vermelho por cima. */
+   troca o fundo para o tom de alerta. */
 .media-capture__display--error {
-  box-shadow: var(--ring-danger) !important;
+  background: var(--danger-soft) !important;
 }
 
 /* ── Labels flutuantes ── */
@@ -455,6 +454,37 @@
   line-height: 1.6;
   padding-right: 4px;
   white-space: pre-wrap;
+}
+
+/* ── Diálogos de alerta/decisão/ajuda (#dialog-global) no padrão VERDE ──
+   Mesma linguagem das telas verdes: fundo --p-green, ícone dourado, textos
+   claros, CONFIRMAR dourado (o primary verde sumiria no fundo) e CANCELAR
+   branco translúcido. Escopado ao #dialog-global — o diálogo da câmera
+   (.dialog-box--camera) segue com seu tratamento próprio. */
+#dialog-global .dialog-box {
+  background: var(--p-green);
+}
+
+#dialog-global .dialog-box__icon {
+  color: var(--a-gold);
+}
+
+#dialog-global .dialog-box__title {
+  color: var(--t-light);
+}
+
+#dialog-global .dialog-box__message {
+  color: var(--p-green-light);
+}
+
+#dialog-global .btn--primary {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+#dialog-global .btn--outline {
+  background: var(--on-green-soft);
+  color: var(--t-light);
 }
 
 

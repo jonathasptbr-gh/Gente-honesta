@@ -216,11 +216,17 @@ Variáveis em `css/base.css :root`:
 recriar `box-shadow` à mão. Os cards em repouso do feed (`.post-card`, `.vaga-card__front`) usam
 `--shadow-sm`, igual ao `.contract-card` — as antigas sombras duplas bespoke foram reconciliadas.
 
-**Anel de foco/seleção e toque:** `--focus-ring` (`0 0 0 3px rgba(var(--p-green-rgb),0.08)`) é a receita
-única de anel verde (input em foco, busca do feed) — usar o token, não reescrever. `--press-scale`
-(0.97) é o feedback de `:active` padrão do `.btn` e da maioria dos botões/pílulas; `--press-scale-subtle`
-(0.99) é para alvos GRANDES (cards, linhas). Alvos minúsculos/precisos mantêm scales próprios mais fortes
-(0.85 do ícone de excluir, 0.9/0.92 de mini-btn/stepper/FAB).
+**Destaque de estado por COR, NUNCA por sombra:** sombras coloridas de destaque furavam bordas/divs e
+viravam linha sólida — foram REMOVIDAS (não há mais `--focus-ring`/`--ring-gold`/`--ring-danger`). O estado
+muda o FILL do próprio elemento: **foco de input** e **seleção verde** (card de serviço, pro-card
+selecionado, candidatura marcada) → fundo `--p-green-light`; **seleção dourada de pílula** (vaga-day,
+pedido-chip, benefício, helper-toggle) → preenchimento `--a-gold` + texto `--p-green-dark`; **erro** →
+fundo `--danger-soft`. Pílula/célula ativa muda cor, não ganha anel. Ao criar um estado selecionado/foco
+novo, mude a cor interna — não use `box-shadow` como destaque.
+
+**Toque:** `--press-scale` (0.97) é o feedback de `:active` padrão do `.btn` e da maioria dos botões/
+pílulas; `--press-scale-subtle` (0.99) é para alvos GRANDES (cards, linhas). Alvos minúsculos/precisos
+mantêm scales próprios mais fortes (0.85 do ícone de excluir, 0.9/0.92 de mini-btn/stepper/FAB).
 
 **Pesos de fonte (tokens):** `--fw-regular` (400), `--fw-medium` (600), `--fw-bold` (700), `--fw-heavy`
 (800). Usar os tokens em `font-weight`. Nota: a Inter só carrega 400/600/800, então `--fw-bold` (700)
@@ -240,7 +246,8 @@ na estética não muda o papel: se o elemento AGE (compartilhar, candidatar, fil
    `btn btn--icon`; candidatar/publicar usam `btn btn--primary`; whatsapp `btn`).
 3. **Token / Pílula (`.chip` + `--sm/--md`)** — item selecionável/filtro/toggle. Tag: `<button>`. Estado
    ativo por CONTEXTO (verde-sólido no feed, tint-azul no cadastro, dourado nas pílulas sobre verde).
-4. **Campo (`.input-text`)** — entrada de texto. Tag: `<input>`/`<textarea>`; sem borda, foco por `--focus-ring`.
+4. **Campo (`.input-text`)** — entrada de texto. Tag: `<input>`/`<textarea>`; sem borda, foco por mudança
+   de cor do fundo (`--p-green-light`).
 
 Ao criar um elemento novo, escolha a categoria pelo papel e reuse a base — não crie uma árvore de classe
 paralela (foi o que gerava divergências, ex.: dois "compartilhar" com bases diferentes → um com bug de
@@ -253,10 +260,10 @@ borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke
   pílulas, botões (fechar/outline), células OTP etc. A definição vem de: (a) **contraste** do fundo do
   elemento com o fundo atrás dele, e (b) **sombra** (`--shadow-sm`) nos elementos sobre fundo claro/verde.
   Sombra escura NÃO aparece sobre o verde escuro, então elementos SOBRE o verde (cards de pedido/histórico)
-  usam um **fill claro** (`--card-on-green`, branco translúcido) em vez de sombra. Os antigos efeitos que
-  mudavam a COR DA BORDA (foco/seleção/erro) agora são **glows de sombra**: `--focus-ring` (verde, foco de
-  input e seleção verde), `--ring-gold` (seleção dourada: OTP ativa, etc.), `--ring-danger` (erro: campos
-  inválidos, pedido urgente). PRESERVADAS as bordas FUNCIONAIS (não são contorno de card): anéis de avatar,
+  usam um **fill claro** (`--card-on-green`, branco translúcido) em vez de sombra. Os efeitos de estado
+  (foco/seleção/erro) mudam a **COR INTERNA** do elemento (ver "Destaque de estado por COR"), nunca uma
+  sombra/anel — sombras de destaque furavam bordas e viravam linha sólida. O pedido urgente NÃO tem mais
+  linha vermelha (só o badge "Urgente"). PRESERVADAS as bordas FUNCIONAIS (não são contorno de card): anéis de avatar,
   divisores internos entre seções, caixa do checkbox, checkmark desenhado com borda, anel do spinner, seta
   do balão do tutorial e o tracejado da moldura de foto. **Reset obrigatório** (`base.css`):
   `button, input, textarea { border: none }` — sem isso, ao remover a borda explícita de um `<button>`
@@ -503,6 +510,10 @@ padrão sumiria no fundo).
 **Loader global:** `#loader-global` — mostrado/ocultado com `u-hidden`. O `onAuthStateChanged` é o único responsável por ocultá-lo em transições normais. Em erros onde o estado de auth não muda, remover manualmente. Visual: fundo `--p-green` e spinner branco (trilho em branco translúcido, topo `--t-light`) — coerente com os ambientes verdes; a `meta[name="theme-color"]` inicial também é verde (`#184e1b`) para a barra de status combinar durante o carregamento, antes de `showView` assumir. **CSS crítico inline no `<head>`** pinta o `html` de verde e já dá ao `.overlay-loader` os estilos de cobertura (`position:fixed; inset:0; background:#184e1b; z-index:9999`) — sem isso, entre o `base.css` (que pinta html/body de branco) e o `components.css` (que só então estiliza o loader) havia um flash branco no fim do splash; `.u-hidden` (base.css) ainda vence e esconde o loader normalmente. **Telas não têm animação de entrada** (`.screen` sem `animation`): um `translateY` de entrada deixava uma tira do body branco no topo por um instante, e um fade de opacidade deixava o body vazar durante o fade-out do loader — a transição entre telas fica por conta do fade-out do loader.
 
 **Diálogos:** sempre usar `await customAlert(...)` e `await customConfirm(...)` — nunca `alert()` ou `confirm()` nativos.
+Os popups de alerta/decisão/ajuda (`#dialog-global`) seguem o **padrão VERDE** (como as telas): fundo
+`--p-green`, ícone dourado, título `--t-light`, mensagem `--p-green-light`, botão confirmar dourado
+(`#dialog-global .btn--primary`) e cancelar branco translúcido (`.btn--outline`). Escopado ao
+`#dialog-global` — o diálogo da câmera (`.dialog-box--camera`) tem tratamento próprio.
 
 **Tela de cadastro com fundo verde (`#view-onboarding`):** o fundo é `--p-green` (escopado em
 `#view-onboarding.screen` — telefone/OTP/feed não são afetados). A estratégia é que quase todos os campos

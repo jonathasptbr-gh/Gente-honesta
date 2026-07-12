@@ -79,14 +79,11 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.07);
   --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.13);
 
-  /* Anéis/glows de estado (box-shadow) — substituem a antiga MUDANÇA DE COR DA
-     BORDA: os elementos não têm mais contorno; foco/seleção/erro viram uma
-     sombra colorida ao redor. --focus-ring é o verde sutil do input em foco;
-     --ring-gold marca seleção (cards/pílulas escolhidos); --ring-danger marca erro.
-     --card-shadow-focus soma o anel verde à sombra de repouso de um card claro. */
-  --focus-ring:  0 0 0 2.5px rgba(var(--p-green-rgb), 0.5);
-  --ring-gold:   0 0 0 2.5px rgba(var(--a-gold-rgb), 0.6);
-  --ring-danger: 0 0 0 2.5px rgba(var(--danger-rgb), 0.55);
+  /* Destaque de estado por MUDANÇA DE COR, nunca por sombra (sombras de destaque
+     furavam bordas e viravam linha sólida). Foco/seleção verde usam o tint claro
+     --p-green-light no FILL do próprio elemento; seleção dourada de pílula usa o
+     preenchimento --a-gold; erro usa --danger-soft no fundo. Não há mais tokens
+     de anel (--focus-ring/--ring-*): foram removidos. */
 
   /* Fill translúcido claro para CARDS sobre o verde (pedido/histórico): sem
      borda, a definição vem do contraste deste fundo com o --bg-canvas escuro

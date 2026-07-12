@@ -385,8 +385,7 @@
 
 .contracts-filters__search:focus {
   background: var(--bg-white);
-  box-shadow: var(--focus-ring);
-  box-shadow: var(--focus-ring);
+  background: var(--p-green-light);
 }
 
 .contracts-filters__chips {
@@ -432,7 +431,7 @@
 
 .contracts-filters__input:focus {
   background: var(--bg-white);
-  box-shadow: var(--focus-ring);
+  background: var(--p-green-light);
 }
 
 
@@ -1015,7 +1014,6 @@
 }
 
 .pedido-item--urgent {
-  box-shadow: var(--ring-danger);
 }
 
 /* Símbolo "Urgente" embutido antes do texto */
@@ -1233,7 +1231,6 @@
 .post-card__report:active {
   color: var(--t-light);
   background: var(--danger);
-  box-shadow: var(--ring-danger);
 }
 
 /* Imagem opcional — proporção 4:3 */
@@ -1354,7 +1351,6 @@
    fica amarelo em vez do verde da aba principal, reforçando o contexto de indicação. */
 .agenda-sheet .btn--primary {
   background: var(--a-gold);
-  box-shadow: var(--ring-gold);
   color: var(--p-green-dark);
 }
 
@@ -1362,7 +1358,6 @@
 .agenda-sheet__header .btn--outline {
   background: var(--a-gold);
   color: var(--p-green-dark);
-  box-shadow: var(--ring-gold);
 }
 
 /* Top-bar PROVISÓRIA do modo indicação — substitui a top-bar verde. */
@@ -1685,7 +1680,6 @@
 
 .pedido-chip--active {
   background: var(--a-gold);
-  box-shadow: var(--ring-gold);
   color: var(--p-green-dark);
 }
 
@@ -1964,7 +1958,6 @@
 
 .vaga-day--active {
   background: var(--a-gold);
-  box-shadow: var(--ring-gold);
   color: var(--p-green-dark);
 }
 
@@ -2078,7 +2071,6 @@
 
 .vaga-benefit-pill[aria-pressed="true"] {
   background: var(--a-gold);
-  box-shadow: var(--ring-gold);
   color: var(--p-green-dark);
 }
 
@@ -2542,7 +2534,7 @@
 
 .agenda-filters__search:focus {
   background: var(--bg-white);
-  box-shadow: var(--focus-ring);
+  background: var(--p-green-light);
 }
 
 /* Botões ícone: brancos sobre o verde da top-bar */
@@ -2826,11 +2818,6 @@
   -webkit-backface-visibility: hidden;
 }
 
-.pro-card--flipped .pro-card__front {
-  box-shadow: var(--focus-ring);
-  box-shadow: 0 0 0 2px var(--p-green-light);
-}
-
 /* Verso: posicionado sobre a frente, rotacionado 180° inicialmente (invisível) */
 .pro-card__back {
   position: absolute;
@@ -3105,8 +3092,7 @@
 }
 
 .pro-card--selected .pro-card__front {
-  box-shadow: var(--focus-ring);
-  box-shadow: 0 0 0 2px var(--p-green-light);
+  background: var(--p-green-light);
 }
 
 .pro-card__avatar-wrap {
@@ -3547,7 +3533,6 @@
 }
 
 .candid-radio:has(input:checked) {
-  box-shadow: var(--focus-ring);
   background: var(--p-green-light);
   color: var(--p-green-dark);
   font-weight: var(--fw-bold);
@@ -3574,7 +3559,6 @@
 }
 
 .candid-req-obs[open] {
-  box-shadow: var(--focus-ring);
   background: var(--bg-white);
 }
 
@@ -3633,7 +3617,7 @@
 }
 
 .candid-req-obs-input:focus {
-  box-shadow: var(--focus-ring);
+  background: var(--p-green-light);
   background: var(--bg-white);
 }
 
@@ -3666,7 +3650,6 @@
 }
 
 .candid-upload-btn:active {
-  box-shadow: var(--focus-ring);
   background: var(--p-green-light);
 }
 
@@ -4105,7 +4088,6 @@
 
 /* Estado marcado — realce dourado + check preenchido */
 .helper-toggle--on {
-  box-shadow: var(--ring-gold);
   background: rgba(var(--a-gold-rgb), 0.16);
 }
 
