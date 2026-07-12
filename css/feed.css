@@ -1547,13 +1547,15 @@
 /* Formulário "Fazer pedido" = DROPDOWN que desce da base da action bar (mesmo
    slide-down do histórico): ancora em --sheet-top, edge-to-edge, cantos
    inferiores arredondados, entra descendo (translateY -14px) + fade. */
+/* Fundo verde escuro (--bg-canvas), o mesmo do serviço de ajudantes e do feed —
+   compartilhado por fazer pedido, detalhe do pedido e criar vaga (reusam .pedido-sheet). */
 .pedido-sheet__panel {
   position: absolute;
   z-index: 1;
   top: var(--sheet-top, 0px);
   left: 0;
   right: 0;
-  background: var(--p-green);
+  background: var(--bg-canvas);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   box-shadow: var(--shadow-lg);
   padding: var(--space-md);
@@ -2220,7 +2222,7 @@
   left: 0;
   right: 0;
   max-height: calc(100dvh - var(--sheet-top, 0px) - 12px);
-  background: var(--p-green);
+  background: var(--bg-canvas);   /* mesmo verde escuro do serviço de ajudantes */
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   box-shadow: var(--shadow-lg);
   padding: var(--space-md);
@@ -3979,11 +3981,8 @@
    sorteado reutiliza as classes .pro-card__* dos cards de profissional.
    =========================================================================== */
 
-/* Fundo do sheet um pouco mais escuro, igual ao fundo do feed (--bg-canvas,
-   atrás dos cards). Escopado ao #ajudante-sheet — não afeta pedido/vaga. */
-#ajudante-sheet .pedido-sheet__panel {
-  background: var(--bg-canvas);
-}
+/* O fundo --bg-canvas do painel já vem da base .pedido-sheet__panel (agora
+   compartilhado por pedido/vaga/ajudante), não precisa mais de override aqui. */
 
 /* Seção de função + título com ícone */
 .ajudante-section {
