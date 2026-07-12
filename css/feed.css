@@ -728,6 +728,8 @@
 /* Botões da linha de vagas — mesma altura e cantos do btn padrão (.btn = radius-md) */
 .agenda-filters__vagas-btn {
   height: 40px;
+  flex: 1;          /* 50/50 estável entre os dois botões */
+  min-width: 0;     /* sem isso o texto define a largura mínima e o par "dança" ao trocar o rótulo */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -742,10 +744,7 @@
   overflow: hidden;
 }
 
-/* "Criar vaga" — proporcional ao próprio texto */
 .agenda-filters__vagas-btn--criar {
-  flex: 0 0 auto;
-  padding: 0 var(--space-md);
   background: var(--bg-white);
   color: #000;
 }
@@ -975,6 +974,8 @@
 /* Botão cresce; o badge de contagem fica ao lado, à direita */
 .pedido-action__btn {
   flex: 1;
+  min-width: 0;   /* largura ESTÁVEL 50/50: sem isso min-width:auto faz o botão
+                     crescer com o texto (ex.: "Concluir pedido") e empurrar o vizinho */
   display: flex;
   align-items: center;
   justify-content: center;
