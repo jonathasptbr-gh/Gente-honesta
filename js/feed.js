@@ -2111,6 +2111,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let pedidoIdSeq = 1;
   const pedidoHistory = []; // {id, text, urgency, duration, neighbors, createdAt, completedAt, status:'active'|'completed', indicated:[]}
   let detailPedidoId = null;      // id do pedido exibido no sheet de detalhe
+  // Modo do topo enquanto um DETALHE de pedido está aberto:
+  //  'active' → btn Histórico vira "Concluir pedido"; btn Fazer/Pedido vira "Fechar"
+  //  'old'    → btn Histórico vira "Fechar"; btn Fazer/Pedido fica natural (navega)
+  //  null     → sem detalhe aberto (comportamento normal)
+  let pedidoDetailMode = null;
   let pedidoTimerInterval = null; // setInterval do timer (limpo ao fechar/concluir)
   const myPedido = { text: '', urgency: 'normal', duration: '12', neighbors: false }; // objeto de trabalho do formulário
 
@@ -2145,13 +2150,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Botão "Histórico" vira botão de fechar (X) enquanto o histórico está aberto.
-  const setHistoricoClose = (isClose) => {
-    btnHistorico?.classList.toggle('action-close-mode', isClose);
+  // O botão "Histórico" assume 3 estados conforme o contexto:
+  //  'natural'  → "Histórico" (abre o histórico)
+  //  'close'    → "Fechar" (fecha o histórico OU o detalhe de um pedido antigo)
+  //  'conclude' → "Concluir pedido" (dourado; ao ver o detalhe do pedido ATIVO)
+  const setHistoricoButton = (mode) => {
     const icon  = btnHistorico?.querySelector('.pedido-action__icon');
     const label = btnHistorico?.querySelector('[data-btn-label]');
-    if (icon)  icon.textContent  = isClose ? 'close'   : 'history';
-    if (label) label.textContent = isClose ? 'Fechar'  : 'Histórico';
+    btnHistorico?.classList.toggle('action-close-mode', mode === 'close');
+    btnHistorico?.classList.toggle('action-conclude-mode', mode === 'conclude');
+    if (mode === 'conclude') {
+      if (icon)  icon.textContent  = 'check_circle';
+      if (label) label.textContent = 'Concluir pedido';
+    } else if (mode === 'close') {
+      if (icon)  icon.textContent  = 'close';
+      if (label) label.textContent = 'Fechar';
+    } else {
+      if (icon)  icon.textContent  = 'history';
+      if (label) label.textContent = 'Histórico';
+    }
   };
 
   // ── Elementos do sheet de criação / detalhe ──
@@ -2172,7 +2189,12 @@ document.addEventListener('DOMContentLoaded', () => {
     pedidoSheet?.classList.remove('pedido-sheet--open');
     stopPedidoTimer();
     detailPedidoId = null;
+    pedidoDetailMode = null;
     setMyPedidoClose(false);
+    // Restaura o botão Histórico: se o histórico continua aberto atrás, volta a
+    // "Fechar"; senão, ao estado natural "Histórico".
+    const historicoOpen = document.getElementById('historico-sheet')?.classList.contains('historico-sheet--open');
+    setHistoricoButton(historicoOpen ? 'close' : 'natural');
   };
 
   // Ancora um sheet-dropdown na BASE da action bar (= topo da caixa do feed),
@@ -2235,7 +2257,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fractionEl) fractionEl.textContent = `${pedido.indicated.length}/3`;
     const listEl = document.getElementById('pedido-detail-indicated-list');
     if (listEl) renderFlippableProCards(listEl, pedido.indicated);
-    btnPedidoConcluir?.classList.toggle('u-hidden', !active);
+    // Concluir vive no topo (botão Histórico vira "Concluir" no pedido ativo);
+    // o bloco de ação de baixo fica sempre oculto para não duplicar.
     updatePedidoTimer();
   };
 
@@ -2248,6 +2271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pedidoDetailsState?.classList.add('u-hidden');
     stopPedidoTimer();
     detailPedidoId = null;
+    pedidoDetailMode = null;   // formulário não é um detalhe
     anchorBelowActionBar(pedidoSheet);
     pedidoSheet?.classList.remove('pedido-sheet--full');
     pedidoSheet?.classList.add('pedido-sheet--open');
@@ -2261,23 +2285,72 @@ document.addEventListener('DOMContentLoaded', () => {
     const pedido = getPedidoById(id);
     if (!pedido) return;
     detailPedidoId = id;
-    if (pedidoSheetTitle) pedidoSheetTitle.textContent = pedido.status === 'active' ? 'Pedido atual' : 'Pedido concluído';
+    const active = pedido.status === 'active';
+    pedidoDetailMode = active ? 'active' : 'old';
+    if (pedidoSheetTitle) pedidoSheetTitle.textContent = active ? 'Pedido atual' : 'Pedido concluído';
     pedidoFormState?.classList.add('u-hidden');
     pedidoDetailsState?.classList.remove('u-hidden');
     renderPedidoDetails(pedido);
     stopPedidoTimer();
-    if (pedido.status === 'active') pedidoTimerInterval = setInterval(updatePedidoTimer, 60 * 1000);
+    if (active) pedidoTimerInterval = setInterval(updatePedidoTimer, 60 * 1000);
     anchorBelowActionBar(pedidoSheet);
     pedidoSheet?.classList.remove('pedido-sheet--full');
     pedidoSheet?.classList.add('pedido-sheet--open');
-    setMyPedidoClose(true);
+    if (active) {
+      // Pedido ATIVO: Histórico → "Concluir pedido"; Fazer/Pedido atual → "Fechar".
+      setHistoricoButton('conclude');
+      setMyPedidoClose(true);
+    } else {
+      // Pedido ANTIGO: só Histórico → "Fechar"; Fazer/Pedido atual fica natural,
+      // para pular direto de um pedido antigo para fazer/ver o pedido atual.
+      setHistoricoButton('close');
+      setMyPedidoClose(false);
+    }
+  };
+
+  // Ação do botão principal (Fazer pedido / Pedido atual): abre o formulário de
+  // criação ou o detalhe do pedido ativo. Reusado pelo clique direto e pelo modo
+  // "pedido antigo" (onde esse botão fica natural para pular ao pedido atual).
+  const myPedidoNavigate = () => {
+    const active = getActivePedido();
+    if (active) openPedidoDetail(active.id);
+    else openPedidoForm();
+  };
+
+  // Conclui o pedido em exibição (ativo). Chamado pelo botão "Concluir" do topo
+  // (Histórico em modo conclude) — o botão de baixo foi ocultado para não duplicar.
+  const concluirDetailPedido = async () => {
+    const pedido = getPedidoById(detailPedidoId);
+    if (!pedido || pedido.status !== 'active') return;
+    const ok = await customConfirm('Ao concluir, seu pedido sairá do ar e não receberá novas indicações. Ele continua salvo no seu histórico. Deseja continuar?', 'Concluir pedido', 'check_circle');
+    if (!ok) return;
+    pedido.status = 'completed';
+    pedido.completedAt = Date.now();
+    renderMyPedidoButton();
+    renderHistoricoList();
+    closePedidoSheet();
+  };
+
+  // O toque acerta um botão da barra? (os botões ficam VISÍVEIS sob a área
+  // transparente do container do sheet; roteamos pelo retângulo em vez de subir
+  // o z-index da barra.)
+  const tapHitsButton = (e, btn) => {
+    if (!btn || btn.offsetParent === null) return false;
+    const r = btn.getBoundingClientRect();
+    return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
   };
 
   document.getElementById('btn-pedido-cancel')?.addEventListener('click', closePedidoSheet);
-  // Fecha ao tocar fora do painel (backdrop dimmed OU a área transparente sobre
-  // a barra) — o backdrop só cobre o feed abaixo, então usamos o container todo.
+  // Toque FORA do painel (barra ou backdrop). Os botões do topo agora têm ação
+  // própria dependendo do modo do detalhe, então roteamos o toque:
+  //  - detalhe ATIVO + toque no Histórico ("Concluir") → conclui;
+  //  - detalhe ANTIGO + toque no Fazer/Pedido atual (natural) → navega;
+  //  - qualquer outro toque fora do painel → fecha.
   pedidoSheet?.addEventListener('click', (e) => {
-    if (!e.target.closest('.pedido-sheet__panel')) closePedidoSheet();
+    if (e.target.closest('.pedido-sheet__panel')) return;
+    if (pedidoDetailMode === 'active' && tapHitsButton(e, btnHistorico)) { concluirDetailPedido(); return; }
+    if (pedidoDetailMode === 'old' && tapHitsButton(e, btnMyPedido)) { myPedidoNavigate(); return; }
+    closePedidoSheet();
   });
   bindProCardFlip(document.getElementById('pedido-detail-indicated-list'));
 
@@ -2351,18 +2424,9 @@ document.addEventListener('DOMContentLoaded', () => {
     await customAlert('Seu pedido está no ar! Você será avisado quando alguém indicar um profissional de confiança.', 'Pedido publicado', 'check_circle');
   });
 
-  // Concluir pedido → marca como concluído (permanece no histórico) e fecha o sheet.
-  btnPedidoConcluir?.addEventListener('click', async () => {
-    const pedido = getPedidoById(detailPedidoId);
-    if (!pedido || pedido.status !== 'active') return;
-    const ok = await customConfirm('Ao concluir, seu pedido sairá do ar e não receberá novas indicações. Ele continua salvo no seu histórico. Deseja continuar?', 'Concluir pedido', 'check_circle');
-    if (!ok) return;
-    pedido.status = 'completed';
-    pedido.completedAt = Date.now();
-    renderMyPedidoButton();
-    renderHistoricoList();
-    closePedidoSheet();
-  });
+  // Botão "Concluir" de baixo (oculto): mantém o handler apontando para a mesma
+  // lógica, caso volte a ser exibido no futuro.
+  btnPedidoConcluir?.addEventListener('click', concluirDetailPedido);
 
   // ── Histórico de pedidos ──
   const historicoSheet = document.getElementById('historico-sheet');
@@ -2411,11 +2475,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHistoricoList();
     anchorBelowActionBar(historicoSheet);
     historicoSheet?.classList.add('historico-sheet--open');
-    setHistoricoClose(true);
+    setHistoricoButton('close');
   };
   const closeHistorico = () => {
     historicoSheet?.classList.remove('historico-sheet--open');
-    setHistoricoClose(false);
+    // Se um detalhe de pedido ativo está aberto sobre o histórico, o botão fica em
+    // "Concluir"; senão volta ao natural.
+    setHistoricoButton(pedidoDetailMode === 'active' ? 'conclude' : 'natural');
   };
 
   historicoSheet?.addEventListener('click', (e) => {
@@ -2445,11 +2511,7 @@ document.addEventListener('DOMContentLoaded', () => {
   btnHistorico?.addEventListener('click', openHistorico);
 
   // Botão principal: detalhe do pedido atual (se ativo) ou formulário de criação.
-  btnMyPedido?.addEventListener('click', () => {
-    const active = getActivePedido();
-    if (active) openPedidoDetail(active.id);
-    else openPedidoForm();
-  });
+  btnMyPedido?.addEventListener('click', myPedidoNavigate);
 
   renderMyPedidoButton();
 

@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v240</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v241</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -885,7 +885,9 @@
                                 <!-- Preenchido via JS -->
                             </div>
                         </div>
-                        <div class="pedido-sheet__actions" id="pedido-detail-actions">
+                        <!-- Concluir pedido agora fica no TOPO (o botão Histórico vira "Concluir"
+                             ao ver o pedido ativo); este bloco fica oculto para não duplicar. -->
+                        <div class="pedido-sheet__actions u-hidden" id="pedido-detail-actions">
                             <button type="button" id="btn-pedido-concluir" class="btn btn--accent">
                                 <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>
                                 Concluir pedido

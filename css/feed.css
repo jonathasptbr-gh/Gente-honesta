@@ -995,6 +995,17 @@
   color: var(--t-light) !important;
 }
 
+/* MODO "CONCLUIR": ao ver o detalhe do pedido ATIVO, o botão Histórico vira o
+   botão de ação "Concluir pedido" (dourado, como o btn--accent) — vence o
+   fundo branco do btn--white. */
+.action-conclude-mode {
+  background: var(--a-gold) !important;
+  color: var(--p-green-dark) !important;
+}
+.action-conclude-mode .material-symbols-rounded {
+  color: var(--p-green-dark) !important;
+}
+
 
 /* ===========================================
    LISTA DE PEDIDOS — estética plana com dividers

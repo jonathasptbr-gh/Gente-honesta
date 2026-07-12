@@ -585,7 +585,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v240`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v241`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -768,7 +768,8 @@ respectivamente) em vez de recriar o scaffolding.
 da action bar vira um **botão de fechar padrão** (ícone `close` + "Fechar") enquanto seu submenu está
 aberto, via a classe `.action-close-mode` (`feed.css`: fundo `--on-green-soft` translúcido + texto/ícone
 `--t-light`, com `!important` para vencer o fundo dourado/branco de cada botão). Helpers em `feed.js`:
-`setMyPedidoClose` (btn-my-pedido), `setHistoricoClose` (btn-historico), `setCriarVagaClose`/`setAjudanteClose`
+`setMyPedidoClose` (btn-my-pedido), `setHistoricoButton(mode)` (btn-historico, 3 estados:
+`'natural'`/`'close'`/`'conclude'`), `setCriarVagaClose`/`setAjudanteClose`
 (nos IIFEs de vaga/ajudante, via `innerHTML`), e o toggle do `#btn-toggle-filters` (ícone `tune`↔`close`).
 Cada `open*` chama o setter com `true`, cada `close*` com `false` (restaurando rótulo/ícone). Como o
 container do submenu (z-300) cobre a barra quando aberto, **tocar no botão "Fechar" (visível sob a área
@@ -798,7 +799,12 @@ A `#bar-pedidos-state` tem SEMPRE dois botões lado a lado (o antigo badge `#my-
 Container verde escuro (`--bg-canvas`) com backdrop. **Ambos os estados agora são o MESMO DROPDOWN**
 slide-down (a antiga tela cheia `--full` do detalhe foi REMOVIDA), alternados por `u-hidden`:
 - `#pedido-form-state` — **criação**: DROPDOWN que desce da base da action bar (mesmo slide-down do histórico), ancorado em `--sheet-top` (medido em JS via `anchorBelowActionBar`), edge-to-edge com cantos inferiores arredondados. textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botões Cancelar (`btn btn--danger`, vermelho) / Publicar. O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), mantendo a barra acesa para o painel parecer a base dela se estendendo.
-- `#pedido-details-state` — **detalhe unificado** (somente leitura): abre no MESMO dropdown slide-down do formulário (`openPedidoDetail` chama `anchorBelowActionBar` + `pedido-sheet--open`, sem `--full`); o corpo (`.pedido-sheet__body`) rola internamente quando a lista de indicados cresce. Traz o **pedido no topo** (`#pedido-detail-card-container`, via `renderPedidoDetails(pedido)`) e, logo abaixo, a seção **"Indicações recebidas"** (`.pedido-detail-indicated` com fração `#pedido-detail-fraction` e lista `#pedido-detail-indicated-list`). O botão **Concluir pedido** (`btn btn--accent`) fica em `#pedido-detail-actions` e só aparece para pedido **ativo** (escondido via `u-hidden` em pedido concluído). Ambos fecham ao tocar fora do painel (handler no container que checa `closest('.pedido-sheet__panel')`).
+- `#pedido-details-state` — **detalhe unificado** (somente leitura): abre no MESMO dropdown slide-down do formulário (`openPedidoDetail` chama `anchorBelowActionBar` + `pedido-sheet--open`, sem `--full`); o corpo (`.pedido-sheet__body`) rola internamente quando a lista de indicados cresce. Traz o **pedido no topo** (`#pedido-detail-card-container`, via `renderPedidoDetails(pedido)`) e, logo abaixo, a seção **"Indicações recebidas"** (`.pedido-detail-indicated` com fração `#pedido-detail-fraction` e lista `#pedido-detail-indicated-list`). Fecha ao tocar fora do painel (handler no container que checa `closest('.pedido-sheet__panel')`).
+
+**Botões do topo no detalhe (evita dois "Fechar" quando o histórico está aberto atrás).** `pedidoDetailMode` (`'active'`/`'old'`/`null`) define a config dos dois botões da action bar, e o botão **Concluir pedido** MIGROU do rodapé do sheet (`#pedido-detail-actions`, agora sempre `u-hidden`) para o topo:
+  - **Pedido ATIVO** (`openPedidoDetail` de um pedido `status:'active'`): Histórico → **"Concluir pedido"** (`setHistoricoButton('conclude')`, dourado via `.action-conclude-mode`); Fazer/Pedido atual → **"Fechar"** (`setMyPedidoClose(true)`).
+  - **Pedido ANTIGO** (concluído): só Histórico → **"Fechar"** (`setHistoricoButton('close')`); Fazer/Pedido atual fica **natural** (navega — permite pular de um pedido antigo direto para fazer/ver o pedido atual).
+  Como o container do sheet (z-300) cobre a barra, o handler de tap-outside roteia o toque pelo RETÂNGULO do botão (`tapHitsButton`, sem subir z-index): ativo+Histórico → `concluirDetailPedido`; antigo+Fazer/Pedido → `myPedidoNavigate`; qualquer outro toque fora do painel → `closePedidoSheet`. Ao fechar, `closePedidoSheet` restaura o Histórico para `'close'` (se o histórico segue aberto atrás) ou `'natural'`.
 
 `renderPedidoDetails(pedido)` recebe um pedido do histórico e monta: card (avatar, nome, IC-bar mock 100%; na meta row um **timer** de horas restantes se `status:'active'`, ou o selo verde **"Concluído"** `.pedido-item__timer--done` se `status:'completed'`), urgência como badge vermelho inline, fração `N/3` e a lista de indicados via `renderFlippableProCards`. O card tem `pointer-events: none`; os pro-cards dos indicados têm `pointer-events: auto`.
 
