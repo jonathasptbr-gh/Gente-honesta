@@ -669,12 +669,17 @@
    A barra verde exibe o botão "Fazer um pedido" no lugar da busca
    ======================================== */
 
-/* Slot que RECORTA (overflow) o trilho deslizante — o mesmo esquema do feed. */
+/* Slot que RECORTA (overflow) o trilho deslizante — o mesmo esquema do feed.
+   Margem negativa anula o padding horizontal da barra: o viewport de recorte vai
+   até a BORDA DA TELA (igual ao feed), então o carrossel não "corta" antes da
+   borda. O respiro dos botões passa para o padding de cada linha (abaixo). */
 .agenda-filters__action-row {
   position: relative;
   height: 40px;
   flex-shrink: 0;
   overflow: hidden;
+  margin-left: calc(-1 * var(--space-md));
+  margin-right: calc(-1 * var(--space-md));
 }
 
 /* Trilho: as 3 linhas ficam LADO A LADO (300%) e o trilho desliza por translateX,
@@ -702,6 +707,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+  /* o respiro que antes vinha do padding da barra vive AQUI, dentro de cada linha,
+     pois o viewport agora vai até a borda da tela */
+  padding: 0 var(--space-md);
 }
 
 /* A linha de pedidos estica os botões à altura toda e usa gap um pouco maior */
