@@ -1004,8 +1004,10 @@
 .agenda-filters__vagas-btn .material-symbols-rounded,
 .agenda-filters__icon-btn .material-symbols-rounded,
 .action-close-mode .material-symbols-rounded {
-  font-size: 1.1rem !important;
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24 !important;
+  font-size: 1.2rem !important;
+  /* wght 700 (máx) + GRAD 200 (máx) = traço o mais grosso possível, para o "+" e os
+     demais glifos não ficarem finos ao lado do texto bold. */
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 200, 'opsz' 24 !important;
 }
 
 /* MODO "CONCLUIR": ao ver o detalhe do pedido ATIVO, o botão Histórico vira o
