@@ -759,18 +759,38 @@ dinâmicas (`css/feed.css`, bloco "Sheet Criar vaga"): `.vaga-dyn-list` / `.vaga
 botão remover `.vaga-dyn-remove`), `.vaga-add-btn` (botão tracejado dourado "Adicionar…") e
 `.vaga-card--highlight` (destaque dourado temporário ao tocar "Ver vaga").
 
-Campos (todos obrigatórios exceto benefícios): empresa, endereço, cargo, **número de vagas** (chips
-1–5, seleção única, padrão 1), **requisitos** (lista dinâmica, ≥1 preenchido), carga horária, salário
-e **benefícios** (lista dinâmica, opcional). Cada benefício recebe um ícone Material inferido por
-palavra-chave (`benefitIcon()` em `feed.js`; fallback `redeem`).
+Campos:
+- **CNPJ da empresa** (`#inp-vaga-cnpj`) — substitui nome+endereço. Máscara `00.000.000/0000-00`
+  (`formatCnpj`, exige 14 dígitos). Nome e endereço reais serão buscados no sistema oficial pelo CNPJ
+  (ainda não implementado); por isso a vaga é criada com `empresa: ''` e `endereco: ''`, guardando só
+  `cnpj`. No card, `renderVagasList` mostra `CNPJ <número>` no lugar do nome e uma nota não-clicável
+  "Dados da empresa em verificação" (`.vaga-card__company-address--pending`) no lugar do endereço.
+- **Cargo / função** — texto obrigatório.
+- **Número de vagas** — stepper **+/-** (`.vaga-stepper`, `#vaga-count-value`), 1–20, `dec` desabilita em 1.
+- **Requisitos** — lista dinâmica (`.vaga-dyn-list`), ≥1 preenchido.
+- **Carga horária** — dois `<select>` de hora de **meia em meia hora** (00:00→23:30, 48 opções,
+  `populateTimeSelect`; padrão 08:00→18:00) + toggles de **dias** (`.vaga-day`, multi-seleção; padrão
+  Seg–Sex). `formatDays` compacta uma sequência contígua em "Seg–Sex", senão junta por vírgula. String
+  final: `"08:00 às 18:00 · Seg–Sex"`.
+- **Salário** — campo numérico (só dígitos, separador de milhar automático via `toLocaleString('pt-BR')`),
+  com `R$` e `/mês` **externos** ao input (`.vaga-salary__prefix`/`__suffix`). Gera `"R$ 1.500/mês"`.
+- **Benefícios** — lista dinâmica opcional; cada um recebe um ícone Material inferido por palavra-chave
+  (`benefitIcon()` em `feed.js`; fallback `redeem`).
+- **Exigir currículo (PDF/foto)** — check (`#chk-vaga-curriculo`, `.vaga-check`, estado em `aria-pressed`)
+  com aviso de que pedir currículo individual extra pode fazer perder candidatos. Grava `exigeCurriculo`
+  na vaga; a seção de upload de currículo no verso de candidatura só é renderizada quando
+  `vaga.exigeCurriculo !== false` (vagas legadas sem o campo continuam exibindo).
 
 Lógica em `feed.js` (bloco "Sheet Criar vaga", IIFE após `renderVagasList`):
 - `addDynRow(listEl, placeholder)` — cria uma linha de input dinâmico com botão remover
-- `resetVagaForm()` — zera o formulário (1 requisito vazio, sem benefícios, contagem = 1)
+- `renderCount()` — atualiza o valor e o estado disabled do stepper
+- `resetVagaForm()` — zera tudo (1 requisito vazio, sem benefícios, contagem 1, horas 08–18, Seg–Sex,
+  currículo off)
 - `openVagaSheet()` / `closeVagaSheet()` — alternam `.pedido-sheet--open`
-- Publicar: valida obrigatórios (destaca vazios com `input-text--error` + rola até o 1º),
-  faz `mockVagas.unshift(novaVaga)` (poster = usuário atual, IC mock 100) + `renderVagasList()`,
-  e **transforma o `#btn-criar-vaga` em "Ver vaga"** (ícone `visibility`)
+- Publicar: valida obrigatórios (CNPJ 14 dígitos, cargo, salário, ≥1 requisito, ≥1 dia; destaca com
+  `input-text--error` / `.vaga-days--error` + rola até o 1º), faz `mockVagas.unshift(novaVaga)`
+  (poster = usuário atual, IC mock 100) + `renderVagasList()`, e **transforma o `#btn-criar-vaga` em
+  "Ver vaga"** (ícone `visibility`)
 - Com vaga publicada, `#btn-criar-vaga` chama `scrollToMyVaga()` (rola até o card + `--highlight`)
   em vez de reabrir o formulário. `myVagaId` guarda o id da vaga do usuário.
 

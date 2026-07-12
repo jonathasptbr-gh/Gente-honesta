@@ -827,6 +827,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(vaga.mapsQuery)}`;
 
+      // Nome da empresa: se ainda não temos os dados oficiais (vaga criada por
+      // CNPJ), mostramos o próprio CNPJ como identificador. Idem para o endereço,
+      // que vira uma nota "pendente" (não-link) até virem os dados do sistema.
+      const companyName = vaga.empresa || (vaga.cnpj ? `CNPJ ${vaga.cnpj}` : '');
+      const addressHTML = vaga.endereco
+        ? `<a class="vaga-card__company-address" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver no Google Maps: ${vaga.endereco}">
+                  <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                  ${vaga.endereco}
+                </a>`
+        : `<span class="vaga-card__company-address vaga-card__company-address--pending">
+                  <span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>
+                  Dados da empresa em verificação
+                </span>`;
+
+      // Currículo na candidatura só aparece se a vaga exigir (legado: undefined = exige).
+      const exigeCurriculo = vaga.exigeCurriculo !== false;
+      const curriculoSectionHTML = exigeCurriculo ? `
+              <!-- 5. Currículo -->
+              <div class="candid-section">
+                <p class="candid-section-label">Currículo completo</p>
+                <label class="candid-upload-btn" data-vaga="${vaga.id}">
+                  <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
+                  <span class="candid-upload-text">Adicionar currículo em foto ou PDF</span>
+                  <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
+                </label>
+              </div>` : '';
+
       const reqObsHTML = vaga.requisitos.map((r, i) => `
         <details class="candid-req-obs">
           <summary class="candid-req-obs-label">${r}</summary>
@@ -848,11 +875,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="vaga-card__company-strip">
               <span class="material-symbols-rounded vaga-card__company-icon" aria-hidden="true">domain</span>
               <div class="vaga-card__company-info">
-                <span class="vaga-card__company-name">${vaga.empresa}</span>
-                <a class="vaga-card__company-address" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver no Google Maps: ${vaga.endereco}">
-                  <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
-                  ${vaga.endereco}
-                </a>
+                <span class="vaga-card__company-name">${companyName}</span>
+                ${addressHTML}
               </div>
             </div>
             <div class="vaga-card__poster">
@@ -972,16 +996,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   </div>
                 </div>
               </div>
-
-              <!-- 5. Currículo -->
-              <div class="candid-section">
-                <p class="candid-section-label">Currículo completo</p>
-                <label class="candid-upload-btn" data-vaga="${vaga.id}">
-                  <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
-                  <span class="candid-upload-text">Adicionar currículo em foto ou PDF</span>
-                  <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
-                </label>
-              </div>
+              ${curriculoSectionHTML}
 
             </div><!-- /back-form -->
             <div class="vaga-card__back-footer">
@@ -1215,19 +1230,95 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ao publicar, a vaga entra no topo de mockVagas + re-renderiza a lista, e o
   // botão "Criar vaga" da action bar vira "Ver vaga" (rola até o card criado).
   {
-    const vagaSheet   = document.getElementById('vaga-sheet');
+    const vagaSheet    = document.getElementById('vaga-sheet');
     const btnCriarVaga = document.getElementById('btn-criar-vaga');
-    const reqList     = document.getElementById('vaga-req-list');
-    const benefitList = document.getElementById('vaga-benefit-list');
-    const inpEmpresa  = document.getElementById('inp-vaga-empresa');
-    const inpEndereco = document.getElementById('inp-vaga-endereco');
-    const inpCargo    = document.getElementById('inp-vaga-cargo');
-    const inpHorario  = document.getElementById('inp-vaga-horario');
-    const inpSalario  = document.getElementById('inp-vaga-salario');
-    const countGroup  = document.getElementById('vaga-count');
+    const reqList      = document.getElementById('vaga-req-list');
+    const benefitList  = document.getElementById('vaga-benefit-list');
+    const inpCnpj      = document.getElementById('inp-vaga-cnpj');
+    const inpCargo     = document.getElementById('inp-vaga-cargo');
+    const inpSalario   = document.getElementById('inp-vaga-salario');
+    const selInicio    = document.getElementById('inp-vaga-hora-inicio');
+    const selFim       = document.getElementById('inp-vaga-hora-fim');
+    const daysGroup    = document.getElementById('vaga-days');
+    const countValueEl = document.getElementById('vaga-count-value');
+    const btnCountDec  = document.getElementById('vaga-count-dec');
+    const btnCountInc  = document.getElementById('vaga-count-inc');
+    const chkCurriculo = document.getElementById('chk-vaga-curriculo');
 
+    const MAX_VAGAS = 20;
+    const DAY_ORDER = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
     let vagaCount = 1;
     let myVagaId  = null;
+
+    // ── Número de vagas: stepper +/- ──
+    const renderCount = () => {
+      if (countValueEl) countValueEl.textContent = String(vagaCount);
+      if (btnCountDec) btnCountDec.disabled = vagaCount <= 1;
+      if (btnCountInc) btnCountInc.disabled = vagaCount >= MAX_VAGAS;
+    };
+    btnCountDec?.addEventListener('click', () => { if (vagaCount > 1)         { vagaCount--; renderCount(); } });
+    btnCountInc?.addEventListener('click', () => { if (vagaCount < MAX_VAGAS) { vagaCount++; renderCount(); } });
+
+    // ── Seletores de hora (meia em meia hora, 00:00 → 23:30) ──
+    const populateTimeSelect = (sel, defaultValue) => {
+      if (!sel) return;
+      let opts = '';
+      for (let h = 0; h < 24; h++) {
+        for (const m of ['00', '30']) {
+          const t = `${String(h).padStart(2, '0')}:${m}`;
+          opts += `<option value="${t}"${t === defaultValue ? ' selected' : ''}>${t}</option>`;
+        }
+      }
+      sel.innerHTML = opts;
+    };
+
+    // ── Dias de trabalho: toggle múltiplo ──
+    const getSelectedDays = () =>
+      DAY_ORDER.filter(d => daysGroup?.querySelector(`.vaga-day[data-day="${d}"]`)?.classList.contains('vaga-day--active'));
+
+    daysGroup?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.vaga-day');
+      if (!btn) return;
+      btn.classList.toggle('vaga-day--active');
+      daysGroup.classList.remove('vaga-days--error');
+    });
+
+    // Compacta os dias selecionados: uma sequência contígua vira "Seg–Sex";
+    // caso contrário, junta com vírgula ("Seg, Qua, Sex").
+    const formatDays = (days) => {
+      if (days.length <= 1) return days.join('');
+      const idx = days.map(d => DAY_ORDER.indexOf(d));
+      const contiguous = idx.every((v, i) => i === 0 || v === idx[i - 1] + 1);
+      return contiguous ? `${days[0]}–${days[days.length - 1]}` : days.join(', ');
+    };
+
+    // ── CNPJ: máscara 00.000.000/0000-00 ──
+    const formatCnpj = (value) => {
+      const d = value.replace(/\D/g, '').slice(0, 14);
+      let out = d;
+      if (d.length > 2)  out = `${d.slice(0, 2)}.${d.slice(2)}`;
+      if (d.length > 5)  out = `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
+      if (d.length > 8)  out = `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
+      if (d.length > 12) out = `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+      return out;
+    };
+    inpCnpj?.addEventListener('input', () => {
+      inpCnpj.value = formatCnpj(inpCnpj.value);
+      inpCnpj.classList.remove('input-text--error');
+    });
+
+    // ── Salário: só dígitos, formatado com separador de milhar ──
+    inpSalario?.addEventListener('input', () => {
+      const d = inpSalario.value.replace(/\D/g, '');
+      inpSalario.value = d ? Number(d).toLocaleString('pt-BR') : '';
+      inpSalario.classList.remove('input-text--error');
+    });
+
+    // ── Check "Exigir currículo" ──
+    chkCurriculo?.addEventListener('click', () => {
+      const on = chkCurriculo.getAttribute('aria-pressed') === 'true';
+      chkCurriculo.setAttribute('aria-pressed', String(!on));
+    });
 
     // Mapeia palavras-chave do benefício para um ícone Material coerente.
     const benefitIcon = (label) => {
@@ -1260,14 +1351,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return input;
     };
 
-    // Zera o formulário para o estado inicial (1 requisito vazio, sem benefícios).
+    // Zera o formulário para o estado inicial.
     const resetVagaForm = () => {
-      [inpEmpresa, inpEndereco, inpCargo, inpHorario, inpSalario].forEach(el => {
+      [inpCnpj, inpCargo, inpSalario].forEach(el => {
         if (el) { el.value = ''; el.classList.remove('input-text--error'); }
       });
       vagaCount = 1;
-      countGroup?.querySelectorAll('.pedido-chip').forEach(c =>
-        c.classList.toggle('pedido-chip--active', c.dataset.count === '1'));
+      renderCount();
+      if (selInicio) selInicio.value = '08:00';
+      if (selFim)    selFim.value    = '18:00';
+      daysGroup?.querySelectorAll('.vaga-day').forEach(d =>
+        d.classList.toggle('vaga-day--active', ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'].includes(d.dataset.day)));
+      daysGroup?.classList.remove('vaga-days--error');
+      chkCurriculo?.setAttribute('aria-pressed', 'false');
       if (reqList)     { reqList.innerHTML = '';     addDynRow(reqList, 'Ex: Experiência com atendimento'); }
       if (benefitList) { benefitList.innerHTML = ''; }
     };
@@ -1283,7 +1379,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollToMyVaga = () => {
       if (!myVagaId) return;
       const card = document.getElementById(myVagaId);
-      const scroller = document.getElementById('vagas-scroll');
       if (!card) return;
       card.scrollIntoView({ behavior: 'smooth', block: 'start' });
       card.classList.remove('vaga-card--highlight');
@@ -1306,40 +1401,38 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-add-benefit')?.addEventListener('click', () =>
       addDynRow(benefitList, 'Ex: Vale-transporte').focus());
 
-    // Seleção única do número de vagas
-    countGroup?.addEventListener('click', (e) => {
-      const chip = e.target.closest('.pedido-chip');
-      if (!chip) return;
-      countGroup.querySelectorAll('.pedido-chip').forEach(c => c.classList.remove('pedido-chip--active'));
-      chip.classList.add('pedido-chip--active');
-      vagaCount = parseInt(chip.dataset.count, 10);
-    });
+    // Limpa o destaque de erro ao digitar no cargo
+    inpCargo?.addEventListener('input', () => inpCargo.classList.remove('input-text--error'));
 
-    // Limpa o destaque de erro ao digitar nos campos de texto simples
-    [inpEmpresa, inpEndereco, inpCargo, inpHorario, inpSalario].forEach(el =>
-      el?.addEventListener('input', () => el.classList.remove('input-text--error')));
+    populateTimeSelect(selInicio, '08:00');
+    populateTimeSelect(selFim, '18:00');
 
     // Publicar vaga
     document.getElementById('btn-vaga-publish')?.addEventListener('click', async () => {
-      // Validação dos obrigatórios: empresa, endereço, cargo, carga horária,
-      // salário e ao menos 1 requisito preenchido.
-      const requiredFields = [
-        { el: inpEmpresa,  name: 'empresa'  },
-        { el: inpEndereco, name: 'endereço' },
-        { el: inpCargo,    name: 'cargo'    },
-        { el: inpHorario,  name: 'carga horária' },
-        { el: inpSalario,  name: 'salário'  },
-      ];
       let firstError = null;
-      requiredFields.forEach(({ el }) => {
-        if (!el.value.trim()) { el.classList.add('input-text--error'); if (!firstError) firstError = el; }
-      });
+      const markError = (el) => { el?.classList.add('input-text--error'); if (!firstError) firstError = el; };
 
+      // CNPJ: exige 14 dígitos
+      const cnpjDigits = (inpCnpj?.value || '').replace(/\D/g, '');
+      if (cnpjDigits.length !== 14) markError(inpCnpj);
+
+      // Cargo obrigatório
+      if (!inpCargo.value.trim()) markError(inpCargo);
+
+      // Salário numérico obrigatório
+      const salarioDigits = (inpSalario?.value || '').replace(/\D/g, '');
+      if (!salarioDigits) markError(inpSalario);
+
+      // Ao menos 1 requisito preenchido
       const reqInputs = [...reqList.querySelectorAll('.vaga-dyn-input')];
       const requisitos = reqInputs.map(i => i.value.trim()).filter(Boolean);
-      if (requisitos.length === 0) {
-        const firstReq = reqInputs[0];
-        if (firstReq) { firstReq.classList.add('input-text--error'); if (!firstError) firstError = firstReq; }
+      if (requisitos.length === 0 && reqInputs[0]) markError(reqInputs[0]);
+
+      // Ao menos 1 dia selecionado
+      const dias = getSelectedDays();
+      if (dias.length === 0) {
+        daysGroup?.classList.add('vaga-days--error');
+        if (!firstError) firstError = daysGroup;
       }
 
       if (firstError) {
@@ -1353,22 +1446,26 @@ document.addEventListener('DOMContentLoaded', () => {
         .filter(Boolean)
         .map(label => ({ icon: benefitIcon(label), label }));
 
-      const endereco = inpEndereco.value.trim();
+      const cnpj = formatCnpj(inpCnpj.value);
+      const cargaHoraria = `${selInicio.value} às ${selFim.value} · ${formatDays(dias)}`;
+      const salario = `R$ ${Number(salarioDigits).toLocaleString('pt-BR')}/mês`;
       const displayName = window.auth?.currentUser?.displayName || 'Você';
 
       myVagaId = `vaga-user-${Date.now()}`;
       mockVagas.unshift({
         id: myVagaId,
-        empresa: inpEmpresa.value.trim(),
-        endereco,
-        mapsQuery: endereco.replace(/\s*-\s*/g, ', '),
+        cnpj,                 // dados oficiais (nome/endereço) serão buscados depois
+        empresa: '',          // vazio → o card mostra o CNPJ até virem os dados oficiais
+        endereco: '',
+        mapsQuery: '',
         poster: { name: displayName, ic: 100 },
         cargo: inpCargo.value.trim(),
         vagas: vagaCount,
         requisitos,
-        cargaHoraria: inpHorario.value.trim(),
-        salario: inpSalario.value.trim(),
+        cargaHoraria,
+        salario,
         beneficios,
+        exigeCurriculo: chkCurriculo?.getAttribute('aria-pressed') === 'true',
       });
       renderVagasList();
 

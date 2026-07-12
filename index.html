@@ -837,13 +837,9 @@
                     <div class="pedido-sheet__state">
 
                         <div class="pedido-field">
-                            <label class="pedido-field__label" for="inp-vaga-empresa">Nome da empresa</label>
-                            <input type="text" id="inp-vaga-empresa" class="input-text" maxlength="60" placeholder="Ex: Restaurante da Esquina">
-                        </div>
-
-                        <div class="pedido-field">
-                            <label class="pedido-field__label" for="inp-vaga-endereco">Endereço</label>
-                            <input type="text" id="inp-vaga-endereco" class="input-text" maxlength="100" placeholder="Ex: Rua das Acácias, 142 - Centro">
+                            <label class="pedido-field__label" for="inp-vaga-cnpj">CNPJ da empresa</label>
+                            <input type="text" id="inp-vaga-cnpj" class="input-text" inputmode="numeric" maxlength="18" placeholder="00.000.000/0000-00">
+                            <span class="pedido-field__hint pedido-field__hint--left">Os dados da empresa serão buscados no sistema oficial pelo CNPJ.</span>
                         </div>
 
                         <div class="pedido-field">
@@ -853,12 +849,14 @@
 
                         <div class="pedido-field">
                             <span class="pedido-field__label">Número de vagas</span>
-                            <div class="pedido-chip-row" id="vaga-count">
-                                <button type="button" class="pedido-chip pedido-chip--active" data-count="1">1</button>
-                                <button type="button" class="pedido-chip" data-count="2">2</button>
-                                <button type="button" class="pedido-chip" data-count="3">3</button>
-                                <button type="button" class="pedido-chip" data-count="4">4</button>
-                                <button type="button" class="pedido-chip" data-count="5">5+</button>
+                            <div class="vaga-stepper" id="vaga-count">
+                                <button type="button" class="vaga-stepper__btn" id="vaga-count-dec" aria-label="Diminuir número de vagas">
+                                    <span class="material-symbols-rounded" aria-hidden="true">remove</span>
+                                </button>
+                                <span class="vaga-stepper__value" id="vaga-count-value" aria-live="polite">1</span>
+                                <button type="button" class="vaga-stepper__btn" id="vaga-count-inc" aria-label="Aumentar número de vagas">
+                                    <span class="material-symbols-rounded" aria-hidden="true">add</span>
+                                </button>
                             </div>
                         </div>
 
@@ -871,13 +869,41 @@
                         </div>
 
                         <div class="pedido-field">
-                            <label class="pedido-field__label" for="inp-vaga-horario">Carga horária</label>
-                            <input type="text" id="inp-vaga-horario" class="input-text" maxlength="60" placeholder="Ex: 08:00 às 18:00 · Seg–Sáb">
+                            <span class="pedido-field__label">Carga horária</span>
+                            <div class="vaga-time-row">
+                                <div class="vaga-time">
+                                    <span class="vaga-time__label">Início</span>
+                                    <div class="vaga-select-wrap">
+                                        <span class="material-symbols-rounded vaga-select-wrap__icon" aria-hidden="true">schedule</span>
+                                        <select class="input-text vaga-time__select" id="inp-vaga-hora-inicio" aria-label="Horário de início"></select>
+                                    </div>
+                                </div>
+                                <div class="vaga-time">
+                                    <span class="vaga-time__label">Fim</span>
+                                    <div class="vaga-select-wrap">
+                                        <span class="material-symbols-rounded vaga-select-wrap__icon" aria-hidden="true">schedule</span>
+                                        <select class="input-text vaga-time__select" id="inp-vaga-hora-fim" aria-label="Horário de término"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="vaga-days" id="vaga-days" role="group" aria-label="Dias de trabalho">
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Seg">Seg</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Ter">Ter</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Qua">Qua</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Qui">Qui</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Sex">Sex</button>
+                                <button type="button" class="vaga-day" data-day="Sáb">Sáb</button>
+                                <button type="button" class="vaga-day" data-day="Dom">Dom</button>
+                            </div>
                         </div>
 
                         <div class="pedido-field">
                             <label class="pedido-field__label" for="inp-vaga-salario">Salário</label>
-                            <input type="text" id="inp-vaga-salario" class="input-text" maxlength="60" placeholder="Ex: R$ 1.600/mês + benefícios">
+                            <div class="vaga-salary">
+                                <span class="vaga-salary__prefix">R$</span>
+                                <input type="text" id="inp-vaga-salario" class="input-text vaga-salary__input" inputmode="numeric" maxlength="9" placeholder="1.500">
+                                <span class="vaga-salary__suffix">/mês</span>
+                            </div>
                         </div>
 
                         <div class="pedido-field">
@@ -886,6 +912,19 @@
                             <button type="button" class="vaga-add-btn" id="btn-add-benefit">
                                 <span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar benefício
                             </button>
+                        </div>
+
+                        <div class="pedido-field">
+                            <button type="button" class="vaga-check" id="chk-vaga-curriculo" aria-pressed="false">
+                                <span class="vaga-check__box" aria-hidden="true">
+                                    <span class="material-symbols-rounded">check</span>
+                                </span>
+                                <span class="vaga-check__text">Exigir currículo em PDF ou foto</span>
+                            </button>
+                            <span class="pedido-field__hint pedido-field__hint--left vaga-warn">
+                                <span class="material-symbols-rounded" aria-hidden="true">warning</span>
+                                Pedir um currículo individual extra pode fazer você perder candidatos.
+                            </span>
                         </div>
 
                         <div class="pedido-sheet__actions">
