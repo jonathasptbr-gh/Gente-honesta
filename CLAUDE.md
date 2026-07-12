@@ -330,11 +330,13 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 
 #### Card do IC no cadastro (`.ic-card`, `#view-onboarding`) — o "SELO DE REPUTAÇÃO"
 
-**Visual do card:** BRANCO como os demais campos do formulário, SEM borda (igual aos cards de região e
-detalhes profissionais, que também perderam as bordas cinzas: o card claro contrasta sozinho no verde;
-o estado de erro da localização usa `box-shadow` inset vermelho em vez de borda). Leve brilho VERDE
-radial no canto e pulso do pino também verde: os efeitos decorativos do card são VERDES, não dourados.
-Textos nas cores padrão dos cards claros (título/eyebrow `--p-green-dark`; corpo/nota/rodapé `--t-sub`).
+**Visual do card:** CARD VERDE-CLARO translúcido (`--card-on-green`, o MESMO tom dos cards de pedido),
+sobre o fundo `--bg-canvas` do cadastro — não é mais branco. SEM borda. Textos/elementos CLAROS: ícone do
+cabeçalho `--a-gold`, título (`.ic-card__eyebrow`) `--t-light`, nota/rodapé `--p-green-light`, destaque do
+rodapé `--a-gold`, botão de ajuda `--p-green-light`. O card interno do hero (`.ic-card__intro`) é um
+highlight um pouco mais claro (`rgba(var(--on-green-rgb),0.13)`) com título dourado + subtítulo branco. No
+medidor, a zona morta (<25%) vira cinza-claro translúcido (o preto sumiria no verde) e o texto dourado usa
+`--a-gold` cheio; vermelho/verde das outras faixas seguem.
 
 **Regras de texto (invioláveis):**
 - Nunca abreviar "IC" em texto visível ao usuário: sempre "Índice de Confiança". Vale também para
@@ -524,11 +526,14 @@ Os popups de alerta/decisão/ajuda (`#dialog-global`) seguem o **padrão VERDE**
 (`#dialog-global .btn--primary`) e cancelar branco translúcido (`.btn--outline`). Escopado ao
 `#dialog-global` — o diálogo da câmera (`.dialog-box--camera`) tem tratamento próprio.
 
-**Tela de cadastro com fundo verde (`#view-onboarding`):** o fundo é `--p-green` (escopado em
-`#view-onboarding.screen` — telefone/OTP/feed não são afetados). A estratégia é que quase todos os campos
-já têm fundo claro/branco (foto `--bg-input`, inputs/localização `--bg-white`, IC card `--bg-soft`,
-pro-cta `--gold-soft`) — então eles **se destacam sozinhos** sobre o verde e todo o conteúdo DENTRO deles
-segue com as cores escuras normais. A seção "Detalhes profissionais" (colapsável) tem **topo (gatilho)
+**Tela de cadastro com fundo verde escuro (`#view-onboarding`):** o fundo é `--bg-canvas` (verde
+escuro canvas, o MESMO das listas de profissional/pedido do feed; escopado em `#view-onboarding.screen`
+— telefone/OTP/feed não são afetados). A estratégia é que quase todos os campos já têm fundo claro/branco
+(foto `--bg-input`, inputs/localização `--bg-white`, pro-cta `--gold-soft`) — então eles **se destacam
+sozinhos** sobre o verde escuro e todo o conteúdo DENTRO deles segue com as cores escuras normais. A
+ÚNICA exceção é o card do Índice de Confiança (`.ic-card`): ele é um **card verde-claro translúcido**
+(`--card-on-green`, igual aos cards de "pedidos de indicações" sobre o canvas), com textos internos
+claros/dourados (ver seção "Card do IC no cadastro"). A seção "Detalhes profissionais" (colapsável) tem **topo (gatilho)
 BRANCO e corpo (painel) CINZA CLARO** (`--bg-soft`): os elementos internos (inputs, cards de serviço,
 `.service-choice-display`, pílulas de pagamento em repouso) ficam BRANCOS e se destacam como cards no
 corpo cinza. Só mudam os
@@ -574,7 +579,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v223`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v233`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
