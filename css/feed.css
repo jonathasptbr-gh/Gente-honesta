@@ -3482,25 +3482,17 @@
   font-size: 1.1rem;
 }
 
+/* casco/cor/raio vêm de .btn .btn--primary (HTML); aqui só os ajustes do card */
 .vaga-card__btn-submit {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 6px;
   padding: 12px;
-  background: var(--p-green);
-  color: var(--t-light);
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: var(--fs-8);
-  font-weight: var(--fw-bold);
-  cursor: pointer;
   touch-action: manipulation;
   transition: opacity 0.15s;
 }
 
-.vaga-card__btn-submit:active { opacity: 0.88; }
+/* dim por opacidade (não o scale do .btn) — mantém a interação original */
+.vaga-card__btn-submit:active { opacity: 0.88; transform: none; }
 
 .vaga-card__btn-submit .material-symbols-rounded {
   font-size: 1.05rem;
@@ -3985,26 +3977,22 @@
 }
 
 /* Botão "Me candidatar" — preto/dark, cantos padrão do feed (radius-md) */
+/* casco/raio/peso vêm de .btn (HTML); fundo escuro e fonte compacta próprios */
 .vaga-card__btn-apply {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 6px;
   padding: 11px var(--space-md);
   background: var(--surface-dark);
   color: var(--t-light);
-  border: none;
-  border-radius: var(--radius-md);
   font-size: var(--fs-6);
-  font-weight: var(--fw-bold);
-  cursor: pointer;
   touch-action: manipulation;
   transition: opacity 0.15s;
 }
 
+/* dim por opacidade (não o scale do .btn) — mantém a interação original */
 .vaga-card__btn-apply:active {
   opacity: 0.82;
+  transform: none;
 }
 
 .vaga-card__btn-apply .material-symbols-rounded {

@@ -915,10 +915,14 @@ foram feitas). Estas mudam pixel/interação e precisam de conferência no apare
   tutorial).
 - **Sheets `agenda-sheet` vs `indicated-popup`:** unificar easing/duração/backdrop (seguir o par
   `pedido-sheet`/`historico-sheet`, já consistente); preservar a cor do título (ouro vs branco).
-- **Botões do feed reimplementam `.btn`:** `.pro-card__back-btn`, `.vaga-card__btn-*`,
-  `.agenda-filters__vagas-btn*`, `.bottom-bar__pedidos`, `.ajudante-cancel-btn` etc. Migrar para
-  `.btn` + variantes (`--compact` a criar), reproduzindo o look por botão. Edita templates em `feed.js`
-  (respeitar hoisting/TDZ).
+- **Botões do feed reimplementam `.btn` (parcial):** os dois botões de ação de largura cheia do card de
+  vaga já foram migrados — `.vaga-card__btn-submit` (`btn btn--primary vaga-card__btn-submit`) e
+  `.vaga-card__btn-apply` (`btn vaga-card__btn-apply`), mantendo o `:active` por opacidade via
+  `transform:none` (suprime o scale do `.btn`). Os demais foram MANTIDOS bespoke de propósito por serem
+  estruturalmente distintos de um `.btn` (não é dívida a "corrigir" mecanicamente): `.pro-card__back-btn`
+  (variantes só-ícone com `padding:0`), `.bottom-bar__pedidos` (pílula em COLUNA ícone+label),
+  `.agenda-filters__vagas-btn` (par de altura fixa 40px), `.ajudante-cancel-btn` (pílula danger). Rotear
+  esses pelo `.btn` exigiria mais override do que reuso e arriscaria a interação própria de cada um.
 
 ## Próximas Features Previstas
 

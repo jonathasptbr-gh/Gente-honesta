@@ -928,7 +928,7 @@ document.addEventListener('DOMContentLoaded', () => {
               </div>
               ${benefitSectionHTML}
               <div class="vaga-card__actions">
-                <button type="button" class="vaga-card__btn-apply">
+                <button type="button" class="btn vaga-card__btn-apply">
                   Me candidatar
                 </button>
                 <button type="button" class="vaga-card__btn-share" aria-label="Compartilhar vaga">
@@ -1018,7 +1018,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <button type="button" class="vaga-card__btn-back" aria-label="Voltar para a vaga">
                 <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
               </button>
-              <button type="button" class="vaga-card__btn-submit" data-vaga="${vaga.id}">
+              <button type="button" class="btn btn--primary vaga-card__btn-submit" data-vaga="${vaga.id}">
                 Confirmar
               </button>
             </div>
