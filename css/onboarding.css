@@ -115,7 +115,7 @@
   height: 120px;
   border-radius: var(--radius-md);
   background: var(--bg-input);
-  border: 3px dashed var(--t-disabled);
+  border: none;   /* sem tracejado: o fundo claro contrasta sozinho no verde */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -170,6 +170,7 @@
   border-color: var(--info-blue);
   color: var(--info-blue);
   cursor: default;
+  box-shadow: var(--shadow-sm);
 }
 
 .tag-pill__remove {
@@ -220,7 +221,12 @@
    deslocar as vizinhas na mesma linha. */
 
 /* Em repouso, a pílula é BRANCA para se destacar como card no corpo cinza da
-   seção de detalhes; a selecionada mantém o tint azul (regra abaixo). */
+   seção de detalhes; a selecionada mantém o tint azul (regra abaixo). Sombra
+   nos dois estados, como os demais cards da seção. */
+.chip--payment {
+  box-shadow: var(--shadow-sm);
+}
+
 .chip--payment:not(.chip--active) {
   background: var(--bg-white);
 }
@@ -545,6 +551,7 @@
   padding: 12px 14px;
   background: var(--bg-white);   /* card branco no corpo cinza */
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .service-choice-display .qav { gap: 6px; }
@@ -566,8 +573,9 @@
   align-items: center;
   gap: var(--space-xs);
   padding: var(--space-md);
-  background: var(--gold-soft);
+  background: #f7e4a6;   /* amarelo mais forte que o creme --gold-soft, para o CTA se destacar */
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   text-align: center;
 }
 
@@ -697,10 +705,13 @@
   color: var(--p-green-dark);
 }
 
-/* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70) */
-/* fundo soft e raio vêm de .card .card--soft (HTML) */
+/* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70): CARD VERDE
+   (sobrepõe o --bg-soft de .card--soft do HTML), título dourado e subtítulo
+   branco — o 70 e o escudo dourados destacam sobre o verde. */
 .ic-card__intro {
   padding: 10px 12px;
+  background: var(--p-green);
+  box-shadow: var(--shadow-sm);
 }
 
 /* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca
@@ -780,12 +791,13 @@
   display: block;
   line-height: 1.2;
   margin-bottom: 2px;
+  color: var(--a-gold);   /* título dourado sobre o card verde (sobrepõe o verde do .eyebrow) */
 }
 
 .ic-hero__text {
   font-size: var(--fs-3);
   line-height: 1.45;
-  color: var(--t-sub);
+  color: var(--t-light);   /* subtítulo branco sobre o card verde */
 }
 
 /* ── Medidor: zonas ACIMA da barra segmentada (4 faixas); pino "VOCÊ" em 70%

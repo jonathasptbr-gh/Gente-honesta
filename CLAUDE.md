@@ -271,8 +271,9 @@ borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke
   (foco/seleção/erro) mudam a **COR INTERNA** do elemento (ver "Destaque de estado por COR"), nunca uma
   sombra/anel — sombras de destaque furavam bordas e viravam linha sólida. O pedido urgente NÃO tem mais
   linha vermelha (só o badge "Urgente"). PRESERVADAS as bordas FUNCIONAIS (não são contorno de card): anéis de avatar,
-  divisores internos entre seções, caixa do checkbox, checkmark desenhado com borda, anel do spinner, seta
-  do balão do tutorial e o tracejado da moldura de foto. **Reset obrigatório** (`base.css`):
+  divisores internos entre seções, caixa do checkbox, checkmark desenhado com borda, anel do spinner e a
+  seta do balão do tutorial. (A moldura de foto NÃO tem mais tracejado — só o fundo claro; a borda vermelha
+  aparece só no estado de erro obrigatório.) **Reset obrigatório** (`base.css`):
   `button, input, textarea { border: none }` — sem isso, ao remover a borda explícita de um `<button>`
   reaparece a borda de UA (bevel `outset` BICOLOR em vários mobile). Bordas de classe (ex.: `.vaga-add-btn`
   tracejado) vencem o reset por especificidade e são preservadas; `<select>` nativo fica de fora.
@@ -346,11 +347,12 @@ distribuir a altura extra):**
 1. **Cabeçalho `.ic-card__head`** — no PADRÃO dos TÍTULOS do cadastro ("Detalhes profissionais",
    "Registrar sua região atual"): ícone `verified_user` VERDE 1.5rem + texto "Sua reputação na
    plataforma" (`--fs-7`, 800, `--p-green-dark`, sem uppercase).
-2. **Card interno `.ic-card__intro`** (fundo `--bg-soft`) contendo o `.ic-hero`:
-   - **Subtítulo `.ic-hero__title`** "Índice de Confiança" no padrão de `.form-group__label`
-     (`--p-green`, `--fs-5`, 700, uppercase) + frase de responsabilidade (o índice começa em 70 e
-     mantê-lo depende do usuário), em bloco à esquerda com largura contida (`flex: 0 1 62%`). O subtítulo
-     vive AQUI, ao lado do número, nunca é escondido.
+2. **Card interno `.ic-card__intro`** — CARD VERDE (`--p-green` + `--shadow-sm`, sobrepondo o `--bg-soft`
+   que viria de `.card--soft`) contendo o `.ic-hero`:
+   - **Subtítulo `.ic-hero__title`** "Índice de Confiança" — `.eyebrow` (`--fs-5`, 700, uppercase) mas
+     DOURADO (`--a-gold`, sobrepõe o verde do eyebrow) sobre o card verde; + frase de responsabilidade
+     `.ic-hero__text` em BRANCO (`--t-light`), em bloco à esquerda com largura contida (`flex: 0 1 62%`).
+     O subtítulo vive AQUI, ao lado do número, nunca é escondido.
    - **Número 70** em degradê dourado (`--a-gold`→`--a-gold-text`) via `background-clip: text`, SEM "%",
      DENTRO de uma MOLDURA em forma de escudo `.ic-hero__badge`: SVG inline `.ic-hero__badge-shield`, SÓ
      o contorno (`stroke: --a-gold`, sem preenchimento), no formato dos escudos do app. SVG em vez de

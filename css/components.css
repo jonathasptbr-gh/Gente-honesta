@@ -251,10 +251,9 @@
   background: var(--danger-soft);
 }
 
-/* A moldura da foto: o tracejado vira uma LINHA VERMELHA sólida no erro. */
+/* A moldura da foto ganha a LINHA VERMELHA sólida no erro (sem tracejado em repouso). */
 .media-capture__display--error {
-  border-color: var(--danger) !important;
-  border-style: solid !important;
+  border: 2px solid var(--danger) !important;
 }
 
 /* ── Labels flutuantes ── */
