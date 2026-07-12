@@ -188,19 +188,37 @@ Variáveis em `css/base.css :root`:
 
 **Cores:**
 - `--p-green`, `--p-green-dark`, `--p-green-light` — verde principal e variações
-- `--a-gold` — amarelo/dourado de destaque
+- `--p-green-rgb: 24, 78, 27` — os MESMOS canais de `--p-green`, para uso em `rgba(var(--p-green-rgb), α)`. Usar sempre este token nos anéis de foco, brilhos radiais e no pulso do pino do IC, em vez de reescrever `rgba(24, 78, 27, …)` à mão
+- `--a-gold` — amarelo/dourado de destaque; `--a-gold-text` é o ocre mais escuro para TEXTO dourado sobre fundo claro
 - `--info-blue`, `--danger`, `--success`, `--whatsapp`, `--gold-soft-border`
 - `--bg-white`, `--bg-soft` — superfícies claras
 - `--bg-canvas: #124014` — verde escuro atrás dos cards de profissional nas listas
 - `--surface-company: #555558` — faixa cinza de empresa nos cards de vaga
 - `--surface-dark: #1c1c1e` — superfície escura (botão "Candidatar-se")
-- `--overlay`, `--overlay-soft` — backdrops de diálogos/sheets/painéis
+- `--overlay`, `--overlay-soft` — backdrops de diálogos/sheets/painéis. **Todo backdrop usa um destes** (verde-quase-preto translúcido), nunca `rgba(0,0,0,α)` cru
+- `--block-bg` — fundo dos bloqueios de tela cheia (desktop + paisagem): verde escuro com dois brilhos radiais. Token único porque os dois blocos compartilhavam o mesmo gradiente copiado à mão
 
 **Espaçamento:** `--space-xs` (8px) → `--space-xl` (48px)
 
-**Raios:** `--radius-xs` (6px), `--radius-sm` (8px), `--radius-md` (12px), `--radius-pill` (28px)
+**Raios:** `--radius-xs` (6px), `--radius-sm` (8px), `--radius-md` (12px), `--radius-lg` (20px), `--radius-pill` (28px).
+`--radius-lg` é o topo arredondado padrão dos bottom-sheets (`agenda-sheet`, `indicated-popup__sheet`, `pedido-sheet__panel`) — usar `var(--radius-lg) var(--radius-lg) 0 0`, não `20px 20px 0 0` cru.
 
-**Sombras e transições:** `--shadow-sm`, `--shadow-lg`, `--transition`
+**Sombras e transições:** `--shadow-sm`, `--shadow-lg`, `--transition`. Preferir os tokens de sombra a
+recriar `box-shadow` à mão; os cards do feed (`.post-card`, `.vaga-card__front`) ainda têm sombras
+bespoke com geometria dos tokens mas alfas ajustados — dívida conhecida (ver "Dívidas técnicas").
+
+**Helpers/padrões reutilizáveis (evitam CSS-in-JS e recortes duplicados):**
+- **`.btn__spinner`** (`components.css`) — spinner de carregamento dos botões (glifo `autorenew` girando,
+  peso 700). Usar `class="material-symbols-rounded btn__spinner"` no `innerHTML`; a variante `--sm`
+  (fonte 16px, margem menor) é para o link de reenvio de SMS. Antes o estilo era inline e duplicado em
+  `auth.js` (`setButtonLoading` + handler de reenvio).
+- **Pílula "tint preenchido" (azul)** — o estado selecionado de `.tag-pill` e de `.chip--payment.chip--active`
+  compartilham a MESMA receita: fundo `--info-blue-light` + borda `--info-blue` + texto `--info-blue`,
+  borda `1.5px` (só a COR muda ao ativar, para não deslocar vizinhas). É a linguagem única de seleção do
+  cadastro; qualquer pílula selecionável nova deve seguir esse trio de tokens.
+- **Cor da barra de status:** `window.THEME_COLOR` (`app.js`) é a fonte única do verde `#184e1b` da
+  `meta[theme-color]`. Todas as telas são verdes, então é uma constante (não mais um mapa view→cor). O
+  modo indicação do feed NÃO altera o theme-color (a barra continua verde).
 
 **Altura do viewport:** `--app-height` — definida por JS em `app.js` via `window.innerHeight`.
 Usada no grid do feed (`height: var(--app-height, 100dvh)`) para corrigir o comportamento
@@ -222,48 +240,63 @@ inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
 | 25–49 | `ic--alert` (vermelho) | `gpp_maybe` |
 | 0–24 | `ic--bad` (cinza) | `gpp_bad` |
 
-O card do Índice de Confiança no cadastro (`.ic-card`, `#view-onboarding`) é o "SELO DE REPUTAÇÃO":
-card BRANCO como os demais campos do formulário, SEM borda (como os cards de região e detalhes
-profissionais, que também perderam as bordas cinzas: o card claro contrasta sozinho no verde; o estado
-de erro da localização usa `box-shadow` inset vermelho em vez de borda) e com um leve brilho VERDE
-radial no canto (pulso do pino também verde — os efeitos decorativos do card são verdes, não dourados);
-textos nas cores padrão dos cards claros (título e eyebrow `--p-green-dark`, corpo/nota/rodapé
-`--t-sub`, 70 em degradê ouro→ocre; o destaque do rodapé é `--p-green-dark` em linha própria via
-`display:block`). Nunca abreviar "IC" em texto visível ao usuário — sempre "Índice de
-Confiança". Conteúdo (de cima p/ baixo, seções irmãs num flex column com `justify-content: space-between`
-para distribuir a altura extra): cabeçalho `.ic-card__head` no PADRÃO dos TÍTULOS do cadastro
-("Detalhes profissionais"/"Registrar sua região atual": ícone `verified_user` VERDE 1.5rem + texto
-"Sua reputação na plataforma" `--fs-7`, 800, `--p-green-dark`, sem uppercase); um card INTERNO
-`.ic-card__intro` (fundo `--bg-soft`) contendo o `.ic-hero` (o SUBTÍTULO `.ic-hero__title` "Índice de
-Confiança" no padrão de `.form-group__label` — `--p-green`, `--fs-5`, 700, uppercase — + frase de
-responsabilidade — o índice começa em 70 e mantê-lo depende do usuário — em bloco alinhado à esquerda
-com largura contida (`flex: 0 1 62%`), e o número 70 em degradê dourado via `background-clip: text`, SEM o símbolo "%",
-DENTRO de uma MOLDURA em forma de escudo (`.ic-hero__badge`: SVG inline `.ic-hero__badge-shield`, SÓ o
-contorno `stroke: --a-gold` sem preenchimento, formato dos escudos do app; SVG em vez de glifo da fonte
-de ícones de propósito — controle total de tamanho/traço e sem depender do carregamento da fonte; 70
-absoluto centralizado em `translate(-50%, -55%)`, o centro visual do escudo fica acima do centro da
-caixa), moldura CENTRALIZADA na zona REAL disponível à direita do texto — do fim do bloco de texto até a BORDA
-do card INTERNO, não só até o padding (`flex: 1; text-align: center; margin-right` negativo anulando o
-padding do intro e hero sem gap); o subtítulo vive AQUI, ao lado do número, nunca é escondido); `.ic-meter` (as zonas `.ic-meter__zones` ficam ACIMA da barra — os MESMOS escudos do resto do
-app `gpp_bad`/`gpp_maybe`/`shield_question`/`gpp_good` nas cores PADRÃO do app sobre fundo claro, sendo a
-faixa <25% PRETA `#000`, escudo e segmento, a "zona morta" do índice; zonas SEM nomes de faixa — só escudo
-+ faixa numérica, os escudos coloridos já comunicam; a zona atual `.ic-zone--current` acende, as demais
-ficam com `opacity: 0.78` — depois a barra segmentada nas 4 faixas, e o pino "CONFIANÇA ATUAL" pulsante — `icPinPulse`
-— ABAIXO da barra, posicionado em `left: 70%`, linha subindo até a barra + etiqueta em linha única
-`white-space: nowrap`); `.ic-factors` (SÓ a nota
-`.ic-factors__note` em itálico e centralizada: "Todas as suas ações, boas ou ruins, afetam esse índice"
-— a antiga tabela "Faz descer"/"Faz subir" foi REMOVIDA de propósito, não recriar); "Indicações
-FEITAS", não "recebidas" — resumo do diálogo de ajuda `btn-ic-info`); e `.ic-card__footer` (lema: "O Índice
-de Confiança é seu bem mais valioso na plataforma, seja honesto e responsável e ele lhe recompensará" —
-centralizado e com a MESMA fonte da nota, `--fs-1`). Nos textos visíveis do card NUNCA usar travessão
-"—" (visualmente estranho para o usuário — usar vírgula, ponto e vírgula ou dois-pontos).
-`.form-group--ic-fill` = `flex: 1 0 auto` (preenche o vão até o botão de concluir). **Adaptativo por
-altura** (`@media (max-height)` em `#view-onboarding`, limiares MEDIDOS por estado: completo ~819px, sem
-rodapé ~776px, sem nota ~751px, compacto ~689px): ≤823px esconde o rodapé; ≤780px esconde a nota e aperta
-o padding; ≤755px compacta (some a frase do hero, encolhem cabeçalho, card interno, moldura-escudo/70 e
-escudos) — cabe sem rolagem de ~689px pra cima.
-O hero 70% + o medidor com os 4 escudos ficam SEMPRE. O texto de ajuda (`helpTexts['btn-ic-info']` em
-onboarding.js) diz "70%" (nunca "100 pontos") e também não usa a abreviação.
+#### Card do IC no cadastro (`.ic-card`, `#view-onboarding`) — o "SELO DE REPUTAÇÃO"
+
+**Visual do card:** BRANCO como os demais campos do formulário, SEM borda (igual aos cards de região e
+detalhes profissionais, que também perderam as bordas cinzas: o card claro contrasta sozinho no verde;
+o estado de erro da localização usa `box-shadow` inset vermelho em vez de borda). Leve brilho VERDE
+radial no canto e pulso do pino também verde: os efeitos decorativos do card são VERDES, não dourados.
+Textos nas cores padrão dos cards claros (título/eyebrow `--p-green-dark`; corpo/nota/rodapé `--t-sub`).
+
+**Regras de texto (invioláveis):**
+- Nunca abreviar "IC" em texto visível ao usuário: sempre "Índice de Confiança". Vale também para
+  `helpTexts['btn-ic-info']` em `onboarding.js`, que diz "70%" (nunca "100 pontos") e não abrevia.
+- Nos textos visíveis do card NUNCA usar travessão "—" (estranho ao usuário): usar vírgula, ponto e
+  vírgula ou dois-pontos.
+
+**Estrutura (de cima p/ baixo; seções irmãs num flex column com `justify-content: space-between` para
+distribuir a altura extra):**
+1. **Cabeçalho `.ic-card__head`** — no PADRÃO dos TÍTULOS do cadastro ("Detalhes profissionais",
+   "Registrar sua região atual"): ícone `verified_user` VERDE 1.5rem + texto "Sua reputação na
+   plataforma" (`--fs-7`, 800, `--p-green-dark`, sem uppercase).
+2. **Card interno `.ic-card__intro`** (fundo `--bg-soft`) contendo o `.ic-hero`:
+   - **Subtítulo `.ic-hero__title`** "Índice de Confiança" no padrão de `.form-group__label`
+     (`--p-green`, `--fs-5`, 700, uppercase) + frase de responsabilidade (o índice começa em 70 e
+     mantê-lo depende do usuário), em bloco à esquerda com largura contida (`flex: 0 1 62%`). O subtítulo
+     vive AQUI, ao lado do número, nunca é escondido.
+   - **Número 70** em degradê dourado (`--a-gold`→`--a-gold-text`) via `background-clip: text`, SEM "%",
+     DENTRO de uma MOLDURA em forma de escudo `.ic-hero__badge`: SVG inline `.ic-hero__badge-shield`, SÓ
+     o contorno (`stroke: --a-gold`, sem preenchimento), no formato dos escudos do app. SVG em vez de
+     glifo da fonte de propósito: controle total de tamanho/traço, sem depender do carregamento da fonte.
+     O 70 é absoluto, centralizado em `translate(-50%, -55%)` (o centro visual do escudo fica acima do
+     centro da caixa). A moldura se centraliza na zona REAL à direita do texto — do fim do texto até a
+     BORDA do card interno, não só até o padding (`flex: 1; text-align: center; margin-right` negativo
+     anulando o padding do intro; hero sem gap).
+3. **Medidor `.ic-meter`:**
+   - **Zonas `.ic-meter__zones` ACIMA da barra** — os MESMOS escudos do resto do app
+     (`gpp_bad`/`gpp_maybe`/`shield_question`/`gpp_good`) nas cores PADRÃO sobre fundo claro. A faixa
+     <25% é PRETA `#000` (escudo + segmento): a "zona morta" do índice. Zonas SEM nomes de faixa (só
+     escudo + faixa numérica; os escudos coloridos já comunicam). A zona atual `.ic-zone--current` acende;
+     as demais ficam com `opacity: 0.78`.
+   - **Barra segmentada** nas 4 faixas.
+   - **Pino "CONFIANÇA ATUAL"** pulsante (`icPinPulse`) ABAIXO da barra, em `left: 70%`: linha subindo até
+     a barra + etiqueta em linha única (`white-space: nowrap`).
+4. **`.ic-factors`** — SÓ a nota `.ic-factors__note`, itálica e centralizada: "Todas as suas ações, boas
+   ou ruins, afetam esse índice". A antiga tabela "Faz descer"/"Faz subir" foi REMOVIDA de propósito, não
+   recriar. (Resumo do diálogo de ajuda `btn-ic-info`; "Indicações FEITAS", não "recebidas".)
+5. **Rodapé `.ic-card__footer`** — lema "O Índice de Confiança é seu bem mais valioso na plataforma, seja
+   honesto e responsável e ele lhe recompensará", centralizado, mesma fonte da nota (`--fs-1`); o
+   destaque é `--p-green-dark` em linha própria (`display:block`).
+
+**Layout de altura:** `.form-group--ic-fill` = `flex: 1 0 auto` (preenche o vão até o botão de concluir).
+
+**Adaptativo por altura** (`@media (max-height)` em `#view-onboarding`; limiares MEDIDOS por estado:
+completo ~819px, sem rodapé ~776px, sem nota ~751px, compacto ~689px):
+- ≤823px: esconde o rodapé.
+- ≤780px: esconde a nota e aperta o padding.
+- ≤755px: compacta (some a frase do hero; encolhem cabeçalho, card interno, moldura-escudo/70 e escudos).
+
+Cabe sem rolagem de ~689px pra cima. **O hero (70) e o medidor com os 4 escudos ficam SEMPRE.**
 
 ---
 
@@ -445,7 +478,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v198`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v216`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
 `#panel-prodetails` abre/fecha com animação de altura (`setProDetailsOpen(open, animate)` em
@@ -742,6 +775,31 @@ Comportamentos placeholder:
 - Cards de vaga já têm flip 3D com formulário de candidatura, mas sem persistência no Firestore
 
 ---
+
+## Dívidas técnicas conhecidas (consolidações adiadas)
+
+Duplicações reais mapeadas numa revisão de código, deixadas de fora por serem refatorações maiores/mais
+arriscadas que o ganho imediato. Ao mexer nessas áreas, prefira consolidar em vez de copiar de novo:
+
+- **Scaffolding de flip 3D duplicado:** `.pro-card__*` e `.vaga-card__*` (`feed.css`) repetem quase
+  idêntico o maquinário de flip (`preserve-3d`, `rotateY(180deg)` no verso, pares `backface-visibility`,
+  colapso `--expanded height:0`). Candidato a uma base `.flip-card*` compartilhada parametrizada.
+- **Construção de card de profissional em dois caminhos:** `renderFlippableProCards` (usado no popup de
+  indicados e nos detalhes do pedido) vs. a construção inline em `renderAgendaList`; e a delegação de
+  clique do flip existe duas vezes (`bindProCardFlip` e o handler de `#agenda-list`). Unificar num único
+  builder + uma única delegação parametrizada por modo (com/sem pin).
+- **Diálogos hand-rolled:** `customAlert`, `customConfirm` (`app.js`) e o diálogo de ajuda do onboarding
+  (`onboarding.js`) montam/populam/desmontam `#dialog-global` de formas quase iguais, e cada um adiciona
+  um `click` novo ao `#btn-dialog-confirm` a cada chamada (handlers empilham em reentrância). Extrair um
+  primitivo `openDialog({title, message, icon, showCancel, scrollable})` com teardown consistente.
+- **Avatar SVG inline duplicado:** o mesmo `data:image/svg+xml` de avatar-placeholder aparece 4× em
+  `index.html` e 2× em `feed.js` (só muda o `fill`). Fatorar num helper/constante única.
+- **`applyFilters` recalcula a faixa de IC inline** (`p.ic >= 75 ? …`) em vez de reusar `icTier()`; os
+  limiares 75/50/25 ficam duplicados. Hoistar `icTier` e reusar.
+- **Sombras de card bespoke:** `.post-card` e `.vaga-card__front` usam `box-shadow` com a geometria dos
+  tokens `--shadow-sm`/`--shadow-lg` mas alfas ajustados à mão. Reconciliar com os tokens.
+- **Mock:** `mockIndicatedByPost` redeclara objetos de profissional que já existem em `mockProfessionals`
+  (com `ic`/bio ligeiramente diferentes). Uma fonte única keyed por id evitaria divergência.
 
 ## Próximas Features Previstas
 
