@@ -226,6 +226,28 @@ recriar `box-shadow` à mão. Os cards em repouso do feed (`.post-card`, `.vaga-
 (800). Usar os tokens em `font-weight`. Nota: a Inter só carrega 400/600/800, então `--fw-bold` (700)
 renderiza com a face 800.
 
+**Taxonomia de elementos interativos (4 categorias — classifique SEMPRE por PAPEL, não por estética):**
+Regra de ouro: **"card" = SUPERFÍCIE (contêiner de conteúdo); "botão" = AÇÃO.** Pedir "um card" pensando
+na estética não muda o papel: se o elemento AGE (compartilhar, candidatar, filtrar), é botão/chip, não card.
+1. **Superfície / Card (`.card` + `--soft/--shadow`)** — contêiner visual. Tag: `<div>`/`<article>` se
+   estático; `<button class="card …">` se a superfície INTEIRA é um único alvo de toque (ex.:
+   `.location-check`, `.service-choice__card` — cards clicáveis, legítimos). Nunca é uma ação com rótulo/ícone.
+2. **Botão / Ação (`.btn` + variantes)** — executa uma ação (rótulo e/ou ícone). Tag: `<button>` (ou `<a>`
+   se navega, ex.: WhatsApp). **TODO botão de ação herda `.btn`** — fundação única (sem borda, flex-center,
+   cursor, transição, `:active`). Estilo: `--primary/--accent/--outline/--white/--danger/--text`.
+   Estrutura: `--large/--pill/--close/--fab/--compact/--icon` (`--icon` = quadrado só-ícone 44px). Os botões
+   de ação dos cards de profissional e de vaga já foram unificados sob `.btn` (voltar/compartilhar usam
+   `btn btn--icon`; candidatar/publicar usam `btn btn--primary`; whatsapp `btn`).
+3. **Token / Pílula (`.chip` + `--sm/--md`)** — item selecionável/filtro/toggle. Tag: `<button>`. Estado
+   ativo por CONTEXTO (verde-sólido no feed, tint-azul no cadastro, dourado nas pílulas sobre verde).
+4. **Campo (`.input-text`)** — entrada de texto. Tag: `<input>`/`<textarea>`; sem borda, foco por `--focus-ring`.
+
+Ao criar um elemento novo, escolha a categoria pelo papel e reuse a base — não crie uma árvore de classe
+paralela (foi o que gerava divergências, ex.: dois "compartilhar" com bases diferentes → um com bug de
+borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke (`.pedido-chip`, `.vaga-day`,
+`.vaga-benefit-pill`, `.helper-toggle` → candidatos a `.chip`; `.pro-card__pin-btn`, `.pro-card__load-more`,
+`.post-card__report`, `.top-bar__action`, `.contract-mini__btn` → candidatos a `.btn`). Migrar ao mexer neles.
+
 **Helpers/padrões reutilizáveis (evitam CSS-in-JS e recortes duplicados):**
 - **DESIGN SEM CONTORNO (v226+):** o app NÃO usa mais linha de borda para definir cards, inputs,
   pílulas, botões (fechar/outline), células OTP etc. A definição vem de: (a) **contraste** do fundo do

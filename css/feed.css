@@ -2996,18 +2996,14 @@
   color: var(--t-light);
 }
 
+/* tamanho quadrado 44px vem de .btn--icon (HTML) */
 .pro-card__back-btn--back {
-  width: 44px;
-  padding: 0;
-  flex-shrink: 0;
   background: var(--bg-soft);
   color: var(--t-sub);
 }
 
+/* tamanho quadrado 44px vem de .btn--icon (HTML) */
 .pro-card__back-btn--share {
-  width: 44px;
-  padding: 0;
-  flex-shrink: 0;
   background: var(--bg-soft);
   color: var(--t-sub);
 }

@@ -389,17 +389,17 @@ document.addEventListener('DOMContentLoaded', () => {
           ${loadMoreBtn}
         </div>
         <div class="pro-card__back-actions">
-          <button type="button" class="pro-card__back-btn pro-card__back-btn--back" aria-label="Voltar">
+          <button type="button" class="btn btn--icon pro-card__back-btn pro-card__back-btn--back" aria-label="Voltar">
             <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
           </button>
-          <button type="button" class="pro-card__back-btn pro-card__back-btn--whatsapp">
+          <button type="button" class="btn pro-card__back-btn pro-card__back-btn--whatsapp">
             <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
           </button>
-          <button type="button" class="pro-card__back-btn pro-card__back-btn--share" aria-label="Compartilhar">
+          <button type="button" class="btn btn--icon pro-card__back-btn pro-card__back-btn--share" aria-label="Compartilhar">
             <span class="material-symbols-rounded" aria-hidden="true">share</span>
           </button>
-          <button type="button" class="pro-card__back-btn pro-card__back-btn--cancel-indicate">Cancelar</button>
-          <button type="button" class="pro-card__back-btn pro-card__back-btn--confirm-indicate">
+          <button type="button" class="btn pro-card__back-btn pro-card__back-btn--cancel-indicate">Cancelar</button>
+          <button type="button" class="btn pro-card__back-btn pro-card__back-btn--confirm-indicate">
             <span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar
           </button>
         </div>
@@ -931,7 +931,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button type="button" class="btn vaga-card__btn-apply">
                   Me candidatar
                 </button>
-                <button type="button" class="vaga-card__btn-share" aria-label="Compartilhar vaga">
+                <button type="button" class="btn vaga-card__btn-share" aria-label="Compartilhar vaga">
                   <span class="material-symbols-rounded" aria-hidden="true">share</span>
                 </button>
               </div>
@@ -1015,7 +1015,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             </div><!-- /back-form -->
             <div class="vaga-card__back-footer">
-              <button type="button" class="vaga-card__btn-back" aria-label="Voltar para a vaga">
+              <button type="button" class="btn vaga-card__btn-back" aria-label="Voltar para a vaga">
                 <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
               </button>
               <button type="button" class="btn btn--primary vaga-card__btn-submit" data-vaga="${vaga.id}">
@@ -1649,7 +1649,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
           </div>
         </div>
-        <a class="pro-card__back-btn pro-card__back-btn--whatsapp helper-wa"
+        <a class="btn pro-card__back-btn pro-card__back-btn--whatsapp helper-wa"
            href="https://wa.me/${h.phone}" target="_blank" rel="noopener"
            aria-label="Conversar com ${h.first} no WhatsApp">
           <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp

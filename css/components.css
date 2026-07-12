@@ -3,7 +3,10 @@
 
    Hierarquia de modificadores:
    — Estilo:    --primary | --accent | --outline | --white | --danger | --text
-   — Estrutura: --large | --pill | --close | --fab
+   — Estrutura: --large | --pill | --close | --fab | --icon
+   TODO botão de AÇÃO (rótulo e/ou ícone) herda .btn — é a fundação única
+   (sem borda, flex-center, cursor, transição, :active). Ver "Taxonomia de
+   elementos" no CLAUDE.md: card = superfície; botão = ação; chip = pílula.
    ======================================== */
 .btn {
   display: flex;
@@ -112,6 +115,15 @@
   padding: 10px 20px;
   border-radius: var(--radius-pill);
   font-size: var(--fs-6);
+}
+
+/* Botão SÓ-ÍCONE: quadrado, sem padding lateral. Categoria canônica das ações
+   de ícone em cards (voltar, compartilhar, pin). Combine com uma cor/bg. */
+.btn--icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 /* FAB: posicionamento gerenciado pelo .fab-group no feed */
