@@ -766,7 +766,7 @@
 }
 
 .agenda-filters__vagas-btn .material-symbols-rounded {
-  font-size: 1rem;
+  font-size: var(--fs-6);   /* mesmo tamanho de ícone dos botões padrão (não 1rem, que ficava maior) */
   flex-shrink: 0;
 }
 
