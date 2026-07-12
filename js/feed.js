@@ -1437,23 +1437,12 @@ document.addEventListener('DOMContentLoaded', () => {
       try { localStorage.setItem(key, JSON.stringify(val)); } catch { /* storage indisponível */ }
     };
 
-    // ---- Sheet: abrir / fechar / alternar função ----
+    // ---- Sheet: abrir / fechar (as duas funções ficam sempre visíveis) ----
     const ajudanteSheet = document.getElementById('ajudante-sheet');
-
-    const setAjudanteState = (state) => {
-      document.querySelectorAll('.ajudante-switch__opt').forEach(opt => {
-        const active = opt.dataset.ajudanteState === state;
-        opt.classList.toggle('ajudante-switch__opt--active', active);
-        opt.setAttribute('aria-selected', String(active));
-      });
-      document.getElementById('ajudante-avail-state')?.classList.toggle('u-hidden', state !== 'avail');
-      document.getElementById('ajudante-call-state')?.classList.toggle('u-hidden', state !== 'call');
-    };
 
     const openAjudanteSheet = () => {
       renderHelperAvailability();
       renderHelperCall();
-      setAjudanteState('avail');
       ajudanteSheet?.classList.add('pedido-sheet--open');
     };
     const closeAjudanteSheet = () => ajudanteSheet?.classList.remove('pedido-sheet--open');
@@ -1461,10 +1450,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-chamar-ajudante')?.addEventListener('click', openAjudanteSheet);
     document.getElementById('btn-close-ajudante-sheet')?.addEventListener('click', closeAjudanteSheet);
     document.getElementById('ajudante-sheet-backdrop')?.addEventListener('click', closeAjudanteSheet);
-
-    document.querySelectorAll('.ajudante-switch__opt').forEach(opt => {
-      opt.addEventListener('click', () => setAjudanteState(opt.dataset.ajudanteState));
-    });
 
     // ---- Função 1: disponibilidade (checkbox leve/pesado) ----
     const getHelperAvailability = () => readHelperJSON(LS_HELPER_AVAIL, { light: false, heavy: false });
@@ -1498,21 +1483,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Função 2: chamar um ajudante ----
     let helperCallType = 'light';
 
+    // Card do ajudante: mesmo padrão visual dos cards de profissional do feed
+    // (classes .pro-card__*: avatar retrato, nome, IC-bar, botão WhatsApp verde),
+    // porém com elementos reduzidos — só foto, nome+sobrenome e índice de confiança.
     const helperPersonHTML = (h) => `
-      <div class="helper-person" data-id="${h.id}">
-        <img class="helper-person__avatar" src="${avatarSvg}" alt="">
-        <div class="helper-person__info">
-          <span class="helper-person__name">${h.first} ${h.last}</span>
-          ${icBarHTML(h.ic)}
+      <div class="pro-card__front pro-card__front--helper" data-id="${h.id}">
+        <div class="pro-card__col-left">
+          <div class="pro-card__avatar-wrap">
+            <img class="pro-card__avatar" src="${avatarSvg}" alt="">
+          </div>
         </div>
-        <div class="helper-person__actions">
-          <a class="helper-person__wa" href="https://wa.me/${h.phone}" target="_blank" rel="noopener" aria-label="Chamar ${h.first} no WhatsApp">
-            <span class="material-symbols-rounded" aria-hidden="true">chat</span>WhatsApp
-          </a>
-          <button type="button" class="helper-person__another" data-id="${h.id}" aria-label="Pedir outro ajudante">
-            <span class="material-symbols-rounded" aria-hidden="true">refresh</span>Pedir outro
-          </button>
+        <div class="pro-card__col-right">
+          <div class="pro-card__head">
+            <div class="pro-card__head-text">
+              <div class="pro-card__name">${h.first} ${h.last}</div>
+            </div>
+            <div class="pro-card__head-right">
+              ${icBarHTML(h.ic)}
+            </div>
+          </div>
         </div>
+        <a class="pro-card__back-btn pro-card__back-btn--whatsapp helper-wa"
+           href="https://wa.me/${h.phone}" target="_blank" rel="noopener"
+           aria-label="Conversar com ${h.first} no WhatsApp">
+          <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
+        </a>
       </div>`;
 
     // Sorteia N ajudantes distintos de um tipo, excluindo ids já em uso.
@@ -1576,25 +1571,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       writeHelperJSON(LS_HELPER_DRAW, { date: helperToday(), type: helperCallType, helpers });
-      renderHelperCall();
-    });
-
-    // "Pedir outro": troca aquele ajudante por outro do mesmo tipo ainda não exibido.
-    document.getElementById('helper-list')?.addEventListener('click', (e) => {
-      const btn = e.target.closest('.helper-person__another');
-      if (!btn) return;
-      const draw = getActiveHelperDraw();
-      if (!draw) return;
-
-      const oldId = btn.dataset.id;
-      const shownIds = draw.helpers.map(h => h.id);
-      const [replacement] = drawHelpers(draw.type, 1, shownIds);
-      if (!replacement) {
-        customAlert('Não há outro ajudante disponível para troca no momento.', 'Sem substituto', 'info');
-        return;
-      }
-      draw.helpers = draw.helpers.map(h => (h.id === oldId ? replacement : h));
-      writeHelperJSON(LS_HELPER_DRAW, draw);
       renderHelperCall();
     });
 

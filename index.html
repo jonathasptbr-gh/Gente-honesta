@@ -916,20 +916,13 @@
                     </button>
                 </div>
 
-                <!-- Alterna entre as duas funções -->
-                <div class="ajudante-switch" role="tablist" aria-label="Funções do serviço de ajudantes">
-                    <button type="button" class="ajudante-switch__opt ajudante-switch__opt--active" data-ajudante-state="avail" role="tab" aria-selected="true">
-                        <span class="material-symbols-rounded" aria-hidden="true">how_to_reg</span>Disponibilizar-me
-                    </button>
-                    <button type="button" class="ajudante-switch__opt" data-ajudante-state="call" role="tab" aria-selected="false">
-                        <span class="material-symbols-rounded" aria-hidden="true">campaign</span>Chamar ajudante
-                    </button>
-                </div>
-
                 <div class="pedido-sheet__body">
 
-                    <!-- Função 1: disponibilizar-se como ajudante -->
-                    <div class="pedido-sheet__state" id="ajudante-avail-state">
+                    <!-- Função 1: disponibilizar-se como ajudante (sempre visível, em cima) -->
+                    <section class="ajudante-section">
+                        <h3 class="ajudante-section__title">
+                            <span class="material-symbols-rounded" aria-hidden="true">how_to_reg</span>Disponibilizar-me como ajudante
+                        </h3>
                         <p class="ajudante-intro">Ative para aparecer quando alguém chamar um ajudante. Você pode desativar quando quiser.</p>
 
                         <button type="button" class="helper-toggle" data-avail="light" aria-pressed="false">
@@ -949,10 +942,16 @@
                             </span>
                             <span class="helper-toggle__rate"><small>diária</small><span data-rate="heavy">R$ 180</span></span>
                         </button>
-                    </div>
+                    </section>
 
-                    <!-- Função 2: chamar um ajudante -->
-                    <div class="pedido-sheet__state u-hidden" id="ajudante-call-state">
+                    <div class="ajudante-divider" aria-hidden="true"></div>
+
+                    <!-- Função 2: chamar um ajudante (sempre visível, embaixo) -->
+                    <section class="ajudante-section">
+                        <h3 class="ajudante-section__title">
+                            <span class="material-symbols-rounded" aria-hidden="true">campaign</span>Chamar um ajudante
+                        </h3>
+
                         <!-- Formulário (visível enquanto não há sorteio ativo hoje) -->
                         <div id="helper-call-form">
                             <p class="ajudante-intro">Escolha o tipo de serviço e receba o contato de um ajudante disponível.</p>
@@ -973,7 +972,7 @@
                             </p>
                             <div id="helper-list" class="helper-list"><!-- cards via JS --></div>
                         </div>
-                    </div>
+                    </section>
 
                 </div>
             </div>

@@ -3331,54 +3331,42 @@
 
 /* ===========================================================================
    SERVIÇO DE AJUDANTES (sheet #ajudante-sheet)
-   Reaproveita o scaffolding verde do .pedido-sheet. Componentes próprios:
-   o switch de funções, os checkbox de disponibilidade (leve/pesado) e os
-   cards de ajudante sorteado (brancos, com IC-bar).
+   Reaproveita o scaffolding verde do .pedido-sheet. As duas funções ficam
+   sempre visíveis (disponibilizar-se em cima, chamar embaixo), separadas por
+   um divisor. Os checkbox de disponibilidade são próprios; o card do ajudante
+   sorteado reutiliza as classes .pro-card__* dos cards de profissional.
    =========================================================================== */
 
-/* Switch entre "Disponibilizar-me" e "Chamar ajudante" — pílula translúcida
-   no mesmo espírito dos .pedido-chip, mas em bloco fixo abaixo do header. */
-.ajudante-switch {
+/* Seção de função + título com ícone */
+.ajudante-section {
   display: flex;
-  gap: 4px;
-  flex-shrink: 0;
-  padding: 4px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.12);
+  flex-direction: column;
 }
 
-.ajudante-switch__opt {
-  flex: 1;
-  display: inline-flex;
+.ajudante-section__title {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 8px;
-  border: none;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: var(--fs-5);
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
+  gap: 8px;
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-7);
+  font-weight: 800;
+  color: var(--t-light);
 }
 
-.ajudante-switch__opt .material-symbols-rounded {
-  font-size: 1.15rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+.ajudante-section__title .material-symbols-rounded {
+  font-size: 1.4rem;
+  color: var(--a-gold);
+  flex-shrink: 0;
 }
 
-.ajudante-switch__opt--active {
-  background: var(--bg-white);
-  color: var(--p-green-dark);
+/* Divisor entre as duas funções */
+.ajudante-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.18);
+  margin: var(--space-md) 0;
 }
 
-.ajudante-switch__opt:not(.ajudante-switch__opt--active):active {
-  transform: scale(0.97);
-}
-
-/* Texto introdutório de cada função (sobre fundo verde) */
+/* Texto introdutório de cada função (sobre o fundo verde do sheet) */
 .ajudante-intro {
   font-size: var(--fs-5);
   line-height: 1.4;
@@ -3451,7 +3439,7 @@
   letter-spacing: 0.3px;
 }
 
-/* Estado marcado — borda/realce dourado + check preenchido */
+/* Estado marcado — realce dourado + check preenchido */
 .helper-toggle--on {
   border-color: var(--a-gold);
   background: rgba(224, 168, 28, 0.16);
@@ -3493,90 +3481,21 @@
   flex-shrink: 0;
 }
 
-/* ── Card de ajudante sorteado (branco, sobre o verde do sheet) ── */
+/* ── Lista de ajudantes sorteados ── */
 .helper-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
 }
 
-.helper-person {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas:
-    "avatar info"
-    "actions actions";
-  gap: var(--space-sm);
+/* Card do ajudante: mesmo padrão dos cards de profissional (.pro-card__front),
+   com elementos reduzidos. O botão WhatsApp (.pro-card__back-btn--whatsapp)
+   passa a ser um item de largura total abaixo do cabeçalho. */
+.pro-card__front--helper {
   align-items: center;
-  padding: var(--space-sm);
-  background: var(--bg-white);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
 }
 
-.helper-person__avatar {
-  grid-area: avatar;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: var(--bg-input);
-}
-
-.helper-person__info {
-  grid-area: info;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
-}
-
-.helper-person__name {
-  font-weight: 700;
-  font-size: var(--fs-7);
-  color: var(--t-main);
-}
-
-.helper-person__actions {
-  grid-area: actions;
-  display: flex;
-  gap: var(--space-xs);
-}
-
-.helper-person__wa,
-.helper-person__another {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 10px;
-  border: none;
-  border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: var(--fs-5);
-  cursor: pointer;
+.pro-card__front--helper .helper-wa {
+  flex-basis: 100%;
   text-decoration: none;
-  transition: transform 0.15s ease;
-}
-
-.helper-person__wa {
-  background: #25d366;
-  color: #fff;
-}
-
-.helper-person__another {
-  background: var(--bg-soft);
-  border: 1.5px solid var(--border-light);
-  color: var(--t-sub);
-}
-
-.helper-person__wa .material-symbols-rounded,
-.helper-person__another .material-symbols-rounded {
-  font-size: 1.15rem;
-}
-
-.helper-person__wa:active,
-.helper-person__another:active {
-  transform: scale(0.97);
 }
