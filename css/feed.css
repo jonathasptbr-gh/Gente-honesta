@@ -733,6 +733,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-sm);   /* espaço ícone↔texto, igual aos botões padrão (add/close não colam no rótulo) */
   border: none;
   border-radius: var(--radius-md);
   font-size: var(--fs-6);
