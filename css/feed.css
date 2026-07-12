@@ -1175,7 +1175,9 @@
   border-radius: var(--radius-md);
   margin-bottom: var(--space-md);
   overflow: hidden;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.13), 0 1px 4px rgba(0, 0, 0, 0.08);
+  /* reconciliado com o token (era sombra dupla bespoke) — mesma elevação dos
+     demais cards em repouso do feed (.contract-card) */
+  box-shadow: var(--shadow-sm);
 }
 
 .post-card__header {
@@ -3411,7 +3413,9 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--border-light);
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10), 0 6px 20px rgba(0, 0, 0, 0.06);
+  /* reconciliado com o token (era sombra dupla bespoke) — mesma elevação dos
+     demais cards em repouso do feed (.contract-card / .post-card) */
+  box-shadow: var(--shadow-sm);
   animation: cardExpand 0.2s ease-out;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;

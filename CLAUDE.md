@@ -189,6 +189,11 @@ Variáveis em `css/base.css :root`:
 **Cores:**
 - `--p-green`, `--p-green-dark`, `--p-green-light` — verde principal e variações
 - `--p-green-rgb: 24, 78, 27` — os MESMOS canais de `--p-green`, para uso em `rgba(var(--p-green-rgb), α)`. Usar sempre este token nos anéis de foco, brilhos radiais e no pulso do pino do IC, em vez de reescrever `rgba(24, 78, 27, …)` à mão
+- **Canais `-rgb` para `rgba()`** — além de `--p-green-rgb`, existem `--a-gold-rgb` (224,168,28),
+  `--p-green-dark-rgb` (10,31,11), `--overlay-rgb` (3,32,4) e `--on-green-rgb` (255,255,255, branco
+  translúcido sobre superfícies verdes). SEMPRE usar `rgba(var(--*-rgb), α)` em vez de reescrever os
+  canais à mão (ex.: brilho/anel dourado do tutorial usa `--a-gold-rgb`; véus escuros do feed usam
+  `--p-green-dark-rgb`; bordas/fundos brancos sobre verde usam `--on-green-rgb`).
 - `--a-gold` — amarelo/dourado de destaque; `--a-gold-text` é o ocre mais escuro para TEXTO dourado sobre fundo claro
 - `--info-blue`, `--danger`, `--success`, `--whatsapp`, `--gold-soft-border`
 - `--bg-white`, `--bg-soft` — superfícies claras
@@ -204,18 +209,49 @@ Variáveis em `css/base.css :root`:
 `--radius-lg` é o topo arredondado padrão dos bottom-sheets (`agenda-sheet`, `indicated-popup__sheet`, `pedido-sheet__panel`) — usar `var(--radius-lg) var(--radius-lg) 0 0`, não `20px 20px 0 0` cru.
 
 **Sombras e transições:** `--shadow-sm`, `--shadow-lg`, `--transition`. Preferir os tokens de sombra a
-recriar `box-shadow` à mão; os cards do feed (`.post-card`, `.vaga-card__front`) ainda têm sombras
-bespoke com geometria dos tokens mas alfas ajustados — dívida conhecida (ver "Dívidas técnicas").
+recriar `box-shadow` à mão. Os cards em repouso do feed (`.post-card`, `.vaga-card__front`) usam
+`--shadow-sm`, igual ao `.contract-card` — as antigas sombras duplas bespoke foram reconciliadas.
+
+**Anel de foco/seleção e toque:** `--focus-ring` (`0 0 0 3px rgba(var(--p-green-rgb),0.08)`) é a receita
+única de anel verde (input em foco, busca do feed) — usar o token, não reescrever. `--press-scale`
+(0.97) é o feedback de `:active` padrão do `.btn`; alguns elementos do feed ainda usam scales próprios
+por alvo (dívida de interação, ver "Dívidas técnicas").
+
+**Pesos de fonte (tokens):** `--fw-regular` (400), `--fw-medium` (600), `--fw-bold` (700), `--fw-heavy`
+(800). Usar os tokens em `font-weight`. Nota: a Inter só carrega 400/600/800, então `--fw-bold` (700)
+renderiza com a face 800.
 
 **Helpers/padrões reutilizáveis (evitam CSS-in-JS e recortes duplicados):**
+- **`.card` (primitiva de superfície, `components.css`)** — casco compartilhado das superfícies claras
+  (cadastro/feed/install). Invariante: `--radius-md` + fundo claro + `border:none` (zera a borda de UA
+  de `<button>`/`<input>` usados como card). Modificadores: `--soft` (fundo `--bg-soft`), `--bordered`
+  (borda `1px --border-light`, readiciona por cima do `none`), `--shadow` (`--shadow-sm`). Já usada em
+  `.contract-card` (`card card--bordered card--shadow`), `.location-check` (`card`), `.ic-card`
+  (`card card--shadow` + gradiente verde próprio), `.ic-card__intro` (`card card--soft`) e nos passos do
+  install (`card card--soft card--bordered`). Superfícies de geometria própria NÃO usam a base: painel/
+  gatilho colapsável (raio stateful/só inferior), `.service-choice-display` (borda 1.5px),
+  `.area-search__results` (borda 2px verde + shadow-lg). Ao criar uma superfície clara nova, componha a
+  partir de `.card` em vez de reescrever fundo/borda/raio/sombra.
+- **`.eyebrow` (rótulo/sobretítulo uppercase, `components.css`)** — receita única de rótulo em caixa alta
+  (`--p-green`, `--fs-5`, 700, uppercase), compartilhada com `.form-group__label` num seletor agrupado.
+  `.ic-hero__title` a usa no HTML (só mantém extras de layout). Novos rótulos uppercase devem receber a
+  classe em vez de reescrever cor/tamanho/peso/caixa-alta.
 - **`.btn__spinner`** (`components.css`) — spinner de carregamento dos botões (glifo `autorenew` girando,
   peso 700). Usar `class="material-symbols-rounded btn__spinner"` no `innerHTML`; a variante `--sm`
   (fonte 16px, margem menor) é para o link de reenvio de SMS. Antes o estilo era inline e duplicado em
   `auth.js` (`setButtonLoading` + handler de reenvio).
+- **`.chip` + `.chip--md` (casco de pílula)** — `.chip` (`feed.css`) é o casco base (radius-pill,
+  inline-flex, transição); `.chip--md` é a métrica das pílulas do cadastro (padding `8px 14px`, `--fs-5`,
+  borda `1.5px`). As pílulas de pagamento (`chip chip--md chip--payment`) e as `.tag-pill`
+  (`chip chip--md tag-pill`, geradas em `onboarding.js`) usam esse casco; `.tag-pill` aplica o tint via
+  seletor de 2 classes `.chip.tag-pill` (vence o `.chip` base por especificidade, independente da ordem
+  de carga). Isso encerrou a antiga briga de especificidade `.chip.chip--payment`.
 - **Pílula "tint preenchido" (azul)** — o estado selecionado de `.tag-pill` e de `.chip--payment.chip--active`
   compartilham a MESMA receita: fundo `--info-blue-light` + borda `--info-blue` + texto `--info-blue`,
   borda `1.5px` (só a COR muda ao ativar, para não deslocar vizinhas). É a linguagem única de seleção do
   cadastro; qualquer pílula selecionável nova deve seguir esse trio de tokens.
+- **Empty-state de lista sobre verde** — `.list-empty-hint` (+ `--block`, `feed.css`) para avisos de
+  "lista vazia" (indicados/agenda), no lugar de cor inline em `feed.js`.
 - **Cor da barra de status:** `window.THEME_COLOR` (`app.js`) é a fonte única do verde `#184e1b` da
   `meta[theme-color]`. Todas as telas são verdes, então é uma constante (não mais um mapa view→cor). O
   modo indicação do feed NÃO altera o theme-color (a barra continua verde).
@@ -815,7 +851,7 @@ tiver algum (vagas do usuário podem não ter benefícios, evitando cabeçalho v
 
 **Classes em components.css:**
 - `btn--danger` — `background: var(--danger); color: #fff` (vermelho; usado em Cancelar)
-- `btn--accent` — `background: var(--a-gold); color: #000` (amarelo; usado em Concluir pedido)
+- `btn--accent` — `background: var(--a-gold); color: var(--p-green-dark)` (amarelo; usado em Concluir pedido)
 
 ### Regras de scrollbar
 
@@ -864,10 +900,25 @@ arriscadas que o ganho imediato. Ao mexer nessas áreas, prefira consolidar em v
   `index.html` e 2× em `feed.js` (só muda o `fill`). Fatorar num helper/constante única.
 - **`applyFilters` recalcula a faixa de IC inline** (`p.ic >= 75 ? …`) em vez de reusar `icTier()`; os
   limiares 75/50/25 ficam duplicados. Hoistar `icTier` e reusar.
-- **Sombras de card bespoke:** `.post-card` e `.vaga-card__front` usam `box-shadow` com a geometria dos
-  tokens `--shadow-sm`/`--shadow-lg` mas alfas ajustados à mão. Reconciliar com os tokens.
 - **Mock:** `mockIndicatedByPost` redeclara objetos de profissional que já existem em `mockProfessionals`
   (com `ic`/bio ligeiramente diferentes). Uma fonte única keyed por id evitaria divergência.
+
+### Padronização de estilo — pendências (auditoria de consistência)
+Consolidações de estilo ainda ABERTAS após a auditoria (as fases 1–6 e a reconciliação de sombras já
+foram feitas). Estas mudam pixel/interação e precisam de conferência no aparelho:
+- **Opacidades do branco-sobre-verde:** os canais foram tokenizados (`rgba(var(--on-green-rgb), α)`), mas
+  os ~70 valores de `α` ainda variam livremente (.08–.92). Harmonizar numa escala curta
+  (`--on-green-strong/-med/-soft/-faint`) — decisão visual, fazer com o aparelho à mão.
+- **`:active scale` do feed:** vários valores por alvo (0.85/0.9/0.92/0.94/0.95/0.96/0.99). Padronizar para
+  `--press-scale` onde fizer sentido, mantendo scales mais fortes onde o alvo é grande/pequeno de propósito.
+- **Blur de backdrop:** 4/5/6/14px espalhados (`--blur-*` a criar; preservar o `blur(1.5px)` sutil do
+  tutorial).
+- **Sheets `agenda-sheet` vs `indicated-popup`:** unificar easing/duração/backdrop (seguir o par
+  `pedido-sheet`/`historico-sheet`, já consistente); preservar a cor do título (ouro vs branco).
+- **Botões do feed reimplementam `.btn`:** `.pro-card__back-btn`, `.vaga-card__btn-*`,
+  `.agenda-filters__vagas-btn*`, `.bottom-bar__pedidos`, `.ajudante-cancel-btn` etc. Migrar para
+  `.btn` + variantes (`--compact` a criar), reproduzindo o look por botão. Edita templates em `feed.js`
+  (respeitar hoisting/TDZ).
 
 ## Próximas Features Previstas
 

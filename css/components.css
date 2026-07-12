@@ -2,8 +2,8 @@
    SISTEMA DE BOTÕES (Design System)
 
    Hierarquia de modificadores:
-   — Estilo:    --primary | --accent | --outline | --text
-   — Estrutura: --large | --pill | --fab
+   — Estilo:    --primary | --accent | --outline | --white | --danger | --text
+   — Estrutura: --large | --pill | --close | --fab
    ======================================== */
 .btn {
   display: flex;
