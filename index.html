@@ -988,9 +988,15 @@
 
                     <!-- Função 2: chamar um ajudante (sempre visível, embaixo) -->
                     <section class="ajudante-section">
-                        <h3 class="ajudante-section__title">
-                            <span class="material-symbols-rounded" aria-hidden="true">campaign</span>Chamar um ajudante
-                        </h3>
+                        <div class="ajudante-section__head">
+                            <h3 class="ajudante-section__title">
+                                <span class="material-symbols-rounded" aria-hidden="true">campaign</span>Chamar um ajudante
+                            </h3>
+                            <!-- Cancelar: à direita do título, visível só quando há contatos -->
+                            <button type="button" id="btn-cancel-helper" class="ajudante-cancel-btn u-hidden">
+                                <span class="material-symbols-rounded" aria-hidden="true">close</span>Cancelar
+                            </button>
+                        </div>
 
                         <!-- Formulário (visível enquanto não há sorteio ativo hoje) -->
                         <div id="helper-call-form">
@@ -1011,9 +1017,6 @@
                                 <span>Seus ajudantes de hoje ficam disponíveis até a meia-noite. Depois disso você poderá chamar novamente.</span>
                             </p>
                             <div id="helper-list" class="helper-list"><!-- cards via JS --></div>
-                            <button type="button" id="btn-cancel-helper" class="btn btn--danger ajudante-cancel-btn">
-                                <span class="material-symbols-rounded" aria-hidden="true">close</span>Cancelar pedido
-                            </button>
                         </div>
 
                         <!-- Bloqueio após cancelar: sem contatos, botão liberado só

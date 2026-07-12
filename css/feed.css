@@ -3796,11 +3796,44 @@
   text-decoration: none;
 }
 
-/* Botão "Cancelar pedido" — full-width, abaixo dos contatos */
+/* Cabeçalho da seção "chamar": título à esquerda, botão cancelar à direita.
+   min-height fixa evita que a linha cresça quando o botão aparece/some. */
+.ajudante-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-height: 34px;
+  margin-bottom: var(--space-xs);
+}
+
+.ajudante-section__head .ajudante-section__title {
+  margin: 0;
+}
+
+/* Botão "Cancelar" — compacto, encaixa na altura da linha do título */
 .ajudante-cancel-btn {
-  width: 100%;
-  margin-top: var(--space-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: none;
   border-radius: var(--radius-pill);
+  background: var(--danger);
+  color: var(--t-light);
+  font-size: var(--fs-5);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.ajudante-cancel-btn .material-symbols-rounded {
+  font-size: 1.05rem;
+}
+
+.ajudante-cancel-btn:active {
+  transform: scale(0.96);
 }
 
 /* Bloco de cooldown pós-cancelamento (cronômetro até liberar o botão) */

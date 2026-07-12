@@ -1666,16 +1666,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const result   = document.getElementById('helper-result');
       const cooldown = document.getElementById('helper-cooldown');
       const list     = document.getElementById('helper-list');
+      const cancelBtn = document.getElementById('btn-cancel-helper');
       if (!form || !result || !cooldown || !list) return;
 
       stopCooldownTicker();
       const draw = getActiveHelperDraw();
 
       if (draw) {
-        // (1) Sorteio válido para hoje → mostra ajudantes + botão cancelar.
+        // (1) Sorteio válido para hoje → mostra ajudantes + botão cancelar (no topo).
         form.classList.add('u-hidden');
         cooldown.classList.add('u-hidden');
         result.classList.remove('u-hidden');
+        cancelBtn?.classList.remove('u-hidden');
         list.innerHTML = draw.helpers.map(helperPersonHTML).join('');
         return;
       }
@@ -1683,6 +1685,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Sem sorteio (nunca pediu, expirou à meia-noite ou cancelou).
       list.innerHTML = '';
       result.classList.add('u-hidden');
+      cancelBtn?.classList.add('u-hidden');
       localStorage.removeItem(LS_HELPER_DRAW);
 
       const until = getHelperCooldownUntil();
