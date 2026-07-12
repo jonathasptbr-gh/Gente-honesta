@@ -152,6 +152,11 @@
   margin-bottom: 0;
 }
 
+/* Rótulo/eyebrow uppercase — linguagem única de "sobretítulo" do app.
+   .form-group__label (label de campo) e qualquer subtítulo de seção
+   compartilham esta receita; adicione a classe .eyebrow a novos rótulos
+   em vez de reescrever cor/tamanho/peso/caixa-alta à mão. */
+.eyebrow,
 .form-group__label {
   color: var(--p-green);
   font-size: var(--fs-5);

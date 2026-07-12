@@ -788,14 +788,10 @@
 }
 
 /* O SUBTÍTULO do card vive no hero, ao lado do 70 (nunca é escondido) —
-   no MESMO padrão de subtítulo de "O que você faz?"/"Suas Habilidades"
-   (.form-group__label: --p-green, --fs-5, 700, uppercase) */
+   usa a classe .eyebrow (mesma receita de .form-group__label: --p-green,
+   --fs-5, 700, uppercase); aqui ficam só os extras específicos do hero. */
 .ic-hero__title {
   display: block;
-  font-size: var(--fs-5);
-  font-weight: var(--fw-bold);
-  text-transform: uppercase;
-  color: var(--p-green);
   line-height: 1.2;
   margin-bottom: 2px;
 }

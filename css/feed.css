@@ -2752,6 +2752,21 @@
   letter-spacing: 0.01em;
 }
 
+/* Aviso de "lista vazia" sobre superfície verde (indicados/agenda). Extraído
+   do estilo inline duplicado em feed.js. Base: inline compacto (verso/indicados);
+   --block: centralizado com respiro (lista principal da agenda). */
+.list-empty-hint {
+  font-size: var(--fs-4);
+  color: rgba(var(--on-green-rgb), 0.75);
+}
+
+.list-empty-hint--block {
+  display: block;
+  text-align: center;
+  padding: var(--space-xl) 0;
+  font-size: var(--fs-6);
+}
+
 /* Base do card — overflow:hidden para animação de altura; sem perspective aqui
    (overflow:hidden + preserve-3d no mesmo ancestral quebra o flip em WebKit/Blink). */
 .pro-card {

@@ -471,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderFlippableProCards(listEl, pros) {
     listEl.innerHTML = '';
     if (!pros || pros.length === 0) {
-      listEl.innerHTML = '<span style="font-size:var(--fs-4);color:rgba(255,255,255,0.75)">Nenhuma indicação ainda.</span>';
+      listEl.innerHTML = '<span class="list-empty-hint">Nenhuma indicação ainda.</span>';
       return;
     }
     pros.forEach(pro => {
@@ -666,7 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (final.length === 0) {
       const empty = document.createElement('p');
-      empty.style.cssText = 'text-align:center;color:rgba(255,255,255,0.75);padding:var(--space-xl) 0;font-size:var(--fs-6)';
+      empty.className = 'list-empty-hint list-empty-hint--block';
       empty.textContent = 'Nenhum profissional encontrado.';
       list.appendChild(empty);
       return;
