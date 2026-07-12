@@ -2047,10 +2047,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const closePedidoSheet = () => {
     // Remove só --open para o fecho respeitar a animação vigente (fade no
-    // detalhe --full, slide no formulário). --full é limpo ao abrir o formulário.
+    // detalhe --full, slide-down no formulário). --full é limpo ao abrir o form.
     pedidoSheet?.classList.remove('pedido-sheet--open');
     stopPedidoTimer();
     detailPedidoId = null;
+  };
+
+  // Ancora um sheet-dropdown na BASE da action bar (= topo da caixa do feed),
+  // via --sheet-top. A barra tem altura variável (safe-area), então medimos em
+  // runtime. Usado pelo formulário de pedido e pelo histórico (mesmo slide-down).
+  const anchorBelowActionBar = (el) => {
+    const bar = document.getElementById('feed-action-bar');
+    if (bar && el) el.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
   };
 
   // Data curta legível: "12 jul, 14:30"
@@ -2109,14 +2117,16 @@ document.addEventListener('DOMContentLoaded', () => {
     updatePedidoTimer();
   };
 
-  // Abre o sheet no formulário de criação (não há pedido ativo). Fica como
-  // bottom sheet (sem --full), diferente do detalhe que ocupa a tela toda.
+  // Abre o formulário de criação (não há pedido ativo) como DROPDOWN que desce
+  // da base da action bar — mesmo slide-down do histórico (sem --full, que é
+  // reservado ao detalhe em tela cheia).
   const openPedidoForm = () => {
     if (pedidoSheetTitle) pedidoSheetTitle.textContent = 'Fazer pedido';
     pedidoFormState?.classList.remove('u-hidden');
     pedidoDetailsState?.classList.add('u-hidden');
     stopPedidoTimer();
     detailPedidoId = null;
+    anchorBelowActionBar(pedidoSheet);
     pedidoSheet?.classList.remove('pedido-sheet--full');
     pedidoSheet?.classList.add('pedido-sheet--open');
   };
@@ -2146,8 +2156,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   document.getElementById('btn-close-pedido-sheet')?.addEventListener('click', closePedidoSheet);
-  document.getElementById('pedido-sheet-backdrop')?.addEventListener('click', closePedidoSheet);
   document.getElementById('btn-pedido-cancel')?.addEventListener('click', closePedidoSheet);
+  // Fecha ao tocar fora do painel (backdrop dimmed OU a área transparente sobre
+  // a barra) — o backdrop só cobre o feed abaixo, então usamos o container todo.
+  pedidoSheet?.addEventListener('click', (e) => {
+    if (!e.target.closest('.pedido-sheet__panel')) closePedidoSheet();
+  });
   bindProCardFlip(document.getElementById('pedido-detail-indicated-list'));
 
   // Contador de caracteres do texto do pedido
@@ -2275,20 +2289,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
-  // O dropdown desce da BASE da action bar: mede o rodapé da barra e ancora o
-  // painel ali via --historico-top (a barra tem altura variável com safe-area).
+  // Dropdown que desce da BASE da action bar (topo da caixa do feed).
   const openHistorico = () => {
     renderHistoricoList();
-    const bar = document.getElementById('feed-action-bar');
-    if (bar && historicoSheet) {
-      historicoSheet.style.setProperty('--historico-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
-    }
+    anchorBelowActionBar(historicoSheet);
     historicoSheet?.classList.add('historico-sheet--open');
   };
   const closeHistorico = () => historicoSheet?.classList.remove('historico-sheet--open');
 
   document.getElementById('btn-close-historico')?.addEventListener('click', closeHistorico);
-  document.getElementById('historico-sheet-backdrop')?.addEventListener('click', closeHistorico);
+  historicoSheet?.addEventListener('click', (e) => {
+    if (!e.target.closest('.historico-sheet__panel')) closeHistorico();
+  });
 
   // Delegação: excluir (botão) tem prioridade; senão, abre o detalhe do item.
   historicoList?.addEventListener('click', async (e) => {

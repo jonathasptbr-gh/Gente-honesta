@@ -1202,9 +1202,6 @@
   position: fixed;
   inset: 0;
   z-index: 300;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
   pointer-events: none;
   visibility: hidden;
   /* Mantém visível durante a animação de fechamento */
@@ -1217,9 +1214,15 @@
   transition: visibility 0s linear 0s;
 }
 
+/* Formulário (padrão) = DROPDOWN: o backdrop dim SÓ o feed abaixo da action bar
+   (top: --sheet-top), mantendo a barra acesa para o painel parecer a base dela
+   se estendendo. No detalhe (--full) cobre a tela toda. */
 .pedido-sheet__backdrop {
   position: absolute;
-  inset: 0;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: var(--overlay);
   opacity: 0;
   transition: opacity 0.28s ease;
@@ -1227,30 +1230,44 @@
 
 .pedido-sheet--open .pedido-sheet__backdrop { opacity: 1; }
 
+/* Formulário "Fazer pedido" = DROPDOWN que desce da base da action bar (mesmo
+   slide-down do histórico): ancora em --sheet-top, edge-to-edge, cantos
+   inferiores arredondados, entra descendo (translateY -14px) + fade. */
 .pedido-sheet__panel {
-  position: relative;
+  position: absolute;
   z-index: 1;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
   background: var(--p-green);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   padding: var(--space-md);
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  max-height: 92dvh;
-  transform: translateY(100%);
-  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: calc(100dvh - var(--sheet-top, 0px) - 12px);
+  transform: translateY(-14px);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.28s ease;
 }
 
-.pedido-sheet--open .pedido-sheet__panel { transform: translateY(0); }
+.pedido-sheet--open .pedido-sheet__panel {
+  transform: translateY(0);
+  opacity: 1;
+}
 
-/* Detalhe do pedido em TELA CHEIA (100dvh, sem cantos) para não apertar
-   verticalmente o pedido + a lista de indicações. Diferente do formulário
-   (bottom sheet, slide-up), o detalhe entra e sai com FADE (opacity), sem
-   movimento — por isso o transform é anulado aqui e no estado aberto. */
+/* Detalhe do pedido = TELA CHEIA (100dvh, sem cantos, cobre tudo) com FADE puro
+   (opacity), sem movimento — por isso backdrop e painel vão a top:0 e o
+   transform é anulado. Cabe o pedido + a lista de indicados sem apertar. */
+.pedido-sheet--full .pedido-sheet__backdrop { top: 0; }
+
 .pedido-sheet--full .pedido-sheet__panel {
+  top: 0;
   height: 100dvh;
   max-height: 100dvh;
   border-radius: 0;
+  box-shadow: none;
   padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
   transform: none;
   opacity: 0;
@@ -1825,10 +1842,12 @@
 
 /* =========================================================================
    HISTÓRICO DE PEDIDOS — dropdown que DESCE da base da action bar (#historico-
-   sheet). O painel ancora em --historico-top (medido em JS = rodapé da barra),
-   spanning edge-to-edge com cantos inferiores arredondados, e entra descendo
-   (translateY + fade). Inclui o pedido ativo; ordenada por data (mais recente no
-   topo). Cada item abre o detalhe unificado (pedido + indicados) ao ser tocado.
+   sheet). O painel ancora em --sheet-top (medido em JS = rodapé da barra = topo
+   da caixa do feed), spanning edge-to-edge com cantos inferiores arredondados,
+   entra descendo (translateY + fade) e parece a base do módulo dos botões se
+   estendendo: o backdrop dim SÓ o feed abaixo (top: --sheet-top), a barra fica
+   acesa. Inclui o pedido ativo; ordenada por data (mais recente no topo). Cada
+   item abre o detalhe unificado (pedido + indicados) ao ser tocado.
    ========================================================================= */
 .historico-sheet {
   position: fixed;
@@ -1847,7 +1866,10 @@
 
 .historico-sheet__backdrop {
   position: absolute;
-  inset: 0;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: var(--overlay);
   opacity: 0;
   transition: opacity 0.28s ease;
@@ -1857,10 +1879,10 @@
 
 .historico-sheet__panel {
   position: absolute;
-  top: var(--historico-top, 120px);
+  top: var(--sheet-top, 0px);
   left: 0;
   right: 0;
-  max-height: calc(100dvh - var(--historico-top, 120px) - 12px);
+  max-height: calc(100dvh - var(--sheet-top, 0px) - 12px);
   background: var(--p-green);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   box-shadow: var(--shadow-lg);
