@@ -624,7 +624,13 @@ document.addEventListener('DOMContentLoaded', () => {
           if (statusText) statusText.innerText = 'Tempo esgotado. Tente novamente.';
         }
       }),
-      { enableHighAccuracy: false, timeout: 10000 }
+      // enableHighAccuracy:true aciona o GPS real do aparelho — no navegador do
+      // celular a leitura "coarse" (rede/wifi) devolvia POSITION_UNAVAILABLE com
+      // frequência e o registro nunca confirmava. O timeout de 10s antes era
+      // curto demais: ele inclui o tempo do PRÓPRIO prompt de permissão, então
+      // uma confirmação um pouco lenta já estourava (30s dá folga). maximumAge
+      // aceita uma leitura recente (5 min) e confirma na hora se já houver fix.
+      { enableHighAccuracy: true, timeout: 30000, maximumAge: 300000 }
     );
   });
 

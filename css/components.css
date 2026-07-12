@@ -518,35 +518,37 @@ html.is-desktop .overlay-dialog {
    No navegador não dá para travar a rotação (screen.orientation.lock exige
    fullscreen); instalado como PWA o manifest "orientation": "portrait" trava
    de verdade e esta tela nunca aparece.
-   O max-height filtra celulares deitados — monitores desktop também são
-   paisagem, mas altos, e já são cobertos pelo bloqueio is-desktop acima.
+   Acionado pela classe `html.is-landscape`, definida em JS (app.js) a partir da
+   orientação REAL do dispositivo. Antes era um `@media (orientation: landscape)
+   and (max-height: 500px)` puro em CSS, mas ao abrir o teclado virtual a altura
+   da viewport encolhia abaixo da largura e o CSS reportava "landscape" MESMO em
+   retrato — a tela de bloqueio cobria o cadastro ao digitar o nome. A detecção
+   por JS (Screen Orientation API) não é enganada pelo teclado.
    ======================================== */
 .rotate-block {
   display: none;
 }
 
-@media (orientation: landscape) and (max-height: 500px) {
-  html:not(.is-desktop) .rotate-block {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-sm);
-    padding: var(--space-lg);
-    text-align: center;
-    background: var(--block-bg);
-    color: var(--t-light);
-  }
+html.is-landscape:not(.is-desktop) .rotate-block {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  text-align: center;
+  background: var(--block-bg);
+  color: var(--t-light);
+}
 
-  /* Em paisagem, nada do app deve aparecer ou disputar a tela com o bloqueio */
-  html:not(.is-desktop) #loader-global,
-  html:not(.is-desktop) .screen,
-  html:not(.is-desktop) .overlay-dialog {
-    display: none !important;
-  }
+/* Em paisagem, nada do app deve aparecer ou disputar a tela com o bloqueio */
+html.is-landscape:not(.is-desktop) #loader-global,
+html.is-landscape:not(.is-desktop) .screen,
+html.is-landscape:not(.is-desktop) .overlay-dialog {
+  display: none !important;
 }
 
 .rotate-block__icon {

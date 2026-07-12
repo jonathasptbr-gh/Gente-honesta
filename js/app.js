@@ -24,6 +24,38 @@
 
 
 // =========================================================================
+// BLOQUEIO DE ORIENTAÇÃO PAISAGEM (classe html.is-landscape via JS)
+// Antes o bloqueio (.rotate-block) era acionado SÓ por CSS com
+// `@media (orientation: landscape) and (max-height: 500px)`. Como o viewport usa
+// `interactive-widget=resizes-content`, ao abrir o teclado virtual (ex.: digitar
+// o nome no cadastro) a ALTURA da viewport encolhe abaixo da largura → o CSS
+// passava a reportar `orientation: landscape` + `max-height` MESMO em retrato,
+// e a tela "Gire o celular" cobria o app, travando o cadastro.
+// Aqui detectamos a orientação REAL do dispositivo (que NÃO muda com o teclado)
+// via Screen Orientation API, com fallbacks para `window.orientation` (iOS antigo)
+// e, em último caso, o matchMedia. O CSS aciona o bloqueio por `html.is-landscape`.
+// =========================================================================
+(function () {
+  const landscapeMq = window.matchMedia('(orientation: landscape)');
+  const isDeviceLandscape = () => {
+    const type = window.screen && window.screen.orientation && window.screen.orientation.type;
+    if (type) return type.indexOf('landscape') === 0;
+    if (typeof window.orientation === 'number') return Math.abs(window.orientation) === 90;
+    return landscapeMq.matches;
+  };
+  const updateOrientationClass = () => {
+    document.documentElement.classList.toggle('is-landscape', isDeviceLandscape());
+  };
+  updateOrientationClass();
+  window.addEventListener('resize', updateOrientationClass);
+  window.addEventListener('orientationchange', updateOrientationClass);
+  if (window.screen && window.screen.orientation && window.screen.orientation.addEventListener) {
+    window.screen.orientation.addEventListener('change', updateOrientationClass);
+  }
+})();
+
+
+// =========================================================================
 // CONFIGURAÇÃO CORE DO ECOSSISTEMA
 // =========================================================================
 
