@@ -651,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tagsContainer.innerHTML = '';
     window.appState.selectedTags.forEach(tag => {
       const pill = document.createElement('span');
-      pill.className = 'tag-pill';
+      pill.className = 'chip chip--md tag-pill';
       pill.innerHTML = `${tag}<button type="button" class="tag-pill__remove" aria-label="Remover ${tag}">×</button>`;
       pill.querySelector('.tag-pill__remove').addEventListener('click', () => {
         window.appState.selectedTags = window.appState.selectedTags.filter(t => t !== tag);

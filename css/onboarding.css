@@ -160,17 +160,15 @@
   margin-top: var(--space-xs);
 }
 
-.tag-pill {
-  display: flex;
-  align-items: center;
+/* Pílula de profissão selecionada — usa o casco .chip .chip--md (métrica única
+   do cadastro) e aplica o "tint preenchido" azul, sempre ativo (a tag já está
+   selecionada). Seletor de 2 classes (.chip.tag-pill) para vencer o .chip base
+   de feed.css por especificidade, independentemente da ordem de carga. */
+.chip.tag-pill {
   gap: 6px;
-  padding: 8px 14px;
   background: var(--info-blue-light);
-  border: 1.5px solid var(--info-blue);
-  border-radius: var(--radius-pill);
+  border-color: var(--info-blue);
   color: var(--info-blue);
-  font-size: var(--fs-5);
-  font-weight: var(--fw-medium);
   cursor: default;
 }
 
@@ -216,18 +214,10 @@
   font-size: 1.05rem;
 }
 
-/* Alinha as pílulas de pagamento à mesma linguagem visual das pílulas de
-   profissão (.tag-pill), para o cadastro ter um padrão único: mesmo tamanho
-   de fonte (--fs-5), padding (8px 14px) e espessura de borda (1.5px). A borda
-   nasce igual nos dois estados — só a COR muda ao selecionar — para não
-   deslocar as vizinhas na mesma linha. Seletor .chip.chip--payment (2 classes)
-   é necessário para vencer .chip sozinho de feed.css, carregado DEPOIS de
-   onboarding.css com a mesma especificidade de uma classe só. */
-.chip.chip--payment {
-  padding: 8px 14px;
-  font-size: var(--fs-5);
-  border-width: 1.5px;
-}
+/* A métrica das pílulas de pagamento (fonte --fs-5, padding 8px 14px, borda
+   1.5px) vem do modificador .chip--md no HTML — mesma linguagem das .tag-pill.
+   A borda nasce igual nos dois estados (só a COR muda ao selecionar) para não
+   deslocar as vizinhas na mesma linha. */
 
 /* Selecionada: mesmo padrão "tint preenchido" das .tag-pill (fundo tint +
    borda + texto no mesmo matiz), porém no azul do pagamento (--info-blue) em

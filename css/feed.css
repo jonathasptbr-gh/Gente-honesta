@@ -2716,6 +2716,16 @@
   flex-shrink: 0;
 }
 
+/* Modificador de TAMANHO "médio" do chip — métrica única das pílulas do
+   cadastro (tags de profissão e pagamento): fonte --fs-5, padding 8px 14px,
+   borda 1.5px. Só o casco/tamanho; a COR de estado fica por conta de cada
+   contexto (verde no feed, azul no cadastro). */
+.chip--md {
+  padding: 8px 14px;
+  font-size: var(--fs-5);
+  border-width: 1.5px;
+}
+
 .chip--active {
   background: var(--p-green);
   color: var(--t-light);
