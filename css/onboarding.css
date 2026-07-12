@@ -91,7 +91,7 @@
 .profile-header-row {
   display: flex;
   gap: var(--space-md);
-  align-items: center;
+  align-items: stretch;   /* a foto acompanha a altura dos dois campos (nome+sobrenome) */
   margin-bottom: var(--space-md);
 }
 
@@ -109,10 +109,11 @@
   gap: var(--space-sm);
 }
 
-/* Captura de mídia — formato 3x4 */
+/* Captura de mídia — a altura acompanha os dois campos (nome+sobrenome) para o
+   topo/base ficarem alinhados; largura fixa 90px. */
 .media-capture__display {
   width: 90px;
-  height: 120px;
+  height: 100%;
   border-radius: var(--radius-md);
   background: var(--bg-input);
   border: none;   /* sem tracejado: o fundo claro contrasta sozinho no verde */
@@ -705,13 +706,11 @@
   color: var(--t-light);   /* título branco sobre o card verde */
 }
 
-/* Card INTERNO do hero (subtítulo + frase + moldura-escudo/70): agora é o card
-   MAIS CLARO da dupla (branco translúcido), destacando sobre o card externo verde
-   escuro (lógica invertida); título dourado e subtítulo branco, o 70 e o escudo
-   dourados destacam. */
+/* Hero do IC (subtítulo + frase + moldura-escudo/70): NÃO é mais um card/moldura —
+   os itens ficam soltos direto sobre o card externo verde escuro (sem fundo, sem
+   inset). Título dourado e subtítulo branco, o 70 e o escudo dourados destacam. */
 .ic-card__intro {
-  padding: 10px 12px;
-  background: var(--on-green-faint);
+  padding: 0;
 }
 
 /* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca
@@ -749,7 +748,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: -12px;
 }
 
 /* Moldura em forma de escudo: SVG só de contorno (stroke dourado, sem
@@ -887,10 +885,10 @@
   font-weight: var(--fw-heavy);
 }
 
-/* Cores por faixa sobre o card VERDE: a <25% (zona "morta") vira um cinza-claro
-   translúcido (o preto sumiria no verde); dourado/vermelho/verde-sucesso seguem
-   visíveis. O texto dourado usa --a-gold cheio (o ocre escuro sumiria no verde). */
-.ic-zone--bad   .ic-zone__shield, .ic-zone--bad   .ic-zone__range { color: rgba(var(--on-green-rgb), 0.55); }
+/* Cores por faixa: a <25% (zona "morta") é PRETA (`#000`), igual ao segmento
+   `.ic-meter__seg--bad` da barra; dourado/vermelho/verde-sucesso seguem visíveis.
+   O texto dourado usa --a-gold cheio (o ocre escuro sumiria no verde). */
+.ic-zone--bad   .ic-zone__shield, .ic-zone--bad   .ic-zone__range { color: #000000; }
 .ic-zone--alert .ic-zone__shield, .ic-zone--alert .ic-zone__range { color: var(--danger); }
 .ic-zone--warn  .ic-zone__shield { color: var(--a-gold); }
 .ic-zone--warn  .ic-zone__range { color: var(--a-gold); }
@@ -953,8 +951,6 @@
   #view-onboarding .ic-card { padding: 10px var(--space-md); }
   #view-onboarding .ic-card__eyebrow { font-size: var(--fs-6); }
   #view-onboarding .ic-card__head-icon { font-size: 1.3rem; }
-  #view-onboarding .ic-card__intro { padding: 6px 10px; }
-  #view-onboarding .ic-hero__badge { margin-right: -10px; }
   #view-onboarding .ic-hero__badge-shield { width: 3.1rem; height: 3.4rem; }
   #view-onboarding .ic-hero__value { font-size: 1.2rem; }
   #view-onboarding .ic-hero__text { display: none; }
