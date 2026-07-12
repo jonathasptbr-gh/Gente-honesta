@@ -178,6 +178,14 @@
     </div>
 
     <!-- =====================================================================
+         SELO DE VERSÃO — flutua no topo direito, ACIMA de tudo, sempre visível.
+         Reflete o deploy que está sendo servido (arquivos são network-first),
+         então confirma na hora se você está vendo a versão atualizada.
+         BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
+         ===================================================================== -->
+    <div id="version-badge" class="version-badge" aria-hidden="true">v223</div>
+
+    <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
          Contrato de visibilidade: .screen + .screen--active (nunca u-hidden)
          Sub-passos internos: controlados EXCLUSIVAMENTE por u-hidden
