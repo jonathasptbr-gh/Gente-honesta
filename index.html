@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v252</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v253</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -904,12 +904,13 @@
         <div id="vaga-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
             <div class="pedido-sheet__backdrop" id="vaga-sheet-backdrop"></div>
             <div class="pedido-sheet__panel">
-                <div class="pedido-sheet__header">
-                    <p class="pedido-sheet__title">Criar vaga</p>
-                </div>
-
                 <div class="pedido-sheet__body">
                     <div class="pedido-sheet__state">
+
+                        <!-- Título DENTRO do body: rola junto com os campos da seção. -->
+                        <div class="pedido-sheet__header">
+                            <p class="pedido-sheet__title">Criar vaga</p>
+                        </div>
 
                         <div class="pedido-field">
                             <label class="pedido-field__label" for="inp-vaga-cnpj">CNPJ da empresa</label>

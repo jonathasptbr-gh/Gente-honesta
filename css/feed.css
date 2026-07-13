@@ -1760,10 +1760,16 @@
 
 .pedido-sheet__actions .btn { flex: 1; }
 
-/* Rodapé fixo do sheet (fora do body que rola): sempre visível na base. */
+/* Rodapé fixo do sheet (fora do body que rola): sempre visível na base. Ganha uma
+   FAIXA própria em verde --p-green (o MESMO da action bar onde fica "Criar vaga"),
+   mais clara que o --bg-canvas do painel. Estende-se até as bordas do painel (anula
+   o padding dele) e acompanha os cantos inferiores arredondados. */
 .pedido-sheet__actions--footer {
   flex-shrink: 0;
-  margin-top: 0;
+  margin: 0 calc(-1 * var(--space-md)) calc(-1 * var(--space-md));
+  padding: var(--space-md);
+  background: var(--p-green);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .pedido-btn-cancel {

@@ -585,7 +585,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v252`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v253`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -915,6 +915,11 @@ Candidatura mockada: sem persistência no Firestore. O flip usa o mesmo motor ge
 ### Sheet "Criar vaga" (`#vaga-sheet`)
 
 Bottom sheet de criação de vaga, acionado pelo `#btn-criar-vaga` da action bar (estado vagas).
+**Rodapé fixo:** o botão "Publicar vaga" fica FORA do `.pedido-sheet__body` (que rola), num
+`.pedido-sheet__actions--footer` — sempre visível na base. Essa faixa tem fundo `--p-green` (o MESMO verde
+da action bar, mais claro que o `--bg-canvas` do painel), edge-to-edge (margem negativa anula o padding do
+painel) e cantos inferiores `--radius-lg`. O **título "Criar vaga"** foi movido para DENTRO do `.pedido-sheet__state`
+(primeiro filho, no body) para ROLAR junto com os campos — diferente dos outros sheets, onde o header é fixo.
 **Reaproveita o scaffolding do `pedido-sheet`** (mesmas classes `.pedido-sheet*`, `.pedido-field*`,
 `.pedido-chip*` — o bottom-sheet-formulário padrão do app), com estilos próprios só para as listas
 dinâmicas (`css/feed.css`, bloco "Sheet Criar vaga"): `.vaga-dyn-list` / `.vaga-dyn-row` (input +
