@@ -177,8 +177,10 @@ window.appState = {
   serviceProfile: { quality: 5, agility: 5, price: 5 },
   // Dinheiro já vem selecionado por padrão (a seção de pagamento não é obrigatória)
   paymentMethods: { cash: true, pix: false, card: 0, nf: false },
-  // Perfil visível na busca/indicações da região — o check já vem marcado
-  profilePublic: true
+  // Perfil visível na busca/indicações da região — DESMARCADO por padrão
+  // (o usuário básico não tem cadastro profissional; o check pressupõe os
+  // dados profissionais preenchidos)
+  profilePublic: false
 };
 
 

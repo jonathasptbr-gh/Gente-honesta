@@ -345,9 +345,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('#container-payment-methods .chip, #container-payment-card .chip, #container-payment-nf .chip')
       .forEach(chip => setPaymentChipActive(chip, chip.dataset.payment === 'cash'));
 
-    // Perfil público: volta ao padrão (marcado)
-    window.appState.profilePublic = true;
-    document.getElementById('chk-profile-public')?.setAttribute('aria-pressed', 'true');
+    // Perfil público: volta ao padrão (desmarcado)
+    window.appState.profilePublic = false;
+    document.getElementById('chk-profile-public')?.setAttribute('aria-pressed', 'false');
 
     // Colapsável de detalhes profissionais: fecha (instantâneo, sem animação)
     setProDetailsOpen(false, false);
