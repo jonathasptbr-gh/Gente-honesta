@@ -4,7 +4,7 @@
 // CONFIGURAÇÃO DO SERVICE WORKER - Definições de Cache
 // =========================================================================
 
-const CACHE_NAME = "gentehonesta-v263";
+const CACHE_NAME = "gentehonesta-v264";
 // Versão legível derivada do CACHE_NAME (ex.: "v261") — enviada à página sob demanda
 // (mensagem GET_VERSION) para exibir no banner "Nova versão disponível".
 const APP_VERSION = CACHE_NAME.replace("gentehonesta-", "");
@@ -105,8 +105,15 @@ self.addEventListener("fetch", event => {
   }
 
   // ESTRATÉGIA DE FETCH - Execução da Estratégia
+  // Arquivos do PRÓPRIO site: cache:'no-cache' força revalidação no servidor
+  // (ETag/304, barato). Sem isso, o max-age=600 do GitHub Pages fazia o
+  // navegador servir arquivos VELHOS do cache HTTP por até 10 minutos — o
+  // banner "Atualizar" recarregava a página e recebia a versão antiga de novo
+  // (a atualização parecia não fazer nada). Cross-origin (fontes) segue o
+  // cache normal do navegador.
+  const sameOrigin = url.origin === self.location.origin;
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, sameOrigin ? { cache: "no-cache" } : undefined)
       .then(networkResponse => {
         // ESTRATÉGIA DE FETCH - Validação e Atualização Dinâmica do Cache
         if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
