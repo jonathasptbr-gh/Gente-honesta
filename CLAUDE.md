@@ -186,6 +186,43 @@ Remover o bloco marcado `// WHITELIST DE TESTERS` quando abrir ao público.
 
 ## Design System
 
+### ✅ CHECKLIST DE CONFORMIDADE — passe por ela ANTES de criar/alterar QUALQUER elemento de UI
+
+Toda criação ou modificação visual deve buscar o padrão existente. Na ordem:
+
+1. **Classifique pelo PAPEL, nunca pela estética** (ver "Taxonomia" abaixo): contêiner de conteúdo →
+   `.card`; ação (faz algo) → `.btn` + variante; item selecionável/filtro/toggle → `.chip`/padrão de
+   pílula; entrada de texto → `.input-text`. Reuse a base existente; NUNCA crie uma árvore de classes
+   paralela para algo que já tem primitiva.
+2. **Cor pela FUNÇÃO, nunca pelo gosto**: AMARELO (`--a-gold`) = só AÇÕES e acentos de marca;
+   AZUL (`--info-blue`) = seleção/estado ativo (tint claro + texto azul sobre fundo claro; azul sólido +
+   texto branco sobre verde escuro; `--info-blue-bright` para indicadores minúsculos sobre verde);
+   VERDE = identidade/fundos/sucesso/foco de input; VERMELHO (`--danger`) = erro/destrutivo.
+   (Detalhes e exceções em "SEMÂNTICA DE CORES".)
+3. **Zero valores crus**: toda cor/tamanho/raio/sombra/espaçamento/peso/duração vem de token do `:root`
+   (`--fs-*`, `--fw-*`, `--space-*`, `--radius-*`, `--shadow-*`, `--on-green-*`, `rgba(var(--*-rgb), α)`,
+   `--blur-*`, `--sheet-ease`, `--press-scale*`, `var(--app-height, 100dvh)` no lugar de `dvh` cru).
+   Se o valor exato não existe na escala, use o degrau mais próximo — não invente um número.
+4. **Sem contorno**: nada de `border` para definir card/pílula/botão/input — definição por contraste do
+   fundo + `--shadow-sm` (sobre claro) ou fill claro `--card-on-green` (sobre verde). Única linha de
+   borda permitida: o vermelho canônico de erro/obrigatório. Bordas FUNCIONAIS (avatar, checkbox,
+   divisor, spinner) são exceção listada.
+5. **Estado muda a COR INTERNA do elemento** (fundo/texto), nunca ganha anel/box-shadow/outline.
+6. **Visibilidade**: telas SÓ por `.screen--active` (via `showView`); sub-elementos SÓ por `u-hidden`;
+   nunca `style.display` inline nem `display` em seletor de `.screen`.
+7. **Acessibilidade mínima**: toggle/chip carrega `aria-pressed` sincronizado com a classe ativa;
+   botão só-ícone carrega `aria-label`; elemento clicável é `<button>` (nunca `<div>` com listener).
+8. **Sheet/dropdown novo?** Reuse o scaffolding `.pedido-sheet*`/`.historico-sheet*` (3 camadas
+   container/clip/panel, `--sheet-top` medido em JS, gaveta com `--sheet-ease`, tap-outside, botão-abridor
+   vira "Fechar" via `.action-close-mode`) — não recrie do zero.
+9. **Rola?** Os 3 feeds escondem a barra; TODO outro container com scroll usa a barra fina sempre
+   visível (`::-webkit-scrollbar` 5px + thumb, `scrollbar-width: thin`), na borda do painel.
+10. **Diálogo?** Sempre `await customAlert(...)`/`await customConfirm(...)` — nunca `alert()`/`confirm()`.
+11. **Fechou a sessão de mudanças?** Bump de `CACHE_NAME` (service-worker.js) + `#version-badge`
+    (index.html) juntos, commit e deploy para `main`.
+
+As seções abaixo detalham cada regra, os tokens e as exceções deliberadas documentadas.
+
 Variáveis em `css/base.css :root`:
 
 **Cores:**
@@ -306,10 +343,10 @@ borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke
 - **`.card` (primitiva de superfície, `components.css`)** — casco compartilhado das superfícies claras
   (cadastro/feed/install). Invariante: `--radius-md` + fundo claro + `border:none`. Modificadores: `--soft`
   (fundo `--bg-soft`), `--shadow` (`--shadow-sm`, definição sem contorno). Já usada em `.contract-card`
-  (`card card--shadow`), `.location-check` (`card`), `.ic-card` (`card card--shadow` + gradiente verde
-  próprio), `.ic-card__intro` (`card card--soft`) e nos passos do install (`card card--soft`, contraste no
-  verde). Ao criar uma superfície clara nova, componha a partir de `.card` (+ `--shadow`) em vez de
-  reescrever fundo/raio/sombra — nunca adicione contorno.
+  (`card card--shadow`), `.location-check` (`card`), `.profile-public-check` (`card card--shadow`),
+  `.ic-card` (`card card--shadow` + gradiente verde próprio) e nos passos do install (`card card--soft`,
+  contraste no verde). Ao criar uma superfície clara nova, componha a partir de `.card` (+ `--shadow`)
+  em vez de reescrever fundo/raio/sombra — nunca adicione contorno.
 - **`.eyebrow` (rótulo/sobretítulo uppercase, `components.css`)** — receita única de rótulo em caixa alta
   (`--p-green`, `--fs-5`, 700, uppercase), compartilhada com `.form-group__label` num seletor agrupado.
   `.ic-hero__title` a usa no HTML (só mantém extras de layout). Novos rótulos uppercase devem receber a
