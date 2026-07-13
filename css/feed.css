@@ -147,12 +147,16 @@
 .contracts-panel {
   position: absolute;
   inset: 0;
-  z-index: 60;
+  z-index: 60;              /* ACIMA da top-bar (z10): cobre-a quando aberto */
   background: var(--bg-canvas);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transform: translateY(-100%);
+  /* Fechado: recuado 100% da altura MAIS 30px. O extra tira a SOMBRA (--shadow-lg,
+     ~26px de alcance) e a base do painel de cima da linha y=0 — sem esse buffer, a
+     sombra (e às vezes a borda branca do último card) vazava sobre a top bar, na
+     faixa entre a barra de status e o app (o painel é z60, acima da top-bar z10). */
+  transform: translateY(calc(-100% - 30px));
   transition: transform 0.5s var(--sheet-ease);
   box-shadow: var(--shadow-lg);
 }
