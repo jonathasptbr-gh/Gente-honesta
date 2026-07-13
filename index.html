@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v272</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v273</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -742,8 +742,8 @@
                         <div class="agenda-filters__group">
                             <p class="agenda-filters__group-label">Ordenar por:</p>
                             <div class="agenda-filters__chips">
-                                <button type="button" class="chip chip--active" data-sort="name"    aria-pressed="true">A-Z Nome</button>
-                                <button type="button" class="chip"              data-sort="ic"      aria-pressed="false">Confiança</button>
+                                <button type="button" class="chip"              data-sort="name"    aria-pressed="false">A-Z Nome</button>
+                                <button type="button" class="chip chip--active" data-sort="ic"      aria-pressed="true">Confiança</button>
                                 <button type="button" class="chip"              data-sort="avail"   aria-pressed="false">Disponibilidade</button>
                                 <button type="button" class="chip"              data-sort="quality" aria-pressed="false">Qualidade</button>
                                 <button type="button" class="chip"              data-sort="agility" aria-pressed="false">Agilidade</button>
@@ -1371,6 +1371,13 @@
                         <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
                         <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar profissional...">
                     </div>
+                    <!-- Indicador de filtros ativos + limpar (aparece só quando há filtros).
+                         Mostra a contagem e, ao tocar, zera todos os filtros. -->
+                    <button type="button" id="btn-clear-filters" class="agenda-filters__clear u-hidden" aria-label="Limpar filtros ativos">
+                        <span class="material-symbols-rounded" aria-hidden="true">filter_alt</span>
+                        <span id="filter-count" class="agenda-filters__clear-count">0</span>
+                        <span class="material-symbols-rounded agenda-filters__clear-x" aria-hidden="true">close</span>
+                    </button>
                     <button type="button" id="btn-toggle-filters" class="btn btn--icon agenda-filters__icon-btn" aria-label="Filtrar contatos" aria-expanded="false">
                         <span class="material-symbols-rounded" aria-hidden="true">tune</span>
                     </button>

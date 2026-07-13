@@ -2369,6 +2369,42 @@
   color: var(--p-green);
 }
 
+/* Indicador de filtros ativos + limpar (à esquerda do botão de filtros; some
+   quando não há filtros). Pílula AZUL (há seleção ativa) com ícone de filtro +
+   contagem + "x": um toque zera todos os filtros. */
+.agenda-filters__clear {
+  height: 40px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  background: var(--info-blue);
+  color: var(--t-light);
+  cursor: pointer;
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+}
+
+.agenda-filters__clear:active { transform: scale(var(--press-scale)); }
+
+.agenda-filters__clear .material-symbols-rounded {
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+/* O "x" fica num círculo translúcido para leitura de "fechar/limpar" */
+.agenda-filters__clear-x {
+  border-radius: 50%;
+  background: var(--on-green-soft);
+}
+
+.agenda-filters__clear-count {
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
 /* (tamanho/peso do ícone do botão de filtro vêm do padrão único da barra) */
 
 /* Chips dentro do painel de filtros (#filters-sheet): adaptados ao fundo verde */

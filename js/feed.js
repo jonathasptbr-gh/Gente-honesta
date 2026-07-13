@@ -211,8 +211,22 @@ document.addEventListener('DOMContentLoaded', () => {
     includeAvail: new Set(),
     includePay:   new Set(),
     savedOnly:    false,
-    sort:         'name',
+    sort:         'ic',   // padrão: ordenar por Índice de Confiança (maior→menor)
   };
+
+  // Quantos FILTROS estão ativos (ordenação NÃO conta — não esconde ninguém).
+  // Alimenta o indicador/limpar ao lado do campo de busca.
+  function activeFilterCount() {
+    return filterState.includeIc.size + filterState.includeAvail.size +
+           filterState.includePay.size + (filterState.savedOnly ? 1 : 0);
+  }
+  function updateFilterIndicator() {
+    const n = activeFilterCount();
+    const btn = document.getElementById('btn-clear-filters');
+    const cnt = document.getElementById('filter-count');
+    if (cnt) cnt.textContent = n;
+    btn?.classList.toggle('u-hidden', n === 0);
+  }
 
   // Reseta lista de profissionais: desvira cards, limpa filtros, vai ao topo
   const resetAgendaList = () => {
@@ -225,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
     filterState.includeAvail.clear();
     filterState.includePay.clear();
     filterState.savedOnly = false;
-    filterState.sort = 'name';
+    filterState.sort = 'ic';
     // Limpa chips visuais no painel de filtros
     document.querySelectorAll('#panel-agenda-filters .chip--active').forEach(c => {
       c.classList.remove('chip--active');
@@ -673,6 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const list = document.getElementById('agenda-list');
     if (!list) return;
 
+    updateFilterIndicator();   // reflete filtros ativos no indicador/limpar da barra
     const query = document.getElementById('inp-agenda-search')?.value.trim().toLowerCase() || '';
     const searched = mockProfessionals.filter(p =>
       p.name.toLowerCase().includes(query) || p.tags.toLowerCase().includes(query)
@@ -1956,6 +1971,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fecha ao tocar fora do painel (inclui tocar no próprio botão, que agora é "X")
   document.getElementById('filters-sheet')?.addEventListener('click', (e) => {
     if (!e.target.closest('.historico-sheet__panel')) closeFiltersSheet();
+  });
+
+  // Botão-indicador "limpar filtros" (à esquerda do botão de filtros): zera os 4
+  // grupos de filtro (mantém a ordenação e os pins), des-seleciona os chips do
+  // painel e re-renderiza. O indicador some sozinho (contagem 0) via renderAgendaList.
+  document.getElementById('btn-clear-filters')?.addEventListener('click', () => {
+    filterState.includeIc.clear();
+    filterState.includeAvail.clear();
+    filterState.includePay.clear();
+    filterState.savedOnly = false;
+    document.querySelectorAll('#panel-agenda-filters [data-filter-ic], #panel-agenda-filters [data-filter-avail], #panel-agenda-filters [data-filter-pay], #panel-agenda-filters [data-filter-saved]')
+      .forEach(c => { c.classList.remove('chip--active'); c.setAttribute('aria-pressed', 'false'); });
+    renderAgendaList();
   });
 
   // Ordenação (dentro do painel) e filtros: um único handler delegado.
