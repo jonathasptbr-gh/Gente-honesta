@@ -45,6 +45,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (brand) brand.textContent = title || 'Gente Honesta';
   }
 
+  // --- O toque acerta o retângulo de um botão da action bar? Enquanto uma gaveta
+  // está aberta, seu container (z-300) cobre a barra, mas os botões ficam VISÍVEIS
+  // sob a área transparente do container. Roteamos o toque pelo retângulo do botão
+  // (em vez de subir o z-index da barra). function declaration (hoistada) para os
+  // handlers de tap-outside de TODAS as gavetas usarem — inclusive a TROCA direta
+  // entre gavetas irmãs (tocar no abridor da outra fecha esta e abre aquela).
+  function tapHitsButton(e, btn) {
+    if (!btn || btn.offsetParent === null) return false;
+    const r = btn.getBoundingClientRect();
+    return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+  }
+
   // --- Chips de status dos contratos (Todos / Ativo / Concluído / Cancelado)
   const statusChips = document.querySelectorAll('[data-filter-status]');
   statusChips.forEach((chip) => {
@@ -1490,9 +1502,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Sem botão Cancelar: fecha pelo botão "Fechar" (opener) ou tocando fora do painel.
     // Fecha ao tocar fora do painel — inclui tocar no próprio botão (agora "X"),
-    // que fica sob a área transparente do container sobre a barra.
+    // que fica sob a área transparente do container sobre a barra. TROCA DIRETA:
+    // tocar no abridor da gaveta IRMÃ (Serviço de ajudantes) fecha esta e abre
+    // aquela num único toque (fecha+abre animam juntas, uma sobe e a outra desce).
     vagaSheet?.addEventListener('click', (e) => {
-      if (!e.target.closest('.pedido-sheet__panel')) closeVagaSheet();
+      if (e.target.closest('.pedido-sheet__panel')) return;
+      const sibling = document.getElementById('btn-chamar-ajudante');
+      if (tapHitsButton(e, sibling)) { closeVagaSheet(); sibling.click(); return; }
+      closeVagaSheet();
     });
 
     document.getElementById('btn-add-req')?.addEventListener('click', () =>
@@ -1667,8 +1684,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnAjudante?.addEventListener('click', openAjudanteSheet);
     // Fecha ao tocar fora do painel — inclui tocar no próprio botão (agora "X").
+    // TROCA DIRETA: tocar no abridor da irmã (Criar vaga / Ver vaga) fecha esta e
+    // dispara aquele botão num único toque.
     ajudanteSheet?.addEventListener('click', (e) => {
-      if (!e.target.closest('.pedido-sheet__panel')) closeAjudanteSheet();
+      if (e.target.closest('.pedido-sheet__panel')) return;
+      const sibling = document.getElementById('btn-criar-vaga');
+      if (tapHitsButton(e, sibling)) { closeAjudanteSheet(); sibling.click(); return; }
+      closeAjudanteSheet();
     });
 
     // ---- Função 1: disponibilidade (checkbox leve/pesado) ----
@@ -2332,15 +2354,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closePedidoSheet();
   };
 
-  // O toque acerta um botão da barra? (os botões ficam VISÍVEIS sob a área
-  // transparente do container do sheet; roteamos pelo retângulo em vez de subir
-  // o z-index da barra.)
-  const tapHitsButton = (e, btn) => {
-    if (!btn || btn.offsetParent === null) return false;
-    const r = btn.getBoundingClientRect();
-    return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-  };
-
   // Sem botão Cancelar: fecha pelo botão "Fechar" (opener) ou tocando fora do painel.
   // Toque FORA do painel (barra ou backdrop). Os botões do topo agora têm ação
   // própria dependendo do modo do detalhe, então roteamos o toque:
@@ -2353,6 +2366,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ativo) ou navega (pedido antigo). O botão Histórico é "Fechar" (default abaixo).
     if (pedidoDetailMode === 'active' && tapHitsButton(e, btnMyPedido)) { concluirDetailPedido(); return; }
     if (pedidoDetailMode === 'old' && tapHitsButton(e, btnMyPedido)) { myPedidoNavigate(); return; }
+    // TROCA DIRETA para o Histórico: no FORM "Fazer pedido" o botão Histórico está
+    // NATURAL (não é "Fechar"/"Concluir") → tocar nele fecha o pedido e abre o
+    // histórico num único toque.
+    const histNatural = btnHistorico &&
+      !btnHistorico.classList.contains('action-close-mode') &&
+      !btnHistorico.classList.contains('action-conclude-mode');
+    if (histNatural && tapHitsButton(e, btnHistorico)) { closePedidoSheet(); btnHistorico.click(); return; }
     closePedidoSheet();
   });
   // O card de referência do topo do detalhe é um item de histórico completo —
@@ -2517,7 +2537,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   historicoSheet?.addEventListener('click', (e) => {
-    if (!e.target.closest('.historico-sheet__panel')) closeHistorico();
+    if (e.target.closest('.historico-sheet__panel')) return;
+    // TROCA DIRETA para "Fazer pedido"/"Pedido atual": esse botão (btnMyPedido)
+    // fica NATURAL enquanto o histórico está aberto → tocar nele fecha o histórico
+    // e abre o pedido num único toque.
+    const myPedidoNatural = btnMyPedido &&
+      !btnMyPedido.classList.contains('action-close-mode') &&
+      !btnMyPedido.classList.contains('action-conclude-mode');
+    if (myPedidoNatural && tapHitsButton(e, btnMyPedido)) { closeHistorico(); btnMyPedido.click(); return; }
+    closeHistorico();
   });
 
   // Delegação: excluir (botão) tem prioridade; senão, abre o detalhe do item
