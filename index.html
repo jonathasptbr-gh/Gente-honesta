@@ -663,7 +663,7 @@
             <!-- Marca + selo de versão discreto ao lado. BUMPAR o texto de
                  #version-badge (vN) junto com CACHE_NAME (service-worker.js) a
                  cada deploy — é a confirmação visual da versão servida. -->
-            <span class="top-bar__brand"><span class="top-bar__brand-text">Gente Honesta</span><span id="version-badge" class="top-bar__version" aria-hidden="true">v283</span></span>
+            <span class="top-bar__brand"><span class="top-bar__brand-text">Gente Honesta</span><span id="version-badge" class="top-bar__version" aria-hidden="true">v284</span></span>
             <button type="button" id="btn-open-contracts" class="top-bar__action" aria-label="Contratos">
                 <span class="material-symbols-rounded top-bar__notif-icon" aria-hidden="true">description</span>
                 <span id="badge-contracts" class="notif-badge">2</span>
@@ -1119,9 +1119,10 @@
              Contrato de visibilidade: controlada por .contracts-panel--open -->
         <section id="panel-contracts" class="contracts-panel" aria-label="Contratos">
 
-            <!-- Topo SEMPRE visível (não rola): linha de ações (lupa / criar / fechar)
-                 + seção de busca escondida atrás da lupa. Só a lista rola. -->
-            <div class="contracts-panel__top">
+            <!-- Dock FIXO na BASE da tela (não rola): busca (abre para cima) + linha
+                 de ações (lupa / criar / fechar) na base. A lista fica acima e rola.
+                 A inversão da ordem vertical é feita por column-reverse (ver feed.css). -->
+            <div class="contracts-panel__dock">
 
                 <!-- Linha de ações. À ESQUERDA, no lugar do antigo botão de ocultar
                      contratos, agora fica a LUPA que revela/esconde a busca. -->

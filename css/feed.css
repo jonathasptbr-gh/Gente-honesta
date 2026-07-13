@@ -166,7 +166,9 @@
   z-index: 60;              /* ACIMA da top-bar (z10): cobre-a quando aberto */
   background: var(--bg-canvas);
   display: flex;
-  flex-direction: column;
+  /* column-reverse: INVERTE a ordem vertical de tudo. No DOM vem [dock, lista];
+     invertido → LISTA no topo (rola) e DOCK na base (controles + busca). */
+  flex-direction: column-reverse;
   overflow: hidden;
   /* Fechado: recuado 100% da altura MAIS 30px. O extra tira a SOMBRA (--shadow-lg,
      ~26px de alcance) e a base do painel de cima da linha y=0 — sem esse buffer, a
@@ -181,25 +183,26 @@
   transform: translateY(0);
 }
 
-/* Topo SEMPRE visível (não rola): ações (ocultar / criar minicontrato / fechar) +
-   recém-criados + busca/filtros. flex-shrink:0 para nunca encolher; carrega a folga
-   do safe-area no topo. */
-.contracts-panel__top {
+/* Dock FIXO na BASE (não rola): busca (abre para cima) + linha de ações na base.
+   flex-shrink:0 para nunca encolher; carrega a folga do safe-area em baixo.
+   column-reverse: no DOM vem [linha de ações, busca]; invertido → busca ACIMA da
+   linha de ações (que fica na própria base da tela). */
+.contracts-panel__dock {
   flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  gap: 0;   /* respiro até a busca vem do margin-top de .contracts-filters (zera ao colapsar) */
+  flex-direction: column-reverse;
+  gap: 0;   /* respiro entre busca e ações vem do margin-bottom de .contracts-filters (zera ao colapsar) */
   padding: var(--space-md);
-  padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom, 0px));
 }
 
-/* Só a LISTA de contratos rola. */
+/* A LISTA (agora no topo) rola. Carrega o safe-area do topo da tela. */
 .contracts-panel__scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 0 var(--space-md) calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  padding: calc(var(--space-md) + env(safe-area-inset-top, 0px)) var(--space-md) var(--space-md);
   scrollbar-width: thin;
   scrollbar-color: var(--on-green-muted) transparent;
 }
@@ -350,18 +353,18 @@
   padding: var(--space-sm);
   background: var(--bg-white);
   border-radius: var(--radius-md);
-  margin-top: var(--space-md);
+  margin-bottom: var(--space-md);   /* respiro até a linha de ações ABAIXO (abre p/ cima) */
   overflow: hidden;
   max-height: 500px;
   opacity: 1;
   transition: max-height 0.4s var(--sheet-ease), opacity 0.25s ease,
-              margin-top 0.4s var(--sheet-ease), padding 0.4s var(--sheet-ease);
+              margin-bottom 0.4s var(--sheet-ease), padding 0.4s var(--sheet-ease);
 }
 
 .contracts-filters--collapsed {
   max-height: 0;
   opacity: 0;
-  margin-top: 0;
+  margin-bottom: 0;
   padding-top: 0;
   padding-bottom: 0;
   pointer-events: none;
@@ -443,10 +446,12 @@
 }
 
 
-/* ── Lista de contratos ── */
+/* ── Lista de contratos ──
+   column-reverse: no DOM a ordem é [pendentes, ativos, concluído, cancelado];
+   invertido → CANCELADO no topo … ATIVOS … PENDENTES na base (junto do dock). */
 .contracts-list {
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   gap: var(--space-sm);
 }
 
