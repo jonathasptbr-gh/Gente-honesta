@@ -1048,9 +1048,32 @@ document.addEventListener('DOMContentLoaded', () => {
         </div><!-- /3d -->
       `;
 
-      // Atualiza altura do card quando um <details> abre/fecha
+      // Abertura/fechamento ANIMADO dos <details> de observação por requisito.
+      // O <details> nativo abre de uma vez (salto na altura do card). Aqui
+      // interceptamos o clique no resumo e animamos a ALTURA do card (que recorta
+      // via overflow:hidden), capturando a altura ANTES de mudar o estado — senão
+      // o height:auto já teria saltado. No FECHAR, o conteúdo fica visível durante
+      // o encolhimento e só some no fim (remove `open` no transitionend).
       card.querySelectorAll('.candid-req-obs').forEach(det => {
-        det.addEventListener('toggle', () => vagaCardUpdateHeight(card));
+        const summary = det.querySelector('.candid-req-obs-label');
+        summary?.addEventListener('click', (e) => {
+          if (!card.classList.contains('vaga-card--expanded')) return; // estado incomum: deixa o nativo
+          e.preventDefault();
+          if (card.dataset.reqAnim) return; // ignora toques durante a animação
+          const opening = !det.hasAttribute('open');
+          const fromH = card.offsetHeight;
+          let toH;
+          if (opening) {
+            det.setAttribute('open', '');
+            toH = card.offsetHeight;
+            animateReqCardHeight(card, fromH, toH, null);
+          } else {
+            det.removeAttribute('open');
+            toH = card.offsetHeight;
+            det.setAttribute('open', ''); // mantém o conteúdo visível durante o encolhimento
+            animateReqCardHeight(card, fromH, toH, () => det.removeAttribute('open'));
+          }
+        });
       });
 
       list.appendChild(card);
@@ -1150,18 +1173,29 @@ document.addEventListener('DOMContentLoaded', () => {
   function vagaCardFlipToBack(card)              { flipCardToBack(card, VAGA_CARD_CFG); }
   function vagaCardFlipToFront(card, onComplete) { flipCardToFront(card, VAGA_CARD_CFG, onComplete); }
 
-  function vagaCardUpdateHeight(card) {
-    if (!card.classList.contains('vaga-card--expanded')) return;
-    const backH = card.querySelector('.vaga-card__back').scrollHeight;
+  // Anima a altura do card de `fromH` a `toH` (px) e devolve a `auto` no fim.
+  // `onDone` roda ao terminar (ex.: esconder o <details> só depois de encolher).
+  // Fallback por timer caso o transitionend não dispare.
+  function animateReqCardHeight(card, fromH, toH, onDone) {
+    card.dataset.reqAnim = '1';
     card.style.transition = 'none';
-    card.style.height = card.offsetHeight + 'px';
+    card.style.height = fromH + 'px';
+    void card.offsetHeight; // reflow: fixa a altura inicial antes de animar
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        card.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
-        card.style.height = backH + 'px';
-        setTimeout(() => { card.style.height = 'auto'; card.style.transition = ''; }, 320);
-      });
+      card.style.transition = 'height 0.32s cubic-bezier(0.4,0,0.2,1)';
+      card.style.height = toH + 'px';
     });
+    const finish = (ev) => {
+      if (ev && ev.propertyName !== 'height') return;
+      card.removeEventListener('transitionend', finish);
+      clearTimeout(card._reqTimer);
+      card.style.transition = '';
+      card.style.height = 'auto';
+      delete card.dataset.reqAnim;
+      if (onDone) onDone();
+    };
+    card.addEventListener('transitionend', finish);
+    card._reqTimer = setTimeout(finish, 420);
   }
 
   // ── Wrappers pro-card ─────────────────────────────────────────────────────
