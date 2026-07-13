@@ -127,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Botão "Continuar no navegador": ÚNICO caminho desta tela para o feed.
   document.getElementById('btn-skip-install')?.addEventListener('click', () => {
     if (typeof showView === 'function') showView('view-feed');
+    if (typeof window.syncProfileAvatar === 'function') window.syncProfileAvatar();
   });
 
 });

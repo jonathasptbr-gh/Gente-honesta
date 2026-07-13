@@ -246,6 +246,7 @@ window.finishRegistration = async function() {
     if (typeof showView === 'function') {
       if (window.isStandalone && window.isStandalone()) {
         showView('view-feed');
+        if (typeof window.syncProfileAvatar === 'function') window.syncProfileAvatar();
       } else {
         if (typeof window.prepareInstallView === 'function') window.prepareInstallView();
         showView('view-install');

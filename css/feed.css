@@ -74,10 +74,22 @@
   color: var(--t-sub);
 }
 
-/* No topo verde os rótulos (Avisos/Menu) são claros; o "Fechar" dos painéis
+/* No topo verde os rótulos (Perfil/Contratos) são claros; o "Fechar" dos painéis
    herda o cinza padrão acima, garantindo contraste sobre fundo claro. */
 .top-bar .top-bar__action-label {
   color: var(--t-light);
+}
+
+/* Botão "Perfil" = foto/avatar RETANGULAR (mesmo formato 3:4 das fotos de
+   profissionais), dimensionado para caber na top bar; placeholder cinza quando
+   não há foto salva (JS troca o src por window.appState.photoBlob se existir). */
+.top-bar__avatar {
+  width: 26px;
+  height: 34px;
+  border-radius: var(--radius-xs);
+  object-fit: cover;
+  background: var(--border-light);
+  border: 1.5px solid var(--t-light);
 }
 
 .top-bar__action:active {
@@ -86,12 +98,6 @@
 
 .top-bar__notif-icon {
   font-size: 1.4rem;   /* reduzido de 1.6rem: ~22px + rótulo ~10px + pad 4px = 36px ≤ 40px */
-  color: var(--t-light);
-}
-
-/* Ícone do botão de menu (substitui a antiga foto de perfil) */
-.top-bar__menu-icon {
-  font-size: 1.5rem;   /* reduzido de 1.9rem: ~24px + rótulo ~10px + pad 4px = 38px ≤ 40px */
   color: var(--t-light);
 }
 

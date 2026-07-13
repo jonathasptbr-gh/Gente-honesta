@@ -45,6 +45,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (brand) brand.textContent = title || 'Gente Honesta';
   }
 
+  // --- Avatar do botão "Perfil" (top bar): usa a foto salva do cadastro
+  // (window.appState.photoBlob) quando existe; senão mantém o placeholder cinza
+  // retangular do HTML. Exposto p/ session.js/onboarding.js chamarem ao abrir o feed.
+  window.syncProfileAvatar = () => {
+    const img = document.getElementById('top-bar-avatar');
+    if (img && window.appState && window.appState.photoBlob) img.src = window.appState.photoBlob;
+  };
+  window.syncProfileAvatar();
+
   // --- O toque acerta o retângulo de um botão da action bar? Enquanto uma gaveta
   // está aberta, seu container (z-300) cobre a barra, mas os botões ficam VISÍVEIS
   // sob a área transparente do container. Roteamos o toque pelo retângulo do botão
