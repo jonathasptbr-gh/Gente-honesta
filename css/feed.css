@@ -209,11 +209,15 @@
 .contracts-panel__scroll::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
 
 
-/* ── Bloco: criar minicontrato + recém-criados ── */
+/* ── Bloco: criar minicontrato + contratos genéricos ──
+   gap:0 de propósito: o respiro entre a linha de botões e a lista de genéricos
+   vem do margin-top do próprio .contracts-recent, que ZERA quando ele colapsa —
+   um gap de flex continuaria reservando espaço mesmo com o bloco em altura 0,
+   somando uma margem dupla até a busca. */
 .contracts-create {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: 0;
 }
 
 .contracts-create__row {
@@ -227,6 +231,12 @@
   gap: var(--space-xs);
   padding: 14px;
   border-radius: var(--radius-md);
+}
+
+/* "+" no peso forte (preset filled forte), coerente com o texto em negrito do
+   botão — o wght 500 padrão do ícone ficava fino demais ao lado do rótulo. */
+.contracts-create__btn .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
 }
 
 /* Botões-ícone quadrados que ladeiam "Criar minicontrato":
@@ -267,12 +277,14 @@
   gap: var(--space-xs);
   overflow: hidden;
   max-height: 600px;
-  transition: max-height 0.3s ease, opacity 0.25s ease;
+  margin-top: var(--space-sm);
+  transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
 }
 
 .contracts-recent--collapsed {
   max-height: 0;
   opacity: 0;
+  margin-top: 0;
   pointer-events: none;
 }
 
@@ -333,22 +345,15 @@
   flex-shrink: 0;
 }
 
+/* Editar/compartilhar: MESMO padrão dos botões-ícone de ação dos cards de
+   profissional (.btn.btn--icon .pro-card__back-btn--share/--back): fill claro
+   --bg-soft + ícone --t-sub. Compõe .btn (fundação: flex-center, radius, :active).
+   Só reduz a métrica de 44px para caber na linha compacta do minicontrato. */
 .contract-mini__btn {
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
+  width: 36px;
+  height: 36px;
   background: var(--bg-soft);
-  color: var(--p-green);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.contract-mini__btn:active {
-  transform: scale(0.9);
-  background: var(--p-green-light);
+  color: var(--t-sub);
 }
 
 .contract-mini__btn .material-symbols-rounded {
@@ -601,22 +606,32 @@
 }
 
 /* Datas de início e fim */
+/* Coluna direita do topo: badge de status + datas empilhadas logo abaixo dele.
+   Tira as datas da faixa horizontal antiga (que comia altura), liberando o corpo
+   inteiro para a descrição/valor. */
+.contract-card__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 .contract-card__dates {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs) var(--space-md);
-  padding: 6px 0;
-  border-top: 1px solid var(--border-light);
-  border-bottom: 1px solid var(--border-light);
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
 }
 
 .contract-card__date {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: var(--fs-4);
+  gap: 4px;
+  font-size: var(--fs-2);
   font-weight: var(--fw-medium);
   color: var(--t-sub);
+  white-space: nowrap;
 }
 
 .contract-card__date .material-symbols-rounded {

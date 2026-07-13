@@ -663,7 +663,7 @@
             <!-- Marca + selo de versão discreto ao lado. BUMPAR o texto de
                  #version-badge (vN) junto com CACHE_NAME (service-worker.js) a
                  cada deploy — é a confirmação visual da versão servida. -->
-            <span class="top-bar__brand"><span class="top-bar__brand-text">Gente Honesta</span><span id="version-badge" class="top-bar__version" aria-hidden="true">v281</span></span>
+            <span class="top-bar__brand"><span class="top-bar__brand-text">Gente Honesta</span><span id="version-badge" class="top-bar__version" aria-hidden="true">v282</span></span>
             <button type="button" id="btn-open-contracts" class="top-bar__action" aria-label="Contratos">
                 <span class="material-symbols-rounded top-bar__notif-icon" aria-hidden="true">description</span>
                 <span id="badge-contracts" class="notif-badge">2</span>
@@ -1126,7 +1126,7 @@
                 <!-- Bloco: ações + recém-criados (colapsável) -->
                 <div class="contracts-create">
                     <div class="contracts-create__row">
-                        <button type="button" id="btn-toggle-recent" class="contracts-create__collapse" aria-expanded="true" aria-label="Recolher recém-criados">
+                        <button type="button" id="btn-toggle-recent" class="contracts-create__collapse" aria-expanded="true" aria-label="Recolher contratos genéricos">
                             <span class="material-symbols-rounded contracts-create__chevron" aria-hidden="true">expand_less</span>
                         </button>
                         <button type="button" id="btn-new-contract" class="btn btn--accent contracts-create__btn">
@@ -1138,11 +1138,11 @@
                         </button>
                     </div>
 
-                    <!-- Recém-criados — colapsável pela seta acima -->
+                    <!-- Contratos genéricos — colapsável pela seta acima -->
                     <div id="contracts-recent" class="contracts-recent">
-                        <h3 class="contracts-recent__label">Recém-criados</h3>
+                        <h3 class="contracts-recent__label">Contratos genéricos</h3>
 
-                        <!-- Recém-criado: só resumo do serviço + preço (sem dados de
+                        <!-- Contrato genérico: só resumo do serviço + preço (sem dados de
                              cliente ainda). O corpo é clicável para abrir/visualizar;
                              ações restantes = editar e compartilhar. -->
                         <div class="contract-mini">
@@ -1150,8 +1150,8 @@
                                 <span class="contract-mini__summary">Montagem de móveis · R$ 320</span>
                             </button>
                             <div class="contract-mini__actions">
-                                <button type="button" class="contract-mini__btn" aria-label="Editar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
-                                <button type="button" class="contract-mini__btn" aria-label="Compartilhar"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Editar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Compartilhar"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>
                             </div>
                         </div>
 
@@ -1160,8 +1160,8 @@
                                 <span class="contract-mini__summary">Pintura de sala · R$ 850</span>
                             </button>
                             <div class="contract-mini__actions">
-                                <button type="button" class="contract-mini__btn" aria-label="Editar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
-                                <button type="button" class="contract-mini__btn" aria-label="Compartilhar"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Editar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Compartilhar"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>
                             </div>
                         </div>
                     </div>
@@ -1202,8 +1202,8 @@
                                 <input type="number" inputmode="numeric" id="inp-contracts-max" class="contracts-filters__input" placeholder="R$ 9999">
                             </div>
                             <div class="contracts-filters__field">
-                                <label class="contracts-filters__field-label" for="inp-contracts-date">Data</label>
-                                <input type="date" id="inp-contracts-date" class="contracts-filters__input">
+                                <label class="contracts-filters__field-label" for="inp-contracts-date">Mês/Ano</label>
+                                <input type="month" id="inp-contracts-date" class="contracts-filters__input">
                             </div>
                         </div>
                     </div>
@@ -1224,14 +1224,15 @@
                                     <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">92%</span><span class="ic-bar__label">Confiável</span></div>
                                 </div>
                             </div>
-                            <span class="contract-card__status contract-card__status--active">
-                                <span class="contract-card__status-dot"></span>Ativo
-                            </span>
-                        </div>
-
-                        <div class="contract-card__dates">
-                            <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_available</span>Início 05/07/2026</span>
-                            <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_busy</span>Fim 20/07/2026</span>
+                            <div class="contract-card__meta">
+                                <span class="contract-card__status contract-card__status--active">
+                                    <span class="contract-card__status-dot"></span>Ativo
+                                </span>
+                                <div class="contract-card__dates">
+                                    <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_available</span>Início 05/07/2026</span>
+                                    <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_busy</span>Fim 20/07/2026</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="contract-card__body">
@@ -1250,17 +1251,18 @@
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
                                 <div class="contract-card__client-info">
                                     <span class="contract-card__name">Bruno Teixeira</span>
-                                    <div class="ic-bar ic-bar--warn"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">shield_question</span><span class="ic-bar__value">68%</span><span class="ic-bar__label">Em construção</span></div>
+                                    <div class="ic-bar ic-bar--warn"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">shield_question</span><span class="ic-bar__value">68%</span><span class="ic-bar__label">Confiável</span></div>
                                 </div>
                             </div>
-                            <span class="contract-card__status contract-card__status--active">
-                                <span class="contract-card__status-dot"></span>Ativo
-                            </span>
-                        </div>
-
-                        <div class="contract-card__dates">
-                            <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_available</span>Início 10/07/2026</span>
-                            <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_busy</span>Fim 12/07/2026</span>
+                            <div class="contract-card__meta">
+                                <span class="contract-card__status contract-card__status--active">
+                                    <span class="contract-card__status-dot"></span>Ativo
+                                </span>
+                                <div class="contract-card__dates">
+                                    <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_available</span>Início 10/07/2026</span>
+                                    <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_busy</span>Fim 12/07/2026</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="contract-card__body">
@@ -1282,14 +1284,15 @@
                                     <div class="ic-bar ic-bar--ok"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_good</span><span class="ic-bar__value">88%</span><span class="ic-bar__label">Confiável</span></div>
                                 </div>
                             </div>
-                            <span class="contract-card__status contract-card__status--done">
-                                <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluído
-                            </span>
-                        </div>
-
-                        <div class="contract-card__dates">
-                            <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_available</span>Início 18/06/2026</span>
-                            <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_busy</span>Fim 25/06/2026</span>
+                            <div class="contract-card__meta">
+                                <span class="contract-card__status contract-card__status--done">
+                                    <span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluído
+                                </span>
+                                <div class="contract-card__dates">
+                                    <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_available</span>Início 18/06/2026</span>
+                                    <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_busy</span>Fim 25/06/2026</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="contract-card__body">
@@ -1308,17 +1311,18 @@
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
                                 <div class="contract-card__client-info">
                                     <span class="contract-card__name">Paula Ramos</span>
-                                    <div class="ic-bar ic-bar--alert"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_maybe</span><span class="ic-bar__value">41%</span><span class="ic-bar__label">Alerta</span></div>
+                                    <div class="ic-bar ic-bar--alert"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">gpp_maybe</span><span class="ic-bar__value">41%</span><span class="ic-bar__label">Confiável</span></div>
                                 </div>
                             </div>
-                            <span class="contract-card__status contract-card__status--cancelled">
-                                <span class="material-symbols-rounded" aria-hidden="true">cancel</span>Cancelado
-                            </span>
-                        </div>
-
-                        <div class="contract-card__dates">
-                            <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_available</span>Início 01/07/2026</span>
-                            <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_busy</span>Fim —</span>
+                            <div class="contract-card__meta">
+                                <span class="contract-card__status contract-card__status--cancelled">
+                                    <span class="material-symbols-rounded" aria-hidden="true">cancel</span>Cancelado
+                                </span>
+                                <div class="contract-card__dates">
+                                    <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_available</span>Início 01/07/2026</span>
+                                    <span class="contract-card__date"><span class="material-symbols-rounded" aria-hidden="true">event_busy</span>Fim —</span>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="contract-card__body">
