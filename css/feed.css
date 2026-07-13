@@ -1510,10 +1510,14 @@
   overflow-y: auto;
   scrollbar-width: thin;                                 /* Firefox */
   scrollbar-color: var(--on-green-muted) transparent;
+  /* Barra na BORDA do sheet (ver .pedido-sheet__body): a barra não passa por
+     cima dos cantos dos cards de profissional indicados. */
+  margin-right: calc(-1 * var(--space-md));
+  padding-right: var(--space-md);
 }
 
 /* Barra SEMPRE visível (não overlay): scrollbar estilizado do WebKit é persistente. */
-.indicated-popup__scroll::-webkit-scrollbar { width: 6px; }
+.indicated-popup__scroll::-webkit-scrollbar { width: 5px; }
 .indicated-popup__scroll::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
 
 .indicated-popup__list {
@@ -1628,10 +1632,16 @@
   scrollbar-color: var(--on-green-muted) transparent;
   /* respiro para o último controle não colar na borda inferior do aparelho */
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Barra de rolagem na BORDA do painel (não colada ao conteúdo): estende o
+     body até a borda direita do painel (anula o padding direito dele) e devolve
+     o mesmo respiro como padding-right → a barra fica no gutter/borda da tela e
+     o conteúdo (cards, inputs) não passa por baixo dela. */
+  margin-right: calc(-1 * var(--space-md));
+  padding-right: var(--space-md);
 }
 
 /* Barra SEMPRE visível (formulários criar pedido/vaga, detalhe do pedido). */
-.pedido-sheet__body::-webkit-scrollbar { width: 6px; }
+.pedido-sheet__body::-webkit-scrollbar { width: 5px; }
 .pedido-sheet__body::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
 
 .pedido-sheet__state {
@@ -1797,6 +1807,13 @@
   margin-top: calc(-1 * var(--space-md));
   padding-top: var(--space-md);
   padding-bottom: 0;
+}
+
+/* Respiro CONFIÁVEL no fim do scroll (após o currículo): padding no CONTEÚDO
+   (não no container de scroll — Chrome às vezes ignora padding-bottom nele),
+   então o último elemento não encosta/corta na faixa verde do rodapé. */
+#vaga-sheet .pedido-sheet__body .pedido-sheet__state {
+  padding-bottom: var(--space-md);
 }
 
 .pedido-btn-cancel {
@@ -2303,10 +2320,13 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--on-green-muted) transparent;
+  /* Barra na BORDA do painel (ver .pedido-sheet__body). */
+  margin-right: calc(-1 * var(--space-md));
+  padding-right: var(--space-md);
 }
 
 /* Barra SEMPRE visível (histórico de pedidos e painel de filtros). */
-.historico-sheet__scroll::-webkit-scrollbar { width: 6px; }
+.historico-sheet__scroll::-webkit-scrollbar { width: 5px; }
 .historico-sheet__scroll::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
 
 .historico-list {
@@ -2872,7 +2892,7 @@
 
 /* Barra SEMPRE visível — verso do card de profissional expandido (comentários).
    Fundo claro → thumb escuro translúcido. */
-.pro-card__back-comments::-webkit-scrollbar { width: 6px; }
+.pro-card__back-comments::-webkit-scrollbar { width: 5px; }
 .pro-card__back-comments::-webkit-scrollbar-thumb { background: rgba(var(--p-green-dark-rgb), 0.28); border-radius: 4px; }
 
 .pro-card__comments-list {
@@ -3414,7 +3434,7 @@
 }
 
 /* Barra SEMPRE visível — formulário de candidatura no verso do card de vaga. */
-.vaga-card__back-form::-webkit-scrollbar { width: 6px; }
+.vaga-card__back-form::-webkit-scrollbar { width: 5px; }
 .vaga-card__back-form::-webkit-scrollbar-thumb { background: rgba(var(--p-green-dark-rgb), 0.28); border-radius: 4px; }
 
 /* Footer: botão voltar + botão enviar lado a lado */
