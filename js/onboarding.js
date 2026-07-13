@@ -197,6 +197,26 @@ window.finishRegistration = async function() {
   const anyProFilled = proTagsFilled || proBioFilled;
   const allProFilled = proTagsFilled && proBioFilled;
 
+  // PERFIL PÚBLICO — amarrado aos dados profissionais COMPLETOS: o check só
+  // vale com área/profissão E habilidades preenchidas. Marcado sem os dados,
+  // oferece completar agora (abre a seção e destaca o que falta) OU concluir
+  // sem perfil público (o check é desmarcado e o cadastro segue).
+  if (window.appState.profilePublic && !allProFilled) {
+    const complete = await customConfirm(
+      "Para tornar seu perfil público é preciso completar seus dados profissionais: área de atuação e habilidades.\n\nQuer completá-los agora? Se preferir, toque em Cancelar para concluir sem perfil público e completar depois.",
+      "Perfil público incompleto",
+      "public"
+    );
+    if (complete) {
+      setProDetailsOpen(true);
+      highlightMissingProFields({ tags: proTagsFilled, bio: proBioFilled });
+      return;
+    }
+    // Concluir sem perfil público: desmarca o check e segue o fluxo normal.
+    window.appState.profilePublic = false;
+    document.getElementById('chk-profile-public')?.setAttribute('aria-pressed', 'false');
+  }
+
   if (anyProFilled && !allProFilled) {
     const proceed = await customConfirm(
       "Você começou a preencher seus dados profissionais, mas ainda faltam campos. Eles só ficam visíveis publicamente quando estiverem completos.\n\nQuer concluir só o cadastro básico por enquanto? Você pode completar seus dados profissionais depois.",
