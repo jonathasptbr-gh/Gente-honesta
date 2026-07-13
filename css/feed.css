@@ -46,9 +46,24 @@
 }
 
 .top-bar__brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
   font-size: var(--fs-10);
   font-weight: var(--fw-heavy);
   color: var(--t-light);
+}
+
+/* Selo de versão discreto ao lado da marca (sobrescrito dourado pequeno).
+   Some quando uma gaveta abre e o título da seção ocupa a marca (setTopBarTitle). */
+.top-bar__version {
+  align-self: flex-start;   /* sobe como sobrescrito */
+  font-size: var(--fs-1);
+  font-weight: var(--fw-bold);
+  color: var(--a-gold);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
 }
 
 .top-bar__action {

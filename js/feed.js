@@ -41,8 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // foram removidos para liberar espaço). null/omitido = restaura a marca.
   // function declaration (hoistada): usada por open/close definidos antes e depois.
   function setTopBarTitle(title) {
-    const brand = document.querySelector('.top-bar__brand');
-    if (brand) brand.textContent = title || 'Gente Honesta';
+    const text = document.querySelector('.top-bar__brand-text');
+    if (text) text.textContent = title || 'Gente Honesta';
+    // O selo de versão só acompanha a marca "Gente Honesta"; some quando o título
+    // de uma seção (gaveta aberta) ocupa a top bar.
+    document.getElementById('version-badge')?.classList.toggle('u-hidden', !!title);
   }
 
   // --- Avatar do botão "Perfil" (top bar): usa a foto salva do cadastro
