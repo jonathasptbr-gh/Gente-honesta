@@ -15,9 +15,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const panelContracts = document.getElementById('panel-contracts');
   const btnOpenContracts  = document.getElementById('btn-open-contracts');
   const btnCloseContracts = document.getElementById('btn-close-contracts');
+  const contractsScroll   = panelContracts?.querySelector('.contracts-panel__scroll');
 
   const openContractsPanel = () => {
     panelContracts?.classList.add('contracts-panel--open');
+    // A lista é invertida (column-reverse): o "início" real dela — pendentes/ativos,
+    // junto do dock — fica na BASE. Ao abrir, ancora o scroll lá embaixo (não no topo,
+    // onde ficam os contratos cancelados/mais antigos). rAF garante o layout pronto.
+    if (contractsScroll) {
+      requestAnimationFrame(() => { contractsScroll.scrollTop = contractsScroll.scrollHeight; });
+    }
   };
 
   const closeContractsPanel = () => {
