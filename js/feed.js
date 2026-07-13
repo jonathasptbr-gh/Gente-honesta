@@ -224,8 +224,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const n = activeFilterCount();
     const btn = document.getElementById('btn-clear-filters');
     const cnt = document.getElementById('filter-count');
+    const wrap = document.querySelector('.agenda-filters__search-wrap');
+    const input = document.getElementById('inp-agenda-search');
     if (cnt) cnt.textContent = n;
     btn?.classList.toggle('u-hidden', n === 0);
+    wrap?.classList.toggle('agenda-filters__search-wrap--filtered', n > 0);
+    // A pílula fica DENTRO do campo, à esquerda: o input recua o padding esquerdo
+    // pela largura real dela (medida); sem filtro, volta ao padding da lupa (36px).
+    if (input) {
+      if (n > 0 && btn) input.style.paddingLeft = (btn.offsetWidth + 10) + 'px';
+      else input.style.paddingLeft = '';
+    }
   }
 
   // Reseta lista de profissionais: desvira cards, limpa filtros, vai ao topo

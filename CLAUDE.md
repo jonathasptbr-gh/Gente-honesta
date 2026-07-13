@@ -650,7 +650,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v273`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v274`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -1019,10 +1019,13 @@ filterState {
 - `sortPros(pros)` — ordena conforme `filterState.sort`
 - `reorderAgendaListAnimated()` — reordena cards já renderizados com animação FLIP
 - Pros salvos (`pinnedPros`) aparecem sempre no topo, agrupados separadamente dos demais
-- **Indicador de filtros ativos + limpar** (`#btn-clear-filters`, `.agenda-filters__clear`, à esquerda do
-  botão de filtros na action bar): pílula AZUL (seleção ativa) com ícone `filter_alt` + contagem
-  (`#filter-count`) + `close`; aparece só quando há filtro ativo e, ao tocar, ZERA os 4 grupos de filtro
-  (mantém a ordenação e os pins) e desmarca os chips do painel. A contagem = `activeFilterCount()`
+- **Indicador de filtros ativos + limpar** (`#btn-clear-filters`, `.agenda-filters__clear`): pílula DENTRO
+  do campo de busca, à esquerda (`position:absolute; left:5px`), no "tint preenchido" azul-claro
+  (`--info-blue-light` + texto `--info-blue`, o par de seleção sobre superfície clara). Ordem: `close`
+  (VERMELHO `--danger`, sem moldura) + `filter_alt` + contagem (`#filter-count`). Aparece só quando há
+  filtro ativo e, ao tocar, ZERA os 4 grupos de filtro (mantém a ordenação e os pins) e desmarca os chips
+  do painel. Com a pílula visível, o wrap ganha `--filtered` (esconde a lupa) e o `padding-left` do input
+  é ajustado em JS pela LARGURA REAL da pílula (`updateFilterIndicator`). A contagem = `activeFilterCount()`
   (`includeIc`+`includeAvail`+`includePay`+`savedOnly`; a ORDENAÇÃO não conta, pois não esconde ninguém).
   `updateFilterIndicator()` roda dentro de `renderAgendaList` — o indicador some sozinho ao chegar a 0.
 

@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v273</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v274</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -1369,15 +1369,15 @@
                 <div class="agenda-filters__search-row" id="bar-search-state">
                     <div class="agenda-filters__search-wrap">
                         <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
+                        <!-- Indicador de filtros ativos + limpar, DENTRO do campo (à esquerda);
+                             aparece só quando há filtros. Ao tocar, zera todos os filtros. -->
+                        <button type="button" id="btn-clear-filters" class="agenda-filters__clear u-hidden" aria-label="Limpar filtros ativos">
+                            <span class="material-symbols-rounded agenda-filters__clear-x" aria-hidden="true">close</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">filter_alt</span>
+                            <span id="filter-count" class="agenda-filters__clear-count">0</span>
+                        </button>
                         <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar profissional...">
                     </div>
-                    <!-- Indicador de filtros ativos + limpar (aparece só quando há filtros).
-                         Mostra a contagem e, ao tocar, zera todos os filtros. -->
-                    <button type="button" id="btn-clear-filters" class="agenda-filters__clear u-hidden" aria-label="Limpar filtros ativos">
-                        <span class="material-symbols-rounded" aria-hidden="true">filter_alt</span>
-                        <span id="filter-count" class="agenda-filters__clear-count">0</span>
-                        <span class="material-symbols-rounded agenda-filters__clear-x" aria-hidden="true">close</span>
-                    </button>
                     <button type="button" id="btn-toggle-filters" class="btn btn--icon agenda-filters__icon-btn" aria-label="Filtrar contatos" aria-expanded="false">
                         <span class="material-symbols-rounded" aria-hidden="true">tune</span>
                     </button>

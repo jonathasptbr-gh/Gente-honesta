@@ -2369,40 +2369,52 @@
   color: var(--p-green);
 }
 
-/* Indicador de filtros ativos + limpar (à esquerda do botão de filtros; some
-   quando não há filtros). Pílula AZUL (há seleção ativa) com ícone de filtro +
-   contagem + "x": um toque zera todos os filtros. */
+/* Indicador de filtros ativos + limpar — pílula DENTRO do campo de busca, à
+   esquerda (some quando não há filtros). Sobre o fundo branco do campo, usa o
+   "tint preenchido" azul-claro padrão (--info-blue-light + texto --info-blue),
+   como as pílulas selecionadas sobre superfícies claras. Ordem: x + filtro +
+   contagem; um toque zera todos os filtros. */
 .agenda-filters__clear {
-  height: 40px;
-  flex-shrink: 0;
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 30px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 0 10px;
-  border-radius: var(--radius-md);
-  background: var(--info-blue);
-  color: var(--t-light);
+  gap: 3px;
+  padding: 0 9px;
+  border-radius: var(--radius-pill);
+  background: var(--info-blue-light);
+  color: var(--info-blue);
   cursor: pointer;
   font-size: var(--fs-5);
   font-weight: var(--fw-bold);
+  z-index: 1;   /* acima do input */
 }
 
-.agenda-filters__clear:active { transform: scale(var(--press-scale)); }
+.agenda-filters__clear:active { transform: translateY(-50%) scale(var(--press-scale)); }
 
 .agenda-filters__clear .material-symbols-rounded {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
-/* O "x" fica num círculo translúcido para leitura de "fechar/limpar" */
+/* O "x" (à esquerda) sem moldura — só o glifo, em VERMELHO (ação de limpar) */
 .agenda-filters__clear-x {
-  border-radius: 50%;
-  background: var(--on-green-soft);
+  font-size: 1rem !important;
+  color: var(--danger);
 }
 
 .agenda-filters__clear-count {
   font-variant-numeric: tabular-nums;
   line-height: 1;
+}
+
+/* Com filtros ativos, a pílula ocupa a esquerda do campo: esconde a lupa e o
+   respiro à esquerda do input vem por JS (padding-left = largura da pílula). */
+.agenda-filters__search-wrap--filtered .agenda-filters__search-icon {
+  display: none;
 }
 
 /* (tamanho/peso do ícone do botão de filtro vêm do padrão único da barra) */
