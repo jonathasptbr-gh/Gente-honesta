@@ -45,7 +45,7 @@
 
 .btn--white {
   background: var(--bg-white);
-  color: #000;
+  color: var(--p-green-dark);
 }
 
 .btn--danger {
@@ -112,7 +112,7 @@
 }
 
 .btn--pill {
-  padding: 10px 20px;
+  padding: 10px var(--space-md);
   border-radius: var(--radius-pill);
   font-size: var(--fs-6);
 }
@@ -125,28 +125,6 @@
   padding: 0;
   flex-shrink: 0;
 }
-
-/* FAB: posicionamento gerenciado pelo .fab-group no feed */
-.btn--fab {
-  width: 60px;
-  height: 60px;
-  padding: 0;
-  border-radius: 50%;
-  background: var(--a-gold);
-  color: var(--p-green-dark);
-  box-shadow: var(--shadow-lg);
-  z-index: 100;
-  transition: transform 0.2s ease;
-}
-
-.btn--fab:active {
-  transform: scale(0.92);
-}
-
-.btn--fab .material-symbols-rounded {
-  font-size: 1.8rem;
-}
-
 
 /* ===========================================
    FORMULÁRIOS & INPUTS
@@ -262,7 +240,10 @@
   background: var(--danger-soft);
 }
 
-.location-check--error-validation {
+/* Agrupadas: erro de validação (obrigatório vazio no submit) e erro de GPS do
+   mesmo card usam o MESMO mecanismo canônico — linha vermelha + fundo de alerta. */
+.location-check--error-validation,
+.location-check--error {
   border: 2px solid var(--danger) !important;
   background: var(--danger-soft);
 }
@@ -278,8 +259,8 @@
 }
 
 .input-text--float {
-  padding-top: 20px;
-  padding-bottom: 8px;
+  padding-top: var(--space-md);
+  padding-bottom: var(--space-xs);
 }
 
 .input-float__label {
@@ -316,7 +297,7 @@
    ======================================== */
 .card {
   background: var(--bg-white);
-  border: none;   /* zera a borda de UA de <button>/<input> usados como card; --bordered readiciona */
+  border: none;   /* zera a borda de UA de <button>/<input> usados como card */
   border-radius: var(--radius-md);
 }
 
@@ -468,13 +449,20 @@
 
 /* Dialog com scroll para textos longos */
 .dialog-box--scrollable .dialog-box__message {
-  max-height: 55vh;
+  max-height: calc(var(--app-height, 100dvh) * 0.55);
   overflow-y: auto;
   text-align: left;
   line-height: 1.6;
   padding-right: 4px;
   white-space: pre-wrap;
+  scrollbar-width: thin;
+  scrollbar-color: var(--on-green-muted) transparent;
 }
+
+/* Barra SEMPRE visível (padrão dos containers de scroll fora dos 3 feeds).
+   Thumb claro: o único diálogo com scroll é o de ajuda (#dialog-global, verde). */
+.dialog-box--scrollable .dialog-box__message::-webkit-scrollbar { width: 5px; }
+.dialog-box--scrollable .dialog-box__message::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
 
 /* ── Diálogos de alerta/decisão/ajuda (#dialog-global) no padrão VERDE ──
    Mesma linguagem das telas verdes: fundo --p-green, ícone dourado, textos

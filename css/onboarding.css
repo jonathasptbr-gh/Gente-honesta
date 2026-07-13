@@ -79,14 +79,6 @@
   height: max(var(--space-lg), env(safe-area-inset-bottom, 0px));
 }
 
-/* Destaque de "faltando" na seção de padrão de serviços (obrigatoriedade
-   condicional dos dados profissionais). Outline não empurra o layout. */
-.service-choice--error {
-  outline: 2px solid var(--danger);
-  outline-offset: 6px;
-  border-radius: var(--radius-sm);
-}
-
 /* Linha foto + campos de nome lado a lado */
 .profile-header-row {
   display: flex;
@@ -123,10 +115,14 @@
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  transition: border var(--transition);
 }
 
-/* Foto capturada: SEM moldura verde — a própria foto preenche o slot claro. */
+/* Foto capturada: SEM moldura verde — a própria foto preenche o slot claro.
+   A imagem em si chega por JS (background-image); o enquadramento vive aqui. */
+.media-capture__display--captured {
+  background-size: cover;
+  background-position: center;
+}
 
 .media-capture__placeholder {
   display: flex;
@@ -166,7 +162,6 @@
 .chip.tag-pill {
   gap: 6px;
   background: var(--info-blue-light);
-  border-color: var(--info-blue);
   color: var(--info-blue);
   cursor: default;
   box-shadow: var(--shadow-sm);
@@ -214,10 +209,9 @@
   font-size: 1.05rem;
 }
 
-/* A métrica das pílulas de pagamento (fonte --fs-5, padding 8px 14px, borda
-   1.5px) vem do modificador .chip--md no HTML — mesma linguagem das .tag-pill.
-   A borda nasce igual nos dois estados (só a COR muda ao selecionar) para não
-   deslocar as vizinhas na mesma linha. */
+/* A métrica das pílulas de pagamento (fonte --fs-5, padding 8px 14px) vem do
+   modificador .chip--md no HTML — mesma linguagem das .tag-pill. Sem borda
+   (design sem contorno): o estado muda só o FILL/texto, sem deslocar vizinhas. */
 
 /* Em repouso, a pílula é BRANCA para se destacar como card no corpo cinza da
    seção de detalhes; a selecionada mantém o tint azul (regra abaixo). Sombra
@@ -231,12 +225,11 @@
 }
 
 /* Selecionada: mesmo padrão "tint preenchido" das .tag-pill (fundo tint +
-   borda + texto no mesmo matiz), porém no azul do pagamento (--info-blue) em
-   vez do verde — preservando a identidade herdada do rodapé do card de
-   profissional e, ao mesmo tempo, mantendo os dois grupos distinguíveis. */
+   texto no mesmo matiz), porém no azul do pagamento (--info-blue) em vez do
+   verde — preservando a identidade herdada do rodapé do card de profissional
+   e, ao mesmo tempo, mantendo os dois grupos distinguíveis. */
 .chip--payment.chip--active {
   background: var(--info-blue-light);
-  border-color: var(--info-blue);
   color: var(--info-blue);
 }
 
@@ -260,7 +253,7 @@
 }
 
 .area-search__results li {
-  padding: 12px 14px;
+  padding: var(--space-sm) 14px;
   font-size: var(--fs-6);
   color: var(--t-main);
   cursor: pointer;
@@ -357,12 +350,9 @@
   color: var(--p-green);
 }
 
-.location-check--error {
-  /* sem borda real (não desloca o layout): o anel de erro vem por box-shadow */
-  box-shadow: inset 0 0 0 2px var(--danger);
-  background: var(--danger-soft);
-}
-
+/* Erro de GPS: MESMO mecanismo canônico dos campos obrigatórios (linha vermelha
+   de borda + fundo de alerta) — a receita vive em components.css, agrupada com
+   .location-check--error-validation. Aqui só as cores dos ícones. */
 .location-check--error .location-check__icon,
 .location-check--error .location-check__status {
   color: var(--danger);
@@ -428,7 +418,6 @@
 }
 
 .collapsible__trigger--gold {
-  border-color: var(--a-gold);
   background: var(--gold-soft);
 }
 
@@ -458,7 +447,6 @@
 .collapsible--connected .collapsible__trigger {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-bottom-color: transparent;
 }
 
 .collapsible__panel {
@@ -467,11 +455,6 @@
   border-bottom-left-radius: var(--radius-md);
   border-bottom-right-radius: var(--radius-md);
   background: var(--bg-soft);   /* CORPO cinza claro: os cards internos brancos contrastam */
-}
-
-.collapsible--open > .collapsible__trigger--gold ~ .collapsible__panel {
-  border-color: var(--a-gold);
-  border-top: none;
 }
 
 /* ── Padrão de Serviços — SELEÇÃO por card + display único de barras ─────────
@@ -499,11 +482,11 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   text-align: center;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .service-choice__card:active {
-  transform: scale(0.99);
+  transform: scale(var(--press-scale-subtle));
 }
 
 .service-choice__card--active {
@@ -547,7 +530,7 @@
 /* Display único das barras — animado conforme a seleção */
 .service-choice-display {
   margin-top: var(--space-sm);
-  padding: 12px 14px;
+  padding: var(--space-sm) 14px;
   background: var(--bg-white);   /* card branco no corpo cinza */
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
@@ -572,7 +555,7 @@
   align-items: center;
   gap: var(--space-xs);
   padding: var(--space-md);
-  background: #f7e4a6;   /* amarelo mais forte que o creme --gold-soft, para o CTA se destacar */
+  background: var(--gold-cta);   /* amarelo mais forte que o creme --gold-soft, para o CTA se destacar */
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   text-align: center;
@@ -724,7 +707,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 /* ── Hero: título + mensagem de responsabilidade à esquerda, 70 à direita ──
@@ -763,7 +746,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -55%);
-  font-size: 1.9rem;
+  font-size: 1.9rem;   /* exceção deliberada: numeral-hero entre --fs-12 e --fs-13; snapar mudaria o visual */
   font-weight: var(--fw-heavy);
   line-height: 1;
   /* degradê mais escuro (ouro → ocre): o tom claro sumia no fundo branco */
@@ -950,9 +933,9 @@
   #view-onboarding .ic-card__eyebrow { font-size: var(--fs-6); }
   #view-onboarding .ic-card__head-icon { font-size: 1.3rem; }
   #view-onboarding .ic-hero__badge-shield { width: 3.1rem; height: 3.4rem; }
-  #view-onboarding .ic-hero__value { font-size: 1.2rem; }
+  #view-onboarding .ic-hero__value { font-size: var(--fs-10); }
   #view-onboarding .ic-hero__text { display: none; }
-  #view-onboarding .ic-meter { padding-bottom: 20px; }
+  #view-onboarding .ic-meter { padding-bottom: var(--space-md); }
   #view-onboarding .ic-meter__zones { margin-bottom: 4px; }
   #view-onboarding .ic-meter__track { height: 8px; }
   #view-onboarding .ic-zone__shield { font-size: 1.15rem; }
@@ -1003,7 +986,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-xs);
   padding: 14px;
   font-size: var(--fs-8);
   font-weight: var(--fw-medium);
@@ -1016,11 +999,9 @@
 .camera-view__action-btn--cancel {
   background: var(--danger);
   color: var(--t-light);
-  border-color: var(--danger);
 }
 
 .camera-view__action-btn--confirm {
   background: var(--success);
   color: var(--t-light);
-  border-color: var(--success);
 }

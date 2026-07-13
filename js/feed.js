@@ -40,8 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusChips = document.querySelectorAll('[data-filter-status]');
   statusChips.forEach((chip) => {
     chip.addEventListener('click', () => {
-      statusChips.forEach((c) => c.classList.remove('chip--active'));
+      statusChips.forEach((c) => { c.classList.remove('chip--active'); c.setAttribute('aria-pressed', 'false'); });
       chip.classList.add('chip--active');
+      chip.setAttribute('aria-pressed', 'true');
     });
   });
 
@@ -223,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const applyFilters = (pros) => pros.filter(p => {
-    const tier = p.ic >= 75 ? 'ok' : p.ic >= 50 ? 'warn' : p.ic >= 25 ? 'alert' : 'bad';
+    const tier = icTier(p.ic);
     if (filterState.includeIc.size > 0 && !filterState.includeIc.has(tier)) return false;
     if (filterState.includeAvail.size > 0 && !filterState.includeAvail.has(p.avail)) return false;
     if (filterState.savedOnly && !pinnedPros.has(p.id)) return false;
@@ -264,8 +265,10 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ---- Modelos padronizados de exibição (reutilizados em vários lugares) ----
-  const icTier = ic => ic >= 75 ? 'ok' : ic >= 50 ? 'warn' : ic >= 25 ? 'alert' : 'bad';
-  const icShieldIcon = ic => ic >= 75 ? 'gpp_good' : ic >= 50 ? 'shield_question' : ic >= 25 ? 'gpp_maybe' : 'gpp_bad';
+  // function declarations (hoistadas): icTier também é usado por applyFilters,
+  // definido ANTES desta linha — fonte única dos limiares 75/50/25.
+  function icTier(ic) { return ic >= 75 ? 'ok' : ic >= 50 ? 'warn' : ic >= 25 ? 'alert' : 'bad'; }
+  function icShieldIcon(ic) { return ic >= 75 ? 'gpp_good' : ic >= 50 ? 'shield_question' : ic >= 25 ? 'gpp_maybe' : 'gpp_bad'; }
 
   // Confiança compacta: (escudo) ##% Confiável — ou vertical (escudo/cima, %/meio, palavra/baixo)
   const icBarHTML = (ic, vertical = false) => {
@@ -1294,6 +1297,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const btn = e.target.closest('.vaga-day');
       if (!btn) return;
       btn.classList.toggle('vaga-day--active');
+      btn.setAttribute('aria-pressed', String(btn.classList.contains('vaga-day--active')));
       daysGroup.classList.remove('vaga-days--error');
     });
 
@@ -1395,8 +1399,11 @@ document.addEventListener('DOMContentLoaded', () => {
       renderCount();
       if (selInicio) selInicio.value = '08:00';
       if (selFim)    selFim.value    = '18:00';
-      daysGroup?.querySelectorAll('.vaga-day').forEach(d =>
-        d.classList.toggle('vaga-day--active', ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'].includes(d.dataset.day)));
+      daysGroup?.querySelectorAll('.vaga-day').forEach(d => {
+        const on = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'].includes(d.dataset.day);
+        d.classList.toggle('vaga-day--active', on);
+        d.setAttribute('aria-pressed', String(on));
+      });
       daysGroup?.classList.remove('vaga-days--error');
       chkCurriculo?.setAttribute('aria-pressed', 'false');
       benefitPills?.querySelectorAll('.vaga-benefit-pill').forEach(p => p.setAttribute('aria-pressed', 'false'));
@@ -1828,6 +1835,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filters-sheet')?.classList.remove('historico-sheet--open');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'false');
+    btn?.classList.remove('action-close-mode');
     const icon = btn?.querySelector('.material-symbols-rounded');
     if (icon) icon.textContent = 'tune';
   }
@@ -1839,6 +1847,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sheet?.classList.add('historico-sheet--open');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
+    btn?.classList.add('action-close-mode');
     const icon = btn?.querySelector('.material-symbols-rounded');
     if (icon) icon.textContent = 'close';
   }
@@ -2065,7 +2074,6 @@ document.addEventListener('DOMContentLoaded', () => {
   //  'old'    → btn Histórico vira "Fechar"; btn Fazer/Pedido fica natural (navega)
   //  null     → sem detalhe aberto (comportamento normal)
   let pedidoDetailMode = null;
-  let pedidoTimerInterval = null; // setInterval do timer (limpo ao fechar/concluir)
   const myPedido = { text: '', urgency: 'normal', duration: '12', neighbors: false }; // objeto de trabalho do formulário
 
   const getActivePedido = () => pedidoHistory.find(p => p.status === 'active') || null;
@@ -2137,14 +2145,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const pedidoNeighbors    = document.getElementById('pedido-neighbors');
   const btnPedidoConcluir  = document.getElementById('btn-pedido-concluir');
 
-  const stopPedidoTimer = () => {
-    if (pedidoTimerInterval) { clearInterval(pedidoTimerInterval); pedidoTimerInterval = null; }
-  };
-
   const closePedidoSheet = () => {
     pedidoSheet?.classList.remove('pedido-sheet--open');
     pedidoSheet?.classList.remove('pedido-sheet--morph');
-    stopPedidoTimer();
     detailPedidoId = null;
     pedidoDetailMode = null;
     setMyPedidoButton('natural');
@@ -2174,17 +2177,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return Math.ceil(remainingMs / (3600 * 1000));
   };
 
-  // Atualiza o texto do timer (horas restantes) do pedido ativo em exibição.
-  const updatePedidoTimer = () => {
-    const timerEl = document.getElementById('pedido-detail-timer-text');
-    const pedido = getPedidoById(detailPedidoId);
-    if (!timerEl || !pedido || pedido.status !== 'active') return;
-    const totalMs = parseInt(pedido.duration, 10) * 3600 * 1000;
-    const remainingMs = Math.max(0, totalMs - (Date.now() - pedido.createdAt));
-    const hoursLeft = Math.ceil(remainingMs / (3600 * 1000));
-    timerEl.textContent = hoursLeft > 0 ? `${hoursLeft}h restantes` : 'Expirado';
-  };
-
   // Preenche o detalhe: card de REFERÊNCIA no topo (MESMO modelo do histórico,
   // via historicoItemHTML) + fração + lista de indicados. O card de baixo
   // (Concluir) fica sempre oculto; concluir vive no topo (botão Pedido atual).
@@ -2204,7 +2196,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pedidoSheetTitle) pedidoSheetTitle.textContent = 'Fazer pedido';
     pedidoFormState?.classList.remove('u-hidden');
     pedidoDetailsState?.classList.add('u-hidden');
-    stopPedidoTimer();
     detailPedidoId = null;
     pedidoDetailMode = null;   // formulário não é um detalhe
     anchorBelowActionBar(pedidoSheet);
@@ -2227,7 +2218,6 @@ document.addEventListener('DOMContentLoaded', () => {
     pedidoFormState?.classList.add('u-hidden');
     pedidoDetailsState?.classList.remove('u-hidden');
     renderPedidoDetails(pedido);
-    stopPedidoTimer();
     anchorBelowActionBar(pedidoSheet);
     pedidoSheet?.classList.remove('pedido-sheet--full');
     // Botões do topo: Histórico → "Fechar" (nos dois casos); o botão "Pedido atual"
@@ -2344,8 +2334,9 @@ document.addEventListener('DOMContentLoaded', () => {
     group?.addEventListener('click', (e) => {
       const chip = e.target.closest('.pedido-chip');
       if (!chip) return;
-      group.querySelectorAll('.pedido-chip').forEach(c => c.classList.remove('pedido-chip--active'));
+      group.querySelectorAll('.pedido-chip').forEach(c => { c.classList.remove('pedido-chip--active'); c.setAttribute('aria-pressed', 'false'); });
       chip.classList.add('pedido-chip--active');
+      chip.setAttribute('aria-pressed', 'true');
       onPick(chip.dataset[dataKey]);
     });
   };
@@ -2364,8 +2355,11 @@ document.addEventListener('DOMContentLoaded', () => {
     myPedido.urgency = 'normal';
     myPedido.duration = '12';
     myPedido.neighbors = false;
-    document.querySelectorAll('#pedido-urgency .pedido-chip').forEach((c, i) => c.classList.toggle('pedido-chip--active', i === 0));
-    document.querySelectorAll('#pedido-duration .pedido-chip').forEach((c, i) => c.classList.toggle('pedido-chip--active', i === 0));
+    document.querySelectorAll('#pedido-urgency .pedido-chip, #pedido-duration .pedido-chip').forEach((c) => {
+      const first = c === c.parentElement.querySelector('.pedido-chip');
+      c.classList.toggle('pedido-chip--active', first);
+      c.setAttribute('aria-pressed', String(first));
+    });
     if (pedidoNeighbors) pedidoNeighbors.setAttribute('aria-pressed', 'false');
     if (inpPedidoText) { inpPedidoText.value = ''; inpPedidoText.classList.remove('input-text--error'); }
     if (pedidoCharCount) pedidoCharCount.textContent = '0';
@@ -2517,9 +2511,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (confirmouLogout) {
       document.getElementById('loader-global')?.classList.remove('u-hidden');
-      // Encerra o timer do sheet de pedido se estava aberto — senão o setInterval
-      // de 60s continua disparando após o feed ser desmontado no logout.
-      stopPedidoTimer();
 
       try {
         window.appState.photoBlob = null;

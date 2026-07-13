@@ -352,7 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
     clearNameErrors();
     document.getElementById('inp-area-search')?.classList.remove('input-text--error');
     document.getElementById('inp-bio')?.classList.remove('input-text--error');
-    document.getElementById('container-service-choice')?.classList.remove('service-choice--error');
   };
 
   // INTERAÇÕES DO DOM - TELA - ONBOARDING - Botão cancelar: faz logout e reset completo
@@ -444,7 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       if (videoElement) {
         videoElement.srcObject = window.appState.stream;
-        videoElement.style.display = '';
         videoElement.classList.remove('u-hidden');
       }
       if (photoPreviewImg) photoPreviewImg.classList.add('u-hidden');
@@ -487,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cameraPhotoTaken = !!window.appState.photoBlob;
     if (cameraPhotoTaken) {
       // Foto já existe — mostra preview direto
-      if (videoElement) { videoElement.style.display = 'none'; videoElement.classList.add('u-hidden'); }
+      if (videoElement) videoElement.classList.add('u-hidden');
       if (photoPreviewImg) { photoPreviewImg.src = window.appState.photoBlob; photoPreviewImg.classList.remove('u-hidden'); }
       setButtonsReview();
     } else {
@@ -502,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeCameraDialog = () => {
     stopStream();
     overlayCamera?.classList.add('u-hidden');
-    if (videoElement) { videoElement.style.display = ''; videoElement.classList.add('u-hidden'); }
+    if (videoElement) videoElement.classList.add('u-hidden');
     if (photoPreviewImg) photoPreviewImg.classList.add('u-hidden');
   };
 
@@ -543,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cameraPhotoTaken = true;
 
     stopStream();
-    if (videoElement) videoElement.style.display = 'none';
+    if (videoElement) videoElement.classList.add('u-hidden');
     if (photoPreviewImg) { photoPreviewImg.src = window.appState.photoBlob; photoPreviewImg.classList.remove('u-hidden'); }
     setButtonsReview();
   });
@@ -554,9 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Confirmar — aplica foto na moldura
       if (mediaPreview) {
         mediaPreview.style.backgroundImage = `url(${window.appState.photoBlob})`;
-        mediaPreview.style.backgroundSize = 'cover';
-        mediaPreview.style.backgroundPosition = 'center';
-        mediaPreview.classList.add('media-capture__display--captured');
+        mediaPreview.classList.add('media-capture__display--captured');   /* cover/center vêm da classe */
         mediaPreview.classList.remove('media-capture__display--error');
         if (photoPlaceholder) photoPlaceholder.classList.add('u-hidden');
       }
@@ -873,7 +869,7 @@ Em vez de ajustar tudo manualmente, você seleciona um dos 4 perfis prontos — 
 • Rápido — foco em agilidade; resolve rápido.
 • Custo-benefício — valor mais baixo, mantendo uma boa qualidade.
 
-Basta tocar num card para selecioná-lo (toque de novo para desmarcar). Nenhum perfil começa "no máximo": sempre há espaço para crescer.
+Basta tocar num card para selecioná-lo; sempre há um perfil escolhido (o "Padrão" já vem marcado), e tocar em outro card troca a seleção. Nenhum perfil começa "no máximo": sempre há espaço para crescer.
 
 Importante: essa é só uma escolha inicial. Com o tempo, as avaliações que você receber vão ajustando esses índices automaticamente para refletir sua reputação real — então seja honesto.`
     }

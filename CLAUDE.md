@@ -64,6 +64,8 @@ Carregamento → detecção mobile (head) → onAuthStateChanged →
           Standalone? → view-feed
           Não?        → view-install → "Continuar" → view-feed
     Com displayName? → view-feed direto
+       (exceção: login recém-feito, <15s — flag isNewSignIn em session.js — passa
+        pelo onboarding mesmo com displayName, para o usuário revisar os dados)
 ```
 
 ---
@@ -195,10 +197,10 @@ Variáveis em `css/base.css :root`:
   canais à mão (ex.: brilho/anel dourado do tutorial usa `--a-gold-rgb`; véus escuros do feed usam
   `--p-green-dark-rgb`; bordas/fundos brancos sobre verde usam `--on-green-rgb`).
 - **Branco-sobre-verde (escala de opacidade):** `--on-green-faint/-soft/-muted/-med/-strong/-solid`
-  (.1/.2/.35/.5/.7/.9) — usar o degrau semântico em vez de `rgba(var(--on-green-rgb), α)` solto.
+  (.15/.26/.35/.5/.7/.9) — usar o degrau semântico em vez de `rgba(var(--on-green-rgb), α)` solto.
 - **Blur / sheets:** `--blur-sm` (5px) e `--blur-lg` (14px) para backdrops (tutorial mantém 1.5px próprio);
   `--sheet-ease` (`cubic-bezier(0.32,0.72,0,1)`) é a curva única dos sheets deslizantes.
-- `--a-gold` — amarelo/dourado de destaque; `--a-gold-text` é o ocre mais escuro para TEXTO dourado sobre fundo claro
+- `--a-gold` — amarelo/dourado de destaque; `--a-gold-text` é o ocre mais escuro para TEXTO dourado sobre fundo claro; `--gold-cta` (#f7e4a6) é o amarelo do card-convite Pro (mais forte que o creme `--gold-soft`)
 - `--info-blue`, `--danger`, `--success`, `--whatsapp`, `--gold-soft-border`
 - `--bg-white`, `--bg-soft` — superfícies claras
 - `--bg-canvas: #124014` — verde escuro atrás dos cards de profissional nas listas
@@ -210,7 +212,7 @@ Variáveis em `css/base.css :root`:
 **Espaçamento:** `--space-xs` (8px) → `--space-xl` (48px)
 
 **Raios:** `--radius-xs` (6px), `--radius-sm` (8px), `--radius-md` (12px), `--radius-lg` (20px), `--radius-pill` (28px).
-`--radius-lg` é o topo arredondado padrão dos bottom-sheets (`agenda-sheet`, `indicated-popup__sheet`, `pedido-sheet__panel`) — usar `var(--radius-lg) var(--radius-lg) 0 0`, não `20px 20px 0 0` cru.
+`--radius-lg` é o raio padrão dos sheets (`indicated-popup__sheet` no topo; `pedido-sheet__panel`/`historico-sheet__panel` nos cantos inferiores) — usar `var(--radius-lg)`, não `20px` cru.
 
 **Sombras e transições:** `--shadow-sm`, `--shadow-lg`, `--transition`. Preferir os tokens de sombra a
 recriar `box-shadow` à mão. Os cards em repouso do feed (`.post-card`, `.vaga-card__front`) usam
@@ -224,12 +226,14 @@ pedido-chip, benefício, helper-toggle) → preenchimento `--a-gold` + texto `--
 ativa muda cor, não ganha anel. Ao criar um estado selecionado/foco novo, mude a cor interna — não use
 `box-shadow` como destaque.
 
-**ÚNICA exceção (linha de borda):** **alerta de campo OBRIGATÓRIO** vazio no submit — os campos exigidos
-(foto, nome, sobrenome e registro de região no cadastro; obrigatórios do criar-vaga) ganham uma **linha
-vermelha** de borda (`.input-text--error`/`.location-check--error-validation`/`.media-capture__display--error`
-= `border: 2px solid var(--danger) !important` + fundo `--danger-soft`). O `!important` vence o `border:none`
-do reset e do `.card`. A validação (`finishRegistration`) marca os quatro obrigatórios juntos e o alerta diz
-"destacados em vermelho".
+**ÚNICA exceção (linha de borda): alerta de ERRO/OBRIGATÓRIO — mecanismo ÚNICO em todo o app (v261).**
+Campo exigido vazio no submit OU erro de operação (falha de GPS) ganha **linha vermelha de borda**
+(`.input-text--error`/`.location-check--error-validation`/`.location-check--error`/
+`.media-capture__display--error` = `border: 2px solid var(--danger) !important` + fundo `--danger-soft`;
+`.vaga-days--error` = só a linha, sem fundo, por estar sobre o sheet verde-escuro). O `!important` vence o
+`border:none` do reset e do `.card`. NÃO existem mais os mecanismos alternativos antigos (inset box-shadow
+do GPS, anel externo dos dias, outline do padrão de serviço — este era código morto e foi removido). A
+validação (`finishRegistration`) marca os quatro obrigatórios juntos e o alerta diz "destacados em vermelho".
 
 **Toque:** `--press-scale` (0.97) é o feedback de `:active` padrão do `.btn` e da maioria dos botões/
 pílulas; `--press-scale-subtle` (0.99) é para alvos GRANDES (cards, linhas). Alvos minúsculos/precisos
@@ -248,9 +252,12 @@ na estética não muda o papel: se o elemento AGE (compartilhar, candidatar, fil
 2. **Botão / Ação (`.btn` + variantes)** — executa uma ação (rótulo e/ou ícone). Tag: `<button>` (ou `<a>`
    se navega, ex.: WhatsApp). **TODO botão de ação herda `.btn`** — fundação única (sem borda, flex-center,
    cursor, transição, `:active`). Estilo: `--primary/--accent/--outline/--white/--danger/--text`.
-   Estrutura: `--large/--pill/--close/--fab/--compact/--icon` (`--icon` = quadrado só-ícone 44px). Os botões
-   de ação dos cards de profissional e de vaga já foram unificados sob `.btn` (voltar/compartilhar usam
-   `btn btn--icon`; candidatar/publicar usam `btn btn--primary`; whatsapp `btn`).
+   Estrutura: `--large/--pill/--close/--icon` (`--icon` = quadrado só-ícone 44px; o antigo `--fab` foi
+   REMOVIDO — não havia FAB no HTML). Os botões de ação dos cards de profissional e de vaga já foram
+   unificados sob `.btn` (voltar/compartilhar usam `btn btn--icon`; candidatar/publicar usam
+   `btn btn--primary`; whatsapp `btn`). Também compõem `.btn`: os "Fechar" do modo indicação/popup de
+   indicados (`btn btn--close agenda-indicated__cancel`) e o botão de filtros
+   (`btn btn--icon agenda-filters__icon-btn`, 40px da action bar).
 3. **Token / Pílula (`.chip` + `--sm/--md`)** — item selecionável/filtro/toggle. Tag: `<button>`. Estado
    ativo por CONTEXTO (verde-sólido no feed, tint-azul no cadastro, dourado nas pílulas sobre verde).
 4. **Campo (`.input-text`)** — entrada de texto. Tag: `<input>`/`<textarea>`; sem borda, foco por mudança
@@ -275,8 +282,8 @@ borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke
   (foco/seleção/erro) mudam a **COR INTERNA** do elemento (ver "Destaque de estado por COR"), nunca uma
   sombra/anel — sombras de destaque furavam bordas e viravam linha sólida. O pedido urgente NÃO tem mais
   linha vermelha (só o badge "Urgente"). PRESERVADAS as bordas FUNCIONAIS (não são contorno de card): anéis de avatar,
-  divisores internos entre seções, caixa do checkbox, checkmark desenhado com borda, anel do spinner e a
-  seta do balão do tutorial. (A moldura de foto NÃO tem mais tracejado — só o fundo claro; a borda vermelha
+  o anel do `.notif-badge` (separa o badge da barra verde), divisores internos entre seções, caixa do
+  checkbox, checkmark desenhado com borda, anel do spinner e a seta do balão do tutorial. (A moldura de foto NÃO tem mais tracejado — só o fundo claro; a borda vermelha
   aparece só no estado de erro obrigatório.) **Reset obrigatório** (`base.css`):
   `button, input, textarea { border: none }` — sem isso, ao remover a borda explícita de um `<button>`
   reaparece a borda de UA (bevel `outset` BICOLOR em vários mobile). Bordas de classe (ex.: `.vaga-add-btn`
@@ -298,31 +305,34 @@ borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke
   `auth.js` (`setButtonLoading` + handler de reenvio).
 - **`.chip` + `.chip--md` (casco de pílula)** — `.chip` (`feed.css`) é o casco base (radius-pill,
   inline-flex, transição); `.chip--md` é a métrica das pílulas do cadastro (padding `8px 14px`, `--fs-5`,
-  borda `1.5px`). As pílulas de pagamento (`chip chip--md chip--payment`) e as `.tag-pill`
+  sem borda). As pílulas de pagamento (`chip chip--md chip--payment`) e as `.tag-pill`
   (`chip chip--md tag-pill`, geradas em `onboarding.js`) usam esse casco; `.tag-pill` aplica o tint via
   seletor de 2 classes `.chip.tag-pill` (vence o `.chip` base por especificidade, independente da ordem
   de carga). Isso encerrou a antiga briga de especificidade `.chip.chip--payment`.
 - **Pílula "tint preenchido" (azul)** — o estado selecionado de `.tag-pill` e de `.chip--payment.chip--active`
-  compartilham a MESMA receita: fundo `--info-blue-light` + borda `--info-blue` + texto `--info-blue`,
-  borda `1.5px` (só a COR muda ao ativar, para não deslocar vizinhas). É a linguagem única de seleção do
-  cadastro; qualquer pílula selecionável nova deve seguir esse trio de tokens.
+  compartilham a MESMA receita: fundo `--info-blue-light` + texto `--info-blue`, SEM borda (design sem
+  contorno; as antigas declarações de borda 1.5px nunca renderizavam — o reset zera o border-style — e
+  foram removidas na v261). É a linguagem única de seleção do cadastro; qualquer pílula selecionável nova
+  deve seguir esse par de tokens.
 - **Empty-state de lista sobre verde** — `.list-empty-hint` (+ `--block`, `feed.css`) para avisos de
   "lista vazia" (indicados/agenda), no lugar de cor inline em `feed.js`.
 - **Cor da barra de status:** `window.THEME_COLOR` (`app.js`) é a fonte única do verde `#184e1b` da
   `meta[theme-color]`. Todas as telas são verdes, então é uma constante (não mais um mapa view→cor). O
   modo indicação do feed NÃO altera o theme-color (a barra continua verde).
 
-**Altura do viewport:** `--app-height` — definida por JS em `app.js` via `window.innerHeight`.
-Usada no grid do feed (`height: var(--app-height, 100dvh)`) para corrigir o comportamento
-inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
+**Altura do viewport:** `--app-height` — definida por JS em `app.js` via `window.innerHeight`,
+para corrigir o comportamento inconsistente de `100vh`/`100dvh` em PWAs instalados e webviews.
+Consumida em `html/body` (`base.css`, cascata de fallback) e nos `max-height` dos sheets do feed e
+do diálogo com scroll — sempre como `var(--app-height, 100dvh)`, nunca `dvh` cru.
 
-**Escala tipográfica:** `--fs-1` (0.6rem) → `--fs-13` (2.2rem). Todo `font-size` de TEXTO usa um token da escala; exceções: os `clamp()` responsivos (auth.css) e ícones Material Symbols (dimensionam glifo, não texto).
+**Escala tipográfica:** `--fs-1` (0.6rem) → `--fs-13` (2.2rem). Todo `font-size` de TEXTO usa um token da escala; exceções: os `clamp()` responsivos (auth.css), ícones Material Symbols (dimensionam glifo, não texto), `.qav__label` (0.55rem — abaixo de `--fs-1`, senão trunca na coluna de 48px) e o numeral-hero 70 do IC (1.9rem, entre `--fs-12` e `--fs-13`).
 
 **Pesos de fonte:** títulos de tela/diálogo/painel/seção = 800; nomes de pessoas em cards = 700; labels/botões/chips = 600/700. Nota: a Inter é carregada apenas nos pesos 400/600/800 (`index.html`) — `font-weight: 700` declarado renderiza com a face 800.
 
 **Ícones:** Material Symbols Rounded (Google CDN), carregados no `<head>`.
-- Font-variation padrão filled: `'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48`
-- Font-variation filled médio (blocos Pro): `'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24`
+- Default da classe base (`base.css`): `'FILL' 1, 'wght' 500, 'GRAD' 25, 'opsz' 48`
+- Preset filled forte (heros/títulos): `'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48`
+- Preset filled médio (blocos Pro/pílulas): `'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24`
 
 **Índice de Confiança (IC) — faixas e classes:**
 | Faixa | Classe CSS | Ícone Material |
@@ -492,13 +502,13 @@ não é necessário tocar em `js/tutorial.js` nem em `css/tutorial.css`.
 
 ## Padrões Importantes
 
-**Mobile-only:** `window.IS_MOBILE` é definido sincronicamente no `<head>` do HTML (antes de qualquer render). Em desktop, `html.is-desktop` é adicionado ao `<html>` e um overlay bloqueia o app. `session.js` e `app.js` também verificam `IS_MOBILE` para abortar a inicialização do Firebase/SW.
+**Mobile-only:** `window.IS_MOBILE` é definido sincronicamente no `<head>` do HTML (antes de qualquer render). Em desktop, `html.is-desktop` é adicionado ao `<html>` e um overlay bloqueia o app. `session.js` verifica `IS_MOBILE` para abortar o fluxo; em `app.js` só o REGISTRO do Service Worker é condicionado a `IS_MOBILE` (o `firebase.initializeApp` roda também em desktop — inofensivo, o overlay bloqueia a UI).
 
 **Orientation lock:** modo paisagem bloqueado em dois níveis — `manifest.json` (`"orientation": "portrait"`) e overlay CSS em `components.css` via `@media (orientation: landscape)`.
 
 **Fundo verde em TODO o app:** todas as telas têm fundo verde (`--p-green`) hoje — auth (intro +
-telefone + OTP), onboarding, install e feed. Por isso a `meta[name="theme-color"]` é verde em todas
-(`THEME_COLOR_BY_VIEW` em `app.js` lista `view-auth/onboarding/install/feed` = `#184e1b`).
+telefone + OTP), onboarding, install e feed. Por isso a `meta[name="theme-color"]` é verde em todas:
+a constante única `window.THEME_COLOR = '#184e1b'` em `app.js` (não existe mais mapa view→cor).
 
 **Fluxo de auth (`#view-auth`) + instalação (`#view-install`) verdes:** `#view-auth.screen` tem fundo
 `--p-green`; `#view-install.screen` usa o verde escuro **`--bg-canvas`** (o MESMO do cadastro e do feed;
@@ -581,11 +591,11 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **TDZ em DOMContentLoaded:** dentro do callback de `DOMContentLoaded` em `feed.js`, todas as variáveis declaradas com `const`/`let` ficam na temporal dead zone até sua linha de declaração. Chamar uma função `const` antes de ela ser declarada lança `ReferenceError` silencioso que interrompe TODO o callback — os event listeners abaixo do ponto de erro nunca são registrados. Sempre declare `const` helpers/funções ANTES da linha que os chama, ou mova a chamada para depois da declaração.
 
-**function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
+**function declarations vs const em feed.js:** helpers que precisam ser chamados antes de sua posição textual no DOMContentLoaded DEVEM ser `function` declarations (são hoistadas). São `function` declarations: `renderFlippableProCards`, `bindProCardFlip`, `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack`, `proCardFlipToFront`, `flipCardToBack`, `flipCardToFront`, `icTier`, `icShieldIcon` (usadas por `applyFilters`, definido antes delas), `openFiltersSheet`, `closeFiltersSheet`, `historicoItemHTML`. Nunca converter para `const` arrow functions sem mover a declaração para antes de todas as chamadas.
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v260`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v261`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -656,13 +666,12 @@ método de pagamento e misturar as duas coisas confundiria o usuário. Cada píl
 sinaliza a seleção com um ícone `.chip__check` **à direita do texto** que alterna entre
 `radio_button_unchecked` e `check_circle` (função `setPaymentChipActive()` em `onboarding.js`).
 **Padrão visual unificado com as pílulas de profissão (`.tag-pill`)** para o cadastro ter uma linguagem
-única: `.chip.chip--payment` iguala fonte (`--fs-5`), padding (`8px 14px`) e borda (`1.5px`) às
-`.tag-pill`, e o estado ativo (`.chip--payment.chip--active`) usa o mesmo esquema "tint preenchido" delas
-— fundo tint + borda + texto no mesmo matiz. Ambas usam o **azul** `--info-blue` + `--info-blue-light`
+única: `.chip.chip--payment` iguala fonte (`--fs-5`) e padding (`8px 14px`) às `.tag-pill`, e o estado
+ativo (`.chip--payment.chip--active`) usa o mesmo esquema "tint preenchido" delas — fundo tint + texto no
+mesmo matiz, SEM borda (design sem contorno). Ambas usam o **azul** `--info-blue` + `--info-blue-light`
 (as `.tag-pill` também foram trocadas de verde para azul, então os dois grupos compartilham exatamente a
 mesma paleta) — cor herdada dos ícones de pagamento no rodapé do card de profissional
-(`.pro-card__meta-item`). A borda de `1.5px` nasce igual nos dois estados (só a COR muda ao selecionar)
-para não deslocar as vizinhas na mesma linha; o seletor `.chip.chip--payment` (2 classes) é necessário
+(`.pro-card__meta-item`). O seletor `.chip.chip--payment` (2 classes) é necessário
 para vencer `.chip` sozinho de `feed.css`, carregado depois de `onboarding.css` com a mesma especificidade
 de uma classe. Estado gravado em
 `window.appState.paymentMethods = {cash, pix, card, nf}`, resetado junto com o resto do formulário em
@@ -711,7 +720,10 @@ no `install` — o novo worker fica parado em "waiting" até o usuário confirma
 
 ## Arquitetura do Feed (`#view-feed`)
 
-### Bottom bar — 3 abas
+### Bottom bar — 3 abas (`.feed-tabs-pill`)
+
+Pílula verde flutuante (`.feed-tabs-pill`, com slider dourado `.feed-tabs-pill__slider` deslizando sob a
+aba ativa) dentro da `.bottom-bar` transparente (faixa de vidro fosco via `::before`).
 
 | `data-tab` | Ícone | Label |
 |---|---|---|
@@ -779,7 +791,8 @@ aberto, via a classe `.action-close-mode` (`feed.css`: fundo `--on-green-soft` t
 `--t-light`, com `!important` para vencer o fundo dourado/branco de cada botão). Helpers em `feed.js`:
 `setMyPedidoButton(mode)` (btn-my-pedido, 3 estados: `'natural'`/`'close'`/`'conclude'`), `setHistoricoButton(mode)` (btn-historico, 3 estados:
 `'natural'`/`'close'`/`'conclude'`), `setCriarVagaClose`/`setAjudanteClose`
-(nos IIFEs de vaga/ajudante, via `innerHTML`), e o toggle do `#btn-toggle-filters` (ícone `tune`↔`close`).
+(nos IIFEs de vaga/ajudante, via `innerHTML`), e o `#btn-toggle-filters` (ícone `tune`↔`close` + a mesma
+`.action-close-mode` dos demais — os 5 abridores seguem o padrão).
 Cada `open*` chama o setter com `true`, cada `close*` com `false` (restaurando rótulo/ícone). Como o
 container do submenu (z-300) cobre a barra quando aberto, **tocar no botão "Fechar" (visível sob a área
 transparente do container) dispara o handler de tap-outside** do container → fecha. Por isso todos os
@@ -790,8 +803,8 @@ ajudante, que antes só fechavam pelo backdrop.
 (`#panel-agenda-filters.filters-panel`, grupos de ordenação/confiança/disponibilidade/pagamento + botão
 "Adicionar contatos") foi movido para DENTRO dele. `openFiltersSheet`/`closeFiltersSheet` (function
 declarations hoistadas — usadas por `showVagasPanel`/`showPedidosPanel`/reset ao trocar de aba) abrem/fecham
-via `historico-sheet--open` e alternam o ícone tune↔close. A delegação de clique dos chips continua em
-`#panel-agenda-filters` (id preservado).
+via `historico-sheet--open` e alternam o ícone tune↔close junto com a `.action-close-mode`. A delegação
+de clique dos chips continua em `#panel-agenda-filters` (id preservado).
 
 **Animação de GAVETA (drawer slide-down) — todos os dropdowns da action bar:** os cinco submenus
 (`#pedido-sheet`, `#vaga-sheet`, `#ajudante-sheet`, `#historico-sheet`, `#filters-sheet`) deslizam de
@@ -855,7 +868,7 @@ slide-down (a antiga tela cheia `--full` do detalhe foi REMOVIDA), alternados po
 
 ### Histórico de pedidos (`#historico-sheet`)
 
-**Dropdown que DESCE da base da action bar** (não é bottom sheet), acionado por `#btn-historico-pedidos`, com o MESMO slide-down do formulário "Fazer pedido". O painel (`.historico-sheet__panel`) ancora em `top: var(--sheet-top)` — o rodapé da barra, MEDIDO em JS (`anchorBelowActionBar` → `bar.getBoundingClientRect().bottom`), porque a barra tem altura variável com a safe-area — spanning edge-to-edge com cantos INFERIORES arredondados, e entra descendo como GAVETA (ver "Animação de gaveta" abaixo). O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), então a barra fica acesa e o painel parece a base do módulo dos botões se estendendo (cobrindo o feed). Fecha ao tocar fora do painel. Lista `#historico-list` com **todos** os pedidos, inclusive o ativo, ordenados por data (mais recente no topo) via `renderHistoricoList()`. Cada `.historico-item` segue o padrão visual dos cards de pedido do feed (`.pedido-item`): **borda branca** e raio de "balão", mas com o canto inferior DIREITO reto (`border-radius: 18px 18px 4px 18px`, espelho do feed que tem o inferior esquerdo reto). Estrutura:
+**Dropdown que DESCE da base da action bar** (não é bottom sheet), acionado por `#btn-historico-pedidos`, com o MESMO slide-down do formulário "Fazer pedido". O painel (`.historico-sheet__panel`) ancora em `top: var(--sheet-top)` — o rodapé da barra, MEDIDO em JS (`anchorBelowActionBar` → `bar.getBoundingClientRect().bottom`), porque a barra tem altura variável com a safe-area — spanning edge-to-edge com cantos INFERIORES arredondados, e entra descendo como GAVETA (ver "Animação de gaveta" abaixo). O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), então a barra fica acesa e o painel parece a base do módulo dos botões se estendendo (cobrindo o feed). Fecha ao tocar fora do painel. Lista `#historico-list` com **todos** os pedidos, inclusive o ativo, ordenados por data (mais recente no topo) via `renderHistoricoList()`. Cada `.historico-item` segue o padrão visual dos cards de pedido do feed (`.pedido-item`): **fill claro** (`--card-on-green`, sem contorno) e raio de "balão", mas com o canto inferior DIREITO reto (`border-radius: 18px 18px 4px 18px`, espelho do feed que tem o inferior esquerdo reto). Estrutura:
 - `.historico-item__top` — data curta (`formatPedidoDate` → "12 jul, 14:30") à esquerda e botão excluir (`.historico-item__delete`) à direita: **sem moldura circular**, só o glifo `delete` em **vermelho** (`--danger`) para destaque; `customConfirm` e remove do histórico (se era o pedido em exibição, fecha o detalhe).
 - texto do pedido (clamp 2 linhas, com badge "Urgente" inline quando urgente).
 - `.historico-item__footer` — DOIS badges de **largura igual** (`flex: 1`) na base: à esquerda `.historico-item__status` (**"Ativo · Nh"** dourado, incluindo o tempo restante via `pedidoHoursLeft()`; ou **"Concluído"** cinza) e à direita `.historico-item__count` (**"N/3 indicações"**, fundo translúcido).
@@ -1038,9 +1051,7 @@ O botão-abridor "Serviço de ajudantes" vira "Fechar" (`.action-close-mode`) en
 
 | Classe | Descrição |
 |---|---|
-| `.pedido-item__timer` | Timer de expiração na meta row do pedido (cor dourada, inline-flex) |
-| `.pedido-item--urgent` | Card de pedido urgente (borda vermelha 2px) |
-| `.pedido-item__urgent-badge` | Pílula vermelha "bolt Urgente" inline no texto |
+| `.pedido-item__urgent-badge` | Pílula vermelha "bolt Urgente" inline no texto (única marca de urgência; não há borda nem timer no card) |
 | `.pedido-detail-preview` | Card gerado em `renderPedidoDetails()` — `pointer-events: none` |
 | `.pro-card__load-more` | Botão "ver mais comentários" — cor `var(--info-blue)` |
 | `.comment--entering` | Animação `commentFadeIn` fade+slide-up 0.22s nos comentários novos |
@@ -1057,8 +1068,10 @@ a barra: `scrollbar-width: none` + `::-webkit-scrollbar { display: none }`. Nunc
 visível nesses três.
 
 **Todo o resto que rola** (formulários criar pedido/vaga = `.pedido-sheet__body`; histórico/filtros =
-`.historico-sheet__scroll`; popup de indicados = `.indicated-popup__scroll`; versos expandidos de card =
-`.pro-card__back-comments` e `.vaga-card__back-form`) usa uma barra **SEMPRE VISÍVEL** (não overlay): um
+`.historico-sheet__scroll`; popup de indicados = `.indicated-popup__scroll`; painel de contratos =
+`.contracts-panel__scroll`; diálogo de ajuda = `.dialog-box--scrollable .dialog-box__message`; versos
+expandidos de card = `.pro-card__back-comments` e `.vaga-card__back-form`) usa uma barra **SEMPRE
+VISÍVEL** (não overlay): um
 `::-webkit-scrollbar` ESTILIZADO (com `width: 5px` + `-thumb`) no Chromium vira uma barra clássica
 persistente e DISCRETA, que não some sozinha. Thumb claro (`--on-green-muted`) sobre os sheets
 verde-escuros; thumb escuro (`rgba(--p-green-dark-rgb, .28)`) sobre os versos de card claros.
@@ -1110,12 +1123,15 @@ arriscadas que o ganho imediato. Ao mexer nessas áreas, prefira consolidar em v
   (`onboarding.js`) montam/populam/desmontam `#dialog-global` de formas quase iguais, e cada um adiciona
   um `click` novo ao `#btn-dialog-confirm` a cada chamada (handlers empilham em reentrância). Extrair um
   primitivo `openDialog({title, message, icon, showCancel, scrollable})` com teardown consistente.
-- **Avatar SVG inline duplicado:** o mesmo `data:image/svg+xml` de avatar-placeholder aparece 4× em
-  `index.html` e 2× em `feed.js` (só muda o `fill`). Fatorar num helper/constante única.
-- **`applyFilters` recalcula a faixa de IC inline** (`p.ic >= 75 ? …`) em vez de reusar `icTier()`; os
-  limiares 75/50/25 ficam duplicados. Hoistar `icTier` e reusar.
+- **Avatar SVG inline duplicado:** o mesmo `data:image/svg+xml` de avatar-placeholder aparece 8× em
+  `index.html` (6 cinzas + 2 brancos, só muda o `fill`); dentro de `feed.js` já foi consolidado numa
+  const única (`avatarSvg`). Fatorar o lado do HTML num helper/constante única.
 - **Mock:** `mockIndicatedByPost` redeclara objetos de profissional que já existem em `mockProfessionals`
-  (com `ic`/bio ligeiramente diferentes). Uma fonte única keyed por id evitaria divergência.
+  (com `ic`/bio ligeiramente diferentes), e as indicações semeadas na publicação do pedido (`feed.js`,
+  bloco do publish) redeclaram os MESMOS objetos uma 3ª vez. Uma fonte única keyed por id evitaria
+  divergência. (O item antigo "applyFilters recalcula a faixa de IC" foi RESOLVIDO na v261: `icTier`/
+  `icShieldIcon` viraram function declarations hoistadas e `applyFilters` reusa `icTier` — limiares
+  75/50/25 têm fonte única.)
 
 ### Padronização de estilo — pendências (auditoria de consistência)
 Consolidações de estilo ainda ABERTAS após a auditoria (as fases 1–6 e a reconciliação de sombras já
@@ -1142,14 +1158,16 @@ foram feitas). Estas mudam pixel/interação e precisam de conferência no apare
   (`#btn-pedido-publish, #btn-vaga-publish, #btn-call-helper, #btn-sync-contacts`) reduz para
   `padding: 11px var(--space-md)` → altura 40px, igual aos botões da action bar (Criar vaga/Histórico/
   Fazer pedido).
-- **Botões do feed reimplementam `.btn` (parcial):** os dois botões de ação de largura cheia do card de
-  vaga já foram migrados — `.vaga-card__btn-submit` (`btn btn--primary vaga-card__btn-submit`) e
-  `.vaga-card__btn-apply` (`btn vaga-card__btn-apply`), mantendo o `:active` por opacidade via
-  `transform:none` (suprime o scale do `.btn`). Os demais foram MANTIDOS bespoke de propósito por serem
-  estruturalmente distintos de um `.btn` (não é dívida a "corrigir" mecanicamente): `.pro-card__back-btn`
-  (variantes só-ícone com `padding:0`), `.bottom-bar__pedidos` (pílula em COLUNA ícone+label),
-  `.agenda-filters__vagas-btn` (par de altura fixa 40px), `.ajudante-cancel-btn` (pílula danger). Rotear
-  esses pelo `.btn` exigiria mais override do que reuso e arriscaria a interação própria de cada um.
+- **Botões do feed reimplementam `.btn` (parcial):** já migrados — `.vaga-card__btn-submit`
+  (`btn btn--primary …`) e `.vaga-card__btn-apply` (`btn …`), mantendo o `:active` por opacidade via
+  `transform:none` (suprime o scale do `.btn`); `.pro-card__back-btn` (todas as variantes compõem `.btn`
+  no markup gerado em `feed.js` — o CSS só mantém gap/fonte próprios); `.agenda-indicated__cancel`
+  (`btn btn--close` + cores sobre verde); `#btn-toggle-filters` (`btn btn--icon` + 40px). Os que seguem
+  bespoke DE PROPÓSITO por serem estruturalmente distintos de um `.btn`:
+  `.agenda-filters__vagas-btn` (par de altura fixa 40px) e `.ajudante-cancel-btn` (pílula danger).
+  (`.bottom-bar__pedidos` era CSS morto da bottom bar antiga e foi REMOVIDO na v261 — a bottom bar real
+  é a `.feed-tabs-pill` com 3 abas.) Rotear os bespoke restantes pelo `.btn` exigiria mais override do
+  que reuso e arriscaria a interação própria de cada um.
 
 ## Próximas Features Previstas
 

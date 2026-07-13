@@ -38,6 +38,7 @@
   justify-content: space-between;
   min-height: 48px;
   padding: var(--space-xs) var(--space-md) 0; /* sem bottom: a busca abaixo já tem top padding */
+  padding-top: calc(var(--space-xs) + env(safe-area-inset-top, 0px)); /* iOS standalone: não entrar sob o notch */
   background: var(--p-green);
   border-bottom: none;
   z-index: 10;
@@ -141,8 +142,8 @@
   flex-direction: column;
   overflow: hidden;
   transform: translateY(-100%);
-  transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  transition: transform 0.5s var(--sheet-ease);
+  box-shadow: var(--shadow-lg);
 }
 
 .contracts-panel--open {
@@ -164,7 +165,7 @@
 .contracts-panel__title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-xs);
   font-size: var(--fs-9);
   font-weight: var(--fw-heavy);
   color: var(--t-light);
@@ -177,7 +178,6 @@
 /* Botão "Fechar" do cabeçalho: claro sobre o verde */
 .contracts-panel__header .btn--outline {
   background: var(--on-green-faint);
-  border-color: var(--on-green-muted);
   color: var(--t-light);
 }
 
@@ -191,7 +191,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  scrollbar-width: thin;
+  scrollbar-color: var(--on-green-muted) transparent;
 }
+
+/* Barra SEMPRE visível (padrão dos containers de scroll fora dos 3 feeds). */
+.contracts-panel__scroll::-webkit-scrollbar { width: 5px; }
+.contracts-panel__scroll::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
 
 
 /* ── Bloco: criar minicontrato + recém-criados ── */
@@ -209,7 +215,7 @@
 
 .contracts-create__btn {
   flex: 1;
-  gap: 8px;
+  gap: var(--space-xs);
   padding: 14px;
   border-radius: var(--radius-md);
 }
@@ -384,7 +390,6 @@
 }
 
 .contracts-filters__search:focus {
-  background: var(--bg-white);
   background: var(--p-green-light);
 }
 
@@ -430,7 +435,6 @@
 }
 
 .contracts-filters__input:focus {
-  background: var(--bg-white);
   background: var(--p-green-light);
 }
 
@@ -516,7 +520,7 @@
 }
 
 .contract-card__status--done {
-  background: #eef2ff;
+  background: var(--info-blue-light);
   color: var(--info-blue);
 }
 
@@ -740,7 +744,7 @@
 
 .agenda-filters__vagas-btn--criar {
   background: var(--bg-white);
-  color: #000;
+  color: var(--p-green-dark);
 }
 
 .agenda-filters__vagas-btn--criar:active {
@@ -770,8 +774,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  padding: 8px var(--space-md);
-  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-xs) var(--space-md);
+  padding-bottom: calc(var(--space-xs) + env(safe-area-inset-bottom, 0px));
   background: transparent;
   position: absolute;
   left: 0;
@@ -803,43 +807,6 @@
   mask-image: linear-gradient(to top, #000 60%, transparent);
   pointer-events: none;
 }
-
-/* Botões circulares laterais — FABs verdes flutuando sobre o feed */
-/* Botão Pedidos: pílula AMARELA no mesmo estilo visual das abas (feed-tabs-pill) —
-   ícone + texto DENTRO da pílula, mesma altura e mesmo raio. */
-.bottom-bar__pedidos {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  min-height: 52px;          /* mesma altura total da pílula de abas (44px + 2×4px) */
-  padding: 4px 16px;
-  border-radius: var(--radius-pill);
-  border: none;
-  background: var(--a-gold);
-  color: var(--p-green-dark);
-  cursor: pointer;
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.2s ease, background 0.2s ease;
-  flex-shrink: 0;
-}
-
-.bottom-bar__pedidos .material-symbols-rounded {
-  font-size: 1.35rem;
-}
-
-.bottom-bar__pedidos-label {
-  font-size: var(--fs-1);
-  font-weight: var(--fw-bold);
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.bottom-bar__pedidos:active {
-  transform: scale(var(--press-scale));
-}
-
 
 /* ===========================================
    FEED TABS — barra central na bottom-bar
@@ -926,35 +893,7 @@
   padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
 }
 
-/* Dentro da sheet de pedidos não há barra inferior flutuante por cima:
-   remove o espaço extra reservado para ela. O fundo verde-escuro (--bg-canvas)
-   dá contraste entre o topo fixo branco e os cards brancos de pedido. */
-.agenda-sheet .scroll-area {
-  padding-bottom: var(--space-md);
-  background: var(--bg-canvas);
-}
-
-/* ── Cabeçalho fixo do popup de pedidos, tratado como UM bloco único ──
-   Linha 1 (.agenda-sheet__header): título + Fechar.
-   Linha 2 (.pedidos-head__action): botão "Fazer um pedido"/"Detalhes" + o badge
-   separado de indicações recebidas (reaproveita .post-card__indicate-info). */
-.pedidos-head {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-md);
-  border-bottom: 1px solid var(--border-light);
-  background: var(--bg-white);
-}
-
-.pedidos-head__action {
-  display: flex;
-  align-items: stretch;   /* badge estica p/ a mesma altura do botão (raio já é radius-md) */
-  gap: var(--space-sm);
-}
-
-/* Botão cresce; o badge de contagem fica ao lado, à direita */
+/* Botões da action bar de pedidos (Histórico / Fazer pedido) — largura 50/50 */
 .pedido-action__btn {
   flex: 1;
   min-width: 0;   /* largura ESTÁVEL 50/50: sem isso min-width:auto faz o botão
@@ -1010,8 +949,8 @@
 .pedidos-list {
   display: flex;
   flex-direction: column;
-  padding: 12px 16px;
-  gap: 12px;
+  padding: var(--space-sm) 16px;
+  gap: var(--space-sm);
 }
 
 .pedido-item {
@@ -1022,9 +961,6 @@
   flex-direction: column;
   gap: 10px;
   position: relative;
-}
-
-.pedido-item--urgent {
 }
 
 /* Símbolo "Urgente" embutido antes do texto */
@@ -1108,23 +1044,6 @@
 .pedido-item .post-card__report .material-symbols-rounded {
   font-size: 0.85rem;
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
-}
-
-/* Timer de horas restantes — ocupa o slot do Denunciar no card de detalhes */
-.pedido-item__timer {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: var(--fs-4);
-  font-weight: var(--fw-medium);
-  color: var(--a-gold);
-  flex-shrink: 0;
-}
-
-.pedido-item__timer .material-symbols-rounded {
-  font-size: 0.9rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 20;
-  color: var(--a-gold);
 }
 
 /* Texto do pedido */
@@ -1231,7 +1150,7 @@
   flex-shrink: 0;
   padding: 5px 10px;
   border-radius: var(--radius-pill);
-  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  transition: color 0.15s, background 0.15s;
   white-space: nowrap;
 }
 
@@ -1265,7 +1184,7 @@
 
 .post-card__indicate-btn {
   flex: 3 1 55%;
-  gap: 8px;
+  gap: var(--space-xs);
   padding: 9px var(--space-sm);        /* reduzido: de 14px para 9px */
   font-size: var(--fs-6);
 }
@@ -1274,7 +1193,8 @@
   line-height: 1;
 }
 
-/* Informação (não-clicável) de quantos já foram indicados — fração + pessoas */
+/* Badge de quantos já foram indicados — fração + pessoas. É um <button> (nos
+   pedidos de terceiros abre o popup de profissionais indicados). */
 .post-card__indicate-info {
   flex: 0 0 auto;
   display: inline-flex;
@@ -1287,6 +1207,7 @@
   color: var(--t-sub);
   font-size: var(--fs-6);
   font-weight: var(--fw-bold);
+  cursor: pointer;
 }
 
 .post-card__indicate-info .material-symbols-rounded {
@@ -1308,68 +1229,6 @@
   font-size: 1.2rem;
 }
 
-
-/* ===========================================
-   AGENDA SHEET (bottom sheet global)
-   ======================================== */
-.agenda-backdrop {
-  position: fixed;
-  inset: 0;
-  background: var(--overlay);
-  backdrop-filter: blur(var(--blur-sm));
-  z-index: 100;
-  transition: opacity 0.3s ease;
-}
-
-.agenda-sheet {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-height: 92dvh;
-  background: var(--bg-white);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  z-index: 110;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transform: translateY(100%);
-  transition: transform 0.32s var(--sheet-ease);
-}
-
-.agenda-sheet--open {
-  transform: translateY(0);
-}
-
-/* Modo indicação: sheet mais baixa para os "já indicados" caberem na zona de blur acima */
-.agenda-sheet--indicate {
-  max-height: 70dvh;
-}
-
-.agenda-sheet__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.agenda-sheet__title {
-  font-size: var(--fs-9);
-  font-weight: var(--fw-heavy);
-  color: var(--a-gold-text);   /* OURO: popup de pedidos = contexto de indicação */
-}
-
-/* Acento OURO no popup de pedidos: o destaque (botões primários e o "Fechar")
-   fica amarelo em vez do verde da aba principal, reforçando o contexto de indicação. */
-.agenda-sheet .btn--primary {
-  background: var(--a-gold);
-  color: var(--p-green-dark);
-}
-
-/* Botão "Fechar" do popup: ouro sólido com texto verde-escuro */
-.agenda-sheet__header .btn--outline {
-  background: var(--a-gold);
-  color: var(--p-green-dark);
-}
 
 /* Top-bar PROVISÓRIA do modo indicação — substitui a top-bar verde. */
 .agenda-indicated {
@@ -1417,24 +1276,14 @@
   font-size: 1.1rem;
 }
 
-/* Botão "Fechar" no modo indicação e no popup */
+/* Botão "Fechar" no modo indicação e no popup — compõe .btn .btn--close (HTML);
+   aqui só a cor sobre o verde e a altura casada com o badge de contagem ao lado. */
 .agenda-indicated__cancel {
-  border: none;
   background: var(--on-green-faint);
   color: var(--t-light);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: var(--fw-bold);
   font-size: var(--fs-5);
-  padding: 9px 12px;
-  border-radius: var(--radius-md);
-  cursor: pointer;
+  padding: 9px var(--space-sm);
   flex-shrink: 0;
-}
-
-.agenda-indicated__cancel .material-symbols-rounded {
-  font-size: 1.1rem;
 }
 
 /* Popup de profissionais já indicados */
@@ -1448,7 +1297,7 @@
   pointer-events: none;
   visibility: hidden;
   /* Mantém visível durante a animação de fechamento */
-  transition: visibility 0s linear 0.35s;
+  transition: visibility 0s linear 0.45s;
 }
 
 .indicated-popup--open {
@@ -1464,7 +1313,7 @@
   backdrop-filter: blur(var(--blur-sm));
   -webkit-backdrop-filter: blur(var(--blur-sm));
   opacity: 0;
-  transition: opacity 0.28s ease;
+  transition: opacity 0.45s ease;   /* duração única de fade dos backdrops */
 }
 
 .indicated-popup--open .indicated-popup__backdrop {
@@ -1480,7 +1329,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  max-height: 92dvh;
+  max-height: calc(var(--app-height, 100dvh) * 0.92);
   overflow: hidden;
   transform: translateY(100%);
   transition: transform 0.32s var(--sheet-ease);
@@ -1601,7 +1450,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  max-height: calc(100dvh - var(--sheet-top, 0px) - 12px);
+  max-height: calc(var(--app-height, 100dvh) - var(--sheet-top, 0px) - 12px);
   /* Gaveta: fechado = totalmente acima da linha de recorte (100% da própria
      altura), aberto = na posição. Sem fade de opacidade — deslize puro.
      Duração calma (0.5s) para o deslize ficar suave. */
@@ -2033,7 +1882,8 @@
   color: var(--p-green-dark);
 }
 
-.vaga-days--error { box-shadow: 0 0 0 2px var(--danger); border-radius: var(--radius-md); }
+/* Erro de obrigatório = LINHA vermelha de borda (mecanismo canônico único) */
+.vaga-days--error { border: 2px solid var(--danger); border-radius: var(--radius-md); }
 
 /* ── Salário: campo numérico com R$ e /mês externos ── */
 .vaga-salary {
@@ -2202,21 +2052,6 @@
 
 .pedido-detail-note .material-symbols-rounded { font-size: 1.05rem; }
 
-/* Timer de horas restantes */
-.pedido-detail-timer {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-5);
-  font-weight: var(--fw-bold);
-  color: var(--a-gold);
-}
-
-.pedido-detail-timer .material-symbols-rounded {
-  font-size: 1.1rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-}
-
 /* Lista de indicados inline dentro do sheet de detalhes */
 .pedido-detail-indicated {
   display: flex;
@@ -2245,9 +2080,6 @@
 
 /* Preview do pedido no formato balão — igual ao feed, sem botões */
 .pedido-detail-preview { pointer-events: none; }
-
-/* Selo "Concluído" no lugar do timer, em pedidos já finalizados */
-.pedido-item__timer--done { color: var(--success); }
 
 /* =========================================================================
    HISTÓRICO DE PEDIDOS — dropdown que DESCE da base da action bar (#historico-
@@ -2306,7 +2138,7 @@
   left: 0;
   right: 0;
   pointer-events: auto;   /* o clip é pointer-events:none; o painel reativa */
-  max-height: calc(100dvh - var(--sheet-top, 0px) - 12px);
+  max-height: calc(var(--app-height, 100dvh) - var(--sheet-top, 0px) - 12px);
   background: var(--bg-canvas);   /* mesmo verde escuro do serviço de ajudantes */
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   box-shadow: var(--shadow-lg);
@@ -2616,7 +2448,6 @@
   width: 100%;
   height: 40px;
   padding: 0 var(--space-sm) 0 36px;
-  border: 1px solid transparent;
   border-radius: var(--radius-pill);
   background: var(--on-green-solid);
   font-size: var(--fs-6);
@@ -2625,22 +2456,15 @@
 }
 
 .agenda-filters__search:focus {
-  background: var(--bg-white);
   background: var(--p-green-light);
 }
 
-/* Botões ícone: brancos sobre o verde da top-bar */
+/* Botão de filtros: compõe .btn .btn--icon (HTML); aqui só o tamanho de 40px
+   da action bar (o padrão .btn--icon é 44px) e as cores sobre o verde. */
 .agenda-filters__icon-btn {
   width: 40px;
   height: 40px;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
   background: var(--bg-white);
-  cursor: pointer;
   color: var(--p-green);
 }
 
@@ -2655,7 +2479,6 @@
 .filters-panel .chip--active {
   background: var(--bg-white);
   color: var(--p-green);
-  border-color: transparent;
 }
 
 /* Conteúdo do painel de filtros — vive dentro do #filters-sheet (dropdown
@@ -2735,19 +2558,17 @@
 }
 
 /* Modificador de TAMANHO "médio" do chip — métrica única das pílulas do
-   cadastro (tags de profissão e pagamento): fonte --fs-5, padding 8px 14px,
-   borda 1.5px. Só o casco/tamanho; a COR de estado fica por conta de cada
-   contexto (verde no feed, azul no cadastro). */
+   cadastro (tags de profissão e pagamento): fonte --fs-5, padding 8px 14px.
+   Só o casco/tamanho; a COR de estado fica por conta de cada contexto
+   (verde no feed, azul no cadastro). Sem borda (design sem contorno). */
 .chip--md {
-  padding: 8px 14px;
+  padding: var(--space-xs) 14px;
   font-size: var(--fs-5);
-  border-width: 1.5px;
 }
 
 .chip--active {
   background: var(--p-green);
   color: var(--t-light);
-  border-color: var(--p-green);
 }
 
 /* Abas da agenda */
@@ -2776,7 +2597,7 @@
   font-size: var(--fs-4);
   color: var(--on-green-strong); /* legível sobre o --bg-canvas escuro */
   padding: var(--space-xs) 0 var(--space-sm);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   letter-spacing: 0.01em;
 }
 
@@ -2860,9 +2681,7 @@
   min-width: 0;
   background: var(--bg-white);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
   box-shadow: var(--shadow-sm);   /* definição sem contorno */
-  transition: border-color 0.15s, box-shadow 0.15s;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
@@ -3015,18 +2834,12 @@
   transform: translateZ(0);
 }
 
+/* Fundação (flex-center, borda, raio, cursor, transição, peso) vem de .btn
+   (aplicado no HTML) — aqui só os ajustes próprios do verso do card. */
 .pro-card__back-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 6px;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-weight: var(--fw-bold);
   font-size: var(--fs-6);
   touch-action: manipulation;
-  transition: var(--transition);
 }
 
 .pro-card__back-btn--whatsapp {
@@ -3192,7 +3005,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-xs);
   flex-shrink: 0;
 }
 
@@ -3421,11 +3234,10 @@
 .vaga-card__front {
   background: var(--bg-white);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
   /* reconciliado com o token (era sombra dupla bespoke) — mesma elevação dos
      demais cards em repouso do feed (.contract-card / .post-card) */
   box-shadow: var(--shadow-sm);
+  overflow: hidden;
   animation: cardExpand 0.2s ease-out;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
@@ -3497,7 +3309,7 @@
 .vaga-card__btn-submit {
   flex: 1;
   gap: 6px;
-  padding: 12px;
+  padding: var(--space-sm);
   touch-action: manipulation;
   transition: opacity 0.15s;
 }
@@ -3514,7 +3326,7 @@
 .candid-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 .candid-section-label {
@@ -3545,7 +3357,7 @@
 .candid-check {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--space-xs);
   font-size: var(--fs-5);
   color: var(--t-main);
   cursor: pointer;
@@ -3578,7 +3390,7 @@
   background: var(--bg-soft);
   border-radius: var(--radius-pill);
   padding: 5px 12px;
-  transition: border-color 0.15s, background 0.15s;
+  transition: background 0.15s;
 }
 
 .candid-radio input[type="radio"] {
@@ -3611,7 +3423,6 @@
   border-radius: var(--radius-sm);
   background: var(--bg-soft);
   overflow: hidden;
-  transition: border-color 0.15s;
 }
 
 .candid-req-obs[open] {
@@ -3633,7 +3444,7 @@
   cursor: pointer;
   list-style: none;
   user-select: none;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 .candid-req-obs-label::-webkit-details-marker { display: none; }
@@ -3674,7 +3485,6 @@
 
 .candid-req-obs-input:focus {
   background: var(--p-green-light);
-  background: var(--bg-white);
 }
 
 /* Checkbox de confirmação destacado (dentro da seção de observações) */
@@ -3689,15 +3499,15 @@
 .candid-upload-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-md);
   background: var(--bg-soft);
   cursor: pointer;
   color: var(--t-sub);
   font-size: var(--fs-4);
   font-family: inherit;
-  transition: border-color 0.15s, background 0.15s;
+  transition: background 0.15s;
   width: 100%;
   box-sizing: border-box;
   text-align: left;
@@ -4047,7 +3857,7 @@
 .ajudante-section__title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-xs);
   margin: 0 0 var(--space-xs);
   font-size: var(--fs-7);
   font-weight: var(--fw-heavy);
@@ -4139,13 +3949,21 @@
   letter-spacing: 0.3px;
 }
 
-/* Estado marcado — realce dourado + check preenchido */
+/* Estado marcado — preenchimento dourado CHEIO + textos verde-escuros, no mesmo
+   padrão das outras pílulas selecionadas sobre verde (vaga-day, benefit-pill). */
 .helper-toggle--on {
-  background: rgba(var(--a-gold-rgb), 0.16);
+  background: var(--a-gold);
 }
 
-.helper-toggle--on .helper-toggle__check {
-  color: var(--a-gold);
+.helper-toggle--on .helper-toggle__check,
+.helper-toggle--on .helper-toggle__name,
+.helper-toggle--on .helper-toggle__rate {
+  color: var(--p-green-dark);
+}
+
+.helper-toggle--on .helper-toggle__desc,
+.helper-toggle--on .helper-toggle__rate small {
+  color: rgba(var(--p-green-dark-rgb), 0.75);
 }
 
 .helper-toggle:active {

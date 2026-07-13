@@ -52,13 +52,11 @@ function setButtonLoading(btn, label) {
   // Spinner via classe .btn__spinner (components.css) — antes o estilo era
   // inline e duplicado aqui e no handler de reenvio.
   btn.innerHTML = `<span class="material-symbols-rounded btn__spinner">autorenew</span> ${label}`;
-  btn.classList.add('btn--loading');
 }
 
 function restoreButton(btn, html) {
   btn.disabled = false;
   btn.innerHTML = html;
-  btn.classList.remove('btn--loading');
 }
 
 

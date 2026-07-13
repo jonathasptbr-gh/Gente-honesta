@@ -128,7 +128,7 @@
 
 .tutorial-balloon__next {
   flex: 0 0 auto;
-  padding: 10px 24px;
+  padding: 10px var(--space-lg);
 }
 
 .tutorial-balloon__skip-text {

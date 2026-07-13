@@ -30,8 +30,8 @@
          (telefone/OTP) sobe e fica acima do teclado, e o --app-height (window.innerHeight)
          acompanha via o listener de resize em app.js. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-    <!-- Cor inicial verde = combina com o loader verde durante o carregamento; o
-         showView() ajusta para verde no feed e branco na verificação/onboarding. -->
+    <!-- Cor verde única da barra de status (todas as telas do app são verdes);
+         fonte única em JS: window.THEME_COLOR (app.js). -->
     <meta name="theme-color" content="#184e1b">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v260</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v261</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -696,7 +696,7 @@
                     <span class="material-symbols-rounded" aria-hidden="true">groups</span>
                 </div>
                 <p class="agenda-indicated__title">Quem você quer indicar para este serviço?</p>
-                <button type="button" id="btn-cancel-indicate-mode" class="agenda-indicated__cancel" aria-label="Cancelar indicação">
+                <button type="button" id="btn-cancel-indicate-mode" class="btn btn--close agenda-indicated__cancel" aria-label="Cancelar indicação">
                     <span class="material-symbols-rounded" aria-hidden="true">close</span>
                     Fechar
                 </button>
@@ -711,7 +711,7 @@
             <div class="indicated-popup__sheet">
                 <div class="indicated-popup__header">
                     <p class="indicated-popup__title" id="indicated-popup-title">Profissionais indicados</p>
-                    <button type="button" id="btn-close-indicated-popup" class="agenda-indicated__cancel" aria-label="Fechar">
+                    <button type="button" id="btn-close-indicated-popup" class="btn btn--close agenda-indicated__cancel" aria-label="Fechar">
                         <span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar
                     </button>
                 </div>
@@ -841,10 +841,10 @@
                         <div class="pedido-field">
                             <span class="pedido-field__label">Urgência</span>
                             <div class="pedido-chip-row" id="pedido-urgency">
-                                <button type="button" class="pedido-chip pedido-chip--active" data-urgency="normal">
+                                <button type="button" class="pedido-chip pedido-chip--active" data-urgency="normal" aria-pressed="true">
                                     <span class="material-symbols-rounded" aria-hidden="true">schedule</span>Normal
                                 </button>
-                                <button type="button" class="pedido-chip" data-urgency="urgent">
+                                <button type="button" class="pedido-chip" data-urgency="urgent" aria-pressed="false">
                                     <span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente
                                 </button>
                             </div>
@@ -853,10 +853,10 @@
                         <div class="pedido-field">
                             <span class="pedido-field__label">Deixar online por</span>
                             <div class="pedido-chip-row" id="pedido-duration">
-                                <button type="button" class="pedido-chip pedido-chip--active" data-duration="12">12h</button>
-                                <button type="button" class="pedido-chip" data-duration="24">24h</button>
-                                <button type="button" class="pedido-chip" data-duration="36">36h</button>
-                                <button type="button" class="pedido-chip" data-duration="48">48h</button>
+                                <button type="button" class="pedido-chip pedido-chip--active" data-duration="12" aria-pressed="true">12h</button>
+                                <button type="button" class="pedido-chip" data-duration="24" aria-pressed="false">24h</button>
+                                <button type="button" class="pedido-chip" data-duration="36" aria-pressed="false">36h</button>
+                                <button type="button" class="pedido-chip" data-duration="48" aria-pressed="false">48h</button>
                             </div>
                         </div>
 
@@ -970,13 +970,13 @@
                                 </div>
                             </div>
                             <div class="vaga-days" id="vaga-days" role="group" aria-label="Dias de trabalho">
-                                <button type="button" class="vaga-day vaga-day--active" data-day="Seg">Seg</button>
-                                <button type="button" class="vaga-day vaga-day--active" data-day="Ter">Ter</button>
-                                <button type="button" class="vaga-day vaga-day--active" data-day="Qua">Qua</button>
-                                <button type="button" class="vaga-day vaga-day--active" data-day="Qui">Qui</button>
-                                <button type="button" class="vaga-day vaga-day--active" data-day="Sex">Sex</button>
-                                <button type="button" class="vaga-day" data-day="Sáb">Sáb</button>
-                                <button type="button" class="vaga-day" data-day="Dom">Dom</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Seg" aria-pressed="true">Seg</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Ter" aria-pressed="true">Ter</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Qua" aria-pressed="true">Qua</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Qui" aria-pressed="true">Qui</button>
+                                <button type="button" class="vaga-day vaga-day--active" data-day="Sex" aria-pressed="true">Sex</button>
+                                <button type="button" class="vaga-day" data-day="Sáb" aria-pressed="false">Sáb</button>
+                                <button type="button" class="vaga-day" data-day="Dom" aria-pressed="false">Dom</button>
                             </div>
                         </div>
 
@@ -1217,10 +1217,10 @@
 
                     <!-- Chips de status -->
                     <div class="contracts-filters__chips">
-                        <button type="button" class="chip chip--active" data-filter-status="all">Todos</button>
-                        <button type="button" class="chip" data-filter-status="active">Ativo</button>
-                        <button type="button" class="chip" data-filter-status="done">Concluído</button>
-                        <button type="button" class="chip" data-filter-status="cancelled">Cancelado</button>
+                        <button type="button" class="chip chip--active" data-filter-status="all" aria-pressed="true">Todos</button>
+                        <button type="button" class="chip" data-filter-status="active" aria-pressed="false">Ativo</button>
+                        <button type="button" class="chip" data-filter-status="done" aria-pressed="false">Concluído</button>
+                        <button type="button" class="chip" data-filter-status="cancelled" aria-pressed="false">Cancelado</button>
                     </div>
 
                     <!-- Faixa de valor + data -->
@@ -1392,7 +1392,7 @@
                         <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
                         <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar profissional...">
                     </div>
-                    <button type="button" id="btn-toggle-filters" class="agenda-filters__icon-btn" aria-label="Filtrar contatos" aria-expanded="false">
+                    <button type="button" id="btn-toggle-filters" class="btn btn--icon agenda-filters__icon-btn" aria-label="Filtrar contatos" aria-expanded="false">
                         <span class="material-symbols-rounded" aria-hidden="true">tune</span>
                     </button>
                 </div>
@@ -1448,7 +1448,7 @@
                                 <p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>Preciso de um eletricista de confiança para instalação de tomadas e revisão do quadro de luz. Apartamento no centro.</p>
                                 <div class="pedido-item__actions">
                                     <button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-0" data-post-id="0"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
-                                    <div class="post-card__indicate-info" aria-label="2 de 3 indicados"><span class="post-card__indicate-count">2/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
+                                    <button type="button" class="post-card__indicate-info" aria-label="2 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">2/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></button>
                                 </div>
                             </article>
 
@@ -1463,7 +1463,7 @@
                                 <p class="pedido-item__text">Alguém conhece uma diarista de confiança para limpeza semanal? Zona Sul. Boa remuneração garantida.</p>
                                 <div class="pedido-item__actions">
                                     <button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-1" data-post-id="1"><span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar alguém</button>
-                                    <div class="post-card__indicate-info" aria-label="2 de 3 indicados"><span class="post-card__indicate-count">2/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></div>
+                                    <button type="button" class="post-card__indicate-info" aria-label="2 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">2/3</span><span class="material-symbols-rounded" aria-hidden="true">groups</span></button>
                                 </div>
                             </article>
 

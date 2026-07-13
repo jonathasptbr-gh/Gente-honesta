@@ -112,7 +112,7 @@
   font-size: var(--fs-12);
   font-weight: var(--fw-heavy);
   color: var(--t-main);
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .otp-cell--filled {
@@ -196,7 +196,7 @@
 .intro-carousel__dots {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-xs);
   margin-top: var(--space-md);
 }
 
