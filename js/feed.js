@@ -27,27 +27,19 @@ document.addEventListener('DOMContentLoaded', () => {
   btnOpenContracts?.addEventListener('click', openContractsPanel);
   btnCloseContracts?.addEventListener('click', closeContractsPanel);
 
-  // --- Recém-criados: colapsar/expandir pela seta ao lado de "Criar minicontrato"
-  const btnToggleRecent = document.getElementById('btn-toggle-recent');
-  const recentBlock     = document.getElementById('contracts-recent');
+  // --- Busca dos contratos: a LUPA (à esquerda de "Criar minicontrato", no lugar
+  // do antigo botão de ocultar contratos) revela/esconde a seção de busca inteira,
+  // já EXPANDIDA (campo + chips de status + faixa de valor/mês). O ícone alterna
+  // search ↔ close conforme o estado.
+  const btnToggleSearch    = document.getElementById('btn-toggle-search');
+  const contractsSearchSec = document.getElementById('contracts-search-section');
 
-  btnToggleRecent?.addEventListener('click', () => {
-    const collapsed = recentBlock?.classList.toggle('contracts-recent--collapsed');
-    btnToggleRecent.setAttribute('aria-expanded', String(!collapsed));
-  });
-
-  // --- Filtros dos contratos: barra de busca + botão de filtros à direita.
-  // O painel (chips + faixa de valor/data) desce animado dentro do card ao abrir;
-  // o ícone do botão alterna tune ↔ close (e o botão fica azul quando aberto).
-  const btnToggleContractsFilters = document.getElementById('btn-toggle-contracts-filters');
-  const contractsFiltersPanel     = document.getElementById('contracts-filters-panel');
-
-  btnToggleContractsFilters?.addEventListener('click', () => {
-    const collapsed = contractsFiltersPanel?.classList.toggle('contracts-filters__panel--collapsed');
+  btnToggleSearch?.addEventListener('click', () => {
+    const collapsed = contractsSearchSec?.classList.toggle('contracts-filters--collapsed');
     const open = !collapsed;
-    btnToggleContractsFilters.setAttribute('aria-expanded', String(open));
-    const icon = btnToggleContractsFilters.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = open ? 'close' : 'tune';
+    btnToggleSearch.setAttribute('aria-expanded', String(open));
+    const icon = btnToggleSearch.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = open ? 'close' : 'search';
   });
 
   // --- Título da top bar: enquanto uma gaveta da action bar está aberta, o

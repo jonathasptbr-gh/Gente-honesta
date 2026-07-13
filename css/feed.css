@@ -188,7 +188,7 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: 0;   /* respiro até a busca vem do margin-top de .contracts-filters (zera ao colapsar) */
   padding: var(--space-md);
   padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
 }
@@ -209,11 +209,7 @@
 .contracts-panel__scroll::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
 
 
-/* ── Bloco: criar minicontrato + contratos genéricos ──
-   gap:0 de propósito: o respiro entre a linha de botões e a lista de genéricos
-   vem do margin-top do próprio .contracts-recent, que ZERA quando ele colapsa —
-   um gap de flex continuaria reservando espaço mesmo com o bloco em altura 0,
-   somando uma margem dupla até a busca. */
+/* ── Linha de ações: lupa | criar minicontrato | fechar ── */
 .contracts-create {
   display: flex;
   flex-direction: column;
@@ -266,39 +262,22 @@
   font-size: 1.4rem;
 }
 
-.contracts-create__chevron {
-  font-size: 1.4rem;
-  transition: transform 0.3s ease;
-}
-
-.contracts-recent {
+/* ── Contratos PENDENTES (primeiros da lista) ──
+   Antigos "genéricos"/minicontratos, ainda sem dados de cliente. Recebem um tom
+   de VERDE CLARO sobre o fundo escuro (--bg-canvas) do painel, distinguindo-os
+   dos contratos já firmados (ativos/concluídos/cancelados) logo abaixo. */
+.contracts-pending {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  overflow: hidden;
-  max-height: 600px;
-  margin-top: var(--space-sm);
-  transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
 }
 
-.contracts-recent--collapsed {
-  max-height: 0;
-  opacity: 0;
-  margin-top: 0;
-  pointer-events: none;
-}
-
-/* Seta gira ao colapsar (aria-expanded="false" é setado via JS no botão) */
-.contracts-create__collapse[aria-expanded="false"] .contracts-create__chevron {
-  transform: rotate(180deg);
-}
-
-.contracts-recent__label {
+.contracts-pending__label {
   font-size: var(--fs-2);
   font-weight: var(--fw-bold);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--t-sub);
+  color: var(--p-green-light);   /* verde claro, legível sobre o fundo escuro */
   padding: 2px 2px;
 }
 
@@ -308,9 +287,8 @@
   justify-content: space-between;
   gap: var(--space-sm);
   padding: 10px var(--space-sm);
-  background: var(--bg-white);
+  background: var(--p-green-light);   /* tom de verde claro */
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
 }
 
 /* Corpo clicável (abre/visualiza o contrato). Recém-criado ainda não tem dados
@@ -362,74 +340,35 @@
 
 
 /* ── Busca e filtros ──
-   Barra: campo de busca + botão de filtros à direita (como no feed principal).
-   Os filtros descem ANIMADOS dentro do próprio card ao tocar no botão. */
+   Seção INTEIRA (busca + chips de status + faixa de valor/mês) escondida por
+   padrão, revelada JÁ EXPANDIDA pela lupa da linha de ações. Anima altura +
+   opacidade + margem + padding ao abrir/fechar. */
 .contracts-filters {
   display: flex;
   flex-direction: column;
+  gap: var(--space-sm);
   padding: var(--space-sm);
   background: var(--bg-white);
   border-radius: var(--radius-md);
+  margin-top: var(--space-md);
+  overflow: hidden;
+  max-height: 500px;
+  opacity: 1;
+  transition: max-height 0.4s var(--sheet-ease), opacity 0.25s ease,
+              margin-top 0.4s var(--sheet-ease), padding 0.4s var(--sheet-ease);
 }
 
-.contracts-filters__bar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
+.contracts-filters--collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  pointer-events: none;
 }
 
 .contracts-filters__search-wrap {
   position: relative;
-  flex: 1;
-  min-width: 0;
-}
-
-/* Botão de filtros (abre/fecha o painel). Estado aberto = azul (linguagem de
-   estado ativo do app), com o ícone virando "close". */
-.contracts-filters__toggle {
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  background: var(--bg-input);
-  color: var(--t-sub);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.contracts-filters__toggle:active {
-  transform: scale(var(--press-scale));
-}
-
-.contracts-filters__toggle[aria-expanded="true"] {
-  background: var(--info-blue-light);
-  color: var(--info-blue);
-}
-
-.contracts-filters__toggle .material-symbols-rounded {
-  font-size: 1.3rem;
-}
-
-/* Painel colapsável (chips + faixa de valor/data). Anima altura + opacidade. */
-.contracts-filters__panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  overflow: hidden;
-  max-height: 400px;
-  opacity: 1;
-  margin-top: var(--space-sm);
-  transition: max-height 0.35s var(--sheet-ease), opacity 0.25s ease, margin-top 0.35s var(--sheet-ease);
-}
-
-.contracts-filters__panel--collapsed {
-  max-height: 0;
-  opacity: 0;
-  margin-top: 0;
-  pointer-events: none;
 }
 
 .contracts-filters__search-icon {
@@ -511,7 +450,9 @@
   gap: var(--space-sm);
 }
 
-/* fundo/raio/sombra vêm de .card .card--shadow (HTML); sem contorno */
+/* base .card dá raio + border:none; o FUNDO do card inteiro vem do status,
+   destacando fortemente a situação. Sem sombra: o tint claro já define por
+   contraste sobre o --bg-canvas escuro. */
 .contract-card {
   padding: var(--space-sm);
   display: flex;
@@ -519,13 +460,11 @@
   gap: var(--space-sm);
 }
 
-/* Encerrados (concluído + cancelado): superfície cinza --bg-soft (via card--soft
-   no HTML), recuada em relação aos ativos brancos. A distinção entre os dois vem
-   só da pílula de status (azul "Concluído" vs. vermelho "Cancelado"). O antigo
-   opacity:0.72 do cancelado foi REMOVIDO — deixava o card sem fundo/"lavado". */
-.contract-card--finished {
-  /* fundo/definição vêm de .card.card--soft; sem regras extras aqui */
-}
+/* Card INTEIRO no tint do status (a mesma cor que os badges usavam antes):
+   ativo = verde claro; concluído = azul claro; cancelado = vermelho claro. */
+.contract-card--active    { background: var(--p-green-light); }
+.contract-card--done      { background: var(--info-blue-light); }
+.contract-card--cancelled { background: var(--danger-soft); }
 
 /* Linha superior: cliente (foto + nome + IC) | status */
 .contract-card__main {
@@ -583,26 +522,28 @@
   font-size: 0.95rem;
 }
 
+/* Badge = versão SÓLIDA e forte da cor do status + texto branco: máximo destaque
+   sobre o card, que está no tint claro do mesmo matiz. */
 .contract-card__status--active {
-  background: var(--p-green-light);
-  color: var(--p-green);
+  background: var(--p-green);
+  color: var(--t-light);
 }
 
 .contract-card__status--done {
-  background: var(--info-blue-light);
-  color: var(--info-blue);
+  background: var(--info-blue);
+  color: var(--t-light);
 }
 
 .contract-card__status--cancelled {
-  background: var(--danger-soft);
-  color: var(--danger-text);
+  background: var(--danger);
+  color: var(--t-light);
 }
 
 .contract-card__status-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--success-fill);
+  background: var(--t-light);   /* ponto branco sobre o badge verde sólido */
 }
 
 /* Datas de início e fim */

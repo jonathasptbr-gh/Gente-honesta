@@ -663,7 +663,7 @@
             <!-- Marca + selo de versão discreto ao lado. BUMPAR o texto de
                  #version-badge (vN) junto com CACHE_NAME (service-worker.js) a
                  cada deploy — é a confirmação visual da versão servida. -->
-            <span class="top-bar__brand"><span class="top-bar__brand-text">Gente Honesta</span><span id="version-badge" class="top-bar__version" aria-hidden="true">v282</span></span>
+            <span class="top-bar__brand"><span class="top-bar__brand-text">Gente Honesta</span><span id="version-badge" class="top-bar__version" aria-hidden="true">v283</span></span>
             <button type="button" id="btn-open-contracts" class="top-bar__action" aria-label="Contratos">
                 <span class="material-symbols-rounded top-bar__notif-icon" aria-hidden="true">description</span>
                 <span id="badge-contracts" class="notif-badge">2</span>
@@ -1119,15 +1119,16 @@
              Contrato de visibilidade: controlada por .contracts-panel--open -->
         <section id="panel-contracts" class="contracts-panel" aria-label="Contratos">
 
-            <!-- Topo SEMPRE visível (não rola): ações (ocultar / criar / fechar) +
-                 recém-criados + busca/filtros. Só a lista de contratos rola. -->
+            <!-- Topo SEMPRE visível (não rola): linha de ações (lupa / criar / fechar)
+                 + seção de busca escondida atrás da lupa. Só a lista rola. -->
             <div class="contracts-panel__top">
 
-                <!-- Bloco: ações + recém-criados (colapsável) -->
+                <!-- Linha de ações. À ESQUERDA, no lugar do antigo botão de ocultar
+                     contratos, agora fica a LUPA que revela/esconde a busca. -->
                 <div class="contracts-create">
                     <div class="contracts-create__row">
-                        <button type="button" id="btn-toggle-recent" class="contracts-create__collapse" aria-expanded="true" aria-label="Recolher contratos genéricos">
-                            <span class="material-symbols-rounded contracts-create__chevron" aria-hidden="true">expand_less</span>
+                        <button type="button" id="btn-toggle-search" class="contracts-create__collapse" aria-expanded="false" aria-label="Buscar contratos">
+                            <span class="material-symbols-rounded" aria-hidden="true">search</span>
                         </button>
                         <button type="button" id="btn-new-contract" class="btn btn--accent contracts-create__btn">
                             <span class="material-symbols-rounded" aria-hidden="true">add</span>
@@ -1137,14 +1138,52 @@
                             <span class="material-symbols-rounded" aria-hidden="true">close</span>
                         </button>
                     </div>
+                </div>
 
-                    <!-- Contratos genéricos — colapsável pela seta acima -->
-                    <div id="contracts-recent" class="contracts-recent">
-                        <h3 class="contracts-recent__label">Contratos genéricos</h3>
+                <!-- Busca + filtros: ESCONDIDA por padrão, revelada JÁ EXPANDIDA pela
+                     lupa (busca + chips de status + faixa de valor/mês, tudo visível). -->
+                <div id="contracts-search-section" class="contracts-filters contracts-filters--collapsed">
+                    <div class="contracts-filters__search-wrap">
+                        <span class="material-symbols-rounded contracts-filters__search-icon" aria-hidden="true">search</span>
+                        <input type="text" id="inp-contracts-search" class="contracts-filters__search" placeholder="Buscar contrato...">
+                    </div>
 
-                        <!-- Contrato genérico: só resumo do serviço + preço (sem dados de
-                             cliente ainda). O corpo é clicável para abrir/visualizar;
-                             ações restantes = editar e compartilhar. -->
+                    <!-- Chips de status -->
+                    <div class="contracts-filters__chips">
+                        <button type="button" class="chip chip--active" data-filter-status="all" aria-pressed="true">Todos</button>
+                        <button type="button" class="chip" data-filter-status="active" aria-pressed="false">Ativo</button>
+                        <button type="button" class="chip" data-filter-status="done" aria-pressed="false">Concluído</button>
+                        <button type="button" class="chip" data-filter-status="cancelled" aria-pressed="false">Cancelado</button>
+                    </div>
+
+                    <!-- Faixa de valor + mês/ano -->
+                    <div class="contracts-filters__row">
+                        <div class="contracts-filters__field">
+                            <label class="contracts-filters__field-label" for="inp-contracts-min">Valor mín.</label>
+                            <input type="number" inputmode="numeric" id="inp-contracts-min" class="contracts-filters__input" placeholder="R$ 0">
+                        </div>
+                        <div class="contracts-filters__field">
+                            <label class="contracts-filters__field-label" for="inp-contracts-max">Valor máx.</label>
+                            <input type="number" inputmode="numeric" id="inp-contracts-max" class="contracts-filters__input" placeholder="R$ 9999">
+                        </div>
+                        <div class="contracts-filters__field">
+                            <label class="contracts-filters__field-label" for="inp-contracts-date">Mês/Ano</label>
+                            <input type="month" id="inp-contracts-date" class="contracts-filters__input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de contratos (única parte rolável) -->
+            <div class="contracts-panel__scroll">
+                <div id="contracts-list" class="contracts-list">
+
+                    <!-- Contratos PENDENTES (antigos "genéricos"): primeiros da lista.
+                         Ainda sem dados de cliente — só resumo do serviço + preço.
+                         Tom de verde claro sobre o fundo escuro da seção. -->
+                    <div class="contracts-pending">
+                        <h3 class="contracts-pending__label">Contratos pendentes</h3>
+
                         <div class="contract-mini">
                             <button type="button" class="contract-mini__open" aria-label="Abrir contrato">
                                 <span class="contract-mini__summary">Montagem de móveis · R$ 320</span>
@@ -1165,57 +1204,9 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Busca e filtros dos contratos: barra de busca + botão de filtros
-                     à direita (como no feed principal). Os filtros (chips + faixa de
-                     valor/data) descem ANIMADOS dentro do próprio card ao abrir. -->
-                <div class="contracts-filters">
-                    <div class="contracts-filters__bar">
-                        <div class="contracts-filters__search-wrap">
-                            <span class="material-symbols-rounded contracts-filters__search-icon" aria-hidden="true">search</span>
-                            <input type="text" id="inp-contracts-search" class="contracts-filters__search" placeholder="Buscar contrato...">
-                        </div>
-                        <button type="button" id="btn-toggle-contracts-filters" class="contracts-filters__toggle" aria-expanded="false" aria-label="Filtros">
-                            <span class="material-symbols-rounded" aria-hidden="true">tune</span>
-                        </button>
-                    </div>
-
-                    <!-- Painel de filtros — colapsável (animação de altura) -->
-                    <div id="contracts-filters-panel" class="contracts-filters__panel contracts-filters__panel--collapsed">
-                        <!-- Chips de status -->
-                        <div class="contracts-filters__chips">
-                            <button type="button" class="chip chip--active" data-filter-status="all" aria-pressed="true">Todos</button>
-                            <button type="button" class="chip" data-filter-status="active" aria-pressed="false">Ativo</button>
-                            <button type="button" class="chip" data-filter-status="done" aria-pressed="false">Concluído</button>
-                            <button type="button" class="chip" data-filter-status="cancelled" aria-pressed="false">Cancelado</button>
-                        </div>
-
-                        <!-- Faixa de valor + data -->
-                        <div class="contracts-filters__row">
-                            <div class="contracts-filters__field">
-                                <label class="contracts-filters__field-label" for="inp-contracts-min">Valor mín.</label>
-                                <input type="number" inputmode="numeric" id="inp-contracts-min" class="contracts-filters__input" placeholder="R$ 0">
-                            </div>
-                            <div class="contracts-filters__field">
-                                <label class="contracts-filters__field-label" for="inp-contracts-max">Valor máx.</label>
-                                <input type="number" inputmode="numeric" id="inp-contracts-max" class="contracts-filters__input" placeholder="R$ 9999">
-                            </div>
-                            <div class="contracts-filters__field">
-                                <label class="contracts-filters__field-label" for="inp-contracts-date">Mês/Ano</label>
-                                <input type="month" id="inp-contracts-date" class="contracts-filters__input">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lista de contratos (única parte rolável) -->
-            <div class="contracts-panel__scroll">
-                <div id="contracts-list" class="contracts-list">
 
                     <!-- Contrato ATIVO -->
-                    <article class="card card--shadow contract-card">
+                    <article class="card contract-card contract-card--active">
                         <div class="contract-card__main">
                             <div class="contract-card__client">
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
@@ -1245,7 +1236,7 @@
                     </article>
 
                     <!-- Contrato ATIVO -->
-                    <article class="card card--shadow contract-card">
+                    <article class="card contract-card contract-card--active">
                         <div class="contract-card__main">
                             <div class="contract-card__client">
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
@@ -1274,8 +1265,8 @@
                         </div>
                     </article>
 
-                    <!-- Contrato CONCLUÍDO (encerrado → superfície cinza --bg-soft, recuada vs. os ativos brancos) -->
-                    <article class="card card--soft contract-card contract-card--finished">
+                    <!-- Contrato CONCLUÍDO (card inteiro no tint azul do status) -->
+                    <article class="card contract-card contract-card--done">
                         <div class="contract-card__main">
                             <div class="contract-card__client">
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
@@ -1304,8 +1295,8 @@
                         </div>
                     </article>
 
-                    <!-- Contrato CANCELADO (encerrado → mesma superfície cinza --bg-soft dos concluídos) -->
-                    <article class="card card--soft contract-card contract-card--finished contract-card--cancelled">
+                    <!-- Contrato CANCELADO (card inteiro no tint vermelho do status) -->
+                    <article class="card contract-card contract-card--cancelled">
                         <div class="contract-card__main">
                             <div class="contract-card__client">
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
