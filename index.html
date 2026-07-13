@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v258</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v259</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -728,6 +728,7 @@
              --historico-top); drill-down para o detalhe unificado. -->
         <div id="historico-sheet" class="historico-sheet" role="dialog" aria-modal="true">
             <div class="historico-sheet__backdrop" id="historico-sheet-backdrop"></div>
+            <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
                 <div class="historico-sheet__header">
                     <p class="historico-sheet__title">Histórico de pedidos</p>
@@ -738,6 +739,7 @@
                     </div>
                 </div>
             </div>
+            </div>
         </div>
 
         <!-- ── Sheet: filtros da busca de profissionais ──
@@ -745,6 +747,7 @@
              submenu do histórico/fazer pedido (reusa as classes .historico-sheet*). -->
         <div id="filters-sheet" class="historico-sheet" role="dialog" aria-modal="true">
             <div class="historico-sheet__backdrop" id="filters-sheet-backdrop"></div>
+            <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
                 <div class="historico-sheet__scroll">
                     <div id="panel-agenda-filters" class="filters-panel">
@@ -812,12 +815,14 @@
                     </div>
                 </div>
             </div>
+            </div>
         </div>
 
         <!-- ── Sheet: criar / gerenciar meu pedido ── -->
         <!-- Contrato: visibilidade controlada por .pedido-sheet--open (slide-up, padrão indicated-popup). -->
         <div id="pedido-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
             <div class="pedido-sheet__backdrop" id="pedido-sheet-backdrop"></div>
+            <div class="pedido-sheet__clip">
             <div class="pedido-sheet__panel">
                 <div class="pedido-sheet__header">
                     <p class="pedido-sheet__title" id="pedido-sheet-title">Fazer pedido</p>
@@ -896,6 +901,7 @@
 
                 </div>
             </div>
+            </div>
         </div>
 
         <!-- ── Sheet "Criar vaga" ─────────────────────────────────────────── -->
@@ -903,6 +909,7 @@
         <!-- Contrato: visibilidade controlada por .pedido-sheet--open. -->
         <div id="vaga-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
             <div class="pedido-sheet__backdrop" id="vaga-sheet-backdrop"></div>
+            <div class="pedido-sheet__clip">
             <div class="pedido-sheet__panel">
                 <div class="pedido-sheet__body">
                     <div class="pedido-sheet__state">
@@ -1037,6 +1044,7 @@
                     <button type="button" id="btn-vaga-publish" class="btn btn--accent">Publicar vaga</button>
                 </div>
             </div>
+            </div>
         </div>
 
         <!-- ── Sheet: Serviço de ajudantes (2 funções) ──────────────────────
@@ -1049,6 +1057,7 @@
              Lógica em feed.js (bloco "SERVIÇO DE AJUDANTES"). -->
         <div id="ajudante-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
             <div class="pedido-sheet__backdrop" id="ajudante-sheet-backdrop"></div>
+            <div class="pedido-sheet__clip">
             <div class="pedido-sheet__panel">
                 <div class="pedido-sheet__header">
                     <p class="pedido-sheet__title">Serviço de ajudantes</p>
@@ -1123,6 +1132,7 @@
                     </section>
 
                 </div>
+            </div>
             </div>
         </div>
 

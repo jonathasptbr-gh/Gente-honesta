@@ -585,7 +585,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v258`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v259`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -796,16 +796,25 @@ via `historico-sheet--open` e alternam o ícone tune↔close. A delegação de c
 **Animação de GAVETA (drawer slide-down) — todos os dropdowns da action bar:** os cinco submenus
 (`#pedido-sheet`, `#vaga-sheet`, `#ajudante-sheet`, `#historico-sheet`, `#filters-sheet`) deslizam de
 verdade a partir da fronteira superior, como uma gaveta — não é mais fade + leve deslocamento. Receita
-(em `.pedido-sheet`/`.historico-sheet` + `__panel`): o CONTAINER esconde VISUALMENTE tudo acima da barra
-com uma **`mask` linear-gradient** (transparente de 0 até `--sheet-top`, opaca daí pra baixo); o PAINEL
-nasce em `transform: translateY(-100%)` (totalmente acima da linha, invisível) e vai a `translateY(0)` ao
-abrir (`transition: transform 0.5s var(--sheet-ease)` — duração calma), emergindo pra baixo da fronteira.
-SEM fade de opacidade (deslize puro). **Usa `mask`, NÃO `clip-path`:** `clip-path` remove os toques da
-área recortada, e o container PRECISA continuar recebendo toques sobre a barra para rotear o botão
-"Fechar"/"Concluir" (`tapHitsButton`); `mask` é só visual e não afeta o hit-test. O `--sheet-top` é o
-rodapé da action bar, medido em JS e setado no PRÓPRIO container (a `mask` o enxerga). A abertura do
-detalhe pelo histórico (`.pedido-sheet--morph`) desliga o slide (`transform: none !important`) e mantém a
-animação FLIP do card — a máscara não interfere (o card fica abaixo da fronteira).
+(em `.pedido-sheet`/`.historico-sheet` + `__clip` + `__panel`): a estrutura tem TRÊS camadas —
+1. **Container** (`.pedido-sheet`/`.historico-sheet`, `inset:0`, `z-300`) = só CAPTADOR de toques
+   edge-to-edge; cobre a barra para rotear o botão "Fechar"/"Concluir" (`tapHitsButton`). NÃO recorta nada.
+2. **Clip** (`.pedido-sheet__clip`/`.historico-sheet__clip`, `top:--sheet-top; bottom:0; overflow:hidden;
+   pointer-events:none`) = wrapper que RECORTA a gaveta; `pointer-events:none` deixa os toques atravessarem
+   até o container.
+3. **Painel** (`__panel`, `top:0` relativo ao clip, `pointer-events:auto`) = nasce em
+   `transform: translateY(-100%)` (acima da linha, escondido pelo `overflow:hidden` do clip) e vai a
+   `translateY(0)` ao abrir (`transition: transform 0.5s var(--sheet-ease)` — calma), emergindo pra baixo
+   da fronteira. SEM fade (deslize puro).
+
+**Por que `overflow:hidden` num wrapper, e NÃO `mask`/`clip-path` no container:** `clip-path` remove os
+toques da área recortada (quebra o hit-test do "Fechar" sobre a barra); `mask` preserva o hit-test mas
+deixava um FLASH de 1 quadro do conteúdo do painel sobre o cabeçalho no FIM do fechamento (ao terminar a
+transição, o layer do painel des-compositava e a máscara não era aplicada por um quadro). Um wrapper real
+com `overflow:hidden` recorta sem esse artefato e o container separado mantém o hit-test. O `--sheet-top`
+é o rodapé da action bar, medido em JS e setado no container (o clip herda). A abertura do detalhe pelo
+histórico (`.pedido-sheet--morph`) desliga o slide (`transform: none !important`) e mantém a animação
+FLIP do card — o clip não interfere (o card fica abaixo da fronteira).
 
 **Scroll RENTE às bordas no "Criar vaga" (`#vaga-sheet`):** como o título "Criar vaga" vive DENTRO do
 `.pedido-sheet__body` (rola com os campos), o body precisa rolar rente ao topo do painel e à faixa verde

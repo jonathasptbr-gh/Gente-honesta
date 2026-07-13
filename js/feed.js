@@ -1663,6 +1663,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Card do ajudante: mesmo padrão visual dos cards de profissional do feed
     // (classes .pro-card__*: avatar retrato, nome, IC-bar, botão WhatsApp verde),
     // porém com elementos reduzidos — só foto, nome+sobrenome e índice de confiança.
+    // Layout: foto à ESQUERDA; à direita dela, uma linha com nome+sobrenome e o
+    // índice de confiança e, ABAIXO dessa linha (ainda ao lado da foto), o botão
+    // do WhatsApp — tudo dentro de .pro-card__col-right.
     const helperPersonHTML = (h) => `
       <div class="pro-card__front pro-card__front--helper" data-id="${h.id}">
         <div class="pro-card__col-left">
@@ -1679,12 +1682,12 @@ document.addEventListener('DOMContentLoaded', () => {
               ${icBarHTML(h.ic)}
             </div>
           </div>
+          <a class="btn pro-card__back-btn pro-card__back-btn--whatsapp helper-wa"
+             href="https://wa.me/${h.phone}" target="_blank" rel="noopener"
+             aria-label="Conversar com ${h.first} no WhatsApp">
+            <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
+          </a>
         </div>
-        <a class="btn pro-card__back-btn pro-card__back-btn--whatsapp helper-wa"
-           href="https://wa.me/${h.phone}" target="_blank" rel="noopener"
-           aria-label="Conversar com ${h.first} no WhatsApp">
-          <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
-        </a>
       </div>`;
 
     // Sorteia N ajudantes distintos de um tipo, excluindo ids já em uso.

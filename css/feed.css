@@ -1536,14 +1536,14 @@
   z-index: 300;
   pointer-events: none;
   visibility: hidden;
-  /* GAVETA: esconde VISUALMENTE tudo acima de --sheet-top (o painel nasce em
-     translateY(-100%), acima dessa linha, e desliza pra baixo "emergindo" da
-     fronteira superior). Usa MASK (não clip-path): mask é só visual e NÃO
-     afeta o hit-test, então o container continua interceptando toques sobre a
-     barra para rotear o botão "Fechar"/"Concluir" (clip-path furava isso). */
-  -webkit-mask: linear-gradient(to bottom, transparent 0, transparent var(--sheet-top, 0px), #000 var(--sheet-top, 0px));
-  mask: linear-gradient(to bottom, transparent 0, transparent var(--sheet-top, 0px), #000 var(--sheet-top, 0px));
-  /* Mantém visível durante a animação de fechamento */
+  /* Container = APENAS captador de toques edge-to-edge (inset:0) para rotear o
+     botão "Fechar"/"Concluir" sobre a barra. O RECORTE da gaveta NÃO fica aqui:
+     um wrapper .pedido-sheet__clip (top:--sheet-top; overflow:hidden) recorta o
+     painel. Antes usávamos mask/clip-path no container: clip-path furava o
+     hit-test; mask deixava um FLASH de 1 frame do conteúdo sobre o cabeçalho no
+     fim do fechamento (o layer do painel des-compositava e a máscara não era
+     aplicada por 1 quadro). overflow:hidden num wrapper real não tem esse
+     artefato. */
   transition: visibility 0s linear 0.5s;
 }
 
@@ -1551,6 +1551,19 @@
   pointer-events: auto;
   visibility: visible;
   transition: visibility 0s linear 0s;
+}
+
+/* Wrapper que RECORTA a gaveta: cobre de --sheet-top até a base, esconde o que
+   sobe acima da fronteira (overflow:hidden). pointer-events:none para os toques
+   atravessarem até o container (captador) — só o painel dentro é interativo. */
+.pedido-sheet__clip {
+  position: absolute;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 /* Formulário (padrão) = DROPDOWN: o backdrop dim SÓ o feed abaixo da action bar
@@ -1577,9 +1590,10 @@
 .pedido-sheet__panel {
   position: absolute;
   z-index: 1;
-  top: var(--sheet-top, 0px);
+  top: 0;                 /* relativo ao .pedido-sheet__clip (já em --sheet-top) */
   left: 0;
   right: 0;
+  pointer-events: auto;   /* o clip é pointer-events:none; o painel reativa */
   background: var(--bg-canvas);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   box-shadow: var(--shadow-lg);
@@ -2250,11 +2264,9 @@
   z-index: 300;
   pointer-events: none;
   visibility: hidden;
-  /* GAVETA: esconde VISUALMENTE acima de --sheet-top via MASK (não clip-path,
-     que furaria o hit-test sobre a barra); o painel desliza de translateY(-100%)
-     até 0, emergindo da fronteira superior (mesmo deslize do pedido-sheet). */
-  -webkit-mask: linear-gradient(to bottom, transparent 0, transparent var(--sheet-top, 0px), #000 var(--sheet-top, 0px));
-  mask: linear-gradient(to bottom, transparent 0, transparent var(--sheet-top, 0px), #000 var(--sheet-top, 0px));
+  /* Container = só captador de toques (ver .pedido-sheet). O recorte da gaveta
+     fica no wrapper .historico-sheet__clip (overflow:hidden), não em mask/
+     clip-path — evita o flash de 1 frame sobre o cabeçalho no fechamento. */
   transition: visibility 0s linear 0.5s; /* mantém visível durante o fecho */
 }
 
@@ -2262,6 +2274,17 @@
   pointer-events: auto;
   visibility: visible;
   transition: visibility 0s linear 0s;
+}
+
+/* Wrapper que recorta a gaveta (ver .pedido-sheet__clip). */
+.historico-sheet__clip {
+  position: absolute;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .historico-sheet__backdrop {
@@ -2279,9 +2302,10 @@
 
 .historico-sheet__panel {
   position: absolute;
-  top: var(--sheet-top, 0px);
+  top: 0;                 /* relativo ao .historico-sheet__clip (já em --sheet-top) */
   left: 0;
   right: 0;
+  pointer-events: auto;   /* o clip é pointer-events:none; o painel reativa */
   max-height: calc(100dvh - var(--sheet-top, 0px) - 12px);
   background: var(--bg-canvas);   /* mesmo verde escuro do serviço de ajudantes */
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
@@ -4204,12 +4228,14 @@
 /* Card do ajudante: mesmo padrão dos cards de profissional (.pro-card__front),
    com elementos reduzidos. O botão WhatsApp (.pro-card__back-btn--whatsapp)
    passa a ser um item de largura total abaixo do cabeçalho. */
+/* Card do ajudante: foto à esquerda (topo), coluna direita com a linha
+   nome+confiança e o botão do WhatsApp logo abaixo (ambos ao lado da foto). */
 .pro-card__front--helper {
-  align-items: center;
+  align-items: flex-start;
 }
 
 .pro-card__front--helper .helper-wa {
-  flex-basis: 100%;
+  width: 100%;
   text-decoration: none;
 }
 
