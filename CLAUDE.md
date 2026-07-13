@@ -232,8 +232,10 @@ muda o FILL do próprio elemento, não ganha anel.
   `--info-blue` (tag-pill, chip--payment, `.chip--active` dos contratos, card de serviço ativo, radio/check
   de candidatura, pro-card selecionado, item da busca de área); sobre superfície VERDE ESCURA → fundo
   `--info-blue` SÓLIDO + texto `--t-light` (pedido-chip, vaga-day, benefit-pill, helper-toggle, caixa do
-  check de currículo, trilho do switch, thumb do seg-toggle, chips do filters-sheet, slider das abas,
-  badge "Ativo" do histórico); indicadores minúsculos sobre verde → `--info-blue-bright` (dot do carrossel).
+  check de currículo, trilho do switch, thumb do seg-toggle, chips do filters-sheet, badge "Ativo" do
+  histórico); indicadores minúsculos sobre verde → `--info-blue-bright` (dot do carrossel). EXCEÇÃO
+  deliberada: o slider da bottom bar (`.feed-tabs-pill__slider`) é DOURADO — é navegação/ação principal,
+  não seletor de formulário (pedido explícito do desenvolvedor).
 - **FOCO de input** (transitório, não é seleção) segue `--p-green-light`; estados de SUCESSO (GPS
   confirmado, status verde de contrato) seguem verdes; erro segue `--danger`.
 Ao criar um estado selecionado novo, use o par azul do contexto — não use `box-shadow` como destaque.
@@ -610,7 +612,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v262`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v263`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -737,9 +739,10 @@ no `install` — o novo worker fica parado em "waiting" até o usuário confirma
 
 ### Bottom bar — 3 abas (`.feed-tabs-pill`)
 
-Pílula verde flutuante (`.feed-tabs-pill`, com slider AZUL `.feed-tabs-pill__slider` — seleção = azul —
-deslizando sob a aba ativa, texto ativo `--t-light`) dentro da `.bottom-bar` transparente (faixa de vidro
-fosco via `::before`).
+Pílula verde flutuante (`.feed-tabs-pill`, com slider DOURADO `.feed-tabs-pill__slider` deslizando sob a
+aba ativa, texto ativo `--p-green-dark`) dentro da `.bottom-bar` transparente (faixa de vidro fosco via
+`::before`). O dourado aqui é EXCEÇÃO DELIBERADA à regra "seleção = azul" (pedido explícito): a bottom
+bar é a barra de NAVEGAÇÃO/AÇÃO principal do app, não um seletor de formulário.
 
 | `data-tab` | Ícone | Label |
 |---|---|---|

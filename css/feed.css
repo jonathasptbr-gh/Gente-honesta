@@ -824,14 +824,16 @@
   overflow: hidden;            /* slider não vaza fora da barra */
 }
 
-/* Indicador deslizante — substitui o background do tab ativo (seleção = AZUL) */
+/* Indicador deslizante — substitui o background do tab ativo. DOURADO de
+   propósito (exceção deliberada à regra "seleção = azul"): a bottom bar é a
+   barra de NAVEGAÇÃO/AÇÃO principal do app, não um seletor de formulário. */
 .feed-tabs-pill__slider {
   position: absolute;
   top: 4px;
   bottom: 4px;
   left: 4px;
   width: calc((100% - 8px) / 3);    /* 1/3 da área interna */
-  background: var(--info-blue);
+  background: var(--a-gold);
   border-radius: var(--radius-pill);
   pointer-events: none;
   transform: translateX(100%);      /* posição inicial: aba home (índice 1) */
@@ -870,9 +872,9 @@
   transition: font-variation-settings var(--transition);
 }
 
-/* Aba ativa: só cor muda (o slider azul é o fundo) */
+/* Aba ativa: só cor muda (o slider amarelo é o fundo) */
 .feed-tabs-pill__tab--active {
-  color: var(--t-light);
+  color: var(--p-green-dark);
 }
 
 .feed-tabs-pill__tab--active .material-symbols-rounded {
