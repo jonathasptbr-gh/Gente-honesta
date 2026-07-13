@@ -4198,6 +4198,17 @@
   margin-top: var(--space-md);
 }
 
+/* Botões de AÇÃO principais dos sheets (Publicar pedido, Publicar vaga, Chamar
+   ajudante, Sincronizar contatos): o padding base de 16px do .btn os deixava
+   altos demais. Reduz o padding vertical para a altura ficar próxima dos botões
+   da action bar (Criar vaga/Histórico/Fazer pedido = 40px). */
+#btn-pedido-publish,
+#btn-vaga-publish,
+#btn-call-helper,
+#btn-sync-contacts {
+  padding: 11px var(--space-md);
+}
+
 /* Nota "válido até a meia-noite" */
 .ajudante-note {
   display: flex;
