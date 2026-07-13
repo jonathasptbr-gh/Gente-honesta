@@ -663,7 +663,7 @@
             <!-- Marca + selo de versão discreto ao lado. BUMPAR o texto de
                  #version-badge (vN) junto com CACHE_NAME (service-worker.js) a
                  cada deploy — é a confirmação visual da versão servida. -->
-            <span class="top-bar__brand"><span class="top-bar__brand-text">Gente Honesta</span><span id="version-badge" class="top-bar__version" aria-hidden="true">v280</span></span>
+            <span class="top-bar__brand"><span class="top-bar__brand-text">Gente Honesta</span><span id="version-badge" class="top-bar__version" aria-hidden="true">v281</span></span>
             <button type="button" id="btn-open-contracts" class="top-bar__action" aria-label="Contratos">
                 <span class="material-symbols-rounded top-bar__notif-icon" aria-hidden="true">description</span>
                 <span id="badge-contracts" class="notif-badge">2</span>
@@ -1119,9 +1119,9 @@
              Contrato de visibilidade: controlada por .contracts-panel--open -->
         <section id="panel-contracts" class="contracts-panel" aria-label="Contratos">
 
-            <!-- Corpo rolável (sem cabeçalho: as ações — ocultar / criar / fechar —
-                 vivem na linha superior do bloco de criação) -->
-            <div class="contracts-panel__scroll">
+            <!-- Topo SEMPRE visível (não rola): ações (ocultar / criar / fechar) +
+                 recém-criados + busca/filtros. Só a lista de contratos rola. -->
+            <div class="contracts-panel__top">
 
                 <!-- Bloco: ações + recém-criados (colapsável) -->
                 <div class="contracts-create">
@@ -1129,12 +1129,12 @@
                         <button type="button" id="btn-toggle-recent" class="contracts-create__collapse" aria-expanded="true" aria-label="Recolher recém-criados">
                             <span class="material-symbols-rounded contracts-create__chevron" aria-hidden="true">expand_less</span>
                         </button>
-                        <button type="button" id="btn-new-contract" class="btn btn--primary contracts-create__btn">
+                        <button type="button" id="btn-new-contract" class="btn btn--accent contracts-create__btn">
                             <span class="material-symbols-rounded" aria-hidden="true">add</span>
                             Criar minicontrato
                         </button>
                         <button type="button" id="btn-close-contracts" class="contracts-create__close" aria-label="Fechar contratos">
-                            <span class="material-symbols-rounded" aria-hidden="true">expand_less</span>
+                            <span class="material-symbols-rounded" aria-hidden="true">close</span>
                         </button>
                     </div>
 
@@ -1208,8 +1208,10 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Lista de contratos -->
+            <!-- Lista de contratos (única parte rolável) -->
+            <div class="contracts-panel__scroll">
                 <div id="contracts-list" class="contracts-list">
 
                     <!-- Contrato ATIVO -->
@@ -1265,7 +1267,7 @@
                             <p class="contract-card__desc">Pintura da sala de estar e corredor, duas demãos em tom off-white. Material por conta do contratante.</p>
                             <div class="contract-card__value-box">
                                 <span class="contract-card__value">R$ 850</span>
-                                <span class="contract-card__payment"><span class="material-symbols-rounded" aria-hidden="true">payments</span>Dinheiro</span>
+                                <span class="contract-card__payment"><span class="material-symbols-rounded" aria-hidden="true">attach_money</span>Dinheiro</span>
                             </div>
                         </div>
                     </article>

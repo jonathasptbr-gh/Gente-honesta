@@ -157,7 +157,8 @@
    ABA DE CONTRATOS (tela cheia, slide-down do topo)
 
    Ocupa toda a área do #view-feed (que é position:relative). Entra deslizando
-   do topo (translateY(-100%) → 0). Cabeçalho fixo + corpo rolável interno.
+   do topo (translateY(-100%) → 0). Topo FIXO (ações + recém-criados + busca/
+   filtros) + lista rolável abaixo dele.
    ======================================== */
 .contracts-panel {
   position: absolute;
@@ -180,19 +181,25 @@
   transform: translateY(0);
 }
 
-/* Sem cabeçalho: as ações (ocultar / criar minicontrato / fechar) vivem na linha
-   superior do bloco de criação. O scroll carrega a folga do safe-area no topo. */
+/* Topo SEMPRE visível (não rola): ações (ocultar / criar minicontrato / fechar) +
+   recém-criados + busca/filtros. flex-shrink:0 para nunca encolher; carrega a folga
+   do safe-area no topo. */
+.contracts-panel__top {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
+}
+
+/* Só a LISTA de contratos rola. */
 .contracts-panel__scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: var(--space-md);
-  padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
-  padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
+  padding: 0 var(--space-md) calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
   scrollbar-width: thin;
   scrollbar-color: var(--on-green-muted) transparent;
 }
@@ -223,7 +230,9 @@
 }
 
 /* Botões-ícone quadrados que ladeiam "Criar minicontrato":
-   ESQUERDA = ocultar recém-criados (chevron); DIREITA = fechar contratos. */
+   ESQUERDA = ocultar recém-criados (chevron); DIREITA = fechar contratos (X).
+   Temáticos sobre o verde: fill branco translúcido + ícone claro — a MESMA
+   linguagem dos botões "Fechar" das gavetas (.action-close-mode). */
 .contracts-create__collapse,
 .contracts-create__close {
   width: 48px;
@@ -232,8 +241,8 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: var(--bg-white);
-  color: var(--p-green);
+  background: var(--on-green-soft);
+  color: var(--t-light);
   cursor: pointer;
   transition: var(--transition);
 }

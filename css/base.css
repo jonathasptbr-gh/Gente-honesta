@@ -26,7 +26,10 @@
   --danger-rgb: 229, 57, 53;     /* canais do --danger p/ rgba() (glow de erro) */
   --danger-hover: #b71c1c;       /* vermelho pressionado */
   --danger-text: #c62828;        /* texto de alerta (IC baixo) */
-  --danger-soft: #fff5f5;        /* fundo de campo com erro */
+  --danger-soft: #f9dcdc;        /* fundo de erro / tint da badge "Cancelado": tom
+                                    de vermelho suave mas visível, em paridade com
+                                    --p-green-light e --info-blue-light (antes #fff5f5
+                                    ficava lavado demais na badge e nos campos de erro) */
   --success: #2c6e42;            /* confirmar foto, texto verde positivo */
   --success-fill: #3d8a58;       /* preenchimento de barra "bom" / ponto de status */
   --warn-text: #f57c00;          /* laranja claro do IC (faixa alerta) — distinto do vermelho */
