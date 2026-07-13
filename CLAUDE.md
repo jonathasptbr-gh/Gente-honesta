@@ -585,7 +585,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v255`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v256`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -769,7 +769,7 @@ Pedido atual** (`#pedido-sheet`), **Criar vaga** (`#vaga-sheet`), **Serviço de 
 (`#ajudante-sheet`) — e agora também os **Filtros** (`#filters-sheet`) compartilham o MESMO padrão de
 dropdown: container `position:fixed; inset:0; z-index:300`, fundo do painel `--bg-canvas`, ancorado em
 `--sheet-top` (base da barra, medido em runtime), edge-to-edge com cantos inferiores arredondados,
-slide-down (`translateY(-14px)` + fade), backdrop que dim SÓ o feed abaixo da barra. `#filters-sheet` e
+slide-down "GAVETA", backdrop que dim SÓ o feed abaixo da barra. `#filters-sheet` e
 `#vaga-sheet`/`#ajudante-sheet` **reusam classes existentes** (`.historico-sheet*` e `.pedido-sheet*`
 respectivamente) em vez de recriar o scaffolding.
 
@@ -792,6 +792,29 @@ ajudante, que antes só fechavam pelo backdrop.
 declarations hoistadas — usadas por `showVagasPanel`/`showPedidosPanel`/reset ao trocar de aba) abrem/fecham
 via `historico-sheet--open` e alternam o ícone tune↔close. A delegação de clique dos chips continua em
 `#panel-agenda-filters` (id preservado).
+
+**Animação de GAVETA (drawer slide-down) — todos os dropdowns da action bar:** os cinco submenus
+(`#pedido-sheet`, `#vaga-sheet`, `#ajudante-sheet`, `#historico-sheet`, `#filters-sheet`) deslizam de
+verdade a partir da fronteira superior, como uma gaveta — não é mais fade + leve deslocamento. Receita
+(em `.pedido-sheet`/`.historico-sheet` + `__panel`): o CONTAINER recorta tudo acima da barra com
+`clip-path: inset(var(--sheet-top) 0 0 0)`; o PAINEL nasce em `transform: translateY(-100%)` (totalmente
+acima da linha de recorte, invisível) e vai a `translateY(0)` ao abrir (`transition: transform 0.35s
+var(--sheet-ease)`), emergindo pra baixo da fronteira. SEM fade de opacidade (deslize puro). O
+`--sheet-top` é o rodapé da action bar, medido em JS e setado no PRÓPRIO container (por isso o `clip-path`
+o enxerga). A abertura do detalhe pelo histórico (`.pedido-sheet--morph`) desliga o slide
+(`transform: none !important`) e mantém a animação FLIP do card — o clip não interfere (o card fica abaixo
+da fronteira).
+
+**Scroll RENTE às bordas no "Criar vaga" (`#vaga-sheet`):** como o título "Criar vaga" vive DENTRO do
+`.pedido-sheet__body` (rola com os campos), o body precisa rolar rente ao topo do painel e à faixa verde
+do rodapé, sem "margem estranha". Regras (escopadas em `#vaga-sheet .pedido-sheet__body`):
+`margin-top: -var(--space-md)` puxa o body até a borda superior do painel e `padding-top: var(--space-md)`
+devolve o respiro como padding ROLÁVEL (some ao rolar) → o título chega rente ao topo; `padding-bottom: 0`
+tira o safe-area daqui (a faixa verde o carrega). O rodapé `.pedido-sheet__actions--footer` (só a vaga o
+usa) ganha `margin-top: -var(--space-sm)` para anular o `gap` do painel (a faixa verde encosta na base do
+body → conteúdo rola rente a ela) e `padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom))`
+para o botão "Publicar vaga" limpar a barra de gestos. O `.pedido-sheet__body` base MANTÉM o
+`padding-bottom: env(safe-area-inset-bottom)` (útil para o pedido/detalhe, que não têm rodapé fixo).
 
 ### Lista de Pedidos
 
@@ -821,7 +844,7 @@ slide-down (a antiga tela cheia `--full` do detalhe foi REMOVIDA), alternados po
 
 ### Histórico de pedidos (`#historico-sheet`)
 
-**Dropdown que DESCE da base da action bar** (não é bottom sheet), acionado por `#btn-historico-pedidos`, com o MESMO slide-down do formulário "Fazer pedido". O painel (`.historico-sheet__panel`) ancora em `top: var(--sheet-top)` — o rodapé da barra, MEDIDO em JS (`anchorBelowActionBar` → `bar.getBoundingClientRect().bottom`), porque a barra tem altura variável com a safe-area — spanning edge-to-edge com cantos INFERIORES arredondados, e entra descendo (`translateY(-14px)` + fade). O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), então a barra fica acesa e o painel parece a base do módulo dos botões se estendendo (cobrindo o feed). Fecha ao tocar fora do painel. Lista `#historico-list` com **todos** os pedidos, inclusive o ativo, ordenados por data (mais recente no topo) via `renderHistoricoList()`. Cada `.historico-item` segue o padrão visual dos cards de pedido do feed (`.pedido-item`): **borda branca** e raio de "balão", mas com o canto inferior DIREITO reto (`border-radius: 18px 18px 4px 18px`, espelho do feed que tem o inferior esquerdo reto). Estrutura:
+**Dropdown que DESCE da base da action bar** (não é bottom sheet), acionado por `#btn-historico-pedidos`, com o MESMO slide-down do formulário "Fazer pedido". O painel (`.historico-sheet__panel`) ancora em `top: var(--sheet-top)` — o rodapé da barra, MEDIDO em JS (`anchorBelowActionBar` → `bar.getBoundingClientRect().bottom`), porque a barra tem altura variável com a safe-area — spanning edge-to-edge com cantos INFERIORES arredondados, e entra descendo como GAVETA (ver "Animação de gaveta" abaixo). O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), então a barra fica acesa e o painel parece a base do módulo dos botões se estendendo (cobrindo o feed). Fecha ao tocar fora do painel. Lista `#historico-list` com **todos** os pedidos, inclusive o ativo, ordenados por data (mais recente no topo) via `renderHistoricoList()`. Cada `.historico-item` segue o padrão visual dos cards de pedido do feed (`.pedido-item`): **borda branca** e raio de "balão", mas com o canto inferior DIREITO reto (`border-radius: 18px 18px 4px 18px`, espelho do feed que tem o inferior esquerdo reto). Estrutura:
 - `.historico-item__top` — data curta (`formatPedidoDate` → "12 jul, 14:30") à esquerda e botão excluir (`.historico-item__delete`) à direita: **sem moldura circular**, só o glifo `delete` em **vermelho** (`--danger`) para destaque; `customConfirm` e remove do histórico (se era o pedido em exibição, fecha o detalhe).
 - texto do pedido (clamp 2 linhas, com badge "Urgente" inline quando urgente).
 - `.historico-item__footer` — DOIS badges de **largura igual** (`flex: 1`) na base: à esquerda `.historico-item__status` (**"Ativo · Nh"** dourado, incluindo o tempo restante via `pedidoHoursLeft()`; ou **"Concluído"** cinza) e à direita `.historico-item__count` (**"N/3 indicações"**, fundo translúcido).

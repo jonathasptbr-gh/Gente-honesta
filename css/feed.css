@@ -1532,6 +1532,10 @@
   z-index: 300;
   pointer-events: none;
   visibility: hidden;
+  /* GAVETA: recorta tudo acima de --sheet-top, então o painel (que nasce em
+     translateY(-100%), escondido acima dessa linha) desliza pra baixo e
+     "emerge" da fronteira superior — deslize real de gaveta, não fade. */
+  clip-path: inset(var(--sheet-top, 0px) 0 0 0);
   /* Mantém visível durante a animação de fechamento */
   transition: visibility 0s linear 0.35s;
 }
@@ -1577,14 +1581,14 @@
   flex-direction: column;
   gap: var(--space-sm);
   max-height: calc(100dvh - var(--sheet-top, 0px) - 12px);
-  transform: translateY(-14px);
-  opacity: 0;
-  transition: transform 0.3s var(--sheet-ease), opacity 0.28s ease;
+  /* Gaveta: fechado = totalmente acima da linha de recorte (100% da própria
+     altura), aberto = na posição. Sem fade de opacidade — deslize puro. */
+  transform: translateY(-100%);
+  transition: transform 0.35s var(--sheet-ease);
 }
 
 .pedido-sheet--open .pedido-sheet__panel {
   transform: translateY(0);
-  opacity: 1;
 }
 
 /* Abertura do detalhe a partir de um item do histórico (FLIP): o painel aparece
@@ -1594,7 +1598,6 @@
 .pedido-sheet--morph .pedido-sheet__panel {
   transition: none !important;
   transform: none !important;
-  opacity: 1 !important;
 }
 
 /* O detalhe do pedido agora também é um DROPDOWN (mesmo slide-down do histórico),
@@ -1772,10 +1775,24 @@
    o padding dele) e acompanha os cantos inferiores arredondados. */
 .pedido-sheet__actions--footer {
   flex-shrink: 0;
-  margin: 0 calc(-1 * var(--space-md)) calc(-1 * var(--space-md));
+  /* margin-top negativo anula o gap do painel → a faixa verde encosta na base
+     do body (conteúdo rola RENTE à faixa, sem vão escuro). safe-area vai aqui
+     (o rodapé é o elemento colado à base da tela), não no body. */
+  margin: calc(-1 * var(--space-sm)) calc(-1 * var(--space-md)) calc(-1 * var(--space-md));
   padding: var(--space-md);
+  padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom, 0px));
   background: var(--p-green);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* Criar vaga: o título vive DENTRO do body (rola com os campos). Para o conteúdo
+   rolar rente às bordas (topo do painel e faixa verde do rodapé) sem "margem
+   estranha", puxa o body até a borda superior e transforma o respiro do topo em
+   padding rolável; a base perde o safe-area (a faixa verde já o carrega). */
+#vaga-sheet .pedido-sheet__body {
+  margin-top: calc(-1 * var(--space-md));
+  padding-top: var(--space-md);
+  padding-bottom: 0;
 }
 
 .pedido-btn-cancel {
@@ -2212,7 +2229,10 @@
   z-index: 300;
   pointer-events: none;
   visibility: hidden;
-  transition: visibility 0s linear 0.32s; /* mantém visível durante o fecho */
+  /* GAVETA: recorta acima de --sheet-top; o painel desliza de translateY(-100%)
+     até 0, emergindo da fronteira superior (mesmo deslize do pedido-sheet). */
+  clip-path: inset(var(--sheet-top, 0px) 0 0 0);
+  transition: visibility 0s linear 0.35s; /* mantém visível durante o fecho */
 }
 
 .historico-sheet--open {
@@ -2247,15 +2267,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  /* Estado fechado: recuado para cima + transparente → desce ao abrir */
-  transform: translateY(-14px);
-  opacity: 0;
-  transition: transform 0.3s var(--sheet-ease), opacity 0.28s ease;
+  /* Gaveta: fechado = totalmente acima da linha de recorte; desce ao abrir.
+     Sem fade de opacidade — deslize puro. */
+  transform: translateY(-100%);
+  transition: transform 0.35s var(--sheet-ease);
 }
 
 .historico-sheet--open .historico-sheet__panel {
   transform: translateY(0);
-  opacity: 1;
 }
 
 .historico-sheet__header {
