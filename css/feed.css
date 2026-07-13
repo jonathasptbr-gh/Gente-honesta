@@ -101,6 +101,20 @@
    Sem o rótulo, o botão só precisa do padding vertical mínimo. */
 .top-bar__action--profile {
   padding: 2px;
+  /* Alinha o avatar à margem lateral externa (--space-md), igual à action bar
+     abaixo. Sem isto, o min-width:46px do .top-bar__action centralizava o avatar
+     de 30px, deixando-o ~8px "para dentro" da borda do botão. */
+  padding-left: 0;
+  align-items: flex-start;
+}
+
+/* Botão de contratos: o ícone/rótulo encostam na margem lateral DIREITA
+   (--space-md), alinhados com a borda externa do botão e a action bar — o
+   centramento os deixava recuados para dentro. O badge (absoluto no canto do
+   botão) não se move. */
+#btn-open-contracts {
+  padding-right: 0;
+  align-items: flex-end;
 }
 
 .top-bar__avatar {
