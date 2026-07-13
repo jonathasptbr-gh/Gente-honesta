@@ -201,7 +201,8 @@ Variáveis em `css/base.css :root`:
 - **Blur / sheets:** `--blur-sm` (5px) e `--blur-lg` (14px) para backdrops (tutorial mantém 1.5px próprio);
   `--sheet-ease` (`cubic-bezier(0.32,0.72,0,1)`) é a curva única dos sheets deslizantes.
 - `--a-gold` — amarelo/dourado de destaque; `--a-gold-text` é o ocre mais escuro para TEXTO dourado sobre fundo claro; `--gold-cta` (#f7e4a6) é o amarelo do card-convite Pro (mais forte que o creme `--gold-soft`)
-- `--info-blue`, `--danger`, `--success`, `--whatsapp`, `--gold-soft-border`
+- `--info-blue` — azul-cobalto escuro: a COR DE SELEÇÃO/estado ativo do app (v262); `--info-blue-light` é o tint claro; `--info-blue-bright` (#7aa3de) é o azul claro para indicadores PEQUENOS sobre verde escuro (dots do carrossel)
+- `--danger`, `--success`, `--whatsapp`, `--gold-soft-border`
 - `--bg-white`, `--bg-soft` — superfícies claras
 - `--bg-canvas: #124014` — verde escuro atrás dos cards de profissional nas listas
 - `--surface-company: #555558` — faixa cinza de empresa nos cards de vaga
@@ -220,11 +221,22 @@ recriar `box-shadow` à mão. Os cards em repouso do feed (`.post-card`, `.vaga-
 
 **Destaque de estado por COR, NUNCA por sombra:** sombras coloridas de destaque furavam bordas/divs e
 viravam linha sólida — foram REMOVIDAS (não há mais `--focus-ring`/`--ring-gold`/`--ring-danger`). O estado
-muda o FILL do próprio elemento: **foco de input** e **seleção verde** (card de serviço, pro-card
-selecionado, candidatura marcada) → fundo `--p-green-light`; **seleção dourada de pílula** (vaga-day,
-pedido-chip, benefício, helper-toggle) → preenchimento `--a-gold` + texto `--p-green-dark`. Pílula/célula
-ativa muda cor, não ganha anel. Ao criar um estado selecionado/foco novo, mude a cor interna — não use
-`box-shadow` como destaque.
+muda o FILL do próprio elemento, não ganha anel.
+
+**SEMÂNTICA DE CORES (v262) — AMARELO = AÇÃO; AZUL = SELEÇÃO:**
+- **AMARELO (`--a-gold`) é EXCLUSIVO de AÇÕES**: CTAs (`btn--accent`, primários sobre verde), links/botões
+  de texto sobre verde, `.action-conclude-mode`, stepper, `.vaga-add-btn`, dock de confirmação — além dos
+  acentos de marca (IC card, tutorial, ícones de seção) e da faixa 50–74 do IC (cor de tier, não seleção).
+- **AZUL (`--info-blue`) é a cor de SELEÇÃO/estado ativo em TODOS os formulários e seletores**, em DOIS
+  tons conforme o fundo (contraste): sobre superfície CLARA → fundo `--info-blue-light` + texto
+  `--info-blue` (tag-pill, chip--payment, `.chip--active` dos contratos, card de serviço ativo, radio/check
+  de candidatura, pro-card selecionado, item da busca de área); sobre superfície VERDE ESCURA → fundo
+  `--info-blue` SÓLIDO + texto `--t-light` (pedido-chip, vaga-day, benefit-pill, helper-toggle, caixa do
+  check de currículo, trilho do switch, thumb do seg-toggle, chips do filters-sheet, slider das abas,
+  badge "Ativo" do histórico); indicadores minúsculos sobre verde → `--info-blue-bright` (dot do carrossel).
+- **FOCO de input** (transitório, não é seleção) segue `--p-green-light`; estados de SUCESSO (GPS
+  confirmado, status verde de contrato) seguem verdes; erro segue `--danger`.
+Ao criar um estado selecionado novo, use o par azul do contexto — não use `box-shadow` como destaque.
 
 **ÚNICA exceção (linha de borda): alerta de ERRO/OBRIGATÓRIO — mecanismo ÚNICO em todo o app (v261).**
 Campo exigido vazio no submit OU erro de operação (falha de GPS) ganha **linha vermelha de borda**
@@ -259,7 +271,8 @@ na estética não muda o papel: se o elemento AGE (compartilhar, candidatar, fil
    indicados (`btn btn--close agenda-indicated__cancel`) e o botão de filtros
    (`btn btn--icon agenda-filters__icon-btn`, 40px da action bar).
 3. **Token / Pílula (`.chip` + `--sm/--md`)** — item selecionável/filtro/toggle. Tag: `<button>`. Estado
-   ativo por CONTEXTO (verde-sólido no feed, tint-azul no cadastro, dourado nas pílulas sobre verde).
+   ativo SEMPRE AZUL, por contraste: tint claro (`--info-blue-light` + texto `--info-blue`) sobre fundos
+   claros; azul sólido (`--info-blue` + texto `--t-light`) sobre os fundos verde-escuros.
 4. **Campo (`.input-text`)** — entrada de texto. Tag: `<input>`/`<textarea>`; sem borda, foco por mudança
    de cor do fundo (`--p-green-light`). **Autofill do navegador:** o azul-claro padrão do `:-webkit-autofill`
    é repintado com a cor normal do campo via `-webkit-box-shadow: inset 0 0 0 1000px …` (+ `--shadow-sm`) e
@@ -312,8 +325,10 @@ borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke
 - **Pílula "tint preenchido" (azul)** — o estado selecionado de `.tag-pill` e de `.chip--payment.chip--active`
   compartilham a MESMA receita: fundo `--info-blue-light` + texto `--info-blue`, SEM borda (design sem
   contorno; as antigas declarações de borda 1.5px nunca renderizavam — o reset zera o border-style — e
-  foram removidas na v261). É a linguagem única de seleção do cadastro; qualquer pílula selecionável nova
-  deve seguir esse par de tokens.
+  foram removidas na v261). Desde a v262 é a linguagem de seleção do APP INTEIRO sobre fundos claros
+  (contratos, candidatura, card de serviço, busca de área); sobre os fundos verde-escuros a seleção usa o
+  par invertido `--info-blue` sólido + `--t-light` (ver "SEMÂNTICA DE CORES"). Qualquer elemento
+  selecionável novo deve seguir o par azul do seu contexto.
 - **Empty-state de lista sobre verde** — `.list-empty-hint` (+ `--block`, `feed.css`) para avisos de
   "lista vazia" (indicados/agenda), no lugar de cor inline em `feed.js`.
 - **Cor da barra de status:** `window.THEME_COLOR` (`app.js`) é a fonte única do verde `#184e1b` da
@@ -531,8 +546,8 @@ compartilham o MESMO slot de altura fixa (`clamp(5.5rem,26vw,8.5rem)` + centrali
 `.intro-carousel__icon`/`.intro-carousel__icon-img`), então título e texto ficam alinhados ao
 deslizar; o logo usa o recorte `icon-intro.svg` (em vez do `icon-transparent.svg`, de margem larga)
 para preencher esse slot e não ficar menor que os glifos. Botão `#btn-start` usa `btn--accent`
-(amarelo). Dots (`.intro-carousel__dot`) inativos em branco translúcido, ativo em `--a-gold` (o verde
-padrão sumiria no fundo).
+(amarelo). Dots (`.intro-carousel__dot`) inativos em branco translúcido, ativo em `--info-blue-bright`
+(seleção = azul; o `--info-blue` cheio e o verde padrão sumiriam no fundo escuro).
 
 **Loader global:** `#loader-global` — mostrado/ocultado com `u-hidden`. O `onAuthStateChanged` é o único responsável por ocultá-lo em transições normais. Em erros onde o estado de auth não muda, remover manualmente. Visual: fundo `--p-green` e spinner branco (trilho em branco translúcido, topo `--t-light`) — coerente com os ambientes verdes; a `meta[name="theme-color"]` inicial também é verde (`#184e1b`) para a barra de status combinar durante o carregamento, antes de `showView` assumir. **CSS crítico inline no `<head>`** pinta o `html` de verde e já dá ao `.overlay-loader` os estilos de cobertura (`position:fixed; inset:0; background:#184e1b; z-index:9999`) — sem isso, entre o `base.css` (que pinta html/body de branco) e o `components.css` (que só então estiliza o loader) havia um flash branco no fim do splash; `.u-hidden` (base.css) ainda vence e esconde o loader normalmente. **Telas não têm animação de entrada** (`.screen` sem `animation`): um `translateY` de entrada deixava uma tira do body branco no topo por um instante, e um fade de opacidade deixava o body vazar durante o fade-out do loader — a transição entre telas fica por conta do fade-out do loader.
 
@@ -595,7 +610,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v261`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v262`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -722,8 +737,9 @@ no `install` — o novo worker fica parado em "waiting" até o usuário confirma
 
 ### Bottom bar — 3 abas (`.feed-tabs-pill`)
 
-Pílula verde flutuante (`.feed-tabs-pill`, com slider dourado `.feed-tabs-pill__slider` deslizando sob a
-aba ativa) dentro da `.bottom-bar` transparente (faixa de vidro fosco via `::before`).
+Pílula verde flutuante (`.feed-tabs-pill`, com slider AZUL `.feed-tabs-pill__slider` — seleção = azul —
+deslizando sob a aba ativa, texto ativo `--t-light`) dentro da `.bottom-bar` transparente (faixa de vidro
+fosco via `::before`).
 
 | `data-tab` | Ícone | Label |
 |---|---|---|
@@ -871,7 +887,7 @@ slide-down (a antiga tela cheia `--full` do detalhe foi REMOVIDA), alternados po
 **Dropdown que DESCE da base da action bar** (não é bottom sheet), acionado por `#btn-historico-pedidos`, com o MESMO slide-down do formulário "Fazer pedido". O painel (`.historico-sheet__panel`) ancora em `top: var(--sheet-top)` — o rodapé da barra, MEDIDO em JS (`anchorBelowActionBar` → `bar.getBoundingClientRect().bottom`), porque a barra tem altura variável com a safe-area — spanning edge-to-edge com cantos INFERIORES arredondados, e entra descendo como GAVETA (ver "Animação de gaveta" abaixo). O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), então a barra fica acesa e o painel parece a base do módulo dos botões se estendendo (cobrindo o feed). Fecha ao tocar fora do painel. Lista `#historico-list` com **todos** os pedidos, inclusive o ativo, ordenados por data (mais recente no topo) via `renderHistoricoList()`. Cada `.historico-item` segue o padrão visual dos cards de pedido do feed (`.pedido-item`): **fill claro** (`--card-on-green`, sem contorno) e raio de "balão", mas com o canto inferior DIREITO reto (`border-radius: 18px 18px 4px 18px`, espelho do feed que tem o inferior esquerdo reto). Estrutura:
 - `.historico-item__top` — data curta (`formatPedidoDate` → "12 jul, 14:30") à esquerda e botão excluir (`.historico-item__delete`) à direita: **sem moldura circular**, só o glifo `delete` em **vermelho** (`--danger`) para destaque; `customConfirm` e remove do histórico (se era o pedido em exibição, fecha o detalhe).
 - texto do pedido (clamp 2 linhas, com badge "Urgente" inline quando urgente).
-- `.historico-item__footer` — DOIS badges de **largura igual** (`flex: 1`) na base: à esquerda `.historico-item__status` (**"Ativo · Nh"** dourado, incluindo o tempo restante via `pedidoHoursLeft()`; ou **"Concluído"** cinza) e à direita `.historico-item__count` (**"N/3 indicações"**, fundo translúcido).
+- `.historico-item__footer` — DOIS badges de **largura igual** (`flex: 1`) na base: à esquerda `.historico-item__status` (**"Ativo · Nh"** AZUL `--info-blue` + texto claro, incluindo o tempo restante via `pedidoHoursLeft()`; ou **"Concluído"** cinza) e à direita `.historico-item__count` (**"N/3 indicações"**, fundo translúcido).
 - Tocar no item (fora do botão excluir) abre o **mesmo** detalhe unificado (`openPedidoDetail(id)`). A delegação em `historicoList` dá prioridade ao `.historico-item__delete` (com `stopPropagation`) antes de abrir o detalhe.
 
 Ao concluir um pedido a partir de um item do histórico, o detalhe fecha e o sheet de histórico (que fica aberto por baixo) se atualiza sozinho (`renderHistoricoList()` roda no handler de concluir).
@@ -988,7 +1004,7 @@ Campos:
   final: `"08:00 às 18:00 · Seg–Sex"`.
 - **Salário** — campo numérico (só dígitos, separador de milhar automático via `toLocaleString('pt-BR')`),
   com `R$` e `/mês` **externos** ao input (`.vaga-salary__prefix`/`__suffix`). Gera `"R$ 1.500/mês"`.
-- **Benefícios** — **pílulas de seleção múltipla** (`.vaga-benefit-pill`, ícone + texto, ativo dourado
+- **Benefícios** — **pílulas de seleção múltipla** (`.vaga-benefit-pill`, ícone + texto, ativo AZUL
   em `aria-pressed`): Alimentação, Vale alimentação, Transporte, Vale transporte, Plano de saúde,
   Moradia, Comissão e **Outros**. Cada pílula carrega `data-icon`/`data-label` para renderizar no card
   no mesmo padrão do feed (`.vaga-card__benefit`). "Outros" (`#vaga-benefit-outros`) revela a lista de
@@ -1029,7 +1045,7 @@ independente (não é rádio), cada um com nome, descrição e a diária padrão
 `renderHelperAvailability` reflete o check (`check_box`/`check_box_outline_blank`) e `aria-pressed`.
 
 **Função 2 — "Chamar um ajudante":** escolhe o tipo num **seletor SLIDE `.seg-toggle`** (`#helper-type`,
-thumb dourado que desliza de "Serviço leve" p/ "Serviço pesado" via `.seg-toggle--heavy`; `.seg-toggle__opt`
+thumb AZUL que desliza de "Serviço leve" p/ "Serviço pesado" via `.seg-toggle--heavy`; `.seg-toggle__opt`
 alternam `--active`/`aria-pressed`) e toca em "Chamar ajudante" (`#btn-call-helper`). `drawHelpers(type, 2)`
 sorteia 2 ajudantes distintos do `mockHelpers` (Fisher-Yates placeholder), fixados até a meia-noite em
 `localStorage['gh_helper_draw'] = { date, type, helpers[] }`. **SEM bloqueio de tempo/cooldown** (removido
@@ -1052,7 +1068,6 @@ O botão-abridor "Serviço de ajudantes" vira "Fechar" (`.action-close-mode`) en
 | Classe | Descrição |
 |---|---|
 | `.pedido-item__urgent-badge` | Pílula vermelha "bolt Urgente" inline no texto (única marca de urgência; não há borda nem timer no card) |
-| `.pedido-detail-preview` | Card gerado em `renderPedidoDetails()` — `pointer-events: none` |
 | `.pro-card__load-more` | Botão "ver mais comentários" — cor `var(--info-blue)` |
 | `.comment--entering` | Animação `commentFadeIn` fade+slide-up 0.22s nos comentários novos |
 | `.indicated-popup__scroll` | Wrapper de scroll no popup de indicados (fora do header) |

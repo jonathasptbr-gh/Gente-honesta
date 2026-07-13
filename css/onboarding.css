@@ -268,8 +268,8 @@
 .area-search__results li:hover,
 .area-search__results li:active,
 .area-search__results li.is-selecting {
-  background: var(--p-green-light);
-  color: var(--p-green);
+  background: var(--info-blue-light);
+  color: var(--info-blue);
 }
 
 .area-search__results li.is-selecting {
@@ -490,7 +490,7 @@
 }
 
 .service-choice__card--active {
-  background: var(--p-green-light);
+  background: var(--info-blue-light);
 }
 
 .service-choice__icon {
@@ -524,7 +524,7 @@
 }
 
 .service-choice__card--active .service-choice__check {
-  color: var(--p-green);
+  color: var(--info-blue);
 }
 
 /* Display único das barras — animado conforme a seleção */

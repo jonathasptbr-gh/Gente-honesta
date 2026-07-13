@@ -264,11 +264,12 @@
   margin-top: 1rem;
 }
 
-/* Dots: inativos em branco translúcido, ativo em dourado (o verde some no fundo) */
+/* Dots: inativos em branco translúcido, ativo em AZUL claro (seleção = azul;
+   o --info-blue cheio somiria no verde escuro, daí o tom bright) */
 #step-intro .intro-carousel__dot {
   background: var(--on-green-muted);
 }
 
 #step-intro .intro-carousel__dot--active {
-  background: var(--a-gold);
+  background: var(--info-blue-bright);
 }

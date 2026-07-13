@@ -14,8 +14,9 @@
   --a-gold-rgb: 224, 168, 28;  /* mesmos canais do --a-gold p/ rgba() — brilhos/anéis dourados (tutorial, toggles) */
   --a-gold-hover: #c89210;
   --a-gold-text: #a87808;       /* ocre mais escuro p/ TEXTO colorido */
-  --info-blue: #2e5898;         /* Azul-Cobalto Metálico escuro — discreto */
+  --info-blue: #2e5898;         /* Azul-Cobalto Metálico escuro — cor de SELEÇÃO/estado ativo */
   --info-blue-light: #dee5f2;   /* tint claro no mesmo matiz (paralelo a --p-green-light) */
+  --info-blue-bright: #7aa3de;  /* azul claro p/ indicadores PEQUENOS sobre verde escuro (dots) */
   --gold-soft: #fdf8ee;         /* fundo creme (gatilho Pro) */
   --gold-cta: #f7e4a6;          /* amarelo mais forte que o creme — fundo do card-convite Pro */
   --gold-soft-border: #f3e8c0;  /* borda das células Pro do comparativo */
@@ -81,10 +82,14 @@
   --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.13);
 
   /* Destaque de estado por MUDANÇA DE COR, nunca por sombra (sombras de destaque
-     furavam bordas e viravam linha sólida). Foco/seleção verde usam o tint claro
-     --p-green-light no FILL do próprio elemento; seleção dourada de pílula usa o
-     preenchimento --a-gold; erro usa --danger-soft no fundo. Não há mais tokens
-     de anel (--focus-ring/--ring-*): foram removidos. */
+     furavam bordas e viravam linha sólida). SEMÂNTICA DE CORES (v262):
+     AMARELO (--a-gold) = APENAS botões de AÇÃO (CTAs, links sobre verde).
+     AZUL (--info-blue) = SELEÇÃO/estado ativo, em dois tons por contraste:
+       sobre superfície CLARA → fundo --info-blue-light + texto --info-blue;
+       sobre superfície VERDE ESCURA → fundo --info-blue sólido + texto --t-light;
+       indicadores minúsculos sobre verde (dots) → --info-blue-bright.
+     FOCO de input (transitório, não é seleção) segue --p-green-light; erro usa
+     --danger-soft no fundo. Não há mais tokens de anel (--focus-ring/--ring-*). */
 
   /* Fill translúcido claro para CARDS sobre o verde (pedido/histórico): sem
      borda, a definição vem do contraste deste fundo com o --bg-canvas escuro
