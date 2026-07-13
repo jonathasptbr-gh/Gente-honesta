@@ -1369,7 +1369,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Cria uma linha de input dinâmico (requisito ou benefício) com botão remover.
-    const addDynRow = (listEl, placeholder, value = '') => {
+    // keepLast=true (requisitos, que exigem ≥1): remover a ÚLTIMA linha apenas
+    // LIMPA o campo, mantendo sempre uma linha disponível — nunca some tudo.
+    const addDynRow = (listEl, placeholder, value = '', keepLast = false) => {
       const row = document.createElement('div');
       row.className = 'vaga-dyn-row';
       row.innerHTML = `
@@ -1381,7 +1383,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const input = row.querySelector('.vaga-dyn-input');
       input.value = value;
       input.addEventListener('input', () => input.classList.remove('input-text--error'));
-      row.querySelector('.vaga-dyn-remove').addEventListener('click', () => row.remove());
+      row.querySelector('.vaga-dyn-remove').addEventListener('click', (e) => {
+        // stopPropagation: o botão remove a linha do DOM; sem isto, o clique
+        // borbulharia até o tap-outside da gaveta, cujo e.target.closest() falha
+        // (elemento já destacado) e FECHAVA a gaveta inteira de criar vaga.
+        e.stopPropagation();
+        const onlyRow = listEl.querySelectorAll('.vaga-dyn-row').length === 1;
+        if (keepLast && onlyRow) {
+          input.value = '';
+          input.classList.remove('input-text--error');
+          input.focus();
+        } else {
+          row.remove();
+        }
+      });
       listEl.appendChild(row);
       return input;
     };
@@ -1427,7 +1442,7 @@ document.addEventListener('DOMContentLoaded', () => {
       chkCurriculo?.setAttribute('aria-pressed', 'false');
       benefitPills?.querySelectorAll('.vaga-benefit-pill').forEach(p => p.setAttribute('aria-pressed', 'false'));
       setOutrosOpen(false);
-      if (reqList) { reqList.innerHTML = ''; addDynRow(reqList, 'Ex: Experiência com atendimento'); }
+      if (reqList) { reqList.innerHTML = ''; addDynRow(reqList, 'Ex: Experiência com atendimento', '', true); }
     };
 
     // O botão "Criar vaga" vira um botão de fechar (X) enquanto o sheet está aberto.
@@ -1481,7 +1496,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('btn-add-req')?.addEventListener('click', () =>
-      addDynRow(reqList, 'Ex: Disponibilidade imediata').focus());
+      addDynRow(reqList, 'Ex: Disponibilidade imediata', '', true).focus());
     btnAddBenefit?.addEventListener('click', () =>
       addDynRow(benefitList, 'Ex: Auxílio creche').focus());
 

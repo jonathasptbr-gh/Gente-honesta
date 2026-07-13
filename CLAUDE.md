@@ -650,7 +650,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v268`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v269`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -1079,7 +1079,11 @@ Campos:
   `vaga.exigeCurriculo !== false` (vagas legadas sem o campo continuam exibindo).
 
 Lógica em `feed.js` (bloco "Sheet Criar vaga", IIFE após `renderVagasList`):
-- `addDynRow(listEl, placeholder)` — cria uma linha de input dinâmico com botão remover
+- `addDynRow(listEl, placeholder, value, keepLast)` — cria uma linha de input dinâmico com botão
+  remover. `keepLast=true` (requisitos, que exigem ≥1): remover a ÚLTIMA linha apenas LIMPA o campo,
+  mantendo sempre uma linha. O handler do remover faz `e.stopPropagation()` — sem isso o clique
+  borbulhava até o tap-outside da gaveta (cujo `e.target.closest()` falha porque a linha já saiu do
+  DOM) e FECHAVA a gaveta inteira de criar vaga
 - `renderCount()` — atualiza o valor e o estado disabled do stepper
 - `resetVagaForm()` — zera tudo (1 requisito vazio, sem benefícios, contagem 1, horas 08–18, Seg–Sex,
   currículo off)
