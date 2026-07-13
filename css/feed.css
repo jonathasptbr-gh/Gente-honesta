@@ -1532,12 +1532,15 @@
   z-index: 300;
   pointer-events: none;
   visibility: hidden;
-  /* GAVETA: recorta tudo acima de --sheet-top, então o painel (que nasce em
-     translateY(-100%), escondido acima dessa linha) desliza pra baixo e
-     "emerge" da fronteira superior — deslize real de gaveta, não fade. */
-  clip-path: inset(var(--sheet-top, 0px) 0 0 0);
+  /* GAVETA: esconde VISUALMENTE tudo acima de --sheet-top (o painel nasce em
+     translateY(-100%), acima dessa linha, e desliza pra baixo "emergindo" da
+     fronteira superior). Usa MASK (não clip-path): mask é só visual e NÃO
+     afeta o hit-test, então o container continua interceptando toques sobre a
+     barra para rotear o botão "Fechar"/"Concluir" (clip-path furava isso). */
+  -webkit-mask: linear-gradient(to bottom, transparent 0, transparent var(--sheet-top, 0px), #000 var(--sheet-top, 0px));
+  mask: linear-gradient(to bottom, transparent 0, transparent var(--sheet-top, 0px), #000 var(--sheet-top, 0px));
   /* Mantém visível durante a animação de fechamento */
-  transition: visibility 0s linear 0.35s;
+  transition: visibility 0s linear 0.5s;
 }
 
 .pedido-sheet--open {
@@ -1557,7 +1560,7 @@
   bottom: 0;
   background: var(--overlay);
   opacity: 0;
-  transition: opacity 0.28s ease;
+  transition: opacity 0.45s ease;
 }
 
 .pedido-sheet--open .pedido-sheet__backdrop { opacity: 1; }
@@ -1582,9 +1585,10 @@
   gap: var(--space-sm);
   max-height: calc(100dvh - var(--sheet-top, 0px) - 12px);
   /* Gaveta: fechado = totalmente acima da linha de recorte (100% da própria
-     altura), aberto = na posição. Sem fade de opacidade — deslize puro. */
+     altura), aberto = na posição. Sem fade de opacidade — deslize puro.
+     Duração calma (0.5s) para o deslize ficar suave. */
   transform: translateY(-100%);
-  transition: transform 0.35s var(--sheet-ease);
+  transition: transform 0.5s var(--sheet-ease);
 }
 
 .pedido-sheet--open .pedido-sheet__panel {
@@ -2229,10 +2233,12 @@
   z-index: 300;
   pointer-events: none;
   visibility: hidden;
-  /* GAVETA: recorta acima de --sheet-top; o painel desliza de translateY(-100%)
+  /* GAVETA: esconde VISUALMENTE acima de --sheet-top via MASK (não clip-path,
+     que furaria o hit-test sobre a barra); o painel desliza de translateY(-100%)
      até 0, emergindo da fronteira superior (mesmo deslize do pedido-sheet). */
-  clip-path: inset(var(--sheet-top, 0px) 0 0 0);
-  transition: visibility 0s linear 0.35s; /* mantém visível durante o fecho */
+  -webkit-mask: linear-gradient(to bottom, transparent 0, transparent var(--sheet-top, 0px), #000 var(--sheet-top, 0px));
+  mask: linear-gradient(to bottom, transparent 0, transparent var(--sheet-top, 0px), #000 var(--sheet-top, 0px));
+  transition: visibility 0s linear 0.5s; /* mantém visível durante o fecho */
 }
 
 .historico-sheet--open {
@@ -2249,7 +2255,7 @@
   bottom: 0;
   background: var(--overlay);
   opacity: 0;
-  transition: opacity 0.28s ease;
+  transition: opacity 0.45s ease;
 }
 
 .historico-sheet--open .historico-sheet__backdrop { opacity: 1; }
@@ -2268,9 +2274,9 @@
   flex-direction: column;
   gap: var(--space-sm);
   /* Gaveta: fechado = totalmente acima da linha de recorte; desce ao abrir.
-     Sem fade de opacidade — deslize puro. */
+     Sem fade de opacidade — deslize puro. Duração calma (0.5s). */
   transform: translateY(-100%);
-  transition: transform 0.35s var(--sheet-ease);
+  transition: transform 0.5s var(--sheet-ease);
 }
 
 .historico-sheet--open .historico-sheet__panel {
