@@ -225,8 +225,8 @@ input, textarea {
    reaparecia a borda padrão do navegador — em vários mobile um bevel `outset`
    BICOLOR (clara em cima/esquerda, escura embaixo/direita). Bordas funcionais
    ficam em elementos que NÃO são controle (avatar, caixa do checkbox, divisores),
-   então não são afetadas. Os <select> nativos (horários da vaga) ficam de fora:
-   dependem da aparência nativa. */
+   então não são afetadas. (Não há mais <select> nativo no app: os horários da
+   vaga usam stepper próprio.) */
 button, input, textarea {
   border: none;
 }

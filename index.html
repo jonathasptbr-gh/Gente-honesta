@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v267</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v268</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -718,9 +718,7 @@
             <div class="historico-sheet__backdrop" id="historico-sheet-backdrop"></div>
             <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
-                <div class="historico-sheet__header">
-                    <p class="historico-sheet__title">Histórico de pedidos</p>
-                </div>
+                <!-- Sem header interno: o título vai para a top bar (setTopBarTitle) -->
                 <div class="historico-sheet__scroll">
                     <div id="historico-list" class="historico-list">
                         <!-- Preenchido via JS -->
@@ -812,10 +810,8 @@
             <div class="pedido-sheet__backdrop" id="pedido-sheet-backdrop"></div>
             <div class="pedido-sheet__clip">
             <div class="pedido-sheet__panel">
-                <div class="pedido-sheet__header">
-                    <p class="pedido-sheet__title" id="pedido-sheet-title">Fazer pedido</p>
-                </div>
-
+                <!-- Sem header interno: o título ("Fazer pedido"/"Pedido atual"/
+                     "Pedido concluído") vai para a top bar (setTopBarTitle) -->
                 <div class="pedido-sheet__body">
 
                     <!-- ESTADO: CRIAÇÃO (formulário) -->
@@ -901,12 +897,7 @@
             <div class="pedido-sheet__panel">
                 <div class="pedido-sheet__body">
                     <div class="pedido-sheet__state">
-
-                        <!-- Título DENTRO do body: rola junto com os campos da seção. -->
-                        <div class="pedido-sheet__header">
-                            <p class="pedido-sheet__title">Criar vaga</p>
-                        </div>
-
+                        <!-- Sem título interno: "Criar vaga" vai para a top bar (setTopBarTitle) -->
                         <div class="pedido-field">
                             <label class="pedido-field__label" for="inp-vaga-cnpj">CNPJ da empresa</label>
                             <input type="text" id="inp-vaga-cnpj" class="input-text" inputmode="numeric" maxlength="18" placeholder="00.000.000/0000-00">
@@ -944,16 +935,18 @@
                             <div class="vaga-time-row">
                                 <div class="vaga-time">
                                     <span class="vaga-time__label">Início</span>
-                                    <div class="vaga-select-wrap">
-                                        <span class="material-symbols-rounded vaga-select-wrap__icon" aria-hidden="true">schedule</span>
-                                        <select class="input-text vaga-time__select" id="inp-vaga-hora-inicio" aria-label="Horário de início"></select>
+                                    <div class="vaga-stepper vaga-stepper--time" id="stepper-hora-inicio" role="group" aria-label="Horário de início">
+                                        <button type="button" class="vaga-stepper__btn" data-step="-1" aria-label="Meia hora antes"><span class="material-symbols-rounded" aria-hidden="true">remove</span></button>
+                                        <span class="vaga-stepper__value" id="vaga-hora-inicio-value" aria-live="polite">08:00</span>
+                                        <button type="button" class="vaga-stepper__btn" data-step="1" aria-label="Meia hora depois"><span class="material-symbols-rounded" aria-hidden="true">add</span></button>
                                     </div>
                                 </div>
                                 <div class="vaga-time">
                                     <span class="vaga-time__label">Fim</span>
-                                    <div class="vaga-select-wrap">
-                                        <span class="material-symbols-rounded vaga-select-wrap__icon" aria-hidden="true">schedule</span>
-                                        <select class="input-text vaga-time__select" id="inp-vaga-hora-fim" aria-label="Horário de término"></select>
+                                    <div class="vaga-stepper vaga-stepper--time" id="stepper-hora-fim" role="group" aria-label="Horário de término">
+                                        <button type="button" class="vaga-stepper__btn" data-step="-1" aria-label="Meia hora antes"><span class="material-symbols-rounded" aria-hidden="true">remove</span></button>
+                                        <span class="vaga-stepper__value" id="vaga-hora-fim-value" aria-live="polite">18:00</span>
+                                        <button type="button" class="vaga-stepper__btn" data-step="1" aria-label="Meia hora depois"><span class="material-symbols-rounded" aria-hidden="true">add</span></button>
                                     </div>
                                 </div>
                             </div>
@@ -1016,7 +1009,7 @@
                                 <span class="vaga-check__box" aria-hidden="true">
                                     <span class="material-symbols-rounded">check</span>
                                 </span>
-                                <span class="vaga-check__text">Exigir currículo em PDF ou foto</span>
+                                <span class="vaga-check__text">Exigir currículo em PDF ou foto <span class="vaga-field__optional">(opcional)</span></span>
                             </button>
                             <span class="pedido-field__hint pedido-field__hint--left vaga-warn">
                                 <span class="material-symbols-rounded" aria-hidden="true">warning</span>
@@ -1047,9 +1040,7 @@
             <div class="pedido-sheet__backdrop" id="ajudante-sheet-backdrop"></div>
             <div class="pedido-sheet__clip">
             <div class="pedido-sheet__panel">
-                <div class="pedido-sheet__header">
-                    <p class="pedido-sheet__title">Serviço de ajudantes</p>
-                </div>
+                <!-- Sem header interno: "Serviço de ajudantes" vai para a top bar (setTopBarTitle) -->
 
                 <div class="pedido-sheet__body">
 

@@ -1476,19 +1476,8 @@
 /* O detalhe do pedido agora também é um DROPDOWN (mesmo slide-down do histórico),
    não mais tela cheia — herda .pedido-sheet__panel acima. */
 
-.pedido-sheet__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-
-.pedido-sheet__title {
-  font-size: var(--fs-9);
-  font-weight: var(--fw-heavy);
-  color: var(--t-light);
-  margin: 0;
-}
+/* Sem header interno nos dropdowns: o título da gaveta vai para a top bar
+   (setTopBarTitle em feed.js troca o "Gente Honesta" enquanto ela está aberta). */
 
 .pedido-sheet__body {
   overflow-y: auto;
@@ -1724,7 +1713,8 @@
 .vaga-dyn-remove:active { transform: scale(var(--press-scale)); }
 .vaga-dyn-remove .material-symbols-rounded { font-size: 1.2rem; }
 
-/* Botão "Adicionar requisito / benefício" — tracejado, dourado */
+/* Botão "Adicionar requisito / benefício" — texto dourado (ação) sobre fill
+   translúcido, SEM borda (design sem contorno; o tracejado antigo foi removido) */
 .vaga-add-btn {
   display: inline-flex;
   align-items: center;
@@ -1733,8 +1723,7 @@
   align-self: flex-start;
   padding: 8px 14px;
   border-radius: var(--radius-pill);
-  border: 1.5px dashed var(--on-green-muted);
-  background: transparent;
+  background: var(--on-green-faint);
   color: var(--a-gold);
   font-size: var(--fs-5);
   font-weight: var(--fw-bold);
@@ -1825,36 +1814,17 @@
   color: var(--on-green-strong);
 }
 
-/* Wrapper do <select> — reaproveita .input-text; ícone à esquerda + seta à direita */
-.vaga-select-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
+/* Stepper de horário (meia em meia hora) — reusa o .vaga-stepper do número de
+   vagas (nosso padrão), no lugar do <select> nativo do sistema. Ocupa a largura
+   da coluna, com os botões nas pontas e o horário centralizado. */
+.vaga-stepper--time {
+  align-self: stretch;
+  width: 100%;
+  justify-content: space-between;
 }
 
-.vaga-select-wrap__icon {
-  position: absolute;
-  left: 12px;
-  font-size: 1.2rem;
-  color: var(--p-green);
-  pointer-events: none;
-}
-
-.vaga-select-wrap::after {
-  content: 'expand_more';
-  font-family: 'Material Symbols Rounded';
-  position: absolute;
-  right: 10px;
-  font-size: 1.3rem;
-  color: var(--t-sub);
-  pointer-events: none;
-}
-
-.vaga-time__select {
-  padding: 12px 34px 12px 38px;
-  font-size: var(--fs-7);
-  font-weight: var(--fw-bold);
-  cursor: pointer;
+.vaga-stepper--time .vaga-stepper__value {
+  font-variant-numeric: tabular-nums;
 }
 
 .vaga-days {
@@ -2099,19 +2069,7 @@
   transform: translateY(0);
 }
 
-.historico-sheet__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-
-.historico-sheet__title {
-  font-size: var(--fs-9);
-  font-weight: var(--fw-heavy);
-  color: var(--t-light);
-  margin: 0;
-}
+/* Sem header interno: o título vai para a top bar (setTopBarTitle). */
 
 .historico-sheet__scroll {
   flex: 1;
@@ -3369,10 +3327,10 @@
   overflow: hidden;
 }
 
-.candid-req-obs[open] {
-  background: var(--bg-white);
-}
-
+/* Aberto: o cabeçalho (nome do requisito) CONTINUA no cinza --bg-soft — a
+   demarcação vem do textarea branco com sombra dentro dele (padrão "campo claro
+   sobre corpo cinza" do cadastro). Antes o container inteiro virava branco e
+   sumia contra o fundo branco do verso do card. */
 .candid-req-obs[open] > .candid-req-obs-input {
   animation: commentFadeIn 0.22s ease forwards;
 }
@@ -3412,15 +3370,16 @@
 
 .candid-req-obs-input {
   display: block;
-  width: 100%;
+  width: calc(100% - 12px);
+  margin: 0 6px 6px;
   box-sizing: border-box;
   padding: 7px 10px;
   border: none;
-  border-top: 1px solid var(--border-light);
-  border-radius: 0;
+  border-radius: var(--radius-xs);
   font-size: var(--fs-4);
   color: var(--t-main);
-  background: transparent;
+  background: var(--bg-white);   /* campo claro destacado no container cinza */
+  box-shadow: var(--shadow-sm);
   resize: none;
   outline: none;
   font-family: inherit;

@@ -338,8 +338,9 @@ borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke
   checkbox, checkmark desenhado com borda, anel do spinner e a seta do balão do tutorial. (A moldura de foto NÃO tem mais tracejado — só o fundo claro; a borda vermelha
   aparece só no estado de erro obrigatório.) **Reset obrigatório** (`base.css`):
   `button, input, textarea { border: none }` — sem isso, ao remover a borda explícita de um `<button>`
-  reaparece a borda de UA (bevel `outset` BICOLOR em vários mobile). Bordas de classe (ex.: `.vaga-add-btn`
-  tracejado) vencem o reset por especificidade e são preservadas; `<select>` nativo fica de fora.
+  reaparece a borda de UA (bevel `outset` BICOLOR em vários mobile). O antigo tracejado do `.vaga-add-btn`
+  foi REMOVIDO na v268 (o botão hoje é texto dourado sobre fill `--on-green-faint`, sem borda) e não há
+  mais `<select>` nativo no app (os horários da vaga usam stepper próprio).
 - **`.card` (primitiva de superfície, `components.css`)** — casco compartilhado das superfícies claras
   (cadastro/feed/install). Invariante: `--radius-md` + fundo claro + `border:none`. Modificadores: `--soft`
   (fundo `--bg-soft`), `--shadow` (`--shadow-sm`, definição sem contorno). Já usada em `.contract-card`
@@ -649,7 +650,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v267`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v268`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -854,6 +855,14 @@ slide-down "GAVETA", backdrop que dim SÓ o feed abaixo da barra. `#filters-shee
 `#vaga-sheet`/`#ajudante-sheet` **reusam classes existentes** (`.historico-sheet*` e `.pedido-sheet*`
 respectivamente) em vez de recriar o scaffolding.
 
+**NÃO há mais header/título INTERNO nos submenus (v268).** O título da gaveta vai para a TOP BAR: a
+função hoistada `setTopBarTitle(titulo)` (`feed.js`) troca o texto "Gente Honesta" (`.top-bar__brand`)
+pelo título da seção enquanto ela está aberta, e `setTopBarTitle(null)` restaura a marca ao fechar.
+Cada `open*` seta seu título ("Criar vaga", "Serviço de ajudantes", "Histórico de pedidos", "Filtros",
+"Fazer pedido"/"Pedido atual"/"Pedido concluído"); nos EMPILHAMENTOS (detalhe sobre histórico), o close
+restaura o título da gaveta que continua aberta atrás (mesma lógica dos botões Fechar), e o
+`closeFiltersSheet` (chamado preventivamente nas trocas de aba) só restaura se o sheet estava aberto.
+
 **NÃO há mais botão de fechar dedicado dentro do header do submenu.** No lugar, o **próprio botão-abridor**
 da action bar vira um **botão de fechar padrão** (ícone `close` + "Fechar") enquanto seu submenu está
 aberto, via a classe `.action-close-mode` (`feed.css`: fundo `--on-green-soft` translúcido + texto/ícone
@@ -898,11 +907,10 @@ com `overflow:hidden` recorta sem esse artefato e o container separado mantém o
 histórico (`.pedido-sheet--morph`) desliga o slide (`transform: none !important`) e mantém a animação
 FLIP do card — o clip não interfere (o card fica abaixo da fronteira).
 
-**Scroll RENTE às bordas no "Criar vaga" (`#vaga-sheet`):** como o título "Criar vaga" vive DENTRO do
-`.pedido-sheet__body` (rola com os campos), o body precisa rolar rente ao topo do painel e à faixa verde
-do rodapé, sem "margem estranha". Regras (escopadas em `#vaga-sheet .pedido-sheet__body`):
+**Scroll RENTE às bordas no "Criar vaga" (`#vaga-sheet`):** o body rola rente ao topo do painel e à
+faixa verde do rodapé, sem "margem estranha". Regras (escopadas em `#vaga-sheet .pedido-sheet__body`):
 `margin-top: -var(--space-md)` puxa o body até a borda superior do painel e `padding-top: var(--space-md)`
-devolve o respiro como padding ROLÁVEL (some ao rolar) → o título chega rente ao topo; `padding-bottom: 0`
+devolve o respiro como padding ROLÁVEL (some ao rolar) → o conteúdo chega rente ao topo; `padding-bottom: 0`
 tira o safe-area daqui (a faixa verde o carrega). O rodapé `.pedido-sheet__actions--footer` (só a vaga o
 usa) ganha `margin-top: -var(--space-sm)` para anular o `gap` do painel (a faixa verde encosta na base do
 body → conteúdo rola rente a ela) e `padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom))`
@@ -1034,12 +1042,12 @@ Bottom sheet de criação de vaga, acionado pelo `#btn-criar-vaga` da action bar
 **Rodapé fixo:** o botão "Publicar vaga" fica FORA do `.pedido-sheet__body` (que rola), num
 `.pedido-sheet__actions--footer` — sempre visível na base. Essa faixa tem fundo `--p-green` (o MESMO verde
 da action bar, mais claro que o `--bg-canvas` do painel), edge-to-edge (margem negativa anula o padding do
-painel) e cantos inferiores `--radius-lg`. O **título "Criar vaga"** foi movido para DENTRO do `.pedido-sheet__state`
-(primeiro filho, no body) para ROLAR junto com os campos — diferente dos outros sheets, onde o header é fixo.
+painel) e cantos inferiores `--radius-lg`. **Sem título interno** (como todos os dropdowns desde a v268:
+o título vive na top bar via `setTopBarTitle`).
 **Reaproveita o scaffolding do `pedido-sheet`** (mesmas classes `.pedido-sheet*`, `.pedido-field*`,
 `.pedido-chip*` — o bottom-sheet-formulário padrão do app), com estilos próprios só para as listas
 dinâmicas (`css/feed.css`, bloco "Sheet Criar vaga"): `.vaga-dyn-list` / `.vaga-dyn-row` (input +
-botão remover `.vaga-dyn-remove`), `.vaga-add-btn` (botão tracejado dourado "Adicionar…") e
+botão remover `.vaga-dyn-remove`), `.vaga-add-btn` (botão dourado "Adicionar…", fill translúcido sem borda) e
 `.vaga-card--highlight` (destaque dourado temporário ao tocar "Ver vaga").
 
 Campos:
@@ -1051,9 +1059,10 @@ Campos:
 - **Cargo / função** — texto obrigatório.
 - **Número de vagas** — stepper **+/-** (`.vaga-stepper`, `#vaga-count-value`), 1–20, `dec` desabilita em 1.
 - **Requisitos** — lista dinâmica (`.vaga-dyn-list`), ≥1 preenchido.
-- **Carga horária** — dois `<select>` de hora de **meia em meia hora** (00:00→23:30, 48 opções,
-  `populateTimeSelect`; padrão 08:00→18:00) + toggles de **dias** (`.vaga-day`, multi-seleção; padrão
-  Seg–Sex). `formatDays` compacta uma sequência contígua em "Seg–Sex", senão junta por vírgula. String
+- **Carga horária** — dois **STEPPERS de hora** (`.vaga-stepper--time`, reusam o `.vaga-stepper` do
+  número de vagas — substituíram os `<select>` nativos na v268): passo de 30min com giro 23:30→00:00
+  (`timeState` + `wireTimeStepper` em `feed.js`; padrão 08:00→18:00) + toggles de **dias** (`.vaga-day`,
+  multi-seleção; padrão Seg–Sex). `formatDays` compacta uma sequência contígua em "Seg–Sex", senão junta por vírgula. String
   final: `"08:00 às 18:00 · Seg–Sex"`.
 - **Salário** — campo numérico (só dígitos, separador de milhar automático via `toLocaleString('pt-BR')`),
   com `R$` e `/mês` **externos** ao input (`.vaga-salary__prefix`/`__suffix`). Gera `"R$ 1.500/mês"`.
@@ -1063,8 +1072,9 @@ Campos:
   no mesmo padrão do feed (`.vaga-card__benefit`). "Outros" (`#vaga-benefit-outros`) revela a lista de
   texto livre `#vaga-benefit-list` (`setOutrosOpen`) para benefícios extras, cujo ícone é inferido por
   palavra-chave (`benefitIcon()`; fallback `redeem`). Opcional.
-- **Exigir currículo (PDF/foto)** — check (`#chk-vaga-curriculo`, `.vaga-check`, estado em `aria-pressed`)
-  com aviso de que pedir currículo individual extra pode fazer perder candidatos. Grava `exigeCurriculo`
+- **Exigir currículo (PDF/foto)** — check (`#chk-vaga-curriculo`, `.vaga-check`, estado em `aria-pressed`),
+  com o subtexto "(opcional)" (`.vaga-field__optional`) no rótulo e aviso de que pedir currículo
+  individual extra pode fazer perder candidatos. Grava `exigeCurriculo`
   na vaga; a seção de upload de currículo no verso de candidatura só é renderizada quando
   `vaga.exigeCurriculo !== false` (vagas legadas sem o campo continuam exibindo).
 

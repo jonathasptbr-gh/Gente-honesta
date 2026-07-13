@@ -36,6 +36,15 @@ document.addEventListener('DOMContentLoaded', () => {
     btnToggleRecent.setAttribute('aria-expanded', String(!collapsed));
   });
 
+  // --- Título da top bar: enquanto uma gaveta da action bar está aberta, o
+  // "Gente Honesta" vira o título da seção (os headers internos das gavetas
+  // foram removidos para liberar espaço). null/omitido = restaura a marca.
+  // function declaration (hoistada): usada por open/close definidos antes e depois.
+  function setTopBarTitle(title) {
+    const brand = document.querySelector('.top-bar__brand');
+    if (brand) brand.textContent = title || 'Gente Honesta';
+  }
+
   // --- Chips de status dos contratos (Todos / Ativo / Concluído / Cancelado)
   const statusChips = document.querySelectorAll('[data-filter-status]');
   statusChips.forEach((chip) => {
@@ -1254,8 +1263,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inpCnpj      = document.getElementById('inp-vaga-cnpj');
     const inpCargo     = document.getElementById('inp-vaga-cargo');
     const inpSalario   = document.getElementById('inp-vaga-salario');
-    const selInicio    = document.getElementById('inp-vaga-hora-inicio');
-    const selFim       = document.getElementById('inp-vaga-hora-fim');
+    const timeState    = { inicio: '08:00', fim: '18:00' }; // horários dos steppers
     const daysGroup    = document.getElementById('vaga-days');
     const countValueEl = document.getElementById('vaga-count-value');
     const btnCountDec  = document.getElementById('vaga-count-dec');
@@ -1276,18 +1284,27 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCountDec?.addEventListener('click', () => { if (vagaCount > 1)         { vagaCount--; renderCount(); } });
     btnCountInc?.addEventListener('click', () => { if (vagaCount < MAX_VAGAS) { vagaCount++; renderCount(); } });
 
-    // ── Seletores de hora (meia em meia hora, 00:00 → 23:30) ──
-    const populateTimeSelect = (sel, defaultValue) => {
-      if (!sel) return;
-      let opts = '';
-      for (let h = 0; h < 24; h++) {
-        for (const m of ['00', '30']) {
-          const t = `${String(h).padStart(2, '0')}:${m}`;
-          opts += `<option value="${t}"${t === defaultValue ? ' selected' : ''}>${t}</option>`;
-        }
-      }
-      sel.innerHTML = opts;
+    // ── Steppers de hora (meia em meia hora, com giro 23:30 → 00:00) ──
+    // Substituem o <select> nativo do sistema pelo padrão do app (.vaga-stepper).
+    const timeToMin = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+    const minToTime = (m) => {
+      const mm = ((m % 1440) + 1440) % 1440;
+      return `${String(Math.floor(mm / 60)).padStart(2, '0')}:${String(mm % 60).padStart(2, '0')}`;
     };
+    const renderTime = (key) => {
+      const el = document.getElementById(key === 'inicio' ? 'vaga-hora-inicio-value' : 'vaga-hora-fim-value');
+      if (el) el.textContent = timeState[key];
+    };
+    const wireTimeStepper = (stepperId, key) => {
+      document.getElementById(stepperId)?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.vaga-stepper__btn');
+        if (!btn) return;
+        timeState[key] = minToTime(timeToMin(timeState[key]) + 30 * parseInt(btn.dataset.step, 10));
+        renderTime(key);
+      });
+    };
+    wireTimeStepper('stepper-hora-inicio', 'inicio');
+    wireTimeStepper('stepper-hora-fim', 'fim');
 
     // ── Dias de trabalho: toggle múltiplo ──
     const getSelectedDays = () =>
@@ -1397,8 +1414,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       vagaCount = 1;
       renderCount();
-      if (selInicio) selInicio.value = '08:00';
-      if (selFim)    selFim.value    = '18:00';
+      timeState.inicio = '08:00';
+      timeState.fim = '18:00';
+      renderTime('inicio');
+      renderTime('fim');
       daysGroup?.querySelectorAll('.vaga-day').forEach(d => {
         const on = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'].includes(d.dataset.day);
         d.classList.toggle('vaga-day--active', on);
@@ -1426,9 +1445,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (bar) vagaSheet?.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
       vagaSheet?.classList.add('pedido-sheet--open');
       setCriarVagaClose(true);
+      setTopBarTitle('Criar vaga');
     };
     const closeVagaSheet = () => {
       vagaSheet?.classList.remove('pedido-sheet--open');
+      setTopBarTitle(null);
       // Só restaura para "Criar vaga" se ainda não há vaga publicada; após publicar,
       // o botão já foi trocado para "Ver vaga" e não deve ser sobrescrito.
       if (!myVagaId) setCriarVagaClose(false);
@@ -1467,8 +1488,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Limpa o destaque de erro ao digitar no cargo
     inpCargo?.addEventListener('input', () => inpCargo.classList.remove('input-text--error'));
 
-    populateTimeSelect(selInicio, '08:00');
-    populateTimeSelect(selFim, '18:00');
 
     // Publicar vaga
     document.getElementById('btn-vaga-publish')?.addEventListener('click', async () => {
@@ -1515,7 +1534,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const beneficios = [...pillBenefits, ...customBenefits];
 
       const cnpj = formatCnpj(inpCnpj.value);
-      const cargaHoraria = `${selInicio.value} às ${selFim.value} · ${formatDays(dias)}`;
+      const cargaHoraria = `${timeState.inicio} às ${timeState.fim} · ${formatDays(dias)}`;
       const salario = `R$ ${Number(salarioDigits).toLocaleString('pt-BR')}/mês`;
       const displayName = window.auth?.currentUser?.displayName || 'Você';
 
@@ -1623,10 +1642,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (bar) ajudanteSheet?.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
       ajudanteSheet?.classList.add('pedido-sheet--open');
       setAjudanteClose(true);
+      setTopBarTitle('Serviço de ajudantes');
     };
     const closeAjudanteSheet = () => {
       ajudanteSheet?.classList.remove('pedido-sheet--open');
       setAjudanteClose(false);
+      setTopBarTitle(null);
     };
 
     btnAjudante?.addEventListener('click', openAjudanteSheet);
@@ -1832,7 +1853,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // botão de fechar (X) enquanto o painel está aberto. (function declarations →
   // hoistadas, usáveis por showVagasPanel/showPedidosPanel/reset acima.)
   function closeFiltersSheet() {
-    document.getElementById('filters-sheet')?.classList.remove('historico-sheet--open');
+    const sheet = document.getElementById('filters-sheet');
+    // Só restaura o título se o sheet estava mesmo aberto: closeFiltersSheet é
+    // chamado preventivamente nas trocas de aba e não pode apagar o título de
+    // outra gaveta.
+    if (sheet?.classList.contains('historico-sheet--open')) setTopBarTitle(null);
+    sheet?.classList.remove('historico-sheet--open');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'false');
     btn?.classList.remove('action-close-mode');
@@ -1845,6 +1871,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bar = document.getElementById('feed-action-bar');
     if (bar && sheet) sheet.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
     sheet?.classList.add('historico-sheet--open');
+    setTopBarTitle('Filtros');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
     btn?.classList.add('action-close-mode');
@@ -2137,7 +2164,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Elementos do sheet de criação / detalhe ──
   const pedidoSheet        = document.getElementById('pedido-sheet');
-  const pedidoSheetTitle   = document.getElementById('pedido-sheet-title');
   const pedidoFormState    = document.getElementById('pedido-form-state');
   const pedidoDetailsState = document.getElementById('pedido-details-state');
   const inpPedidoText      = document.getElementById('inp-pedido-text');
@@ -2151,10 +2177,11 @@ document.addEventListener('DOMContentLoaded', () => {
     detailPedidoId = null;
     pedidoDetailMode = null;
     setMyPedidoButton('natural');
-    // Restaura o botão Histórico: se o histórico continua aberto atrás, volta a
-    // "Fechar"; senão, ao estado natural "Histórico".
+    // Restaura o botão Histórico e o título da top bar: se o histórico continua
+    // aberto atrás, volta a "Fechar" + "Histórico de pedidos"; senão, ao natural.
     const historicoOpen = document.getElementById('historico-sheet')?.classList.contains('historico-sheet--open');
     setHistoricoButton(historicoOpen ? 'close' : 'natural');
+    setTopBarTitle(historicoOpen ? 'Histórico de pedidos' : null);
   };
 
   // Ancora um sheet-dropdown na BASE da action bar (= topo da caixa do feed),
@@ -2193,7 +2220,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // da base da action bar — mesmo slide-down do histórico (sem --full, que é
   // reservado ao detalhe em tela cheia).
   const openPedidoForm = () => {
-    if (pedidoSheetTitle) pedidoSheetTitle.textContent = 'Fazer pedido';
+    setTopBarTitle('Fazer pedido');
     pedidoFormState?.classList.remove('u-hidden');
     pedidoDetailsState?.classList.add('u-hidden');
     detailPedidoId = null;
@@ -2214,7 +2241,7 @@ document.addEventListener('DOMContentLoaded', () => {
     detailPedidoId = id;
     const active = pedido.status === 'active';
     pedidoDetailMode = active ? 'active' : 'old';
-    if (pedidoSheetTitle) pedidoSheetTitle.textContent = active ? 'Pedido atual' : 'Pedido concluído';
+    setTopBarTitle(active ? 'Pedido atual' : 'Pedido concluído');
     pedidoFormState?.classList.add('u-hidden');
     pedidoDetailsState?.classList.remove('u-hidden');
     renderPedidoDetails(pedido);
@@ -2463,12 +2490,15 @@ document.addEventListener('DOMContentLoaded', () => {
     anchorBelowActionBar(historicoSheet);
     historicoSheet?.classList.add('historico-sheet--open');
     setHistoricoButton('close');
+    setTopBarTitle('Histórico de pedidos');
   };
   const closeHistorico = () => {
     historicoSheet?.classList.remove('historico-sheet--open');
     // Se um detalhe (ativo ou antigo) está aberto sobre o histórico, o botão
-    // Histórico segue como "Fechar"; senão volta ao natural.
+    // Histórico segue como "Fechar" e o título do DETALHE permanece na top bar;
+    // senão ambos voltam ao natural.
     setHistoricoButton(pedidoDetailMode ? 'close' : 'natural');
+    if (!pedidoDetailMode) setTopBarTitle(null);
   };
 
   historicoSheet?.addEventListener('click', (e) => {
