@@ -180,43 +180,15 @@
   transform: translateY(0);
 }
 
-/* Cabeçalho fixo verde — mesma linguagem da top-bar */
-.contracts-panel__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-sm) var(--space-md);
-  min-height: 60px;
-  background: var(--p-green);
-  flex-shrink: 0;
-  padding-top: calc(var(--space-sm) + env(safe-area-inset-top, 0px));
-}
-
-.contracts-panel__title {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  font-size: var(--fs-9);
-  font-weight: var(--fw-heavy);
-  color: var(--t-light);
-}
-
-.contracts-panel__title .material-symbols-rounded {
-  font-size: 1.4rem;
-}
-
-/* Botão "Fechar" do cabeçalho: claro sobre o verde */
-.contracts-panel__header .btn--outline {
-  background: var(--on-green-faint);
-  color: var(--t-light);
-}
-
+/* Sem cabeçalho: as ações (ocultar / criar minicontrato / fechar) vivem na linha
+   superior do bloco de criação. O scroll carrega a folga do safe-area no topo. */
 .contracts-panel__scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: var(--space-md);
+  padding-top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
   padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
@@ -250,8 +222,10 @@
   border-radius: var(--radius-md);
 }
 
-/* Seta que colapsa os recém-criados — à direita do botão de criar */
-.contracts-create__collapse {
+/* Botões-ícone quadrados que ladeiam "Criar minicontrato":
+   ESQUERDA = ocultar recém-criados (chevron); DIREITA = fechar contratos. */
+.contracts-create__collapse,
+.contracts-create__close {
   width: 48px;
   flex-shrink: 0;
   display: inline-flex;
@@ -264,8 +238,13 @@
   transition: var(--transition);
 }
 
-.contracts-create__collapse:active {
+.contracts-create__collapse:active,
+.contracts-create__close:active {
   transform: scale(var(--press-scale));
+}
+
+.contracts-create__close .material-symbols-rounded {
+  font-size: 1.4rem;
 }
 
 .contracts-create__chevron {
@@ -313,42 +292,27 @@
   box-shadow: var(--shadow-sm);
 }
 
-.contract-mini__info {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
+/* Corpo clicável (abre/visualiza o contrato). Recém-criado ainda não tem dados
+   de cliente: mostra só o resumo do serviço + preço. */
+.contract-mini__open {
+  flex: 1;
   min-width: 0;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px 0;
+  transition: var(--transition);
 }
 
-.contract-mini__avatar {
-  width: 34px;
-  height: 44px;
-  border-radius: var(--radius-xs);
-  object-fit: cover;
-  border: 2px solid var(--border-light);
-  background: var(--bg-soft);
-  flex-shrink: 0;
+.contract-mini__open:active {
+  transform: scale(var(--press-scale-subtle));
 }
 
-.contract-mini__text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.contract-mini__name {
+.contract-mini__summary {
+  display: block;
   font-size: var(--fs-6);
-  font-weight: var(--fw-bold);
+  font-weight: var(--fw-medium);
   color: var(--t-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.contract-mini__sub {
-  font-size: var(--fs-4);
-  color: var(--t-sub);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -383,18 +347,75 @@
 }
 
 
-/* ── Busca e filtros ── */
+/* ── Busca e filtros ──
+   Barra: campo de busca + botão de filtros à direita (como no feed principal).
+   Os filtros descem ANIMADOS dentro do próprio card ao tocar no botão. */
 .contracts-filters {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-sm) var(--space-md);
+  padding: var(--space-sm);
   background: var(--bg-white);
   border-radius: var(--radius-md);
 }
 
+.contracts-filters__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
 .contracts-filters__search-wrap {
   position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Botão de filtros (abre/fecha o painel). Estado aberto = azul (linguagem de
+   estado ativo do app), com o ícone virando "close". */
+.contracts-filters__toggle {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  color: var(--t-sub);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.contracts-filters__toggle:active {
+  transform: scale(var(--press-scale));
+}
+
+.contracts-filters__toggle[aria-expanded="true"] {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
+}
+
+.contracts-filters__toggle .material-symbols-rounded {
+  font-size: 1.3rem;
+}
+
+/* Painel colapsável (chips + faixa de valor/data). Anima altura + opacidade. */
+.contracts-filters__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  overflow: hidden;
+  max-height: 400px;
+  opacity: 1;
+  margin-top: var(--space-sm);
+  transition: max-height 0.35s var(--sheet-ease), opacity 0.25s ease, margin-top 0.35s var(--sheet-ease);
+}
+
+.contracts-filters__panel--collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  pointer-events: none;
 }
 
 .contracts-filters__search-icon {
@@ -484,8 +505,12 @@
   gap: var(--space-sm);
 }
 
-.contract-card--cancelled {
-  opacity: 0.72;
+/* Encerrados (concluído + cancelado): superfície cinza --bg-soft (via card--soft
+   no HTML), recuada em relação aos ativos brancos. A distinção entre os dois vem
+   só da pílula de status (azul "Concluído" vs. vermelho "Cancelado"). O antigo
+   opacity:0.72 do cancelado foi REMOVIDO — deixava o card sem fundo/"lavado". */
+.contract-card--finished {
+  /* fundo/definição vêm de .card.card--soft; sem regras extras aqui */
 }
 
 /* Linha superior: cliente (foto + nome + IC) | status */

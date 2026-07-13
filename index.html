@@ -663,7 +663,7 @@
             <!-- Marca + selo de versão discreto ao lado. BUMPAR o texto de
                  #version-badge (vN) junto com CACHE_NAME (service-worker.js) a
                  cada deploy — é a confirmação visual da versão servida. -->
-            <span class="top-bar__brand"><span class="top-bar__brand-text">Gente Honesta</span><span id="version-badge" class="top-bar__version" aria-hidden="true">v279</span></span>
+            <span class="top-bar__brand"><span class="top-bar__brand-text">Gente Honesta</span><span id="version-badge" class="top-bar__version" aria-hidden="true">v280</span></span>
             <button type="button" id="btn-open-contracts" class="top-bar__action" aria-label="Contratos">
                 <span class="material-symbols-rounded top-bar__notif-icon" aria-hidden="true">description</span>
                 <span id="badge-contracts" class="notif-badge">2</span>
@@ -1119,30 +1119,22 @@
              Contrato de visibilidade: controlada por .contracts-panel--open -->
         <section id="panel-contracts" class="contracts-panel" aria-label="Contratos">
 
-            <!-- Cabeçalho fixo -->
-            <header class="contracts-panel__header">
-                <span class="contracts-panel__title">
-                    <span class="material-symbols-rounded" aria-hidden="true">description</span>
-                    Contratos
-                </span>
-                <button type="button" id="btn-close-contracts" class="btn btn--outline btn--close" aria-label="Fechar contratos">
-                    <span class="material-symbols-rounded" aria-hidden="true">expand_less</span>
-                    Fechar
-                </button>
-            </header>
-
-            <!-- Corpo rolável -->
+            <!-- Corpo rolável (sem cabeçalho: as ações — ocultar / criar / fechar —
+                 vivem na linha superior do bloco de criação) -->
             <div class="contracts-panel__scroll">
 
-                <!-- Bloco: criar minicontrato + recém-criados (colapsável) -->
+                <!-- Bloco: ações + recém-criados (colapsável) -->
                 <div class="contracts-create">
                     <div class="contracts-create__row">
+                        <button type="button" id="btn-toggle-recent" class="contracts-create__collapse" aria-expanded="true" aria-label="Recolher recém-criados">
+                            <span class="material-symbols-rounded contracts-create__chevron" aria-hidden="true">expand_less</span>
+                        </button>
                         <button type="button" id="btn-new-contract" class="btn btn--primary contracts-create__btn">
                             <span class="material-symbols-rounded" aria-hidden="true">add</span>
                             Criar minicontrato
                         </button>
-                        <button type="button" id="btn-toggle-recent" class="contracts-create__collapse" aria-expanded="true" aria-label="Recolher recém-criados">
-                            <span class="material-symbols-rounded contracts-create__chevron" aria-hidden="true">expand_less</span>
+                        <button type="button" id="btn-close-contracts" class="contracts-create__close" aria-label="Fechar contratos">
+                            <span class="material-symbols-rounded" aria-hidden="true">expand_less</span>
                         </button>
                     </div>
 
@@ -1150,31 +1142,24 @@
                     <div id="contracts-recent" class="contracts-recent">
                         <h3 class="contracts-recent__label">Recém-criados</h3>
 
+                        <!-- Recém-criado: só resumo do serviço + preço (sem dados de
+                             cliente ainda). O corpo é clicável para abrir/visualizar;
+                             ações restantes = editar e compartilhar. -->
                         <div class="contract-mini">
-                            <div class="contract-mini__info">
-                                <img class="contract-mini__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
-                                <div class="contract-mini__text">
-                                    <span class="contract-mini__name">Fernanda Alves</span>
-                                    <span class="contract-mini__sub">Montagem de móveis · R$ 320</span>
-                                </div>
-                            </div>
+                            <button type="button" class="contract-mini__open" aria-label="Abrir contrato">
+                                <span class="contract-mini__summary">Montagem de móveis · R$ 320</span>
+                            </button>
                             <div class="contract-mini__actions">
-                                <button type="button" class="contract-mini__btn" aria-label="Ver detalhes"><span class="material-symbols-rounded" aria-hidden="true">visibility</span></button>
                                 <button type="button" class="contract-mini__btn" aria-label="Editar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
                                 <button type="button" class="contract-mini__btn" aria-label="Compartilhar"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>
                             </div>
                         </div>
 
                         <div class="contract-mini">
-                            <div class="contract-mini__info">
-                                <img class="contract-mini__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
-                                <div class="contract-mini__text">
-                                    <span class="contract-mini__name">Bruno Teixeira</span>
-                                    <span class="contract-mini__sub">Pintura de sala · R$ 850</span>
-                                </div>
-                            </div>
+                            <button type="button" class="contract-mini__open" aria-label="Abrir contrato">
+                                <span class="contract-mini__summary">Pintura de sala · R$ 850</span>
+                            </button>
                             <div class="contract-mini__actions">
-                                <button type="button" class="contract-mini__btn" aria-label="Ver detalhes"><span class="material-symbols-rounded" aria-hidden="true">visibility</span></button>
                                 <button type="button" class="contract-mini__btn" aria-label="Editar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
                                 <button type="button" class="contract-mini__btn" aria-label="Compartilhar"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>
                             </div>
@@ -1182,34 +1167,44 @@
                     </div>
                 </div>
 
-                <!-- Busca e filtros dos contratos -->
+                <!-- Busca e filtros dos contratos: barra de busca + botão de filtros
+                     à direita (como no feed principal). Os filtros (chips + faixa de
+                     valor/data) descem ANIMADOS dentro do próprio card ao abrir. -->
                 <div class="contracts-filters">
-                    <div class="contracts-filters__search-wrap">
-                        <span class="material-symbols-rounded contracts-filters__search-icon" aria-hidden="true">search</span>
-                        <input type="text" id="inp-contracts-search" class="contracts-filters__search" placeholder="Buscar contrato...">
+                    <div class="contracts-filters__bar">
+                        <div class="contracts-filters__search-wrap">
+                            <span class="material-symbols-rounded contracts-filters__search-icon" aria-hidden="true">search</span>
+                            <input type="text" id="inp-contracts-search" class="contracts-filters__search" placeholder="Buscar contrato...">
+                        </div>
+                        <button type="button" id="btn-toggle-contracts-filters" class="contracts-filters__toggle" aria-expanded="false" aria-label="Filtros">
+                            <span class="material-symbols-rounded" aria-hidden="true">tune</span>
+                        </button>
                     </div>
 
-                    <!-- Chips de status -->
-                    <div class="contracts-filters__chips">
-                        <button type="button" class="chip chip--active" data-filter-status="all" aria-pressed="true">Todos</button>
-                        <button type="button" class="chip" data-filter-status="active" aria-pressed="false">Ativo</button>
-                        <button type="button" class="chip" data-filter-status="done" aria-pressed="false">Concluído</button>
-                        <button type="button" class="chip" data-filter-status="cancelled" aria-pressed="false">Cancelado</button>
-                    </div>
+                    <!-- Painel de filtros — colapsável (animação de altura) -->
+                    <div id="contracts-filters-panel" class="contracts-filters__panel contracts-filters__panel--collapsed">
+                        <!-- Chips de status -->
+                        <div class="contracts-filters__chips">
+                            <button type="button" class="chip chip--active" data-filter-status="all" aria-pressed="true">Todos</button>
+                            <button type="button" class="chip" data-filter-status="active" aria-pressed="false">Ativo</button>
+                            <button type="button" class="chip" data-filter-status="done" aria-pressed="false">Concluído</button>
+                            <button type="button" class="chip" data-filter-status="cancelled" aria-pressed="false">Cancelado</button>
+                        </div>
 
-                    <!-- Faixa de valor + data -->
-                    <div class="contracts-filters__row">
-                        <div class="contracts-filters__field">
-                            <label class="contracts-filters__field-label" for="inp-contracts-min">Valor mín.</label>
-                            <input type="number" inputmode="numeric" id="inp-contracts-min" class="contracts-filters__input" placeholder="R$ 0">
-                        </div>
-                        <div class="contracts-filters__field">
-                            <label class="contracts-filters__field-label" for="inp-contracts-max">Valor máx.</label>
-                            <input type="number" inputmode="numeric" id="inp-contracts-max" class="contracts-filters__input" placeholder="R$ 9999">
-                        </div>
-                        <div class="contracts-filters__field">
-                            <label class="contracts-filters__field-label" for="inp-contracts-date">Data</label>
-                            <input type="date" id="inp-contracts-date" class="contracts-filters__input">
+                        <!-- Faixa de valor + data -->
+                        <div class="contracts-filters__row">
+                            <div class="contracts-filters__field">
+                                <label class="contracts-filters__field-label" for="inp-contracts-min">Valor mín.</label>
+                                <input type="number" inputmode="numeric" id="inp-contracts-min" class="contracts-filters__input" placeholder="R$ 0">
+                            </div>
+                            <div class="contracts-filters__field">
+                                <label class="contracts-filters__field-label" for="inp-contracts-max">Valor máx.</label>
+                                <input type="number" inputmode="numeric" id="inp-contracts-max" class="contracts-filters__input" placeholder="R$ 9999">
+                            </div>
+                            <div class="contracts-filters__field">
+                                <label class="contracts-filters__field-label" for="inp-contracts-date">Data</label>
+                                <input type="date" id="inp-contracts-date" class="contracts-filters__input">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1241,7 +1236,7 @@
                             <p class="contract-card__desc">Montagem completa de guarda-roupa, cômoda e cabeceira no quarto principal. Inclui fixação na parede e alinhamento das portas.</p>
                             <div class="contract-card__value-box">
                                 <span class="contract-card__value">R$ 320</span>
-                                <span class="contract-card__payment"><span class="material-symbols-rounded" aria-hidden="true">pix</span>Pix</span>
+                                <span class="contract-card__payment"><span class="material-symbols-rounded" aria-hidden="true">qr_code_2</span>Pix</span>
                             </div>
                         </div>
                     </article>
@@ -1275,8 +1270,8 @@
                         </div>
                     </article>
 
-                    <!-- Contrato CONCLUÍDO -->
-                    <article class="card card--shadow contract-card">
+                    <!-- Contrato CONCLUÍDO (encerrado → superfície cinza --bg-soft, recuada vs. os ativos brancos) -->
+                    <article class="card card--soft contract-card contract-card--finished">
                         <div class="contract-card__main">
                             <div class="contract-card__client">
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
@@ -1304,8 +1299,8 @@
                         </div>
                     </article>
 
-                    <!-- Contrato CANCELADO -->
-                    <article class="contract-card contract-card--cancelled">
+                    <!-- Contrato CANCELADO (encerrado → mesma superfície cinza --bg-soft dos concluídos) -->
+                    <article class="card card--soft contract-card contract-card--finished contract-card--cancelled">
                         <div class="contract-card__main">
                             <div class="contract-card__client">
                                 <img class="contract-card__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
@@ -1328,7 +1323,7 @@
                             <p class="contract-card__desc">Limpeza semanal de apartamento de dois quartos. Cancelado por indisponibilidade de agenda.</p>
                             <div class="contract-card__value-box">
                                 <span class="contract-card__value">R$ 180</span>
-                                <span class="contract-card__payment"><span class="material-symbols-rounded" aria-hidden="true">pix</span>Pix</span>
+                                <span class="contract-card__payment"><span class="material-symbols-rounded" aria-hidden="true">qr_code_2</span>Pix</span>
                             </div>
                         </div>
                     </article>

@@ -36,6 +36,20 @@ document.addEventListener('DOMContentLoaded', () => {
     btnToggleRecent.setAttribute('aria-expanded', String(!collapsed));
   });
 
+  // --- Filtros dos contratos: barra de busca + botão de filtros à direita.
+  // O painel (chips + faixa de valor/data) desce animado dentro do card ao abrir;
+  // o ícone do botão alterna tune ↔ close (e o botão fica azul quando aberto).
+  const btnToggleContractsFilters = document.getElementById('btn-toggle-contracts-filters');
+  const contractsFiltersPanel     = document.getElementById('contracts-filters-panel');
+
+  btnToggleContractsFilters?.addEventListener('click', () => {
+    const collapsed = contractsFiltersPanel?.classList.toggle('contracts-filters__panel--collapsed');
+    const open = !collapsed;
+    btnToggleContractsFilters.setAttribute('aria-expanded', String(open));
+    const icon = btnToggleContractsFilters.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = open ? 'close' : 'tune';
+  });
+
   // --- Título da top bar: enquanto uma gaveta da action bar está aberta, o
   // "Gente Honesta" vira o título da seção (os headers internos das gavetas
   // foram removidos para liberar espaço). null/omitido = restaura a marca.
