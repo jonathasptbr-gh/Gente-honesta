@@ -1049,30 +1049,17 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
 
       // Abertura/fechamento ANIMADO dos <details> de observação por requisito.
-      // O <details> nativo abre de uma vez (salto na altura do card). Aqui
-      // interceptamos o clique no resumo e animamos a ALTURA do card (que recorta
-      // via overflow:hidden), capturando a altura ANTES de mudar o estado — senão
-      // o height:auto já teria saltado. No FECHAR, o conteúdo fica visível durante
-      // o encolhimento e só some no fim (remove `open` no transitionend).
+      // O <details> nativo abre de uma vez (salto na altura). Aqui interceptamos o
+      // clique no resumo e animamos a ALTURA DO PRÓPRIO PAINEL do details (de só o
+      // resumo até resumo+campo, e vice-versa). Como o card de candidatura fica em
+      // `height:auto` quando expandido, ele ACOMPANHA o crescimento do painel frame
+      // a frame — o campo abre suave e o card se estende junto.
       card.querySelectorAll('.candid-req-obs').forEach(det => {
         const summary = det.querySelector('.candid-req-obs-label');
         summary?.addEventListener('click', (e) => {
-          if (!card.classList.contains('vaga-card--expanded')) return; // estado incomum: deixa o nativo
-          e.preventDefault();
-          if (card.dataset.reqAnim) return; // ignora toques durante a animação
-          const opening = !det.hasAttribute('open');
-          const fromH = card.offsetHeight;
-          let toH;
-          if (opening) {
-            det.setAttribute('open', '');
-            toH = card.offsetHeight;
-            animateReqCardHeight(card, fromH, toH, null);
-          } else {
-            det.removeAttribute('open');
-            toH = card.offsetHeight;
-            det.setAttribute('open', ''); // mantém o conteúdo visível durante o encolhimento
-            animateReqCardHeight(card, fromH, toH, () => det.removeAttribute('open'));
-          }
+          e.preventDefault(); // controlamos a abertura para animar
+          if (det.dataset.reqAnim) return; // ignora toques durante a animação
+          animateReqDetails(det, summary);
         });
       });
 
@@ -1173,29 +1160,41 @@ document.addEventListener('DOMContentLoaded', () => {
   function vagaCardFlipToBack(card)              { flipCardToBack(card, VAGA_CARD_CFG); }
   function vagaCardFlipToFront(card, onComplete) { flipCardToFront(card, VAGA_CARD_CFG, onComplete); }
 
-  // Anima a altura do card de `fromH` a `toH` (px) e devolve a `auto` no fim.
-  // `onDone` roda ao terminar (ex.: esconder o <details> só depois de encolher).
+  // Anima a altura do PAINEL de um <details> de observação: de só o resumo até
+  // resumo+campo (abrir) ou o contrário (fechar). O card de candidatura, em
+  // `height:auto` quando expandido, cresce/encolhe junto frame a frame. No FECHAR,
+  // o `open` só sai no fim, para o campo ficar visível durante o encolhimento.
   // Fallback por timer caso o transitionend não dispare.
-  function animateReqCardHeight(card, fromH, toH, onDone) {
-    card.dataset.reqAnim = '1';
-    card.style.transition = 'none';
-    card.style.height = fromH + 'px';
-    void card.offsetHeight; // reflow: fixa a altura inicial antes de animar
+  function animateReqDetails(det, summary) {
+    const opening = !det.hasAttribute('open');
+    det.dataset.reqAnim = '1';
+    det.style.overflow = 'hidden';
+    const summaryH = summary.offsetHeight;
+    let fromH, toH;
+    if (opening) {
+      det.setAttribute('open', '');       // revela o campo p/ medir a altura cheia
+      fromH = summaryH;
+      toH = det.scrollHeight;
+    } else {
+      fromH = det.offsetHeight;
+      toH = summaryH;                      // mantém `open` até o fim (campo visível)
+    }
+    det.style.height = fromH + 'px';
+    void det.offsetHeight;                 // reflow: fixa a altura inicial
     requestAnimationFrame(() => {
-      card.style.transition = 'height 0.32s cubic-bezier(0.4,0,0.2,1)';
-      card.style.height = toH + 'px';
+      det.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
+      det.style.height = toH + 'px';
     });
     const finish = (ev) => {
       if (ev && ev.propertyName !== 'height') return;
-      card.removeEventListener('transitionend', finish);
-      clearTimeout(card._reqTimer);
-      card.style.transition = '';
-      card.style.height = 'auto';
-      delete card.dataset.reqAnim;
-      if (onDone) onDone();
+      det.removeEventListener('transitionend', finish);
+      clearTimeout(det._reqTimer);
+      if (!opening) det.removeAttribute('open');
+      det.style.height = ''; det.style.transition = ''; det.style.overflow = '';
+      delete det.dataset.reqAnim;
     };
-    card.addEventListener('transitionend', finish);
-    card._reqTimer = setTimeout(finish, 420);
+    det.addEventListener('transitionend', finish);
+    det._reqTimer = setTimeout(finish, 400);
   }
 
   // ── Wrappers pro-card ─────────────────────────────────────────────────────

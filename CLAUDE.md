@@ -650,7 +650,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v271`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v272`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -1033,12 +1033,13 @@ filterState {
 - `resetProCardBack(card)` — function declaration; restaura para os primeiros 5 comentários e repõe o botão "ver mais" com `data-offset="${COMMENTS_PAGE}"`
 - `proCardFlipToFront` sempre chama `resetProCardBack` no `onComplete` (depois da animação de flip, ~840ms) — o reset ocorre enquanto o verso já está oculto, sem flash visual
 
-**Cards de vaga — observações por requisito (`<details>` `.candid-req-obs`) ABREM/FECHAM ANIMADO (v271):**
-o `<details>` nativo saltava a altura do card. O clique no resumo é interceptado (`preventDefault`) e a
-ALTURA do card é animada (o card recorta via `overflow:hidden`), capturando a altura ANTES de mudar o
-estado — senão o `height:auto` já teria saltado. No FECHAR o conteúdo fica visível durante o encolhimento
-e o `open` só é removido no `transitionend` (`animateReqCardHeight(card, fromH, toH, onDone)`, com fallback
-por timer). O textarea revelado ainda usa `commentFadeIn`.
+**Cards de vaga — observações por requisito (`<details>` `.candid-req-obs`) ABREM/FECHAM ANIMADO (v272):**
+o `<details>` nativo saltava a altura. O clique no resumo é interceptado (`preventDefault`) e a ALTURA DO
+PRÓPRIO PAINEL do details é animada (`animateReqDetails(det, summary)`): de só o resumo (`summary.offsetHeight`)
+até resumo+campo (`det.scrollHeight`) ao abrir, e o contrário ao fechar, com `overflow:hidden` recortando.
+Como o card de candidatura fica em `height:auto` quando expandido, ele ACOMPANHA o crescimento do painel
+frame a frame (o campo abre suave e o card se estende junto). No FECHAR o `open` só sai no `transitionend`
+(campo visível durante o encolhimento); fallback por timer. O textarea revelado ainda usa `commentFadeIn`.
 
 **Helper reutilizável:**
 - `renderFlippableProCards(listEl, pros)` — function declaration; renderiza pro-cards flipáveis em qualquer container
