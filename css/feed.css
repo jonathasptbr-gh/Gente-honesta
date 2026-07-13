@@ -81,11 +81,16 @@
 }
 
 /* Botão "Perfil" = foto/avatar RETANGULAR (mesmo formato 3:4 das fotos de
-   profissionais), dimensionado para caber na top bar; placeholder cinza quando
-   não há foto salva (JS troca o src por window.appState.photoBlob se existir). */
+   profissionais), SEM rótulo (a foto ocupa o espaço todo do botão); placeholder
+   cinza quando não há foto salva (JS troca o src por window.appState.photoBlob).
+   Sem o rótulo, o botão só precisa do padding vertical mínimo. */
+.top-bar__action--profile {
+  padding: 2px;
+}
+
 .top-bar__avatar {
-  width: 26px;
-  height: 34px;
+  width: 30px;
+  height: 40px;
   border-radius: var(--radius-xs);
   object-fit: cover;
   background: var(--border-light);
