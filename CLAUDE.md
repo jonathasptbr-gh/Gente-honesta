@@ -93,7 +93,7 @@ css/
   tutorial.css           — Motor de tutorial guiado (destaque + balão), reutilizável em qualquer tela
   auth.css              — Fluxo de login: auth-section, OTP (input único + células), carrossel de intro
   onboarding.css        — Formulário de perfil: câmera, tags, localização, cards de
-                          padrão de serviço, pro-cta, ic-card
+                          padrão de serviço, check de perfil público, ic-card
   install.css           — Tela-guia de instalação do PWA (view-install)
   feed.css              — Feed, top/bottom bar, painéis deslizantes, pedidos, cards de pro
 
@@ -200,7 +200,7 @@ Variáveis em `css/base.css :root`:
   (.15/.26/.35/.5/.7/.9) — usar o degrau semântico em vez de `rgba(var(--on-green-rgb), α)` solto.
 - **Blur / sheets:** `--blur-sm` (5px) e `--blur-lg` (14px) para backdrops (tutorial mantém 1.5px próprio);
   `--sheet-ease` (`cubic-bezier(0.32,0.72,0,1)`) é a curva única dos sheets deslizantes.
-- `--a-gold` — amarelo/dourado de destaque; `--a-gold-text` é o ocre mais escuro para TEXTO dourado sobre fundo claro; `--gold-cta` (#f7e4a6) é o amarelo do card-convite Pro (mais forte que o creme `--gold-soft`)
+- `--a-gold` — amarelo/dourado de destaque; `--a-gold-text` é o ocre mais escuro para TEXTO dourado sobre fundo claro
 - `--info-blue` — azul-cobalto escuro: a COR DE SELEÇÃO/estado ativo do app (v262); `--info-blue-light` é o tint claro; `--info-blue-bright` (#7aa3de) é o azul claro para indicadores PEQUENOS sobre verde escuro (dots do carrossel)
 - `--danger`, `--success`, `--whatsapp`, `--gold-soft-border`
 - `--bg-white`, `--bg-soft` — superfícies claras
@@ -562,7 +562,7 @@ Os popups de alerta/decisão/ajuda (`#dialog-global`) seguem o **padrão VERDE**
 **Tela de cadastro com fundo verde escuro (`#view-onboarding`):** o fundo é `--bg-canvas` (verde
 escuro canvas, o MESMO das listas de profissional/pedido do feed; escopado em `#view-onboarding.screen`
 — telefone/OTP/feed não são afetados). A estratégia é que quase todos os campos já têm fundo claro/branco
-(foto `--bg-input`, inputs/localização `--bg-white`, pro-cta `--gold-soft`) — então eles **se destacam
+(foto `--bg-input`, inputs/localização `--bg-white`) — então eles **se destacam
 sozinhos** sobre o verde escuro e todo o conteúdo DENTRO deles segue com as cores escuras normais. A
 ÚNICA exceção é o card do Índice de Confiança (`.ic-card`): ele é um **card verde escuro em degradê**
 (`linear-gradient` --p-green→--p-green-dark, com sombra); o hero interno (título/subtítulo/70) fica solto
@@ -612,7 +612,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v264`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v265`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
 
 **Selo de versão (`#version-badge`):** marcador flutuante fixo no canto superior direito (`components.css`
 → `.version-badge`), `z-index` máximo e `pointer-events:none`, sempre visível ACIMA de tudo. Mostra a
@@ -692,10 +692,12 @@ mesma paleta) — cor herdada dos ícones de pagamento no rodapé do card de pro
 para vencer `.chip` sozinho de `feed.css`, carregado depois de `onboarding.css` com a mesma especificidade
 de uma classe. Estado gravado em
 `window.appState.paymentMethods = {cash, pix, card, nf}`, resetado junto com o resto do formulário em
-`resetOnboardingForm`. Ao final do painel (depois de todos os
-campos), um card ilustrativo `.pro-cta` (fundo `--gold-soft`, ícone + título + texto curto + chips de
-benefício + preço + botão `#btn-subscribe-pro`) convida à assinatura do Plano Pro — fica por último de
-propósito, já que os dados da seção só ficam visíveis/divulgados com o Pro ativo.
+`resetOnboardingForm`. Ao final do painel (depois de todos os campos), um **check simples de perfil
+público** (`#chk-profile-public`, `.profile-public-check`, botão-card branco `card card--shadow` com
+caixa de check que marca em AZUL — substituiu o antigo card-convite do Plano Pro na v265): "Tornar meu
+perfil público para buscas e indicações na minha região". **Vem MARCADO por padrão**; estado em
+`window.appState.profilePublic` (boolean, default `true`), togglado por `aria-pressed` e resetado para
+`true` no `resetOnboardingForm`.
 
 **Atualização do PWA (banner "Nova versão disponível"):** o Service Worker NÃO chama `self.skipWaiting()`
 no `install` — o novo worker fica parado em "waiting" até o usuário confirmar. Fluxo completo:
@@ -736,6 +738,7 @@ no `install` — o novo worker fica parado em "waiting" até o usuário confirma
   **`cash` já nasce `true`** (Dinheiro pré-selecionado): a seção de pagamento NÃO é obrigatória e
   vem com dinheiro marcado por padrão (HTML com `chip--active`/`aria-pressed="true"`, e o
   `resetOnboardingForm` reativa só a pílula Dinheiro)
+- `profilePublic` — boolean, check "Tornar meu perfil público…" do cadastro (default `true`)
 
 ---
 

@@ -19,7 +19,7 @@ const clearNameErrors = () =>
 // Função declaration (hoisted) para ser usada tanto pelo gatilho quanto pelo
 // finishRegistration e pelo reset. Anima a ALTURA de 0 → conteúdo (e vice-versa)
 // medindo scrollHeight em runtime, então funciona com conteúdo de altura
-// variável (barras, pagamento, pro-cta). u-hidden continua sendo o estado
+// variável (barras, pagamento, check de perfil público). u-hidden continua sendo o estado
 // "fechado" final (display:none) — a animação só acontece na transição.
 //
 // Timing: abre em 1s (calmo) e fecha em 0.5s. APENAS altura anima (sem fade de
@@ -344,6 +344,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.appState.paymentMethods = { cash: true, pix: false, card: 0, nf: false };
     document.querySelectorAll('#container-payment-methods .chip, #container-payment-card .chip, #container-payment-nf .chip')
       .forEach(chip => setPaymentChipActive(chip, chip.dataset.payment === 'cash'));
+
+    // Perfil público: volta ao padrão (marcado)
+    window.appState.profilePublic = true;
+    document.getElementById('chk-profile-public')?.setAttribute('aria-pressed', 'true');
 
     // Colapsável de detalhes profissionais: fecha (instantâneo, sem animação)
     setProDetailsOpen(false, false);
@@ -907,8 +911,13 @@ Importante: essa é só uma escolha inicial. Com o tempo, as avaliações que vo
     });
   });
 
-  document.getElementById('btn-subscribe-pro')?.addEventListener('click', () => {
-    customAlert('A assinatura do Plano Pro estará disponível em breve.', 'Plano Pro', 'workspace_premium');
+  // Check "Tornar meu perfil público" (substitui o antigo convite do Plano Pro):
+  // decide se os dados profissionais ficam visíveis na busca/indicações da região.
+  const chkProfilePublic = document.getElementById('chk-profile-public');
+  chkProfilePublic?.addEventListener('click', () => {
+    const on = chkProfilePublic.getAttribute('aria-pressed') !== 'true';
+    chkProfilePublic.setAttribute('aria-pressed', String(on));
+    window.appState.profilePublic = on;
   });
 
 });

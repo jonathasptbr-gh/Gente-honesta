@@ -183,7 +183,7 @@
          então confirma na hora se você está vendo a versão atualizada.
          BUMPAR este texto junto com CACHE_NAME (service-worker.js) a cada deploy.
          ===================================================================== -->
-    <div id="version-badge" class="version-badge" aria-hidden="true">v264</div>
+    <div id="version-badge" class="version-badge" aria-hidden="true">v265</div>
 
     <!-- =====================================================================
          TELA — Autenticação  [id: view-auth]
@@ -472,29 +472,15 @@
                         </div>
                     </div>
 
-                    <!-- ── Assinatura Plano Pro — fecha os Detalhes profissionais ──────
-                         Os dados desta seção só ficam visíveis/divulgados com o Plano Pro
-                         ativo; por isso o convite de assinatura vem só ao final, depois
-                         de tudo já preenchido. Versão ilustrativa e sucinta: ícone, uma
-                         linha de contexto, "chips" de benefício e o botão de assinar. -->
+                    <!-- ── Perfil público — fecha os Detalhes profissionais ──────
+                         Check simples (substitui o antigo convite do Plano Pro): decide
+                         se os dados da seção ficam visíveis na busca e nas indicações
+                         da região. Vem marcado por padrão. -->
                     <div class="form-group">
-                        <div class="pro-cta">
-                            <div class="pro-cta__header">
-                                <span class="material-symbols-rounded pro-cta__icon" aria-hidden="true">workspace_premium</span>
-                                <strong class="pro-cta__title">Assine o Plano Pro</strong>
-                            </div>
-                            <p class="pro-cta__text">Deixe seu perfil profissional visível na busca da região e pronto para receber indicações.</p>
-                            <div class="pro-cta__perks">
-                                <span class="pro-cta__perk"><span class="material-symbols-rounded" aria-hidden="true">visibility</span>Visível na busca</span>
-                                <span class="pro-cta__perk"><span class="material-symbols-rounded" aria-hidden="true">campaign</span>Recebe indicações</span>
-                                <span class="pro-cta__perk"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Mais pedidos</span>
-                            </div>
-                            <p class="pro-cta__price">R$ 9,99<span>/mês</span></p>
-                            <button type="button" id="btn-subscribe-pro" class="btn btn--accent btn--large">
-                                <span class="material-symbols-rounded" aria-hidden="true">workspace_premium</span>
-                                Assinar Plano Pro
-                            </button>
-                        </div>
+                        <button type="button" id="chk-profile-public" class="card card--shadow profile-public-check" aria-pressed="true">
+                            <span class="profile-public-check__box"><span class="material-symbols-rounded" aria-hidden="true">check</span></span>
+                            <span class="profile-public-check__text">Tornar meu perfil público para buscas e indicações na minha região</span>
+                        </button>
                     </div>
 
                 </div>

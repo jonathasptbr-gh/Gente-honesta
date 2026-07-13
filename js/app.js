@@ -176,7 +176,9 @@ window.appState = {
   // "Padrão" (equilibrado) já vem selecionado como base no cadastro
   serviceProfile: { quality: 5, agility: 5, price: 5 },
   // Dinheiro já vem selecionado por padrão (a seção de pagamento não é obrigatória)
-  paymentMethods: { cash: true, pix: false, card: 0, nf: false }
+  paymentMethods: { cash: true, pix: false, card: 0, nf: false },
+  // Perfil visível na busca/indicações da região — o check já vem marcado
+  profilePublic: true
 };
 
 

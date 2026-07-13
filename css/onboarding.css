@@ -7,7 +7,7 @@
 /* ===========================================
    FUNDO VERDE DA TELA DE CADASTRO
    O #view-onboarding tem fundo --p-green. Os campos e cards (foto, inputs,
-   localização, colapsável + painel, IC card, pro-cta) mantêm fundo
+   localização, colapsável + painel, IC card, check de perfil público) mantêm fundo
    claro/branco e por isso se DESTACAM sobre o verde — todo o conteúdo dentro
    deles segue com as cores escuras normais. Só os elementos que ficam
    DIRETAMENTE sobre o verde mudam: o cabeçalho (título/subtítulo/cancelar,
@@ -546,86 +546,60 @@
   transition: width 0.45s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
-/* ── Convite de assinatura do Plano Pro (fecha os Detalhes profissionais) ──
-   Card ilustrativo e sucinto: ícone + título, uma linha de contexto, chips
-   de benefício, preço e botão de assinar. */
-.pro-cta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-md);
-  background: var(--gold-cta);   /* amarelo mais forte que o creme --gold-soft, para o CTA se destacar */
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  text-align: center;
-}
-
-.pro-cta__header {
+/* ── Perfil público (fecha os Detalhes profissionais) ──
+   Check simples no lugar do antigo convite do Plano Pro: decide se os dados
+   da seção ficam visíveis na busca/indicações da região. Card branco no corpo
+   cinza; a caixa do check é borda FUNCIONAL (como a do check de currículo) e
+   marca em AZUL (seleção sobre superfície clara). */
+.profile-public-check {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
-}
-
-.pro-cta__icon {
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-  font-size: 1.4rem;
-  color: var(--a-gold);
-}
-
-.pro-cta__title {
-  font-size: var(--fs-9);
-  font-weight: var(--fw-heavy);
-  color: var(--p-green-dark);
-}
-
-.pro-cta__text {
-  font-size: var(--fs-5);
-  line-height: 1.5;
-  color: var(--t-main);
-}
-
-.pro-cta__perks {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-xs);
-  margin-top: 2px;
-}
-
-.pro-cta__perk {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px var(--space-xs);
-  background: var(--bg-white);
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-3);
-  font-weight: var(--fw-bold);
-  color: var(--p-green-dark);
-}
-
-.pro-cta__perk .material-symbols-rounded {
-  font-size: 1rem;
-  color: var(--a-gold-text);
-}
-
-.pro-cta__price {
-  margin-top: 2px;
-  font-size: var(--fs-9);
-  font-weight: var(--fw-heavy);
-  color: var(--p-green-dark);
-}
-
-.pro-cta__price span {
-  font-size: var(--fs-4);
-  font-weight: var(--fw-medium);
-  color: var(--t-sub);
-}
-
-.pro-cta #btn-subscribe-pro {
+  gap: var(--space-sm);
   width: 100%;
-  margin-top: var(--space-xs);
+  padding: var(--space-sm) 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.profile-public-check:active {
+  transform: scale(var(--press-scale-subtle));
+}
+
+.profile-public-check__box {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--border-mid);
+  background: transparent;
+  transition: var(--transition);
+}
+
+.profile-public-check__box .material-symbols-rounded {
+  font-size: 1.1rem;
+  color: var(--t-light);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.profile-public-check[aria-pressed="true"] .profile-public-check__box {
+  background: var(--info-blue);
+  border-color: var(--info-blue);
+}
+
+.profile-public-check[aria-pressed="true"] .profile-public-check__box .material-symbols-rounded {
+  opacity: 1;
+}
+
+.profile-public-check__text {
+  font-size: var(--fs-5);
+  font-weight: var(--fw-medium);
+  color: var(--t-main);
+  line-height: 1.4;
 }
 
 
