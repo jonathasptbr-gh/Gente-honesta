@@ -841,7 +841,7 @@ A `#bar-pedidos-state` tem SEMPRE dois botões lado a lado (o antigo badge `#my-
 
 Container verde escuro (`--bg-canvas`) com backdrop. **Ambos os estados agora são o MESMO DROPDOWN**
 slide-down (a antiga tela cheia `--full` do detalhe foi REMOVIDA), alternados por `u-hidden`:
-- `#pedido-form-state` — **criação**: DROPDOWN que desce da base da action bar (mesmo slide-down do histórico), ancorado em `--sheet-top` (medido em JS via `anchorBelowActionBar`), edge-to-edge com cantos inferiores arredondados. textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botões Cancelar (`btn btn--danger`, vermelho) / Publicar. O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), mantendo a barra acesa para o painel parecer a base dela se estendendo.
+- `#pedido-form-state` — **criação**: DROPDOWN que desce da base da action bar (mesmo slide-down do histórico), ancorado em `--sheet-top` (medido em JS via `anchorBelowActionBar`), edge-to-edge com cantos inferiores arredondados. textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botão Publicar (`#btn-pedido-publish`; o antigo botão Cancelar foi REMOVIDO — o fechamento é pelo botão-abridor virando "Fechar" + tap-outside). O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), mantendo a barra acesa para o painel parecer a base dela se estendendo.
 - `#pedido-details-state` — **detalhe unificado** (somente leitura): abre no MESMO dropdown slide-down do formulário; o corpo (`.pedido-sheet__body`) rola internamente quando a lista de indicados cresce. Traz o **card de referência no topo** (`#pedido-detail-card-container`, via `renderPedidoDetails(pedido)`) e, logo abaixo, a seção **"Indicações recebidas"** (`.pedido-detail-indicated` com fração `#pedido-detail-fraction` e lista `#pedido-detail-indicated-list`). Fecha ao tocar fora do painel (handler no container que checa `closest('.pedido-sheet__panel')`).
 
 **Card de referência = MESMO modelo do histórico.** `renderPedidoDetails(pedido)` monta o card do topo com `historicoItemHTML(pedido)` — o MESMO markup do item da lista do histórico (`.historico-item`: data, lixeira, texto com badge Urgente, badge de status "Ativo · Nh"/"Concluído", badge "N/3 indicações"). A lixeira do card do detalhe é funcional (delegação em `#pedido-detail-card-container` → `deletePedido`). `historicoItemHTML` é function declaration hoistada, compartilhada por `renderHistoricoList` e `renderPedidoDetails`.
@@ -1001,6 +1001,38 @@ Lógica em `feed.js` (bloco "Sheet Criar vaga", IIFE após `renderVagasList`):
 
 MOCK: sem persistência no Firestore. `renderVagasList` só renderiza a seção "Benefícios" se a vaga
 tiver algum (vagas do usuário podem não ter benefícios, evitando cabeçalho vazio).
+
+### Sheet "Serviço de ajudantes" (`#ajudante-sheet`)
+
+Dropdown acionado pelo `#btn-chamar-ajudante` (estado vagas da action bar), MESMO scaffolding/gaveta do
+`pedido-sheet` (reusa `.pedido-sheet*`). **Duas funções SEMPRE visíveis** (uma acima da outra, separadas
+por `.ajudante-divider`), lógica em `feed.js` (bloco "SERVIÇO DE AJUDANTES"). SEM persistência no Firestore
+(estado em `localStorage`).
+
+**Função 1 — "Disponibilizar-me como ajudante":** dois `.helper-toggle` (leve/pesado) de seleção
+independente (não é rádio), cada um com nome, descrição e a diária padrão. As diárias vêm da fonte única
+`HELPER_RATES = { light: 100, heavy: 180 }` (pesado > leve, iguais para todo usuário) e são injetadas nos
+`[data-rate]`. Estado em `localStorage['gh_helper_availability'] = { light, heavy }` (booleans);
+`renderHelperAvailability` reflete o check (`check_box`/`check_box_outline_blank`) e `aria-pressed`.
+
+**Função 2 — "Chamar um ajudante":** escolhe o tipo num **seletor SLIDE `.seg-toggle`** (`#helper-type`,
+thumb dourado que desliza de "Serviço leve" p/ "Serviço pesado" via `.seg-toggle--heavy`; `.seg-toggle__opt`
+alternam `--active`/`aria-pressed`) e toca em "Chamar ajudante" (`#btn-call-helper`). `drawHelpers(type, 2)`
+sorteia 2 ajudantes distintos do `mockHelpers` (Fisher-Yates placeholder), fixados até a meia-noite em
+`localStorage['gh_helper_draw'] = { date, type, helpers[] }`. **SEM bloqueio de tempo/cooldown** (removido
+de propósito para facilitar teste/reteste): `renderHelperCall` mostra o formulário (sem sorteio hoje) OU os
+contatos + botão Cancelar (`#btn-cancel-helper`, `.ajudante-cancel-btn`, que remove o sorteio e libera o
+formulário na HORA). Um reset à meia-noite (`scheduleHelperMidnightReset`) e `visibilitychange` re-renderizam.
+
+**Card de contato (`helperPersonHTML`, reusa `.pro-card__*`):** foto à ESQUERDA (`.pro-card__col-left`,
+48×64) e, à direita dela (`.pro-card__col-right`, flex column), uma LINHA com nome+sobrenome
+(`.pro-card__head-text`) e o índice de confiança (`icBarHTML` em `.pro-card__head-right`) e, ABAIXO dessa
+linha (ainda ao lado da foto), o **botão "Conversar no WhatsApp"** (`a.helper-wa`, verde, `width:100%`).
+`.pro-card__front--helper` usa `align-items: flex-start` (foto alinha ao topo da linha do nome). `mockHelpers`
+= pool `{id, first, last, ic, phone, type:'light'|'heavy'}` (placeholder do backend).
+
+O botão-abridor "Serviço de ajudantes" vira "Fechar" (`.action-close-mode`) enquanto o sheet está aberto
+(`setAjudanteClose`); fecha por tap-outside (`if(!closest('.pedido-sheet__panel')) closeAjudanteSheet()`).
 
 ### Classes CSS notáveis em feed.css
 
