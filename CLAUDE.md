@@ -603,7 +603,7 @@ compartilham o MESMO slot de altura fixa (`clamp(5.5rem,26vw,8.5rem)` + centrali
 `.intro-carousel__icon`/`.intro-carousel__icon-img`), então título e texto ficam alinhados ao
 deslizar; o logo usa o recorte `icon-intro.svg` (em vez do `icon-transparent.svg`, de margem larga)
 para preencher esse slot e não ficar menor que os glifos. Botão `#btn-start` usa `btn--accent`
-(amarelo). Dots (`.intro-carousel__dot`) inativos em branco translúcido, ativo em `--info-blue-bright`
+(amarelo). Dots (`.intro-carousel__dot`) inativos em branco translúcido, ativo BRANCO `--t-light` (v315)
 (seleção = azul; o `--info-blue` cheio e o verde padrão sumiriam no fundo escuro).
 
 **Loader global:** `#loader-global` — mostrado/ocultado com `u-hidden`. O `onAuthStateChanged` é o único responsável por ocultá-lo em transições normais. Em erros onde o estado de auth não muda, remover manualmente. Visual: fundo `--p-green` e spinner branco (trilho em branco translúcido, topo `--t-light`) — coerente com os ambientes verdes; a `meta[name="theme-color"]` inicial também é verde (`#184e1b`) para a barra de status combinar durante o carregamento, antes de `showView` assumir. **CSS crítico inline no `<head>`** pinta o `html` de verde e já dá ao `.overlay-loader` os estilos de cobertura (`position:fixed; inset:0; background:#184e1b; z-index:9999`) — sem isso, entre o `base.css` (que pinta html/body de branco) e o `components.css` (que só então estiliza o loader) havia um flash branco no fim do splash; `.u-hidden` (base.css) ainda vence e esconde o loader normalmente. **Telas não têm animação de entrada** (`.screen` sem `animation`): um `translateY` de entrada deixava uma tira do body branco no topo por um instante, e um fade de opacidade deixava o body vazar durante o fade-out do loader — a transição entre telas fica por conta do fade-out do loader.
@@ -626,7 +626,7 @@ BRANCO e corpo (painel) CINZA CLARO** (`--bg-soft`): os elementos internos (inpu
 `.service-choice-display`, pílulas de pagamento em repouso) ficam BRANCOS e se destacam como cards no
 corpo cinza. Só mudam os
 elementos que ficam DIRETAMENTE sobre o verde: cabeçalho (título → `--t-light`, subtítulo → `--p-green-light`,
-`#btn-onboarding-cancel` → `--a-gold` dourado, denotando ação clicável) e o botão final
+`#btn-onboarding-cancel` → padrão de FECHAR: fill `--on-green-soft` + texto claro, v315) e o botão final
 `#btn-finish-onboarding`, que passou de `btn--primary` (verde, sumiria
 no fundo) para `btn--accent` (amarelo). Ao mexer no cadastro, lembre: adicionar um elemento novo direto no
 verde (fora de um card claro) exige dar a ele cor clara; dentro de um card claro, as cores normais valem.

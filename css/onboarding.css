@@ -26,11 +26,15 @@
   color: var(--p-green-light);
 }
 
-/* "Cancelar" DOURADO (não verde-claro): denota ação clicável sobre o verde,
-   em vez de se camuflar como texto comum (mesmo critério dos botões de texto
-   do fluxo de auth). */
+/* "Cancelar" no padrão dos botões de FECHAR do app (.action-close-mode):
+   fill branco translúcido + texto claro sobre a barra verde do topo
+   (substitui o antigo texto dourado solto). */
 #view-onboarding #btn-onboarding-cancel {
-  color: var(--a-gold);
+  background: var(--on-green-soft);
+  color: var(--t-light);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-5);
 }
 
 .onboarding-form {

@@ -271,5 +271,5 @@
 }
 
 #step-intro .intro-carousel__dot--active {
-  background: var(--info-blue-bright);
+  background: var(--t-light);   /* branco: destaque limpo sobre o verde (era azul) */
 }
