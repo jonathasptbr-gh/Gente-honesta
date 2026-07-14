@@ -879,7 +879,8 @@ profissionais vira **"Buscar contratos..."** (placeholder trocado em `openContra
 os cards mockados via `applyContractsFilters`), o `#btn-toggle-filters` abre o **`#contracts-filters-sheet`**
 (chips de status Todos/Ativo/Concluído/Cancelado + valor mín/máx + mês/ano — herdados da antiga busca
 interna, que foi REMOVIDA; status e texto filtram de verdade, valor/mês são visuais), e o abridor
-`#btn-open-contracts` vira X verde (`.agenda-filters__icon-btn--active`). O `#contracts-filters-sheet`
+`#btn-open-contracts` vira "Fechar" translúcido (`.agenda-filters__icon-btn--active`, receita do
+`.action-close-mode` — fill `--on-green-soft` + X claro sobre a barra verde). O `#contracts-filters-sheet`
 vem DEPOIS do `#contracts-sheet` no DOM para renderizar por cima (mesmo z-index). O CTA "Criar
 minicontrato" fica fixo no topo do painel (fora do `.historico-sheet__scroll`); a lista segue em ordem
 normal (pendentes → ativos → concluído → cancelado — o antigo `column-reverse` morreu com o painel

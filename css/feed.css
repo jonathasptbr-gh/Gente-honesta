@@ -2317,10 +2317,12 @@
   animation: contractsNotifyBlink 1.1s ease-in-out infinite;
 }
 
-/* Gaveta de contratos aberta: o abridor vira "fechar" (ícone X) — verde
-   sólido, mesmo padrão do botão de filtros (.agenda-filters__filter-pill--active). */
+/* Gaveta de contratos aberta: o abridor vira "Fechar" no MESMO padrão dos
+   demais abridores da barra (.action-close-mode): fill branco translúcido
+   sobre o verde da action bar + X claro. (O verde sólido anterior destoava
+   do padrão de fechar do app.) */
 .agenda-filters__icon-btn--active {
-  background: var(--p-green);
+  background: var(--on-green-soft);
   color: var(--t-light);
 }
 
@@ -2370,19 +2372,23 @@
   transition: var(--transition);
 }
 .agenda-filters__filter-pill:active { transform: translateY(-50%) scale(var(--press-scale)); }
-/* Filtros ativos = "tint preenchido" azul padrão de seleção sobre superfície
-   clara (--info-blue-light + texto --info-blue). Fica ANTES do --active, que
-   vence quando o sheet está aberto (mesma especificidade, ordem decide). */
+/* Filtros ativos = azul SÓLIDO + conteúdo claro: a pílula é um controle
+   PEQUENO de marcação (ícone + contagem), que na semântica de cores usa o
+   azul sólido mesmo sobre superfície clara (como a caixa do check, o trilho
+   do switch e o thumb do seg-toggle) — o tint --info-blue-light sumia dentro
+   do campo branco. Fica ANTES do --active, que vence quando o sheet está
+   aberto (mesma especificidade, ordem decide). */
 .agenda-filters__filter-pill--filtered {
-  background: var(--info-blue-light);
-  color: var(--info-blue);
-}
-/* Estado "fechar" (sheet de filtros aberto, ícone vira X) = VERDE sólido, o padrão
-   de botões de fechar/cancelar do app (ex.: cancelar da câmera, btn--primary). O
-   azul fica reservado à SELEÇÃO (o estado --filtered acima), não ao fechar. */
-.agenda-filters__filter-pill--active {
-  background: var(--p-green);
+  background: var(--info-blue);
   color: var(--t-light);
+}
+/* Estado "fechar" (sheet de filtros aberto, ícone vira X): tint verde claro +
+   X verde — a tradução do fechar translúcido padrão (.action-close-mode) para
+   a superfície CLARA do campo de busca. O --p-green sólido ficava pesado
+   demais (parecia um btn--primary dentro do campo). */
+.agenda-filters__filter-pill--active {
+  background: var(--p-green-light);
+  color: var(--p-green);
 }
 .agenda-filters__filter-pill .material-symbols-rounded { font-size: 1.2rem; }
 
