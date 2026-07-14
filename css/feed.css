@@ -1384,17 +1384,22 @@
 
 .pedido-sheet__body {
   overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
   scrollbar-width: thin;
   scrollbar-color: rgba(var(--p-green-dark-rgb), 0.28) transparent;
   /* respiro para o último controle não colar na borda inferior do aparelho */
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  /* Barra de rolagem na BORDA do painel (não colada ao conteúdo): estende o
-     body até a borda direita do painel (anula o padding direito dele) e devolve
-     o mesmo respiro como padding-right → a barra fica no gutter/borda da tela e
-     o conteúdo (cards, inputs) não passa por baixo dela. */
+  /* Área de scroll EDGE-TO-EDGE no card: estende o body até as DUAS bordas
+     laterais do painel (anula o padding dele e o devolve como padding interno)
+     → o conteúdo mantém o respiro, a barra fica no gutter/borda direita e as
+     shades de fronteira (.js-scroll-shadows) cobrem a largura toda do card,
+     sem "margens" nas pontas da sombra. */
+  margin-left: calc(-1 * var(--space-md));
+  padding-left: var(--space-md);
   margin-right: calc(-1 * var(--space-md));
   padding-right: var(--space-md);
+  --shade-bleed: var(--space-md);   /* sangria das shades até a borda do card */
 }
 
 /* Barra SEMPRE visível (formulários criar pedido/vaga, detalhe do pedido).
@@ -2021,11 +2026,16 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(var(--p-green-dark-rgb), 0.28) transparent;
-  /* Barra na BORDA do painel (ver .pedido-sheet__body). */
+  /* Área de scroll edge-to-edge no card (ver .pedido-sheet__body): barra na
+     borda direita, shades de fronteira cobrindo a largura toda. */
+  margin-left: calc(-1 * var(--space-md));
+  padding-left: var(--space-md);
   margin-right: calc(-1 * var(--space-md));
   padding-right: var(--space-md);
+  --shade-bleed: var(--space-md);
 }
 
 /* Barra SEMPRE visível (histórico de pedidos e painel de filtros).

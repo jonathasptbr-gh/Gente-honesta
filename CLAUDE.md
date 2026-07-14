@@ -1233,12 +1233,14 @@ persistente e DISCRETA, que não some sozinha. Thumb claro (`--on-green-muted`) 
 verde-escuros; thumb escuro (`rgba(--p-green-dark-rgb, .28)`) sobre os versos de card claros.
 `scrollbar-width: thin` + `scrollbar-color` para o Firefox.
 
-**Barra na BORDA (não colada ao conteúdo):** os três containers de scroll dos sheets
-(`.pedido-sheet__body`, `.historico-sheet__scroll`, `.indicated-popup__scroll`) ficam dentro de painéis
-com `padding: var(--space-md)`, então a barra caía sobre o canto direito dos cards/inputs. Cada um
-estende-se até a borda do painel com `margin-right: calc(-1 * var(--space-md))` e devolve o respiro como
-`padding-right: var(--space-md)` (conteúdo não desloca) → a barra fica no gutter/borda da tela e o
-conteúdo passa longe dela. (Os versos de card mantêm o `padding-right: 4px` próprio.)
+**Área de scroll EDGE-TO-EDGE nos sheets (barra na borda + shades de largura total):**
+`.pedido-sheet__body` e `.historico-sheet__scroll` ficam dentro de painéis com `padding: var(--space-md)`;
+cada um estende-se até as DUAS bordas laterais do painel (`margin-left/right: calc(-1 * var(--space-md))`)
+e devolve o respiro como `padding-left/right` (conteúdo não desloca) → a barra de rolagem fica no
+gutter/borda direita e as shades do `.js-scroll-shadows` cobrem a largura toda do card. Como a shade é
+filho em fluxo (presa à caixa de conteúdo), o véu dela sangra o padding via `--shade-bleed` (definido no
+container; a tela de cadastro usa `--space-lg`). O `.indicated-popup__scroll` mantém só a extensão à
+direita (barra na borda). (Os versos de card mantêm o `padding-right: 4px` próprio.)
 
 ---
 

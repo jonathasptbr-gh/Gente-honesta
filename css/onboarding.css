@@ -16,6 +16,9 @@
    afetar telefone/OTP/feed. */
 #view-onboarding.screen {
   background: var(--bg-canvas);   /* verde escuro (igual ao fundo do feed) */
+  /* Shades de fronteira (.js-scroll-shadows) sangram o padding lateral da
+     tela (--space-lg) para cobrir a largura toda. */
+  --shade-bleed: var(--space-lg);
 }
 
 #view-onboarding .screen__title {

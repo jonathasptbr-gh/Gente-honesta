@@ -686,8 +686,12 @@ html.is-landscape:not(.is-desktop) .overlay-dialog {
 .scroll-shade::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
+  /* Sangria lateral: a shade (filho em fluxo) fica presa à caixa de conteúdo,
+     recuada pelo padding do container — o véu sangra exatamente o padding
+     (--shade-bleed, definido por container) para alcançar as bordas reais,
+     sem criar overflow horizontal. */
+  left: calc(-1 * var(--shade-bleed, 0px));
+  right: calc(-1 * var(--shade-bleed, 0px));
   height: 16px;
   opacity: 0;
   transition: opacity 0.25s ease;
