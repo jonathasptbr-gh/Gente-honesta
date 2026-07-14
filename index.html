@@ -147,7 +147,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v293</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v294</span>
     </div>
 
     <!-- =====================================================================
@@ -778,6 +778,12 @@
                             </div>
                         </div>
 
+                        <!-- Limpar filtros: zera os 4 grupos (mantém ordenação e pins) -->
+                        <button type="button" id="btn-clear-filters" class="btn btn--accent agenda-filters__clear-btn">
+                            <span class="material-symbols-rounded" aria-hidden="true">filter_alt_off</span>
+                            Limpar filtros
+                        </button>
+
                         <!-- Adicionar contatos -->
                         <button type="button" id="btn-sync-contacts" class="btn btn--accent agenda-filters__add-contacts-btn">
                             <span class="material-symbols-rounded" aria-hidden="true">sync</span>
@@ -1356,22 +1362,19 @@
 
                     <div class="agenda-filters__search-wrap">
                         <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
-                        <!-- Indicador de filtros ativos + limpar, DENTRO do campo (à esquerda);
-                             aparece só quando há filtros. Ao tocar, zera todos os filtros. -->
-                        <button type="button" id="btn-clear-filters" class="agenda-filters__clear u-hidden" aria-label="Limpar filtros ativos">
-                            <span class="material-symbols-rounded agenda-filters__clear-x" aria-hidden="true">close</span>
-                            <span class="material-symbols-rounded" aria-hidden="true">filter_alt</span>
-                            <span id="filter-count" class="agenda-filters__clear-count">0</span>
-                        </button>
                         <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar no Gente Honesta...">
-                        <!-- NOVO botão de filtro: pílula branca DENTRO da busca, à direita -->
+                        <!-- Botão de filtro: pílula branca DENTRO da busca, à direita.
+                             Com filtros ativos ele mesmo vira o indicador (tint azul +
+                             contagem — pílula unificada); tocar SEMPRE abre a gaveta de
+                             filtros (limpar fica no botão dentro da gaveta). -->
                         <button type="button" id="btn-toggle-filters" class="agenda-filters__filter-pill" aria-label="Filtrar" aria-expanded="false">
                             <span class="material-symbols-rounded" aria-hidden="true">tune</span>
+                            <span id="filter-count" class="agenda-filters__filter-count u-hidden">0</span>
                         </button>
                     </div>
 
                     <!-- Antigo botão de filtros → agora abre CONTRATOS. Notificação =
-                         ícone piscando verde↔azul (classe --notify), removida ao abrir. -->
+                         fundo piscando branco↔azul (classe --notify), removida ao abrir. -->
                     <button type="button" id="btn-open-contracts" class="btn btn--icon agenda-filters__icon-btn agenda-filters__icon-btn--notify" aria-label="Contratos">
                         <span class="material-symbols-rounded" aria-hidden="true">contract</span>
                     </button>

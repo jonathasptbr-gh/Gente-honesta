@@ -251,19 +251,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function updateFilterIndicator() {
     const n = activeFilterCount();
-    const btn = document.getElementById('btn-clear-filters');
-    const cnt = document.getElementById('filter-count');
-    const wrap = document.querySelector('.agenda-filters__search-wrap');
-    const input = document.getElementById('inp-agenda-search');
-    if (cnt) cnt.textContent = n;
-    btn?.classList.toggle('u-hidden', n === 0);
-    wrap?.classList.toggle('agenda-filters__search-wrap--filtered', n > 0);
-    // A pílula fica DENTRO do campo, à esquerda: o input recua o padding esquerdo
-    // pela largura real dela (medida); sem filtro, volta ao padding da lupa (36px).
-    if (input) {
-      if (n > 0 && btn) input.style.paddingLeft = (btn.offsetWidth + 10) + 'px';
-      else input.style.paddingLeft = '';
+    // Indicador UNIFICADO na própria pílula de filtro (direita do campo): com
+    // filtros ativos ela ganha o tint azul (--filtered) e mostra a contagem.
+    const pill = document.getElementById('btn-toggle-filters');
+    const cnt  = document.getElementById('filter-count');
+    if (cnt) {
+      cnt.textContent = n;
+      cnt.classList.toggle('u-hidden', n === 0);
     }
+    pill?.classList.toggle('agenda-filters__filter-pill--filtered', n > 0);
   }
 
   // Reseta lista de profissionais: desvira cards, limpa filtros, vai ao topo
@@ -2011,9 +2007,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.closest('.historico-sheet__panel')) closeFiltersSheet();
   });
 
-  // Botão-indicador "limpar filtros" (à esquerda do botão de filtros): zera os 4
-  // grupos de filtro (mantém a ordenação e os pins), des-seleciona os chips do
-  // painel e re-renderiza. O indicador some sozinho (contagem 0) via renderAgendaList.
+  // Botão "Limpar filtros" (dentro da gaveta de filtros): zera os 4 grupos de
+  // filtro (mantém a ordenação e os pins), des-seleciona os chips do painel e
+  // re-renderiza. O indicador da pílula some sozinho (contagem 0) via renderAgendaList.
   document.getElementById('btn-clear-filters')?.addEventListener('click', () => {
     filterState.includeIc.clear();
     filterState.includeAvail.clear();

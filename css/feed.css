@@ -2402,23 +2402,21 @@
 
 /* Botão de contratos (antigo botão de filtros): compõe .btn .btn--icon (HTML);
    aqui só o tamanho de 40px da action bar (o padrão .btn--icon é 44px) e as cores
-   sobre o verde. */
+   sobre o verde. Ícone PRETO (--t-main, o quase-preto padrão de texto). */
 .agenda-filters__icon-btn {
   width: 40px;
   height: 40px;
   background: var(--bg-white);
-  color: var(--p-green);
+  color: var(--t-main);
   position: relative;
 }
 
-/* Notificação de contratos: o FUNDO do botão pisca entre branco e azul
-   (--info-blue-bright: legível sob o ícone verde, que fica parado; o --info-blue
-   sólido apagaria o ícone e o tint claro não se percebe contra o branco). A
-   classe --notify começa no HTML e é removida ao abrir os contratos
-   (js: openContractsPanel). */
+/* Notificação de contratos: o FUNDO do botão pisca entre branco e o azul de
+   seleção (--info-blue); o ícone preto fica parado. A classe --notify começa
+   no HTML e é removida ao abrir os contratos (js: openContractsPanel). */
 @keyframes contractsNotifyBlink {
   0%, 100% { background: var(--bg-white); }
-  50%      { background: var(--info-blue-bright); }
+  50%      { background: var(--info-blue); }
 }
 .agenda-filters__icon-btn--notify {
   animation: contractsNotifyBlink 1.1s ease-in-out infinite;
@@ -2446,7 +2444,10 @@
   background: var(--border-light);
 }
 
-/* ── Novo botão de FILTRO: pílula branca DENTRO da busca, à direita ── */
+/* ── Botão de FILTRO: pílula branca DENTRO da busca, à direita. Ícone PRETO
+   (--t-main). Com filtros ativos, a PRÓPRIA pílula vira o indicador (tint azul
+   de seleção + contagem — modificador --filtered); tocar sempre abre a gaveta
+   de filtros (o "limpar" vive no botão dentro da gaveta). ── */
 .agenda-filters__filter-pill {
   position: absolute;
   right: 5px;
@@ -2456,74 +2457,40 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
   padding: 0 12px;
   border-radius: var(--radius-pill);
   background: var(--bg-white);
-  color: var(--p-green);
+  color: var(--t-main);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
   z-index: 1;   /* acima do input */
   transition: var(--transition);
 }
 .agenda-filters__filter-pill:active { transform: translateY(-50%) scale(var(--press-scale)); }
+/* Filtros ativos = "tint preenchido" azul padrão de seleção sobre superfície
+   clara (--info-blue-light + texto --info-blue). Fica ANTES do --active, que
+   vence quando o sheet está aberto (mesma especificidade, ordem decide). */
+.agenda-filters__filter-pill--filtered {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
+}
 /* Estado "fechar" (sheet de filtros aberto, ícone vira X) = VERDE sólido, o padrão
    de botões de fechar/cancelar do app (ex.: cancelar da câmera, btn--primary). O
-   azul fica reservado à SELEÇÃO (ex.: indicador de limpar filtros), não ao fechar. */
+   azul fica reservado à SELEÇÃO (o estado --filtered acima), não ao fechar. */
 .agenda-filters__filter-pill--active {
   background: var(--p-green);
   color: var(--t-light);
 }
 .agenda-filters__filter-pill .material-symbols-rounded { font-size: 1.2rem; }
 
-/* Indicador de filtros ativos + limpar — pílula DENTRO do campo de busca, à
-   esquerda (some quando não há filtros). Sobre o fundo branco do campo, usa o
-   "tint preenchido" azul-claro padrão (--info-blue-light + texto --info-blue),
-   como as pílulas selecionadas sobre superfícies claras. Ordem: x + filtro +
-   contagem; um toque zera todos os filtros. */
-.agenda-filters__clear {
-  position: absolute;
-  left: 5px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 30px;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 0 9px;
-  border-radius: var(--radius-pill);
-  background: var(--info-blue-light);
-  color: var(--info-blue);
-  cursor: pointer;
+/* Contagem de filtros ativos dentro da pílula (some com u-hidden quando 0) */
+.agenda-filters__filter-count {
   font-size: var(--fs-5);
   font-weight: var(--fw-bold);
-  z-index: 1;   /* acima do input */
-}
-
-.agenda-filters__clear:active { transform: translateY(-50%) scale(var(--press-scale)); }
-
-.agenda-filters__clear .material-symbols-rounded {
-  font-size: 1.05rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-}
-
-/* O "x" (à esquerda) sem moldura — só o glifo, em VERMELHO (ação de limpar) */
-.agenda-filters__clear-x {
-  font-size: 1rem !important;
-  color: var(--danger);
-}
-
-.agenda-filters__clear-count {
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
-
-/* Com filtros ativos, a pílula ocupa a esquerda do campo: esconde a lupa e o
-   respiro à esquerda do input vem por JS (padding-left = largura da pílula). */
-.agenda-filters__search-wrap--filtered .agenda-filters__search-icon {
-  display: none;
-}
-
-/* (tamanho/peso do ícone do botão de filtro vêm do padrão único da barra) */
 
 /* Chips dentro do painel de filtros (#filters-sheet): adaptados ao fundo verde */
 .filters-panel .chip {
@@ -2571,6 +2538,12 @@
 /* "Adicionar contatos" = botão padrão (.btn.btn--accent); só a margem própria.
    (Antes era uma pílula bespoke; agora segue o mesmo padrão dos demais.) */
 .agenda-filters__add-contacts-btn {
+  margin-top: var(--space-sm);
+}
+
+/* Botão "Limpar filtros" da gaveta — mesmo padrão .btn.btn--accent dos CTAs;
+   zera os 4 grupos de filtro (mantém ordenação e pins). */
+.agenda-filters__clear-btn {
   margin-top: var(--space-sm);
 }
 
@@ -4080,7 +4053,8 @@
 #btn-pedido-publish,
 #btn-vaga-publish,
 #btn-call-helper,
-#btn-sync-contacts {
+#btn-sync-contacts,
+#btn-clear-filters {
   padding: 11px var(--space-md);
 }
 
