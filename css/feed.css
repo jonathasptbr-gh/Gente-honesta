@@ -108,15 +108,6 @@
   align-items: flex-start;
 }
 
-/* Botão de contratos: o ícone/rótulo encostam na margem lateral DIREITA
-   (--space-md), alinhados com a borda externa do botão e a action bar — o
-   centramento os deixava recuados para dentro. O badge (absoluto no canto do
-   botão) não se move. */
-#btn-open-contracts {
-  padding-right: 0;
-  align-items: flex-end;
-}
-
 .top-bar__avatar {
   width: 30px;
   height: 40px;
