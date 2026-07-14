@@ -267,10 +267,12 @@ muda o FILL do próprio elemento, não ganha anel.
 - **AZUL (`--info-blue`) é a cor de SELEÇÃO/estado ativo em TODOS os formulários e seletores**, em DOIS
   tons conforme o fundo (contraste): sobre superfície CLARA → fundo `--info-blue-light` + texto
   `--info-blue` (tag-pill, chip--payment, `.chip--active` dos contratos, card de serviço ativo, radio/check
-  de candidatura, pro-card selecionado, item da busca de área); sobre superfície VERDE ESCURA → fundo
-  `--info-blue` SÓLIDO + texto `--t-light` (pedido-chip, vaga-day, benefit-pill, helper-toggle, caixa do
-  check de currículo, trilho do switch, thumb do seg-toggle, chips do filters-sheet, badge "Ativo" do
-  histórico); indicadores minúsculos sobre verde → `--info-blue-bright` (dot do carrossel). EXCEÇÃO
+  de candidatura, pro-card selecionado, item da busca de área e, desde a reforma clara das gavetas [v295],
+  pedido-chip, vaga-day, benefit-pill, helper-toggle, chips do filters-sheet e badge "Ativo" do histórico);
+  sobre superfície VERDE ESCURA → fundo `--info-blue` SÓLIDO + texto `--t-light`; controles PEQUENOS de
+  marcação usam azul sólido mesmo no claro (caixa do check de currículo, trilho do switch, thumb do
+  seg-toggle — como o check de perfil público do cadastro); indicadores minúsculos sobre verde →
+  `--info-blue-bright` (dot do carrossel). EXCEÇÃO
   deliberada: o slider da bottom bar (`.feed-tabs-pill__slider`) é DOURADO — é navegação/ação principal,
   não seletor de formulário (pedido explícito do desenvolvedor).
 - **FOCO de input** (transitório, não é seleção) segue `--p-green-light`; estados de SUCESSO (GPS
@@ -852,9 +854,12 @@ viewport + o `translateX` do trilho.
 Os quatro submenus que descem da base da action bar — **Histórico** (`#historico-sheet`), **Fazer pedido /
 Pedido atual** (`#pedido-sheet`), **Criar vaga** (`#vaga-sheet`), **Serviço de ajudantes**
 (`#ajudante-sheet`) — e agora também os **Filtros** (`#filters-sheet`) compartilham o MESMO padrão de
-dropdown: container `position:fixed; inset:0; z-index:300`, fundo do painel `--bg-canvas`, ancorado em
-`--sheet-top` (base da barra, medido em runtime), edge-to-edge com cantos inferiores arredondados,
-slide-down "GAVETA", backdrop que dim SÓ o feed abaixo da barra. `#filters-sheet` e
+dropdown: container `position:fixed; inset:0; z-index:300`, painel no **PADRÃO CLARO do cadastro** (v295):
+corpo `--bg-soft` com elementos internos BRANCOS + `--shadow-sm` (mesma linguagem da seção "Detalhes
+profissionais"), labels verdes (`--p-green`), seleção pelo tint azul claro, ancorado em `--sheet-top`
+(base da barra, medido em runtime), **card MENOS LARGO que a tela** (recua `--space-md` de cada lado,
+alinhado ao conteúdo da action bar) com cantos inferiores arredondados, slide-down "GAVETA", backdrop
+que dim SÓ o feed abaixo da barra. `#filters-sheet` e
 `#vaga-sheet`/`#ajudante-sheet` **reusam classes existentes** (`.historico-sheet*` e `.pedido-sheet*`
 respectivamente) em vez de recriar o scaffolding.
 
@@ -922,11 +927,11 @@ histórico (`.pedido-sheet--morph`) desliga o slide (`transform: none !important
 FLIP do card — o clip não interfere (o card fica abaixo da fronteira).
 
 **Scroll RENTE às bordas no "Criar vaga" (`#vaga-sheet`):** o body rola rente ao topo do painel e à
-faixa verde do rodapé, sem "margem estranha". Regras (escopadas em `#vaga-sheet .pedido-sheet__body`):
+faixa branca do rodapé, sem "margem estranha". Regras (escopadas em `#vaga-sheet .pedido-sheet__body`):
 `margin-top: -var(--space-md)` puxa o body até a borda superior do painel e `padding-top: var(--space-md)`
 devolve o respiro como padding ROLÁVEL (some ao rolar) → o conteúdo chega rente ao topo; `padding-bottom: 0`
-tira o safe-area daqui (a faixa verde o carrega). O rodapé `.pedido-sheet__actions--footer` (só a vaga o
-usa) ganha `margin-top: -var(--space-sm)` para anular o `gap` do painel (a faixa verde encosta na base do
+tira o safe-area daqui (a faixa do rodapé o carrega). O rodapé `.pedido-sheet__actions--footer` (só a vaga o
+usa) ganha `margin-top: -var(--space-sm)` para anular o `gap` do painel (a faixa encosta na base do
 body → conteúdo rola rente a ela) e `padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom))`
 para o botão "Publicar vaga" limpar a barra de gestos. O `.pedido-sheet__body` base MANTÉM o
 `padding-bottom: env(safe-area-inset-bottom)` (útil para o pedido/detalhe, que não têm rodapé fixo).
@@ -943,14 +948,14 @@ A `#bar-pedidos-state` tem SEMPRE dois botões lado a lado (o antigo badge `#my-
 
 ### Sheet "Fazer pedido" / detalhe unificado (`#pedido-sheet`)
 
-Container verde escuro (`--bg-canvas`) com backdrop. **Ambos os estados agora são o MESMO DROPDOWN**
+Painel CLARO (corpo `--bg-soft`, padrão do cadastro — v295) com backdrop. **Ambos os estados agora são o MESMO DROPDOWN**
 slide-down (a antiga tela cheia `--full` do detalhe foi REMOVIDA), alternados por `u-hidden`:
-- `#pedido-form-state` — **criação**: DROPDOWN que desce da base da action bar (mesmo slide-down do histórico), ancorado em `--sheet-top` (medido em JS via `anchorBelowActionBar`), edge-to-edge com cantos inferiores arredondados. textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botão Publicar (`#btn-pedido-publish`; o antigo botão Cancelar foi REMOVIDO — o fechamento é pelo botão-abridor virando "Fechar" + tap-outside). O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), mantendo a barra acesa para o painel parecer a base dela se estendendo.
+- `#pedido-form-state` — **criação**: DROPDOWN que desce da base da action bar (mesmo slide-down do histórico), ancorado em `--sheet-top` (medido em JS via `anchorBelowActionBar`), card recuado `--space-md` de cada lado com cantos inferiores arredondados. textarea do pedido (contador 0/280), chips de urgência (Normal/Urgente), chips de tempo online (12/24/36/48h), toggle "buscar em cidades vizinhas", botão Publicar (`#btn-pedido-publish`; o antigo botão Cancelar foi REMOVIDO — o fechamento é pelo botão-abridor virando "Fechar" + tap-outside). O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), mantendo a barra acesa para o painel parecer a base dela se estendendo.
 - `#pedido-details-state` — **detalhe unificado** (somente leitura): abre no MESMO dropdown slide-down do formulário; o corpo (`.pedido-sheet__body`) rola internamente quando a lista de indicados cresce. Traz o **card de referência no topo** (`#pedido-detail-card-container`, via `renderPedidoDetails(pedido)`) e, logo abaixo, a seção **"Indicações recebidas"** (`.pedido-detail-indicated` com fração `#pedido-detail-fraction` e lista `#pedido-detail-indicated-list`). Fecha ao tocar fora do painel (handler no container que checa `closest('.pedido-sheet__panel')`).
 
 **Card de referência = MESMO modelo do histórico.** `renderPedidoDetails(pedido)` monta o card do topo com `historicoItemHTML(pedido)` — o MESMO markup do item da lista do histórico (`.historico-item`: data, lixeira, texto com badge Urgente, badge de status "Ativo · Nh"/"Concluído", badge "N/3 indicações"). A lixeira do card do detalhe é funcional (delegação em `#pedido-detail-card-container` → `deletePedido`). `historicoItemHTML` é function declaration hoistada, compartilhada por `renderHistoricoList` e `renderPedidoDetails`.
 
-**Animação FLIP ao abrir pelo histórico.** `openPedidoDetail(id, sourceEl)` — quando `sourceEl` é o item do histórico tocado, a abertura ANIMA para parecer que continua no histórico vendo mais detalhes: o painel aparece INSTANTÂNEO (`.pedido-sheet--morph` desliga o slide; mesmo `--bg-canvas` do histórico, sem flash), o **card sobe** da posição do item (`translateY(sourceRect.top - lastRect.top)` → `0`, curva `--sheet-ease`) e **só então as indicações deslizam** (opacity+translateY, disparado no `transitionend` do card, com fallback por timer). Sem `sourceEl` (ex.: aberto pelo botão "Pedido atual") → slide-down padrão. Estilos inline são limpos após a animação.
+**Animação FLIP ao abrir pelo histórico.** `openPedidoDetail(id, sourceEl)` — quando `sourceEl` é o item do histórico tocado, a abertura ANIMA para parecer que continua no histórico vendo mais detalhes: o painel aparece INSTANTÂNEO (`.pedido-sheet--morph` desliga o slide; mesmo fundo claro `--bg-soft` do histórico, sem flash), o **card sobe** da posição do item (`translateY(sourceRect.top - lastRect.top)` → `0`, curva `--sheet-ease`) e **só então as indicações deslizam** (opacity+translateY, disparado no `transitionend` do card, com fallback por timer). Sem `sourceEl` (ex.: aberto pelo botão "Pedido atual") → slide-down padrão. Estilos inline são limpos após a animação.
 
 **Botões do topo no detalhe (evita dois "Fechar").** `pedidoDetailMode` (`'active'`/`'old'`/`null`) define a config; o botão **Concluir pedido** fica no lado **"Pedido atual"** (btnMyPedido) e o **Fechar** no lado **Histórico** (btnHistorico). O antigo botão Concluir do rodapé (`#pedido-detail-actions`) fica sempre `u-hidden`.
   - **Pedido ATIVO** (mesmo aberto pelo próprio botão "Pedido atual"): Histórico → **"Fechar"** (`setHistoricoButton('close')`); Pedido atual → **"Concluir pedido"** (`setMyPedidoButton('conclude')`, dourado via `.action-conclude-mode`).
@@ -959,10 +964,10 @@ slide-down (a antiga tela cheia `--full` do detalhe foi REMOVIDA), alternados po
 
 ### Histórico de pedidos (`#historico-sheet`)
 
-**Dropdown que DESCE da base da action bar** (não é bottom sheet), acionado por `#btn-historico-pedidos`, com o MESMO slide-down do formulário "Fazer pedido". O painel (`.historico-sheet__panel`) ancora em `top: var(--sheet-top)` — o rodapé da barra, MEDIDO em JS (`anchorBelowActionBar` → `bar.getBoundingClientRect().bottom`), porque a barra tem altura variável com a safe-area — spanning edge-to-edge com cantos INFERIORES arredondados, e entra descendo como GAVETA (ver "Animação de gaveta" abaixo). O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), então a barra fica acesa e o painel parece a base do módulo dos botões se estendendo (cobrindo o feed). Fecha ao tocar fora do painel. Lista `#historico-list` com **todos** os pedidos, inclusive o ativo, ordenados por data (mais recente no topo) via `renderHistoricoList()`. Cada `.historico-item` segue o padrão visual dos cards de pedido do feed (`.pedido-item`): **fill claro** (`--card-on-green`, sem contorno) e raio de "balão", mas com o canto inferior DIREITO reto (`border-radius: 18px 18px 4px 18px`, espelho do feed que tem o inferior esquerdo reto). Estrutura:
+**Dropdown que DESCE da base da action bar** (não é bottom sheet), acionado por `#btn-historico-pedidos`, com o MESMO slide-down do formulário "Fazer pedido". O painel (`.historico-sheet__panel`) ancora em `top: var(--sheet-top)` — o rodapé da barra, MEDIDO em JS (`anchorBelowActionBar` → `bar.getBoundingClientRect().bottom`), porque a barra tem altura variável com a safe-area — card recuado `--space-md` de cada lado com cantos INFERIORES arredondados, e entra descendo como GAVETA (ver "Animação de gaveta" abaixo). O backdrop dim SÓ o feed abaixo da barra (`top: var(--sheet-top)`), então a barra fica acesa e o painel parece a base do módulo dos botões se estendendo (cobrindo o feed). Fecha ao tocar fora do painel. Lista `#historico-list` com **todos** os pedidos, inclusive o ativo, ordenados por data (mais recente no topo) via `renderHistoricoList()`. Cada `.historico-item` é um **card BRANCO com `--shadow-sm`** (padrão claro do cadastro — v295) com raio de "balão", mas com o canto inferior DIREITO reto (`border-radius: 18px 18px 4px 18px`, espelho do feed que tem o inferior esquerdo reto). Estrutura:
 - `.historico-item__top` — data curta (`formatPedidoDate` → "12 jul, 14:30") à esquerda e botão excluir (`.historico-item__delete`) à direita: **sem moldura circular**, só o glifo `delete` em **vermelho** (`--danger`) para destaque; `customConfirm` e remove do histórico (se era o pedido em exibição, fecha o detalhe).
 - texto do pedido (clamp 2 linhas, com badge "Urgente" inline quando urgente).
-- `.historico-item__footer` — DOIS badges de **largura igual** (`flex: 1`) na base: à esquerda `.historico-item__status` (**"Ativo · Nh"** AZUL `--info-blue` + texto claro, incluindo o tempo restante via `pedidoHoursLeft()`; ou **"Concluído"** cinza) e à direita `.historico-item__count` (**"N/3 indicações"**, fundo translúcido).
+- `.historico-item__footer` — DOIS badges de **largura igual** (`flex: 1`) na base: à esquerda `.historico-item__status` (**"Ativo · Nh"** no tint azul claro `--info-blue-light` + texto `--info-blue`, incluindo o tempo restante via `pedidoHoursLeft()`; ou **"Concluído"** cinza) e à direita `.historico-item__count` (**"N/3 indicações"**, fundo `--bg-soft`).
 - Tocar no item (fora do botão excluir) abre o **mesmo** detalhe unificado (`openPedidoDetail(id)`). A delegação em `historicoList` dá prioridade ao `.historico-item__delete` (com `stopPropagation`) antes de abrir o detalhe.
 
 Ao concluir um pedido a partir de um item do histórico, o detalhe fecha e o sheet de histórico (que fica aberto por baixo) se atualiza sozinho (`renderHistoricoList()` roda no handler de concluir).
@@ -1071,15 +1076,15 @@ Candidatura mockada: sem persistência no Firestore. O flip usa o mesmo motor ge
 
 Bottom sheet de criação de vaga, acionado pelo `#btn-criar-vaga` da action bar (estado vagas).
 **Rodapé fixo:** o botão "Publicar vaga" fica FORA do `.pedido-sheet__body` (que rola), num
-`.pedido-sheet__actions--footer` — sempre visível na base. Essa faixa tem fundo `--p-green` (o MESMO verde
-da action bar, mais claro que o `--bg-canvas` do painel), edge-to-edge (margem negativa anula o padding do
-painel) e cantos inferiores `--radius-lg`. **Sem título interno** (como todos os dropdowns desde a v268:
-o título vive na top bar via `setTopBarTitle`).
+`.pedido-sheet__actions--footer` — sempre visível na base. Essa faixa tem fundo BRANCO `--bg-white`
+(contrasta com o corpo `--bg-soft` do painel; o CTA dourado se destaca), edge-to-edge (margem negativa
+anula o padding do painel) e cantos inferiores `--radius-lg`. **Sem título interno** (como todos os
+dropdowns desde a v268: o título vive na top bar via `setTopBarTitle`).
 **Reaproveita o scaffolding do `pedido-sheet`** (mesmas classes `.pedido-sheet*`, `.pedido-field*`,
 `.pedido-chip*` — o bottom-sheet-formulário padrão do app), com estilos próprios só para as listas
 dinâmicas (`css/feed.css`, bloco "Sheet Criar vaga"): `.vaga-dyn-list` / `.vaga-dyn-row` (input +
-botão remover `.vaga-dyn-remove`), `.vaga-add-btn` (botão dourado "Adicionar…", fill translúcido sem borda) e
-`.vaga-card--highlight` (destaque dourado temporário ao tocar "Ver vaga").
+botão remover `.vaga-dyn-remove`), `.vaga-add-btn` (botão "Adicionar…" em ocre `--a-gold-text` sobre
+pílula branca, sem borda) e `.vaga-card--highlight` (destaque dourado temporário ao tocar "Ver vaga").
 
 Campos:
 - **CNPJ da empresa** (`#inp-vaga-cnpj`) — substitui nome+endereço. Máscara `00.000.000/0000-00`
