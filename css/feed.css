@@ -2411,14 +2411,16 @@
   position: relative;
 }
 
-/* Notificação de contratos: o ícone PISCA entre verde e azul (substitui o antigo
-   badge numérico). A classe --notify começa no HTML e é removida ao abrir os
-   contratos (js: openContractsPanel). */
+/* Notificação de contratos: o FUNDO do botão pisca entre branco e azul
+   (--info-blue-bright: legível sob o ícone verde, que fica parado; o --info-blue
+   sólido apagaria o ícone e o tint claro não se percebe contra o branco). A
+   classe --notify começa no HTML e é removida ao abrir os contratos
+   (js: openContractsPanel). */
 @keyframes contractsNotifyBlink {
-  0%, 100% { color: var(--p-green); }
-  50%      { color: var(--info-blue); }
+  0%, 100% { background: var(--bg-white); }
+  50%      { background: var(--info-blue-bright); }
 }
-.agenda-filters__icon-btn--notify .material-symbols-rounded {
+.agenda-filters__icon-btn--notify {
   animation: contractsNotifyBlink 1.1s ease-in-out infinite;
 }
 
