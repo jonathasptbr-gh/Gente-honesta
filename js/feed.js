@@ -53,12 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // "Gente Honesta" vira o título da seção (os headers internos das gavetas
   // foram removidos para liberar espaço). null/omitido = restaura a marca.
   // function declaration (hoistada): usada por open/close definidos antes e depois.
+  // A top bar foi eliminada (v287); não há mais alvo para o título das gavetas.
+  // Mantido como no-op tolerante para não quebrar as chamadas existentes das
+  // gavetas (Criar vaga, Histórico, Filtros, etc.). Se um dia voltar um alvo de
+  // título com a classe .top-bar__brand-text, ele volta a funcionar sozinho.
   function setTopBarTitle(title) {
     const text = document.querySelector('.top-bar__brand-text');
     if (text) text.textContent = title || 'Gente Honesta';
-    // O selo de versão só acompanha a marca "Gente Honesta"; some quando o título
-    // de uma seção (gaveta aberta) ocupa a top bar.
-    document.getElementById('version-badge')?.classList.toggle('u-hidden', !!title);
   }
 
   // --- Avatar do botão "Perfil" (top bar): usa a foto salva do cadastro
@@ -1980,7 +1981,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sheet?.classList.remove('historico-sheet--open');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'false');
-    btn?.classList.remove('action-close-mode');
+    btn?.classList.remove('agenda-filters__filter-pill--active');
     const icon = btn?.querySelector('.material-symbols-rounded');
     if (icon) icon.textContent = 'tune';
   }
@@ -1993,7 +1994,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTopBarTitle('Filtros');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
-    btn?.classList.add('action-close-mode');
+    btn?.classList.add('agenda-filters__filter-pill--active');
     const icon = btn?.querySelector('.material-symbols-rounded');
     if (icon) icon.textContent = 'close';
   }

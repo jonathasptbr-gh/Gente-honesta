@@ -2360,7 +2360,9 @@
 
 /* Filtros da agenda */
 .agenda-filters {
-  padding: var(--space-sm) var(--space-md) var(--space-sm);
+  /* Sem top bar (v287): a action bar é o elemento mais ao topo e carrega o
+     safe-area superior (notch/barra de status), como a top bar carregava antes. */
+  padding: calc(var(--space-sm) + env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
   background: var(--p-green);
   flex-shrink: 0;
   position: relative; /* ancora o painel absoluto */
@@ -2387,7 +2389,7 @@
 .agenda-filters__search {
   width: 100%;
   height: 40px;
-  padding: 0 var(--space-sm) 0 36px;
+  padding: 0 54px 0 36px;   /* direita: espaço para o botão de filtro (pílula) */
   border-radius: var(--radius-pill);
   background: var(--on-green-solid);
   font-size: var(--fs-6);
@@ -2399,14 +2401,79 @@
   background: var(--p-green-light);
 }
 
-/* Botão de filtros: compõe .btn .btn--icon (HTML); aqui só o tamanho de 40px
-   da action bar (o padrão .btn--icon é 44px) e as cores sobre o verde. */
+/* Botão de contratos (antigo botão de filtros): compõe .btn .btn--icon (HTML);
+   aqui só o tamanho de 40px da action bar (o padrão .btn--icon é 44px) e as cores
+   sobre o verde. */
 .agenda-filters__icon-btn {
   width: 40px;
   height: 40px;
   background: var(--bg-white);
   color: var(--p-green);
 }
+
+/* ── Perfil na search row (movido do antigo top bar) ── */
+.agenda-filters__profile {
+  flex-shrink: 0;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  transition: var(--transition);
+}
+.agenda-filters__profile:active { transform: scale(var(--press-scale)); }
+.agenda-filters__profile-img {
+  width: 28px;
+  height: 38px;
+  border-radius: var(--radius-xs);
+  object-fit: cover;
+  background: var(--border-light);
+  border: 1.5px solid var(--t-light);
+}
+/* Selo de versão discreto no rodapé do avatar (bumpar junto do CACHE_NAME). */
+.agenda-filters__version {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.5rem;
+  font-weight: var(--fw-bold);
+  line-height: 1.4;
+  color: var(--a-gold);
+  background: var(--p-green-dark);
+  padding: 0 3px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ── Novo botão de FILTRO: pílula branca DENTRO da busca, à direita ── */
+.agenda-filters__filter-pill {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-white);
+  color: var(--p-green);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  z-index: 1;   /* acima do input */
+  transition: var(--transition);
+}
+.agenda-filters__filter-pill:active { transform: translateY(-50%) scale(var(--press-scale)); }
+/* Estado ativo (sheet de filtros aberto) = azul (linguagem de seleção do app). */
+.agenda-filters__filter-pill--active {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
+}
+.agenda-filters__filter-pill .material-symbols-rounded { font-size: 1.2rem; }
 
 /* Indicador de filtros ativos + limpar — pílula DENTRO do campo de busca, à
    esquerda (some quando não há filtros). Sobre o fundo branco do campo, usa o
