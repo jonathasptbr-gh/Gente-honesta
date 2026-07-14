@@ -1564,14 +1564,18 @@
    padding rolável; a base perde o safe-area (a faixa verde já o carrega). */
 #vaga-sheet .pedido-sheet__body {
   margin-top: calc(-1 * var(--space-md));
-  padding-top: var(--space-md);
   padding-bottom: 0;
 }
 
-/* Respiro CONFIÁVEL no fim do scroll (após o currículo): padding no CONTEÚDO
-   (não no container de scroll — Chrome às vezes ignora padding-bottom nele),
-   então o último elemento não encosta/corta na faixa verde do rodapé. */
+/* Respiro do topo e do fim do scroll no CONTEÚDO (não no container):
+   (a) topo — padding-top no body deslocava a shade sticky do .js-scroll-shadows
+   (sticky não sobe acima da caixa de conteúdo do pai, então a sombra flutuava
+   abaixo da linha real de recorte); como padding de CONTEÚDO, rola igual e a
+   shade cola na fronteira; (b) base — Chrome às vezes ignora padding-bottom
+   no container de scroll, então o último elemento não encosta na faixa do
+   rodapé. */
 #vaga-sheet .pedido-sheet__body .pedido-sheet__state {
+  padding-top: var(--space-md);
   padding-bottom: var(--space-md);
 }
 

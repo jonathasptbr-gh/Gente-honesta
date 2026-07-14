@@ -959,9 +959,11 @@ histórico (`.pedido-sheet--morph`) desliga o slide (`transform: none !important
 FLIP do card — o clip não interfere (o card fica abaixo da fronteira).
 
 **Scroll RENTE às bordas no "Criar vaga" (`#vaga-sheet`):** o body rola rente ao topo do painel e à
-faixa branca do rodapé, sem "margem estranha". Regras (escopadas em `#vaga-sheet .pedido-sheet__body`):
-`margin-top: -var(--space-md)` puxa o body até a borda superior do painel e `padding-top: var(--space-md)`
-devolve o respiro como padding ROLÁVEL (some ao rolar) → o conteúdo chega rente ao topo; `padding-bottom: 0`
+faixa branca do rodapé, sem "margem estranha". Regras: `margin-top: -var(--space-md)` (no body) puxa o
+body até a borda superior do painel, e o respiro do topo vem como `padding-top` DO CONTEÚDO
+(`.pedido-sheet__state`), rolável — NUNCA como padding-top do body: a shade sticky do
+`.js-scroll-shadows` não sobe acima da caixa de conteúdo do pai, então padding no body deslocava a
+sombra para baixo da linha real de recorte; `padding-bottom: 0` no body
 tira o safe-area daqui (a faixa do rodapé o carrega). O rodapé `.pedido-sheet__actions--footer` (só a vaga o
 usa) ganha `margin-top: -var(--space-sm)` para anular o `gap` do painel (a faixa encosta na base do
 body → conteúdo rola rente a ela) e `padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom))`
