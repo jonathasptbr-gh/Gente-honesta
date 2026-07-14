@@ -398,6 +398,17 @@
   border-radius: 50%;
   animation: spin .8s linear infinite;
 }
+/* Selo de versão discreto no rodapé da tela de loading (spinner fica centrado). */
+.overlay-loader__version {
+  position: absolute;
+  bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.05em;
+  color: var(--on-green-med);
+}
 
 .overlay-dialog {
   padding: var(--space-lg);

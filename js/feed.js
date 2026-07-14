@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const openContractsPanel = () => {
     panelContracts?.classList.add('contracts-panel--open');
+    // Abriu os contratos → para de piscar (marca como "visto"). Sem persistência:
+    // a cada abertura do app o ícone volta a piscar até ser aberto uma vez.
+    btnOpenContracts?.classList.remove('agenda-filters__icon-btn--notify');
     // A lista é invertida (column-reverse): o "início" real dela — pendentes/ativos,
     // junto do dock — fica na BASE. Ao abrir, ancora o scroll lá embaixo (não no topo,
     // onde ficam os contratos cancelados/mais antigos). rAF garante o layout pronto.

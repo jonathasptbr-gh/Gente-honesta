@@ -2409,10 +2409,18 @@
   height: 40px;
   background: var(--bg-white);
   color: var(--p-green);
-  /* Âncora do #badge-contracts (absoluto). Sem isto o badge subia para o
-     containing block criado pelo transform do .agenda-filters__track (300% de
-     largura), caindo fora da tela / sobre o botão "Fazer pedido". */
   position: relative;
+}
+
+/* Notificação de contratos: o ícone PISCA entre verde e azul (substitui o antigo
+   badge numérico). A classe --notify começa no HTML e é removida ao abrir os
+   contratos (js: openContractsPanel). */
+@keyframes contractsNotifyBlink {
+  0%, 100% { color: var(--p-green); }
+  50%      { color: var(--info-blue); }
+}
+.agenda-filters__icon-btn--notify .material-symbols-rounded {
+  animation: contractsNotifyBlink 1.1s ease-in-out infinite;
 }
 
 /* ── Perfil na search row (movido do antigo top bar) ── */
@@ -2427,29 +2435,13 @@
   transition: var(--transition);
 }
 .agenda-filters__profile:active { transform: scale(var(--press-scale)); }
+/* Avatar CIRCULAR, sem moldura. */
 .agenda-filters__profile-img {
-  width: 28px;
-  height: 38px;
-  border-radius: var(--radius-xs);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   object-fit: cover;
   background: var(--border-light);
-  border: 1.5px solid var(--t-light);
-}
-/* Selo de versão discreto no rodapé do avatar (bumpar junto do CACHE_NAME). */
-.agenda-filters__version {
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.5rem;
-  font-weight: var(--fw-bold);
-  line-height: 1.4;
-  color: var(--a-gold);
-  background: var(--p-green-dark);
-  padding: 0 3px;
-  border-radius: 4px;
-  white-space: nowrap;
-  pointer-events: none;
 }
 
 /* ── Novo botão de FILTRO: pílula branca DENTRO da busca, à direita ── */
