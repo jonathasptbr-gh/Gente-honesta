@@ -698,6 +698,10 @@
    altura extra sem sobrar vão em uma ponta só. */
 .form-group--ic-fill {
   flex: 1 0 auto;
+  /* Último grupo do form: o respiro da base vem SÓ do padding-bottom do
+     form — sem isto, o margin-bottom herdado do .form-group somava com ele
+     e a margem até o rodapé ficava o DOBRO da do topo. */
+  margin-bottom: 0;
 }
 
 .form-group--ic-fill .ic-card {
