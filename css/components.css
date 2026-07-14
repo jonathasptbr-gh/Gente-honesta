@@ -663,3 +663,45 @@ html.is-landscape:not(.is-desktop) .overlay-dialog {
   line-height: 1.5;
   color: var(--on-green-solid);
 }
+
+/* ===========================================
+   SOMBRAS DE FRONTEIRA DE SCROLL (.js-scroll-shadows)
+   Par de "shades" sticky injetado por app.js (watchScrollShadows) em todo
+   container de scroll marcado com a classe: um véu-gradiente acende na borda
+   (topo/base) enquanto houver conteúdo continuando sob ela — a MESMA
+   linguagem da elevação da action bar do feed. O véu no quase-preto do app
+   funciona tanto sobre superfícies claras (gavetas) quanto escuras (cadastro).
+   ======================================== */
+.scroll-shade {
+  position: sticky;
+  height: 0;
+  flex-shrink: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.scroll-shade--top { top: 0; }
+.scroll-shade--bottom { bottom: 0; }
+
+.scroll-shade::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 16px;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.scroll-shade--top::after {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(var(--p-green-dark-rgb), 0.45), transparent);
+}
+
+.scroll-shade--bottom::after {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(var(--p-green-dark-rgb), 0.45), transparent);
+}
+
+.has-scroll-above > .scroll-shade--top::after { opacity: 1; }
+.has-scroll-below > .scroll-shade--bottom::after { opacity: 1; }

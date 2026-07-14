@@ -147,7 +147,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v308</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v309</span>
     </div>
 
     <!-- =====================================================================
@@ -285,7 +285,8 @@
          TELA — Onboarding  [id: view-onboarding]
          Contrato de visibilidade: .screen + .screen--active (nunca u-hidden)
          ===================================================================== -->
-    <section id="view-onboarding" class="screen">
+    <!-- js-scroll-shadows: sombras de fronteira no topo/base do scroll da tela -->
+    <section id="view-onboarding" class="screen js-scroll-shadows">
 
         <header class="screen__header">
             <div class="screen__header-nav">
@@ -705,7 +706,7 @@
             <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
                 <!-- Sem header interno: o título vai para a top bar (setTopBarTitle) -->
-                <div class="historico-sheet__scroll">
+                <div class="historico-sheet__scroll js-scroll-shadows">
                     <div id="historico-list" class="historico-list">
                         <!-- Preenchido via JS -->
                     </div>
@@ -721,7 +722,7 @@
             <div class="historico-sheet__backdrop" id="filters-sheet-backdrop"></div>
             <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
-                <div class="historico-sheet__scroll">
+                <div class="historico-sheet__scroll js-scroll-shadows">
                     <div id="panel-agenda-filters" class="filters-panel">
 
                         <!-- Ordenação: no topo -->
@@ -798,7 +799,7 @@
             <div class="pedido-sheet__panel">
                 <!-- Sem header interno: o título ("Fazer pedido"/"Pedido atual"/
                      "Pedido concluído") vai para a top bar (setTopBarTitle) -->
-                <div class="pedido-sheet__body">
+                <div class="pedido-sheet__body js-scroll-shadows">
 
                     <!-- ESTADO: CRIAÇÃO (formulário) -->
                     <div id="pedido-form-state" class="pedido-sheet__state">
@@ -881,7 +882,7 @@
             <div class="pedido-sheet__backdrop" id="vaga-sheet-backdrop"></div>
             <div class="pedido-sheet__clip">
             <div class="pedido-sheet__panel">
-                <div class="pedido-sheet__body">
+                <div class="pedido-sheet__body js-scroll-shadows">
                     <div class="pedido-sheet__state">
                         <!-- Sem título interno: "Criar vaga" vai para a top bar (setTopBarTitle) -->
                         <div class="pedido-field">
@@ -1028,7 +1029,7 @@
             <div class="pedido-sheet__panel">
                 <!-- Sem header interno: "Serviço de ajudantes" vai para a top bar (setTopBarTitle) -->
 
-                <div class="pedido-sheet__body">
+                <div class="pedido-sheet__body js-scroll-shadows">
 
                     <!-- Função 1: disponibilizar-se como ajudante (sempre visível, em cima) -->
                     <section class="ajudante-section">
@@ -1120,7 +1121,7 @@
                     <span class="material-symbols-rounded" aria-hidden="true">add</span>
                     Criar minicontrato
                 </button>
-                <div class="historico-sheet__scroll">
+                <div class="historico-sheet__scroll js-scroll-shadows">
                 <div id="contracts-list" class="contracts-list">
 
                     <!-- Contratos PENDENTES (antigos "genéricos"): primeiros da lista.
@@ -1286,7 +1287,7 @@
             <div class="historico-sheet__backdrop"></div>
             <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
-                <div class="historico-sheet__scroll">
+                <div class="historico-sheet__scroll js-scroll-shadows">
                     <div class="filters-panel">
                         <div class="agenda-filters__group">
                             <p class="agenda-filters__group-label eyebrow">Status</p>

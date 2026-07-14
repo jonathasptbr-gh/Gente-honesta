@@ -380,6 +380,14 @@ borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke
   selecionável novo deve seguir o par azul do seu contexto.
 - **Empty-state de lista sobre verde** — `.list-empty-hint` (+ `--block`, `feed.css`) para avisos de
   "lista vazia" (indicados/agenda), no lugar de cor inline em `feed.js`.
+- **Sombras de fronteira de scroll (`.js-scroll-shadows`)** — mecânica ÚNICA em `app.js`
+  (`window.watchScrollShadows`): todo container de scroll marcado com a classe ganha um par de "shades"
+  sticky (topo/base, estilos em `components.css`) que acendem quando há conteúdo continuando sob a
+  borda (classes de estado `has-scroll-above`/`has-scroll-below`). Aplicada no `#view-onboarding` e nos
+  scrolls das gavetas do feed (histórico, filtros, contratos ×2, pedido, vaga, ajudante). Container novo
+  que rola sob uma borda deve receber a classe no HTML (ou chamar `watchScrollShadows(el)` em runtime).
+  A action bar do feed usa a variante própria de elevação (`agenda-filters--elevated`, js:
+  `updateBarElevation`) — sombra forte só quando o feed ativo está rolado (barra "flat" = topo da lista).
 - **Cor da barra de status:** `window.THEME_COLOR` (`app.js`) é a fonte única do verde `#184e1b` da
   `meta[theme-color]`. Todas as telas são verdes, então é uma constante (não mais um mapa view→cor). O
   modo indicação do feed NÃO altera o theme-color (a barra continua verde).

@@ -326,3 +326,52 @@ window.customConfirm = function(message, title = "Confirmação", iconClass = "h
     btnCancel.addEventListener('click', cancelHandler);
   });
 };
+
+
+// =========================================================================
+// SOMBRAS DE FRONTEIRA DE SCROLL (mecânica ÚNICA, reutilizável)
+// Todo container com a classe .js-scroll-shadows ganha um par de "shades"
+// sticky (topo e base, injetadas aqui) que acendem quando há conteúdo
+// CONTINUANDO sob aquela borda — estado nas classes has-scroll-above /
+// has-scroll-below do próprio container (estilos em components.css).
+// Usada na tela de cadastro (#view-onboarding) e nos containers de scroll
+// das gavetas do feed (histórico, filtros, contratos, pedido, vaga,
+// ajudante). Para um container criado em runtime, chame
+// window.watchScrollShadows(el).
+// =========================================================================
+window.watchScrollShadows = function watchScrollShadows(el) {
+  if (!el || el.dataset.shadowsWatched) return;
+  el.dataset.shadowsWatched = '1';
+
+  const mkShade = (pos) => {
+    const d = document.createElement('div');
+    d.className = `scroll-shade scroll-shade--${pos}`;
+    d.setAttribute('aria-hidden', 'true');
+    return d;
+  };
+  el.prepend(mkShade('top'));
+  el.appendChild(mkShade('bottom'));
+
+  // Escreve a classe SÓ quando muda — senão o próprio toggle realimentaria o
+  // MutationObserver abaixo em loop.
+  const set = (cls, on) => {
+    if (el.classList.contains(cls) !== on) el.classList.toggle(cls, on);
+  };
+  const update = () => {
+    set('has-scroll-above', el.scrollTop > 2);
+    set('has-scroll-below', el.scrollTop + el.clientHeight < el.scrollHeight - 2);
+  };
+
+  el.addEventListener('scroll', update, { passive: true });
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(update).observe(el);
+  // Conteúdo dinâmico (listas re-renderizadas, colapsáveis animando altura,
+  // estados alternados por u-hidden) muda o scrollHeight sem rolar.
+  new MutationObserver(update).observe(el, {
+    childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'],
+  });
+  update();
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.js-scroll-shadows').forEach(window.watchScrollShadows);
+});
