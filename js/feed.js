@@ -63,7 +63,24 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       pending.classList.toggle('u-hidden', !anyMini);   // some junto com o rótulo
     }
+    updateFilterIndicator();   // reflete o estado dos filtros de contratos na pílula
   }
+
+  // Contagem de filtros de CONTRATOS ativos para o indicador da pílula (mesmo
+  // papel visual do activeFilterCount dos profissionais). Status + campos de
+  // valor/mês preenchidos (o texto da busca não conta, como nos profissionais).
+  function contractsActiveFilterCount() {
+    let n = contractsFilter.status !== 'all' ? 1 : 0;
+    if (document.getElementById('inp-contracts-min')?.value)  n++;
+    if (document.getElementById('inp-contracts-max')?.value)  n++;
+    if (document.getElementById('inp-contracts-date')?.value) n++;
+    return n;
+  }
+
+  // Valor/mês são visuais (mock), mas contam no indicador — sincroniza ao digitar
+  ['inp-contracts-min', 'inp-contracts-max', 'inp-contracts-date'].forEach((id) => {
+    document.getElementById(id)?.addEventListener('input', updateFilterIndicator);
+  });
 
   function openContractsSheet() {
     closeFiltersSheet();   // filtros de profissionais, se abertos
@@ -79,8 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
       syncSearchClearIcon();
     }
     contractsFilter.query = '';
-    applyContractsFilters();
-    updateFilterIndicator();   // suprime o indicador dos filtros de profissionais
+    applyContractsFilters();   // também reflete os filtros de contratos na pílula
     setTopBarTitle('Contratos');
   }
 
@@ -362,22 +378,21 @@ document.addEventListener('DOMContentLoaded', () => {
            filterState.includePay.size + (filterState.savedOnly ? 1 : 0);
   }
   function updateFilterIndicator() {
-    const n = activeFilterCount();
     // Indicador UNIFICADO na própria pílula de filtro (direita do campo): com
-    // filtros ativos ela fica azul (--filtered) e mostra ícone de filtro + contagem.
-    // Com a gaveta de CONTRATOS aberta a pílula serve aos filtros de contratos,
-    // então o indicador dos filtros de PROFISSIONAIS fica suprimido (volta ao
-    // fechar, via renderAgendaList → esta função).
+    // filtros ativos ela fica no tint azul (--filtered) com filter_alt + contagem.
+    // Com a gaveta de CONTRATOS aberta, a pílula reflete os filtros de CONTRATOS
+    // (mesmo papel visual da barra); senão, os de profissionais.
+    const contractsMode = isContractsSheetOpen();
+    const n = contractsMode ? contractsActiveFilterCount() : activeFilterCount();
     const pill = document.getElementById('btn-toggle-filters');
     const cnt  = document.getElementById('filter-count');
-    const suppressed = isContractsSheetOpen();
     if (cnt) {
       cnt.textContent = n;
-      cnt.classList.toggle('u-hidden', n === 0 || suppressed);
+      cnt.classList.toggle('u-hidden', n === 0);
     }
-    pill?.classList.toggle('agenda-filters__filter-pill--filtered', n > 0 && !suppressed);
-    // Flutuante "Limpar filtros" na base do feed: aparece junto com o indicador
-    document.getElementById('btn-clear-filters')?.classList.toggle('u-hidden', n === 0 || suppressed);
+    pill?.classList.toggle('agenda-filters__filter-pill--filtered', n > 0);
+    // Flutuante "Limpar Filtros" na base do feed: só para filtros de PROFISSIONAIS
+    document.getElementById('btn-clear-filters')?.classList.toggle('u-hidden', contractsMode || activeFilterCount() === 0);
     syncFilterPillIcon();
   }
 
@@ -2276,6 +2291,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tabName === 'pedidos') showPedidosPanel();
     else if (tabName === 'vagas') showVagasPanel();
     else showProsPanel();
+    // Reflete o estado de scroll do NOVO painel na elevação da barra
+    updateBarElevation();
   };
 
   document.querySelectorAll('.feed-tabs-pill__tab').forEach(tab => {
@@ -2329,7 +2346,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // SCROLL-TO-TOP — detecta scroll nos painéis e atualiza o botão da aba ativa
   // =========================================================================
 
+  // Elevação da action bar: sombra na fronteira SÓ quando o feed ativo está
+  // rolado — barra "flat" = usuário está no TOPO da lista (indicador de topo).
+  // function declaration (hoistada): também chamada por switchToTab.
+  function updateBarElevation() {
+    const el = activeTab === 'home' ? agendaListEl
+             : activeTab === 'pedidos' ? pedidosScrollEl : vagasScrollEl;
+    feedActionBar?.classList.toggle('agenda-filters--elevated', (el?.scrollTop || 0) > 2);
+  }
+
   agendaListEl?.addEventListener('scroll', () => {
+    updateBarElevation();
     const scrolled = agendaListEl.scrollTop > SCROLL_THRESHOLD;
     if (scrolledState.home !== scrolled) {
       scrolledState.home = scrolled;
@@ -2338,6 +2365,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { passive: true });
 
   pedidosScrollEl?.addEventListener('scroll', () => {
+    updateBarElevation();
     const scrolled = pedidosScrollEl.scrollTop > SCROLL_THRESHOLD;
     if (scrolledState.pedidos !== scrolled) {
       scrolledState.pedidos = scrolled;
@@ -2346,6 +2374,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { passive: true });
 
   vagasScrollEl?.addEventListener('scroll', () => {
+    updateBarElevation();
     const scrolled = vagasScrollEl.scrollTop > SCROLL_THRESHOLD;
     if (scrolledState.vagas !== scrolled) {
       scrolledState.vagas = scrolled;
