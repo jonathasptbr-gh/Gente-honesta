@@ -354,6 +354,8 @@ document.addEventListener('DOMContentLoaded', () => {
       cnt.classList.toggle('u-hidden', n === 0 || suppressed);
     }
     pill?.classList.toggle('agenda-filters__filter-pill--filtered', n > 0 && !suppressed);
+    // Flutuante "Limpar filtros" na base do feed: aparece junto com o indicador
+    document.getElementById('btn-clear-filters')?.classList.toggle('u-hidden', n === 0 || suppressed);
     syncFilterPillIcon();
   }
 
@@ -2122,9 +2124,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.closest('.historico-sheet__panel')) closeFiltersSheet();
   });
 
-  // Botão "Limpar filtros" (dentro da gaveta de filtros): zera os 4 grupos de
-  // filtro (mantém a ordenação e os pins), des-seleciona os chips do painel e
-  // re-renderiza. O indicador da pílula some sozinho (contagem 0) via renderAgendaList.
+  // Botão FLUTUANTE "Limpar filtros" (base do feed de profissionais): zera os
+  // 4 grupos de filtro (mantém a ordenação e os pins), des-seleciona os chips do
+  // painel e re-renderiza. Ele e o indicador da pílula somem sozinhos (contagem
+  // 0) via renderAgendaList → updateFilterIndicator.
   document.getElementById('btn-clear-filters')?.addEventListener('click', () => {
     filterState.includeIc.clear();
     filterState.includeAvail.clear();

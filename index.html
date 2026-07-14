@@ -147,7 +147,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v302</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v303</span>
     </div>
 
     <!-- =====================================================================
@@ -778,12 +778,6 @@
                             </div>
                         </div>
 
-                        <!-- Limpar filtros: zera os 4 grupos (mantém ordenação e pins) -->
-                        <button type="button" id="btn-clear-filters" class="btn btn--accent agenda-filters__clear-btn">
-                            <span class="material-symbols-rounded" aria-hidden="true">filter_alt_off</span>
-                            Limpar filtros
-                        </button>
-
                         <!-- Adicionar contatos -->
                         <button type="button" id="btn-sync-contacts" class="btn btn--accent agenda-filters__add-contacts-btn">
                             <span class="material-symbols-rounded" aria-hidden="true">sync</span>
@@ -1413,6 +1407,14 @@
                     <div id="agenda-list" class="agenda-list">
                         <!-- Cards inseridos dinamicamente -->
                     </div>
+                    <!-- Limpar filtros: FLUTUANTE semi-transparente na base do feed,
+                         visível só com filtro ativo (updateFilterIndicator). Vive
+                         DENTRO do painel de profissionais: desliza junto na troca
+                         de aba. Zera os 4 grupos (mantém ordenação e pins). -->
+                    <button type="button" id="btn-clear-filters" class="btn agenda-clear-fab u-hidden">
+                        <span class="material-symbols-rounded" aria-hidden="true">filter_alt_off</span>
+                        Limpar filtros
+                    </button>
                 </div>
 
                 <!-- Painel 2 — pedidos de indicação -->

@@ -1051,15 +1051,18 @@ filterState {
 - `sortPros(pros)` — ordena conforme `filterState.sort`
 - `reorderAgendaListAnimated()` — reordena cards já renderizados com animação FLIP
 - Pros salvos (`pinnedPros`) aparecem sempre no topo, agrupados separadamente dos demais
-- **Indicador de filtros ativos + limpar** (`#btn-clear-filters`, `.agenda-filters__clear`): pílula DENTRO
-  do campo de busca, à esquerda (`position:absolute; left:5px`), no "tint preenchido" azul-claro
-  (`--info-blue-light` + texto `--info-blue`, o par de seleção sobre superfície clara). Ordem: `close`
-  (VERMELHO `--danger`, sem moldura) + `filter_alt` + contagem (`#filter-count`). Aparece só quando há
-  filtro ativo e, ao tocar, ZERA os 4 grupos de filtro (mantém a ordenação e os pins) e desmarca os chips
-  do painel. Com a pílula visível, o wrap ganha `--filtered` (esconde a lupa) e o `padding-left` do input
-  é ajustado em JS pela LARGURA REAL da pílula (`updateFilterIndicator`). A contagem = `activeFilterCount()`
-  (`includeIc`+`includeAvail`+`includePay`+`savedOnly`; a ORDENAÇÃO não conta, pois não esconde ninguém).
-  `updateFilterIndicator()` roda dentro de `renderAgendaList` — o indicador some sozinho ao chegar a 0.
+- **Indicador de filtros ativos** = a PRÓPRIA pílula de filtro (`#btn-toggle-filters`, direita do campo):
+  com filtro ativo fica AZUL SÓLIDO (`--info-blue` + conteúdo claro — controle pequeno de marcação) com
+  ícone `filter_alt` + contagem (`#filter-count`); com o sheet aberto fica verde escuro `--p-green` com
+  seta `keyboard_arrow_up` (ESCONDER, não cancelar); em repouso, branca com `tune`. O glifo é decidido em
+  UM lugar (`syncFilterPillIcon`). A contagem = `activeFilterCount()` (`includeIc`+`includeAvail`+
+  `includePay`+`savedOnly`; a ORDENAÇÃO não conta, pois não esconde ninguém).
+- **Limpar filtros** (`#btn-clear-filters`, `.agenda-clear-fab`): botão FLUTUANTE semi-transparente
+  (pílula de vidro `--overlay` + `--blur-sm`, texto claro) centrado acima da bottom bar, DENTRO do
+  `.feed-panel--pros` (desliza junto na troca de aba; o painel é a âncora `position:relative`). Aparece
+  só com filtro ativo e, ao tocar, ZERA os 4 grupos (mantém ordenação e pins) e desmarca os chips do
+  painel. `updateFilterIndicator()` roda dentro de `renderAgendaList` — indicador e flutuante somem
+  sozinhos ao chegar a 0 (e ficam suprimidos enquanto a gaveta de CONTRATOS está aberta).
 
 ### Cards de profissional (flip 3D)
 
