@@ -899,6 +899,10 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro)}</div>${proBackHTML()}</div></div>`;
       list.appendChild(card);
     });
+
+    // Fim do feed: linha-aviso de que a lista da região terminou
+    list.insertAdjacentHTML('beforeend',
+      '<div class="feed-end-cap"><span class="feed-end-cap__text">Você viu todos os profissionais disponíveis na sua região no momento</span></div>');
   };
 
   // Reordena os cards já existentes com animação FLIP:
@@ -933,6 +937,10 @@ document.addEventListener('DOMContentLoaded', () => {
       c.style.animation = 'none'; // evita repetir cardExpand ao reinserir o nó
       list.appendChild(c);
     });
+    // Devolve a linha de fim-de-feed ao FIM (os appendChild acima moveram os
+    // cards para depois dela)
+    const endCap = list.querySelector('.feed-end-cap');
+    if (endCap) list.appendChild(endCap);
 
     cards.forEach(c => {
       const delta = oldTops.get(c) - c.getBoundingClientRect().top;
@@ -1264,6 +1272,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       list.appendChild(card);
     });
+
+    // Fim do feed: linha-aviso de que a lista da região terminou
+    list.insertAdjacentHTML('beforeend',
+      '<div class="feed-end-cap"><span class="feed-end-cap__text">Você viu todas as vagas disponíveis na sua região no momento</span></div>');
   };
 
   // ── Motor genérico de animação flip+expansão ─────────────────────────────
@@ -2272,6 +2284,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const d = scrolled ? SCROLL_TOP_STATE : (TAB_DEFAULTS[tabName] ?? { icon: 'work', label: tabName });
     btn.querySelector('.material-symbols-rounded').textContent = d.icon;
     btn.querySelector('.feed-tabs-pill__tab-label').textContent = d.label;
+    // Seta "Voltar ao topo" REFORÇADA (opsz 24 engrossa o traço no tamanho pequeno)
+    btn.classList.toggle('feed-tabs-pill__tab--totop', !!scrolled);
   };
 
   const switchToTab = (tabName) => {
@@ -2345,6 +2359,47 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // SCROLL-TO-TOP — detecta scroll nos painéis e atualiza o botão da aba ativa
   // =========================================================================
+
+  // OVERSCROLL elástico no TOPO dos 3 feeds: puxar para baixo já no topo
+  // estica a lista (com resistência) e ela volta com mola ao soltar —
+  // indicador físico de "você está no topo da lista". O preventDefault no
+  // gesto de estique também segura o pull-to-refresh nativo do navegador
+  // (reforçado pelo overscroll-behavior-y: contain no CSS dos 3 feeds).
+  function attachTopOverscroll(el) {
+    if (!el) return;
+    let startY = 0;
+    let pulling = false;
+    el.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+      pulling = false;
+    }, { passive: true });
+    el.addEventListener('touchmove', (e) => {
+      const dy = e.touches[0].clientY - startY;
+      if (el.scrollTop <= 0 && dy > 0) {
+        pulling = true;
+        el.style.transition = 'none';
+        el.style.transform = `translateY(${Math.min(70, dy / 2.5)}px)`;   // resistência + teto
+        e.preventDefault();
+      } else if (pulling) {
+        // o dedo voltou para cima durante o estique: solta na hora
+        pulling = false;
+        el.style.transition = 'transform 0.3s var(--sheet-ease, ease)';
+        el.style.transform = '';
+      }
+    }, { passive: false });
+    const release = () => {
+      if (!pulling) return;
+      pulling = false;
+      el.style.transition = 'transform 0.35s var(--sheet-ease, ease)';
+      el.style.transform = '';
+      setTimeout(() => { el.style.transition = ''; }, 400);
+    };
+    el.addEventListener('touchend', release);
+    el.addEventListener('touchcancel', release);
+  }
+  attachTopOverscroll(agendaListEl);
+  attachTopOverscroll(pedidosScrollEl);
+  attachTopOverscroll(vagasScrollEl);
 
   // Elevação da action bar: sombra na fronteira SÓ quando o feed ativo está
   // rolado — barra "flat" = usuário está no TOPO da lista (indicador de topo).

@@ -762,6 +762,13 @@
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
 }
 
+/* Estado "Voltar ao topo" (js: setTabButton): seta REFORÇADA — no opsz 48 o
+   traço da arrow_upward afinava no tamanho pequeno da aba; opsz 24 + wght 700
+   engrossam o glifo. Vem DEPOIS do --active para vencer (mesma especificidade). */
+.feed-tabs-pill__tab--totop .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+}
+
 .feed-tabs-pill__tab:not(.feed-tabs-pill__tab--active):active {
   color: var(--t-light);
 }
@@ -2269,9 +2276,11 @@
 /* Elevação por scroll (js: updateBarElevation): a sombra na fronteira só
    aparece quando o feed ativo está ROLADO — barra "flat" = usuário está no
    TOPO da lista (indicador de topo); com conteúdo passando por baixo, a
-   sombra marca a sobreposição. */
+   sombra marca a sobreposição. Sombra BEM FORTE de propósito (dupla, no
+   quase-preto do verde escuro): os tokens padrão sumiam sobre o --bg-canvas. */
 .agenda-filters--elevated {
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 8px 22px rgba(var(--p-green-dark-rgb), 0.6),
+              0 2px 8px rgba(var(--p-green-dark-rgb), 0.45);
 }
 
 .agenda-filters__search-wrap {
@@ -2332,14 +2341,13 @@
   position: relative;
 }
 
-/* Notificação de contratos: o FUNDO do botão pisca entre branco e o verde
-   claro padrão dos estados de "fechar/esconder" (--p-green-light, o mesmo da
-   pílula de filtro com sheet aberto); o ícone preto fica parado. A classe
-   --notify começa no HTML e é removida ao abrir os contratos
-   (js: openContractsSheet). */
+/* Notificação de contratos: o FUNDO do botão pisca entre branco e AMARELO
+   (--a-gold, o acento de ação/marca — o verde claro ficava discreto demais);
+   o ícone preto fica parado. A classe --notify começa no HTML e é removida
+   ao abrir os contratos (js: openContractsSheet). */
 @keyframes contractsNotifyBlink {
   0%, 100% { background: var(--bg-white); }
-  50%      { background: var(--p-green-light); }
+  50%      { background: var(--a-gold); }
 }
 .agenda-filters__icon-btn--notify {
   animation: contractsNotifyBlink 1.1s ease-in-out infinite;
@@ -2580,6 +2588,40 @@
   padding: var(--space-xs) 0 var(--space-sm);
   font-weight: var(--fw-medium);
   letter-spacing: 0.01em;
+}
+
+/* ── Fim de feed: linha-aviso "você viu tudo" nos 3 feeds (profissionais,
+   vagas e pedidos) — texto discreto entre dois traços, sobre o --bg-canvas. */
+.feed-end-cap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xs) var(--space-xs);
+  color: var(--on-green-med);
+  font-size: var(--fs-3);
+  text-align: center;
+}
+
+.feed-end-cap::before,
+.feed-end-cap::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--on-green-soft);   /* divisor funcional, não contorno */
+}
+
+.feed-end-cap__text {
+  flex-shrink: 0;
+  max-width: 72%;
+}
+
+/* Overscroll do topo (attachTopOverscroll em feed.js): contém o encadeamento
+   para o body — sem isto, o estique no topo podia disparar o pull-to-refresh
+   nativo do navegador. */
+#view-feed .agenda-list,
+.vagas-scroll,
+.feed-panel--pedidos .scroll-area {
+  overscroll-behavior-y: contain;
 }
 
 /* Aviso de "lista vazia" sobre superfície verde (indicados/agenda). Extraído
