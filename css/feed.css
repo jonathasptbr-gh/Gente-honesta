@@ -1922,7 +1922,11 @@
   flex-shrink: 0;
 }
 
-.vaga-salary__input { flex: 1; }
+/* Largura CONTIDA (não flex:1): o campo aceita no máximo 9 caracteres
+   ("9.999.999"), então ocupar a linha toda deixava um vazio estranho entre o
+   número e o "/mês". 150px comporta o maior valor com folga; pode encolher
+   em telas estreitas. */
+.vaga-salary__input { flex: 0 1 150px; width: 150px; }
 
 /* ── Check "Exigir currículo" + aviso — card branco, caixa no padrão do check
    de perfil público do cadastro (borda --border-mid; marcado = azul sólido) ── */
