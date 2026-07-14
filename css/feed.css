@@ -2382,13 +2382,13 @@
   background: var(--info-blue);
   color: var(--t-light);
 }
-/* Estado "fechar" (sheet de filtros aberto, ícone vira X): tint verde claro +
-   X verde — a tradução do fechar translúcido padrão (.action-close-mode) para
-   a superfície CLARA do campo de busca. O --p-green sólido ficava pesado
-   demais (parecia um btn--primary dentro do campo). */
+/* Estado "sheet de filtros aberto": verde ESCURO sólido + seta para CIMA
+   (keyboard_arrow_up) — ação de ESCONDER a gaveta (que se recolhe para cima),
+   não de cancelar; por isso não usa o X (pedido explícito do desenvolvedor:
+   tom escuro específico deste estado). */
 .agenda-filters__filter-pill--active {
-  background: var(--p-green-light);
-  color: var(--p-green);
+  background: var(--p-green);
+  color: var(--t-light);
 }
 .agenda-filters__filter-pill .material-symbols-rounded { font-size: 1.2rem; }
 

@@ -104,8 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
     btn?.classList.add('agenda-filters__filter-pill--active');
-    const icon = btn?.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = 'close';
+    syncFilterPillIcon();
   }
 
   function closeContractsFiltersSheet() {
@@ -114,8 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'false');
     btn?.classList.remove('agenda-filters__filter-pill--active');
-    const icon = btn?.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = 'tune';
+    syncFilterPillIcon();
   }
 
   btnOpenContracts?.addEventListener('click', () => {
@@ -344,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateFilterIndicator() {
     const n = activeFilterCount();
     // Indicador UNIFICADO na própria pílula de filtro (direita do campo): com
-    // filtros ativos ela ganha o tint azul (--filtered) e mostra a contagem.
+    // filtros ativos ela fica azul (--filtered) e mostra ícone de filtro + contagem.
     // Com a gaveta de CONTRATOS aberta a pílula serve aos filtros de contratos,
     // então o indicador dos filtros de PROFISSIONAIS fica suprimido (volta ao
     // fechar, via renderAgendaList → esta função).
@@ -356,6 +354,22 @@ document.addEventListener('DOMContentLoaded', () => {
       cnt.classList.toggle('u-hidden', n === 0 || suppressed);
     }
     pill?.classList.toggle('agenda-filters__filter-pill--filtered', n > 0 && !suppressed);
+    syncFilterPillIcon();
+  }
+
+  // Ícone da pílula de filtro — decisão ÚNICA a partir dos dois estados:
+  //   sheet de filtros (profissionais OU contratos) aberto → seta p/ CIMA
+  //   (esconder a gaveta, que se recolhe para cima — não é um cancelar);
+  //   filtros ativos → filter_alt; repouso → tune.
+  function syncFilterPillIcon() {
+    const pill = document.getElementById('btn-toggle-filters');
+    const icon = pill?.querySelector('.material-symbols-rounded');
+    if (!icon) return;
+    const sheetOpen =
+      document.getElementById('filters-sheet')?.classList.contains('historico-sheet--open') ||
+      document.getElementById('contracts-filters-sheet')?.classList.contains('historico-sheet--open');
+    if (sheetOpen) { icon.textContent = 'keyboard_arrow_up'; return; }
+    icon.textContent = pill.classList.contains('agenda-filters__filter-pill--filtered') ? 'filter_alt' : 'tune';
   }
 
   // Reseta lista de profissionais: desvira cards, limpa filtros, vai ao topo
@@ -2077,8 +2091,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'false');
     btn?.classList.remove('agenda-filters__filter-pill--active');
-    const icon = btn?.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = 'tune';
+    syncFilterPillIcon();
   }
   function openFiltersSheet() {
     const sheet = document.getElementById('filters-sheet');
@@ -2090,8 +2103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
     btn?.classList.add('agenda-filters__filter-pill--active');
-    const icon = btn?.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = 'close';
+    syncFilterPillIcon();
   }
 
   document.getElementById('btn-toggle-filters')?.addEventListener('click', () => {
