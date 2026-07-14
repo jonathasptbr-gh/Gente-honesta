@@ -147,7 +147,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v311</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v312</span>
     </div>
 
     <!-- =====================================================================
@@ -1116,11 +1116,6 @@
             <div class="historico-sheet__backdrop"></div>
             <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
-                <!-- CTA fixo no topo do painel (fora do scroll) -->
-                <button type="button" id="btn-new-contract" class="btn btn--accent contracts-create__btn">
-                    <span class="material-symbols-rounded" aria-hidden="true">add</span>
-                    Criar minicontrato
-                </button>
                 <div class="historico-sheet__scroll js-scroll-shadows">
                 <div id="contracts-list" class="contracts-list">
 
@@ -1273,6 +1268,12 @@
 
                 </div>
                 </div>
+                <!-- CTA fixo na BASE do painel (fora do scroll; a lista rola por cima,
+                     com a shade de fronteira acendendo logo acima do botão) -->
+                <button type="button" id="btn-new-contract" class="btn btn--accent contracts-create__btn">
+                    <span class="material-symbols-rounded" aria-hidden="true">add</span>
+                    Criar minicontrato
+                </button>
             </div>
             </div>
         </div>

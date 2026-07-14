@@ -890,7 +890,7 @@ interna, que foi REMOVIDA; status e texto filtram de verdade, valor/mês são vi
 `#btn-open-contracts` vira "Fechar" translúcido (`.agenda-filters__icon-btn--active`, receita do
 `.action-close-mode` — fill `--on-green-soft` + X claro sobre a barra verde). O `#contracts-filters-sheet`
 vem DEPOIS do `#contracts-sheet` no DOM para renderizar por cima (mesmo z-index). O CTA "Criar
-minicontrato" fica fixo no topo do painel (fora do `.historico-sheet__scroll`); a lista segue em ordem
+minicontrato" fica fixo na BASE do painel (fora do `.historico-sheet__scroll`); a lista segue em ordem
 normal (pendentes → ativos → concluído → cancelado — o antigo `column-reverse` morreu com o painel
 tela-cheia). `closeContractsSheet` tem guarda de early-return (evita TDZ de `renderAgendaList` no setup)
 e é chamado por `showVagasPanel`/`showPedidosPanel` nas trocas de aba.
