@@ -40,6 +40,10 @@
 .onboarding-form {
   display: flex;
   flex-direction: column;
+  /* Cresce para ocupar a viewport de scroll quando o conteúdo é curto (o vão
+     é absorvido pelo card do IC via .form-group--ic-fill); nunca encolhe
+     abaixo do conteúdo — em telas curtas, a página simplesmente rola. */
+  flex: 1 0 auto;
   /* Respiro vertical ROLÁVEL (no conteúdo, não no container de scroll —
      padding vertical no .onboarding-scroll deslocava as shades sticky) */
   padding: var(--space-md) 0 var(--space-md);
@@ -74,6 +78,13 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  /* Flex column: permite ao form crescer (flex:1) e preencher a viewport de
+     scroll quando o conteúdo é curto — é o que alimenta o sistema de altura
+     do card do IC (.form-group--ic-fill absorve a sobra e o card distribui
+     nos espaços internos, via space-between). Com conteúdo alto, o form fica
+     na altura natural e o container rola. */
+  display: flex;
+  flex-direction: column;
   /* SÓ padding lateral no container: respiro vertical vive no CONTEÚDO
      (.onboarding-form) — padding vertical aqui deslocava as shades sticky
      para dentro da tela (sticky não passa da caixa de conteúdo do pai). */
