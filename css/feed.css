@@ -159,82 +159,19 @@
 
 
 /* ===========================================
-   ABA DE CONTRATOS (tela cheia, slide-down do topo)
+   GAVETA DE CONTRATOS (dropdown abaixo da action bar, padrão claro)
 
-   Ocupa toda a área do #view-feed (que é position:relative). Entra deslizando
-   do topo (translateY(-100%) → 0). Topo FIXO (ações + recém-criados + busca/
-   filtros) + lista rolável abaixo dele.
+   Reusa o scaffolding .historico-sheet* (container/clip/panel, slide-down,
+   backdrop) com a variante --bar-clear (definida junto do .historico-sheet):
+   o container começa em --sheet-top e NÃO cobre a action bar — a busca de
+   profissionais segue viva ("Buscar contratos") e o botão de filtros abre o
+   #contracts-filters-sheet. Aqui ficam só os estilos do CONTEÚDO.
    ======================================== */
-.contracts-panel {
-  position: absolute;
-  inset: 0;
-  z-index: 60;              /* ACIMA da top-bar (z10): cobre-a quando aberto */
-  background: var(--bg-canvas);
-  display: flex;
-  /* column-reverse: INVERTE a ordem vertical de tudo. No DOM vem [dock, lista];
-     invertido → LISTA no topo (rola) e DOCK na base (controles + busca). */
-  flex-direction: column-reverse;
-  overflow: hidden;
-  /* Fechado: recuado 100% da altura MAIS 30px. O extra tira a SOMBRA (--shadow-lg,
-     ~26px de alcance) e a base do painel de cima da linha y=0 — sem esse buffer, a
-     sombra (e às vezes a borda branca do último card) vazava sobre a top bar, na
-     faixa entre a barra de status e o app (o painel é z60, acima da top-bar z10). */
-  transform: translateY(calc(-100% - 30px));
-  transition: transform 0.5s var(--sheet-ease);
-  box-shadow: var(--shadow-lg);
-}
 
-.contracts-panel--open {
-  transform: translateY(0);
-}
-
-/* Dock FIXO na BASE (não rola): busca (abre para cima) + linha de ações na base.
-   flex-shrink:0 para nunca encolher; carrega a folga do safe-area em baixo.
-   column-reverse: no DOM vem [linha de ações, busca]; invertido → busca ACIMA da
-   linha de ações (que fica na própria base da tela). */
-.contracts-panel__dock {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 0;   /* respiro entre busca e ações vem do margin-bottom de .contracts-filters (zera ao colapsar) */
-  padding: var(--space-md);
-  padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom, 0px));
-}
-
-/* A LISTA (agora no topo) rola. Carrega o safe-area do topo da tela. */
-.contracts-panel__scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: calc(var(--space-md) + env(safe-area-inset-top, 0px)) var(--space-md) var(--space-md);
-  scrollbar-width: thin;
-  scrollbar-color: var(--on-green-muted) transparent;
-}
-
-/* Barra SEMPRE visível (padrão dos containers de scroll fora dos 3 feeds). */
-.contracts-panel__scroll::-webkit-scrollbar { width: 5px; }
-.contracts-panel__scroll::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
-
-
-/* ── Linha de ações: lupa | criar minicontrato | fechar ── */
-.contracts-create {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.contracts-create__row {
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-xs);
-}
-
+/* CTA "Criar minicontrato" — filho direto do painel (fora do scroll), estica
+   na largura; a altura de 40px vem do grupo de CTAs (#btn-new-contract). */
 .contracts-create__btn {
-  flex: 1;
   gap: var(--space-xs);
-  padding: 14px;
-  border-radius: var(--radius-md);
 }
 
 /* "+" no peso forte (preset filled forte), coerente com o texto em negrito do
@@ -243,37 +180,10 @@
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
 }
 
-/* Botões-ícone quadrados que ladeiam "Criar minicontrato":
-   ESQUERDA = ocultar recém-criados (chevron); DIREITA = fechar contratos (X).
-   Temáticos sobre o verde: fill branco translúcido + ícone claro — a MESMA
-   linguagem dos botões "Fechar" das gavetas (.action-close-mode). */
-.contracts-create__collapse,
-.contracts-create__close {
-  width: 48px;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  background: var(--on-green-soft);
-  color: var(--t-light);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.contracts-create__collapse:active,
-.contracts-create__close:active {
-  transform: scale(var(--press-scale));
-}
-
-.contracts-create__close .material-symbols-rounded {
-  font-size: 1.4rem;
-}
-
 /* ── Contratos PENDENTES (primeiros da lista) ──
-   Antigos "genéricos"/minicontratos, ainda sem dados de cliente. Recebem um tom
-   de VERDE CLARO sobre o fundo escuro (--bg-canvas) do painel, distinguindo-os
-   dos contratos já firmados (ativos/concluídos/cancelados) logo abaixo. */
+   Antigos "genéricos"/minicontratos, ainda sem dados de cliente. Tom de VERDE
+   CLARO (o mesmo tint dos contratos ativos), distinguindo-os dos cards já
+   firmados logo abaixo. */
 .contracts-pending {
   display: flex;
   flex-direction: column;
@@ -285,7 +195,7 @@
   font-weight: var(--fw-bold);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--p-green-light);   /* verde claro, legível sobre o fundo escuro */
+  color: var(--p-green);   /* rótulo verde sobre o corpo claro, como os do cadastro */
   padding: 2px 2px;
 }
 
@@ -296,6 +206,7 @@
   gap: var(--space-sm);
   padding: 10px var(--space-sm);
   background: var(--p-green-light);   /* tom de verde claro */
+  box-shadow: var(--shadow-sm);       /* definição sobre o corpo --bg-soft */
   border-radius: var(--radius-md);
 }
 
@@ -347,71 +258,10 @@
 }
 
 
-/* ── Busca e filtros ──
-   Seção INTEIRA (busca + chips de status + faixa de valor/mês) escondida por
-   padrão, revelada JÁ EXPANDIDA pela lupa da linha de ações. Anima altura +
-   opacidade + margem + padding ao abrir/fechar. */
-.contracts-filters {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-sm);
-  background: var(--bg-white);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--space-md);   /* respiro até a linha de ações ABAIXO (abre p/ cima) */
-  overflow: hidden;
-  max-height: 500px;
-  opacity: 1;
-  transition: max-height 0.4s var(--sheet-ease), opacity 0.25s ease,
-              margin-bottom 0.4s var(--sheet-ease), padding 0.4s var(--sheet-ease);
-}
-
-.contracts-filters--collapsed {
-  max-height: 0;
-  opacity: 0;
-  margin-bottom: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  pointer-events: none;
-}
-
-.contracts-filters__search-wrap {
-  position: relative;
-}
-
-.contracts-filters__search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--t-sub);
-  font-size: 1.2rem;
-  pointer-events: none;
-}
-
-.contracts-filters__search {
-  width: 100%;
-  height: 42px;
-  padding: 0 var(--space-sm) 0 40px;
-  border-radius: var(--radius-pill);
-  background: var(--bg-input);
-  font-size: var(--fs-6);
-  color: var(--t-main);
-  outline: none;
-  transition: var(--transition);
-}
-
-.contracts-filters__search:focus {
-  background: var(--p-green-light);
-}
-
-.contracts-filters__chips {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
-
+/* ── Campos de valor/período (vivem no #contracts-filters-sheet) ──
+   A antiga seção de busca interna dos contratos foi removida: o texto vem da
+   busca da action bar e os filtros vivem no sheet próprio (chips de status
+   reusam o padrão .filters-panel .chip). */
 .contracts-filters__row {
   display: flex;
   gap: var(--space-xs);
@@ -438,7 +288,8 @@
   height: 40px;
   padding: 0 10px;
   border-radius: var(--radius-md);
-  background: var(--bg-input);
+  background: var(--bg-white);   /* card branco sobre o corpo --bg-soft */
+  box-shadow: var(--shadow-sm);
   font-size: var(--fs-5);
   color: var(--t-main);
   outline: none;
@@ -452,22 +303,24 @@
 
 
 /* ── Lista de contratos ──
-   column-reverse: no DOM a ordem é [pendentes, ativos, concluído, cancelado];
-   invertido → CANCELADO no topo … ATIVOS … PENDENTES na base (junto do dock). */
+   Ordem NORMAL de leitura (a gaveta desce do topo): pendentes → ativos →
+   concluído → cancelado. (O antigo column-reverse era do painel tela-cheia,
+   que tinha o dock na base.) */
 .contracts-list {
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   gap: var(--space-sm);
 }
 
 /* base .card dá raio + border:none; o FUNDO do card inteiro vem do status,
-   destacando fortemente a situação. Sem sombra: o tint claro já define por
-   contraste sobre o --bg-canvas escuro. */
+   destacando fortemente a situação. --shadow-sm define o card sobre o corpo
+   claro --bg-soft (o tint sozinho contrastava pouco). */
 .contract-card {
   padding: var(--space-sm);
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Card INTEIRO no tint do status (a mesma cor que os badges usavam antes):
@@ -2107,6 +1960,21 @@
 
 .historico-sheet--open .historico-sheet__backdrop { opacity: 1; }
 
+/* Variante "barra viva" (gaveta de contratos + filtros de contratos): o
+   CONTAINER começa em --sheet-top em vez de cobrir a tela toda — os toques na
+   action bar chegam aos botões/busca reais (sem roteamento por retângulo).
+   Clip e backdrop, que ancoram em --sheet-top RELATIVO ao container, voltam a
+   0 (o container já está na fronteira). DEVE vir depois das regras base
+   (mesma especificidade; a ordem decide). */
+.historico-sheet--bar-clear {
+  top: var(--sheet-top, 0px);
+}
+
+.historico-sheet--bar-clear .historico-sheet__clip,
+.historico-sheet--bar-clear .historico-sheet__backdrop {
+  top: 0;
+}
+
 .historico-sheet__panel {
   position: absolute;
   top: 0;                 /* relativo ao .historico-sheet__clip (já em --sheet-top) */
@@ -2439,13 +2307,20 @@
 
 /* Notificação de contratos: o FUNDO do botão pisca entre branco e o azul de
    seleção (--info-blue); o ícone preto fica parado. A classe --notify começa
-   no HTML e é removida ao abrir os contratos (js: openContractsPanel). */
+   no HTML e é removida ao abrir os contratos (js: openContractsSheet). */
 @keyframes contractsNotifyBlink {
   0%, 100% { background: var(--bg-white); }
   50%      { background: var(--info-blue); }
 }
 .agenda-filters__icon-btn--notify {
   animation: contractsNotifyBlink 1.1s ease-in-out infinite;
+}
+
+/* Gaveta de contratos aberta: o abridor vira "fechar" (ícone X) — verde
+   sólido, mesmo padrão do botão de filtros (.agenda-filters__filter-pill--active). */
+.agenda-filters__icon-btn--active {
+  background: var(--p-green);
+  color: var(--t-light);
 }
 
 /* ── Perfil na search row (movido do antigo top bar) ── */
@@ -4085,7 +3960,8 @@
 #btn-vaga-publish,
 #btn-call-helper,
 #btn-sync-contacts,
-#btn-clear-filters {
+#btn-clear-filters,
+#btn-new-contract {
   padding: 11px var(--space-md);
 }
 

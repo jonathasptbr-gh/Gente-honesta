@@ -855,7 +855,8 @@ viewport + o `translateX` do trilho.
 
 Os quatro submenus que descem da base da action bar — **Histórico** (`#historico-sheet`), **Fazer pedido /
 Pedido atual** (`#pedido-sheet`), **Criar vaga** (`#vaga-sheet`), **Serviço de ajudantes**
-(`#ajudante-sheet`) — e agora também os **Filtros** (`#filters-sheet`) compartilham o MESMO padrão de
+(`#ajudante-sheet`) — e também os **Filtros** (`#filters-sheet`) e os **Contratos**
+(`#contracts-sheet` + `#contracts-filters-sheet`, ver nota abaixo) compartilham o MESMO padrão de
 dropdown: container `position:fixed; inset:0; z-index:300`, painel no **PADRÃO CLARO do cadastro** (v295):
 corpo `--bg-soft` com elementos internos BRANCOS + `--shadow-sm` (mesma linguagem da seção "Detalhes
 profissionais"), labels verdes (`--p-green`), seleção pelo tint azul claro, ancorado em `--sheet-top`
@@ -864,6 +865,21 @@ alinhado ao conteúdo da action bar) com cantos inferiores arredondados, slide-d
 que dim SÓ o feed abaixo da barra. `#filters-sheet` e
 `#vaga-sheet`/`#ajudante-sheet` **reusam classes existentes** (`.historico-sheet*` e `.pedido-sheet*`
 respectivamente) em vez de recriar o scaffolding.
+
+**CONTRATOS = gaveta com a BARRA VIVA (variante `--bar-clear`).** O antigo painel tela-cheia
+(`.contracts-panel`) foi substituído pela gaveta `#contracts-sheet` (reusa `.historico-sheet*`) com a
+variante `.historico-sheet--bar-clear`: o CONTAINER começa em `--sheet-top` (não cobre a action bar),
+então a barra segue interativa — sem roteamento por `tapHitsButton`. Enquanto aberta: a busca de
+profissionais vira **"Buscar contratos..."** (placeholder trocado em `openContractsSheet`; o texto filtra
+os cards mockados via `applyContractsFilters`), o `#btn-toggle-filters` abre o **`#contracts-filters-sheet`**
+(chips de status Todos/Ativo/Concluído/Cancelado + valor mín/máx + mês/ano — herdados da antiga busca
+interna, que foi REMOVIDA; status e texto filtram de verdade, valor/mês são visuais), e o abridor
+`#btn-open-contracts` vira X verde (`.agenda-filters__icon-btn--active`). O `#contracts-filters-sheet`
+vem DEPOIS do `#contracts-sheet` no DOM para renderizar por cima (mesmo z-index). O CTA "Criar
+minicontrato" fica fixo no topo do painel (fora do `.historico-sheet__scroll`); a lista segue em ordem
+normal (pendentes → ativos → concluído → cancelado — o antigo `column-reverse` morreu com o painel
+tela-cheia). `closeContractsSheet` tem guarda de early-return (evita TDZ de `renderAgendaList` no setup)
+e é chamado por `showVagasPanel`/`showPedidosPanel` nas trocas de aba.
 
 **NÃO há mais header/título INTERNO nos submenus (v268).** O título da gaveta vai para a TOP BAR: a
 função hoistada `setTopBarTitle(titulo)` (`feed.js`) troca o texto "Gente Honesta" (`.top-bar__brand`)
@@ -1188,8 +1204,8 @@ a barra: `scrollbar-width: none` + `::-webkit-scrollbar { display: none }`. Nunc
 visível nesses três.
 
 **Todo o resto que rola** (formulários criar pedido/vaga = `.pedido-sheet__body`; histórico/filtros =
-`.historico-sheet__scroll`; popup de indicados = `.indicated-popup__scroll`; painel de contratos =
-`.contracts-panel__scroll`; diálogo de ajuda = `.dialog-box--scrollable .dialog-box__message`; versos
+`.historico-sheet__scroll`; popup de indicados = `.indicated-popup__scroll`; contratos e seus filtros =
+`.historico-sheet__scroll` (gaveta, reusa o scaffolding); diálogo de ajuda = `.dialog-box--scrollable .dialog-box__message`; versos
 expandidos de card = `.pro-card__back-comments` e `.vaga-card__back-form`) usa uma barra **SEMPRE
 VISÍVEL** (não overlay): um
 `::-webkit-scrollbar` ESTILIZADO (com `width: 5px` + `-thumb`) no Chromium vira uma barra clássica

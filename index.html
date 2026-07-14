@@ -147,7 +147,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v297</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v298</span>
     </div>
 
     <!-- =====================================================================
@@ -1110,75 +1110,28 @@
         <!-- ── Borda azul de tela durante modo indicação ── -->
         <div id="indicate-screen-border" class="indicate-screen-border" aria-hidden="true"></div>
 
-        <!-- ── Aba de Contratos (tela cheia, desliza do topo) ──────────────
-             Substitui o antigo painel de notificações. Ocupa toda a área do
-             feed com uma animação de slide-down a partir do topo.
-             Contrato de visibilidade: controlada por .contracts-panel--open -->
-        <section id="panel-contracts" class="contracts-panel" aria-label="Contratos">
-
-            <!-- Dock FIXO na BASE da tela (não rola): busca (abre para cima) + linha
-                 de ações (lupa / criar / fechar) na base. A lista fica acima e rola.
-                 A inversão da ordem vertical é feita por column-reverse (ver feed.css). -->
-            <div class="contracts-panel__dock">
-
-                <!-- Linha de ações. À ESQUERDA, no lugar do antigo botão de ocultar
-                     contratos, agora fica a LUPA que revela/esconde a busca. -->
-                <div class="contracts-create">
-                    <div class="contracts-create__row">
-                        <button type="button" id="btn-toggle-search" class="contracts-create__collapse" aria-expanded="false" aria-label="Buscar contratos">
-                            <span class="material-symbols-rounded" aria-hidden="true">search</span>
-                        </button>
-                        <button type="button" id="btn-new-contract" class="btn btn--accent contracts-create__btn">
-                            <span class="material-symbols-rounded" aria-hidden="true">add</span>
-                            Criar minicontrato
-                        </button>
-                        <button type="button" id="btn-close-contracts" class="contracts-create__close" aria-label="Fechar contratos">
-                            <span class="material-symbols-rounded" aria-hidden="true">close</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Busca + filtros: ESCONDIDA por padrão, revelada JÁ EXPANDIDA pela
-                     lupa (busca + chips de status + faixa de valor/mês, tudo visível). -->
-                <div id="contracts-search-section" class="contracts-filters contracts-filters--collapsed">
-                    <div class="contracts-filters__search-wrap">
-                        <span class="material-symbols-rounded contracts-filters__search-icon" aria-hidden="true">search</span>
-                        <input type="text" id="inp-contracts-search" class="contracts-filters__search" placeholder="Buscar contrato...">
-                    </div>
-
-                    <!-- Chips de status -->
-                    <div class="contracts-filters__chips">
-                        <button type="button" class="chip chip--active" data-filter-status="all" aria-pressed="true">Todos</button>
-                        <button type="button" class="chip" data-filter-status="active" aria-pressed="false">Ativo</button>
-                        <button type="button" class="chip" data-filter-status="done" aria-pressed="false">Concluído</button>
-                        <button type="button" class="chip" data-filter-status="cancelled" aria-pressed="false">Cancelado</button>
-                    </div>
-
-                    <!-- Faixa de valor + mês/ano -->
-                    <div class="contracts-filters__row">
-                        <div class="contracts-filters__field">
-                            <label class="contracts-filters__field-label" for="inp-contracts-min">Valor mín.</label>
-                            <input type="number" inputmode="numeric" id="inp-contracts-min" class="contracts-filters__input" placeholder="R$ 0">
-                        </div>
-                        <div class="contracts-filters__field">
-                            <label class="contracts-filters__field-label" for="inp-contracts-max">Valor máx.</label>
-                            <input type="number" inputmode="numeric" id="inp-contracts-max" class="contracts-filters__input" placeholder="R$ 9999">
-                        </div>
-                        <div class="contracts-filters__field">
-                            <label class="contracts-filters__field-label" for="inp-contracts-date">Mês/Ano</label>
-                            <input type="month" id="inp-contracts-date" class="contracts-filters__input">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lista de contratos (única parte rolável) -->
-            <div class="contracts-panel__scroll">
+        <!-- ── Gaveta de Contratos (dropdown abaixo da action bar, padrão claro) ──
+             Reusa o scaffolding .historico-sheet* + a variante --bar-clear (o
+             container começa em --sheet-top e NÃO cobre a action bar: a busca de
+             profissionais segue VIVA e vira "Buscar contratos"; o botão de filtros
+             abre o #contracts-filters-sheet — roteamento em feed.js). A antiga
+             busca/filtros interna foi removida. Visibilidade: .historico-sheet--open
+             (js: openContractsSheet). -->
+        <div id="contracts-sheet" class="historico-sheet historico-sheet--bar-clear" role="dialog" aria-modal="true" aria-label="Contratos">
+            <div class="historico-sheet__backdrop"></div>
+            <div class="historico-sheet__clip">
+            <div class="historico-sheet__panel">
+                <!-- CTA fixo no topo do painel (fora do scroll) -->
+                <button type="button" id="btn-new-contract" class="btn btn--accent contracts-create__btn">
+                    <span class="material-symbols-rounded" aria-hidden="true">add</span>
+                    Criar minicontrato
+                </button>
+                <div class="historico-sheet__scroll">
                 <div id="contracts-list" class="contracts-list">
 
                     <!-- Contratos PENDENTES (antigos "genéricos"): primeiros da lista.
                          Ainda sem dados de cliente — só resumo do serviço + preço.
-                         Tom de verde claro sobre o fundo escuro da seção. -->
+                         Tom de verde claro sobre o corpo claro da gaveta. -->
                     <div class="contracts-pending">
                         <h3 class="contracts-pending__label">Contratos pendentes</h3>
 
@@ -1324,8 +1277,55 @@
                     </article>
 
                 </div>
+                </div>
             </div>
-        </section>
+            </div>
+        </div>
+
+        <!-- ── Sheet: filtros de CONTRATOS ──
+             Aberto pelo MESMO botão de filtros da busca enquanto a gaveta de
+             contratos está aberta (roteado em feed.js). Reusa .historico-sheet*
+             + --bar-clear (a barra segue viva). Vem DEPOIS do #contracts-sheet
+             no DOM para renderizar POR CIMA dele (mesmo z-index). Opções vindas
+             do antigo painel de busca interno dos contratos. -->
+        <div id="contracts-filters-sheet" class="historico-sheet historico-sheet--bar-clear" role="dialog" aria-modal="true" aria-label="Filtros de contratos">
+            <div class="historico-sheet__backdrop"></div>
+            <div class="historico-sheet__clip">
+            <div class="historico-sheet__panel">
+                <div class="historico-sheet__scroll">
+                    <div class="filters-panel">
+                        <div class="agenda-filters__group">
+                            <p class="agenda-filters__group-label">Status</p>
+                            <div class="agenda-filters__chips">
+                                <button type="button" class="chip chip--active" data-filter-status="all" aria-pressed="true">Todos</button>
+                                <button type="button" class="chip" data-filter-status="active" aria-pressed="false">Ativo</button>
+                                <button type="button" class="chip" data-filter-status="done" aria-pressed="false">Concluído</button>
+                                <button type="button" class="chip" data-filter-status="cancelled" aria-pressed="false">Cancelado</button>
+                            </div>
+                        </div>
+
+                        <div class="agenda-filters__group">
+                            <p class="agenda-filters__group-label">Valor e período</p>
+                            <div class="contracts-filters__row">
+                                <div class="contracts-filters__field">
+                                    <label class="contracts-filters__field-label" for="inp-contracts-min">Valor mín.</label>
+                                    <input type="number" inputmode="numeric" id="inp-contracts-min" class="contracts-filters__input" placeholder="R$ 0">
+                                </div>
+                                <div class="contracts-filters__field">
+                                    <label class="contracts-filters__field-label" for="inp-contracts-max">Valor máx.</label>
+                                    <input type="number" inputmode="numeric" id="inp-contracts-max" class="contracts-filters__input" placeholder="R$ 9999">
+                                </div>
+                                <div class="contracts-filters__field">
+                                    <label class="contracts-filters__field-label" for="inp-contracts-date">Mês/Ano</label>
+                                    <input type="month" id="inp-contracts-date" class="contracts-filters__input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
 
         <!-- ── Corpo principal: lista de contatos/profissionais ──────────────
              TROCA: o que antes era a sheet de contatos agora É a tela inicial.

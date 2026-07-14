@@ -7,49 +7,136 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // =========================================================================
-  // TELA - PRINCIPAL (FEED) - ABA DE CONTRATOS - Abertura e Fechamento
-  // Tela cheia que desliza a partir do topo (slide-down). Substitui o antigo
-  // painel lateral de notificações.
+  // TELA - PRINCIPAL (FEED) - CONTRATOS — gaveta abaixo da action bar
+  // (padrão claro; scaffolding .historico-sheet* + variante --bar-clear: a
+  // action bar segue VIVA com a gaveta aberta). A busca de profissionais vira
+  // "Buscar contratos" enquanto aberta, e o botão de filtros abre o
+  // #contracts-filters-sheet (roteado no listener do #btn-toggle-filters).
+  // Texto + chip de status filtram os cards mockados; valor/mês são visuais.
   // =========================================================================
 
-  const panelContracts = document.getElementById('panel-contracts');
-  const btnOpenContracts  = document.getElementById('btn-open-contracts');
-  const btnCloseContracts = document.getElementById('btn-close-contracts');
-  const contractsScroll   = panelContracts?.querySelector('.contracts-panel__scroll');
+  const contractsSheet        = document.getElementById('contracts-sheet');
+  const contractsFiltersSheet = document.getElementById('contracts-filters-sheet');
+  const btnOpenContracts      = document.getElementById('btn-open-contracts');
+  const agendaSearchInput     = document.getElementById('inp-agenda-search');
+  const SEARCH_PLACEHOLDER_PROS      = 'Buscar no Gente Honesta...';
+  const SEARCH_PLACEHOLDER_CONTRACTS = 'Buscar contratos...';
 
-  const openContractsPanel = () => {
-    panelContracts?.classList.add('contracts-panel--open');
-    // Abriu os contratos → para de piscar (marca como "visto"). Sem persistência:
-    // a cada abertura do app o ícone volta a piscar até ser aberto uma vez.
-    btnOpenContracts?.classList.remove('agenda-filters__icon-btn--notify');
-    // A lista é invertida (column-reverse): o "início" real dela — pendentes/ativos,
-    // junto do dock — fica na BASE. Ao abrir, ancora o scroll lá embaixo (não no topo,
-    // onde ficam os contratos cancelados/mais antigos). rAF garante o layout pronto.
-    if (contractsScroll) {
-      requestAnimationFrame(() => { contractsScroll.scrollTop = contractsScroll.scrollHeight; });
+  // function declarations (hoistadas): usadas pelo listener do botão de
+  // filtros e pelos show*Panel definidos adiante.
+  function isContractsSheetOpen() {
+    return !!contractsSheet?.classList.contains('historico-sheet--open');
+  }
+
+  // Ancora o dropdown na base da action bar (mesma medida das demais gavetas)
+  function anchorContractsSheet(el) {
+    const bar = document.getElementById('feed-action-bar');
+    if (bar && el) el.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
+  }
+
+  // Abridor vira "fechar" (X) enquanto a gaveta está aberta — verde sólido,
+  // mesmo padrão do botão de filtros (.agenda-filters__filter-pill--active).
+  function setContractsButtonClose(on) {
+    btnOpenContracts?.classList.toggle('agenda-filters__icon-btn--active', on);
+    const icon = btnOpenContracts?.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = on ? 'close' : 'contract';
+  }
+
+  // Filtro combinado (texto da busca + chip de status) sobre os cards mockados.
+  // Minicontratos pendentes não têm status próprio: aparecem só em "Todos".
+  const contractsFilter = { query: '', status: 'all' };
+  function applyContractsFilters() {
+    const q = contractsFilter.query;
+    contractsSheet?.querySelectorAll('.contract-card').forEach((card) => {
+      const matchText   = !q || card.textContent.toLowerCase().includes(q);
+      const matchStatus = contractsFilter.status === 'all' ||
+                          card.classList.contains(`contract-card--${contractsFilter.status}`);
+      card.classList.toggle('u-hidden', !(matchText && matchStatus));
+    });
+    const pending = contractsSheet?.querySelector('.contracts-pending');
+    if (pending) {
+      let anyMini = false;
+      pending.querySelectorAll('.contract-mini').forEach((mini) => {
+        const show = contractsFilter.status === 'all' && (!q || mini.textContent.toLowerCase().includes(q));
+        mini.classList.toggle('u-hidden', !show);
+        if (show) anyMini = true;
+      });
+      pending.classList.toggle('u-hidden', !anyMini);   // some junto com o rótulo
     }
-  };
+  }
 
-  const closeContractsPanel = () => {
-    panelContracts?.classList.remove('contracts-panel--open');
-  };
+  function openContractsSheet() {
+    closeFiltersSheet();   // filtros de profissionais, se abertos
+    anchorContractsSheet(contractsSheet);
+    contractsSheet?.classList.add('historico-sheet--open');
+    // Abriu → para de piscar (marca como "visto"). Sem persistência: a cada
+    // abertura do app o botão volta a piscar até ser aberto uma vez.
+    btnOpenContracts?.classList.remove('agenda-filters__icon-btn--notify');
+    setContractsButtonClose(true);
+    if (agendaSearchInput) {
+      agendaSearchInput.placeholder = SEARCH_PLACEHOLDER_CONTRACTS;
+      agendaSearchInput.value = '';
+    }
+    contractsFilter.query = '';
+    applyContractsFilters();
+    updateFilterIndicator();   // suprime o indicador dos filtros de profissionais
+    setTopBarTitle('Contratos');
+  }
 
-  btnOpenContracts?.addEventListener('click', openContractsPanel);
-  btnCloseContracts?.addEventListener('click', closeContractsPanel);
+  function closeContractsSheet() {
+    if (!isContractsSheetOpen()) return;   // guarda: também evita TDZ no setup
+    closeContractsFiltersSheet();
+    contractsSheet?.classList.remove('historico-sheet--open');
+    setContractsButtonClose(false);
+    setTopBarTitle(null);
+    if (agendaSearchInput) {
+      agendaSearchInput.placeholder = SEARCH_PLACEHOLDER_PROS;
+      agendaSearchInput.value = '';
+    }
+    renderAgendaList();   // devolve a busca (limpa) aos profissionais
+  }
 
-  // --- Busca dos contratos: a LUPA (à esquerda de "Criar minicontrato", no lugar
-  // do antigo botão de ocultar contratos) revela/esconde a seção de busca inteira,
-  // já EXPANDIDA (campo + chips de status + faixa de valor/mês). O ícone alterna
-  // search ↔ close conforme o estado.
-  const btnToggleSearch    = document.getElementById('btn-toggle-search');
-  const contractsSearchSec = document.getElementById('contracts-search-section');
+  // Sheet de filtros de contratos: aberto pelo MESMO botão de filtros da barra
+  // (roteado pelo estado da gaveta no listener do #btn-toggle-filters).
+  function openContractsFiltersSheet() {
+    anchorContractsSheet(contractsFiltersSheet);
+    contractsFiltersSheet?.classList.add('historico-sheet--open');
+    const btn = document.getElementById('btn-toggle-filters');
+    btn?.setAttribute('aria-expanded', 'true');
+    btn?.classList.add('agenda-filters__filter-pill--active');
+    const icon = btn?.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = 'close';
+  }
 
-  btnToggleSearch?.addEventListener('click', () => {
-    const collapsed = contractsSearchSec?.classList.toggle('contracts-filters--collapsed');
-    const open = !collapsed;
-    btnToggleSearch.setAttribute('aria-expanded', String(open));
-    const icon = btnToggleSearch.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = open ? 'close' : 'search';
+  function closeContractsFiltersSheet() {
+    if (!contractsFiltersSheet?.classList.contains('historico-sheet--open')) return;
+    contractsFiltersSheet.classList.remove('historico-sheet--open');
+    const btn = document.getElementById('btn-toggle-filters');
+    btn?.setAttribute('aria-expanded', 'false');
+    btn?.classList.remove('agenda-filters__filter-pill--active');
+    const icon = btn?.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = 'tune';
+  }
+
+  btnOpenContracts?.addEventListener('click', () => {
+    if (isContractsSheetOpen()) closeContractsSheet(); else openContractsSheet();
+  });
+
+  // Tap-outside fecha. Os containers --bar-clear começam ABAIXO da barra, então
+  // os toques na barra chegam aos botões/busca reais (sem tapHitsButton).
+  contractsSheet?.addEventListener('click', (e) => {
+    if (!e.target.closest('.historico-sheet__panel')) closeContractsSheet();
+  });
+  contractsFiltersSheet?.addEventListener('click', (e) => {
+    if (!e.target.closest('.historico-sheet__panel')) closeContractsFiltersSheet();
+  });
+
+  // Busca compartilhada: com a gaveta aberta, o texto filtra os contratos (o
+  // listener dos profissionais segue re-renderizando a lista oculta atrás).
+  agendaSearchInput?.addEventListener('input', () => {
+    if (!isContractsSheetOpen()) return;
+    contractsFilter.query = agendaSearchInput.value.trim().toLowerCase();
+    applyContractsFilters();
   });
 
   // --- Título da top bar: enquanto uma gaveta da action bar está aberta, o
@@ -86,13 +173,16 @@ document.addEventListener('DOMContentLoaded', () => {
     return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
   }
 
-  // --- Chips de status dos contratos (Todos / Ativo / Concluído / Cancelado)
+  // --- Chips de status dos contratos (Todos / Ativo / Concluído / Cancelado):
+  // seleção única no #contracts-filters-sheet + aplica o filtro na lista.
   const statusChips = document.querySelectorAll('[data-filter-status]');
   statusChips.forEach((chip) => {
     chip.addEventListener('click', () => {
       statusChips.forEach((c) => { c.classList.remove('chip--active'); c.setAttribute('aria-pressed', 'false'); });
       chip.classList.add('chip--active');
       chip.setAttribute('aria-pressed', 'true');
+      contractsFilter.status = chip.dataset.filterStatus || 'all';
+      applyContractsFilters();
     });
   });
 
@@ -115,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     feedActionBar?.classList.add('agenda-filters--vagas');
     feedActionBar?.classList.remove('agenda-filters--pedidos');
     closeFiltersSheet();
+    closeContractsSheet();
   };
 
   const showPedidosPanel = () => {
@@ -122,8 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
     feedPanels?.classList.add('feed-panels--pedidos');
     feedActionBar?.classList.remove('agenda-filters--vagas');
     feedActionBar?.classList.add('agenda-filters--pedidos');
-    // fecha painel de filtros se estiver aberto
+    // fecha painel de filtros / gaveta de contratos se estiverem abertos
     closeFiltersSheet();
+    closeContractsSheet();
   };
 
   const showProsPanel = () => {
@@ -253,13 +345,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const n = activeFilterCount();
     // Indicador UNIFICADO na própria pílula de filtro (direita do campo): com
     // filtros ativos ela ganha o tint azul (--filtered) e mostra a contagem.
+    // Com a gaveta de CONTRATOS aberta a pílula serve aos filtros de contratos,
+    // então o indicador dos filtros de PROFISSIONAIS fica suprimido (volta ao
+    // fechar, via renderAgendaList → esta função).
     const pill = document.getElementById('btn-toggle-filters');
     const cnt  = document.getElementById('filter-count');
+    const suppressed = isContractsSheetOpen();
     if (cnt) {
       cnt.textContent = n;
-      cnt.classList.toggle('u-hidden', n === 0);
+      cnt.classList.toggle('u-hidden', n === 0 || suppressed);
     }
-    pill?.classList.toggle('agenda-filters__filter-pill--filtered', n > 0);
+    pill?.classList.toggle('agenda-filters__filter-pill--filtered', n > 0 && !suppressed);
   }
 
   // Reseta lista de profissionais: desvira cards, limpa filtros, vai ao topo
@@ -1999,6 +2095,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.getElementById('btn-toggle-filters')?.addEventListener('click', () => {
+    // Com a gaveta de CONTRATOS aberta, o mesmo botão alterna o sheet de
+    // filtros de CONTRATOS (a barra segue viva sob a variante --bar-clear).
+    if (isContractsSheetOpen()) {
+      const openC = contractsFiltersSheet?.classList.contains('historico-sheet--open');
+      if (openC) closeContractsFiltersSheet(); else openContractsFiltersSheet();
+      return;
+    }
     const open = document.getElementById('filters-sheet')?.classList.contains('historico-sheet--open');
     if (open) closeFiltersSheet(); else openFiltersSheet();
   });
