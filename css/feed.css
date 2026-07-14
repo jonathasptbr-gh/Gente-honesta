@@ -2409,6 +2409,10 @@
   height: 40px;
   background: var(--bg-white);
   color: var(--p-green);
+  /* Âncora do #badge-contracts (absoluto). Sem isto o badge subia para o
+     containing block criado pelo transform do .agenda-filters__track (300% de
+     largura), caindo fora da tela / sobre o botão "Fazer pedido". */
+  position: relative;
 }
 
 /* ── Perfil na search row (movido do antigo top bar) ── */
