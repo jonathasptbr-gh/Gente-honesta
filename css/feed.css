@@ -2464,10 +2464,12 @@
   transition: var(--transition);
 }
 .agenda-filters__filter-pill:active { transform: translateY(-50%) scale(var(--press-scale)); }
-/* Estado ativo (sheet de filtros aberto) = azul (linguagem de seleção do app). */
+/* Estado "fechar" (sheet de filtros aberto, ícone vira X) = VERDE sólido, o padrão
+   de botões de fechar/cancelar do app (ex.: cancelar da câmera, btn--primary). O
+   azul fica reservado à SELEÇÃO (ex.: indicador de limpar filtros), não ao fechar. */
 .agenda-filters__filter-pill--active {
-  background: var(--info-blue-light);
-  color: var(--info-blue);
+  background: var(--p-green);
+  color: var(--t-light);
 }
 .agenda-filters__filter-pill .material-symbols-rounded { font-size: 1.2rem; }
 
