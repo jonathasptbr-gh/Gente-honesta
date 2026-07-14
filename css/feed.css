@@ -3015,6 +3015,7 @@
   object-fit: cover;
   border: 1px solid var(--border-light);
   background: var(--bg-soft);
+  box-shadow: var(--shadow-sm);   /* contraste da foto com o card branco */
   display: block;
 }
 
