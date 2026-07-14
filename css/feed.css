@@ -960,15 +960,23 @@
 }
 
 /* PADRÃO ÚNICO de ícone dos botões da barra de ação superior — Histórico, Fazer
-   pedido/Pedido atual, Serviço de ajudantes, Criar vaga (add), o botão de filtro
-   (tune, só-ícone) e o estado "Fechar" (close). Tamanho 1.1rem + bold, condizente
-   com o texto (--fs-6, bold) ao lado. Um lugar só → todos ficam iguais. */
+   pedido/Pedido atual, Serviço de ajudantes, Criar vaga (add) e o estado "Fechar"
+   (close). Tamanho 1.1rem + bold, condizente com o texto (--fs-6, bold) ao lado.
+   Um lugar só → todos ficam iguais. (O botão de contratos NÃO entra aqui: é
+   só-ícone, sem rótulo, então usa um ícone maior — ver .agenda-filters__icon-btn.) */
 .pedido-action__icon,
 .agenda-filters__vagas-btn .material-symbols-rounded,
-.agenda-filters__icon-btn .material-symbols-rounded,
 .action-close-mode .material-symbols-rounded {
   font-size: 1.1rem !important;
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24 !important;
+}
+
+/* Contratos é SÓ-ÍCONE (sem rótulo nem badge): ícone maior, preenchido e
+   centralizado pelo flex do .btn — o 1.1rem do grupo ficava pequeno e parecia
+   deslocado num alvo de 40px. */
+.agenda-filters__icon-btn .material-symbols-rounded {
+  font-size: 1.5rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 /* MODO "CONCLUIR": ao ver o detalhe do pedido ATIVO, o botão Histórico vira o
@@ -2435,11 +2443,12 @@
   transition: var(--transition);
 }
 .agenda-filters__profile:active { transform: scale(var(--press-scale)); }
-/* Avatar CIRCULAR, sem moldura. */
+/* Avatar QUADRADO, sem moldura — mesmo formato e tamanho (40px, --radius-md) do
+   botão de contratos do outro lado. */
 .agenda-filters__profile-img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
   object-fit: cover;
   background: var(--border-light);
 }
