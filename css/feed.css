@@ -2392,12 +2392,14 @@
   transition: var(--transition);
 }
 .agenda-filters__profile:active { transform: scale(var(--press-scale)); }
-/* Avatar QUADRADO, sem moldura — mesmo formato e tamanho (40px, --radius-md) do
-   botão de contratos do outro lado. */
+/* Avatar REDONDO com moldura branca (anel de avatar = borda FUNCIONAL,
+   permitida pelo design sem contorno) — mesmo tamanho (40px) do botão de
+   contratos do outro lado. */
 .agenda-filters__profile-img {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-md);
+  border-radius: 50%;
+  border: 2px solid var(--t-light);
   object-fit: cover;
   background: var(--border-light);
 }
