@@ -36,6 +36,9 @@
 .onboarding-form {
   display: flex;
   flex-direction: column;
+  /* Respiro vertical ROLÁVEL (no conteúdo, não no container de scroll —
+     padding vertical no .onboarding-scroll deslocava as shades sticky) */
+  padding: var(--space-md) 0 var(--space-md);
 }
 
 /* ── Scroll interno + rodapé fixo ──────────────────────────────────────
@@ -53,19 +56,32 @@
   padding: 0;
 }
 
+/* Barra do TOPO fixa: verde --p-green (mesmo tom da barra de status/action
+   bar), fora do scroll; carrega a safe-area superior. */
+.onboarding-topbar {
+  flex-shrink: 0;
+  margin: 0;
+  padding: calc(var(--space-md) + env(safe-area-inset-top, 0px)) var(--space-lg) var(--space-sm);
+  background: var(--p-green);
+}
+
 .onboarding-scroll {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--space-lg) var(--space-lg) var(--space-md);
+  /* SÓ padding lateral no container: respiro vertical vive no CONTEÚDO
+     (.onboarding-form) — padding vertical aqui deslocava as shades sticky
+     para dentro da tela (sticky não passa da caixa de conteúdo do pai). */
+  padding: 0 var(--space-lg);
   --shade-bleed: var(--space-lg);   /* shades sangram o padding lateral */
 }
 
+/* Rodapé fixo: mesma barra verde do topo */
 .onboarding-footer {
   flex-shrink: 0;
   padding: var(--space-sm) var(--space-lg) max(var(--space-sm), env(safe-area-inset-bottom, 0px));
-  background: var(--bg-canvas);
+  background: var(--p-green);
 }
 
 .onboarding-footer .btn {

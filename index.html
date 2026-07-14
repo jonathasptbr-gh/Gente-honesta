@@ -147,7 +147,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v313</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v314</span>
     </div>
 
     <!-- =====================================================================
@@ -287,18 +287,19 @@
          ===================================================================== -->
     <section id="view-onboarding" class="screen">
 
-        <!-- Scroll INTERNO (js-scroll-shadows): header + formulário rolam aqui;
-             o botão de concluir vive FORA, num rodapé fixo na base da tela.
-             As shades de fronteira colam nas linhas reais de recorte. -->
-        <div class="onboarding-scroll js-scroll-shadows">
-
-        <header class="screen__header">
+        <!-- Barra do TOPO fixa (verde --p-green, mesmo tom da barra de status):
+             título + subtítulo não rolam com o formulário. -->
+        <header class="screen__header onboarding-topbar">
             <div class="screen__header-nav">
                 <h1 class="screen__title">Complete seu Perfil</h1>
                 <button type="button" id="btn-onboarding-cancel" class="btn btn--text">Cancelar</button>
             </div>
             <p class="screen__subtitle">Seus dados ajudam a gerar confiança e podem ser editados depois.</p>
         </header>
+
+        <!-- Scroll INTERNO (js-scroll-shadows): só o formulário rola; as shades
+             de fronteira colam nas linhas das barras do topo e do rodapé. -->
+        <div class="onboarding-scroll js-scroll-shadows">
 
         <form id="form-onboarding" class="onboarding-form" novalidate>
 

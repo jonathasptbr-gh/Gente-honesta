@@ -631,13 +631,15 @@ elementos que ficam DIRETAMENTE sobre o verde: cabeçalho (título → `--t-ligh
 no fundo) para `btn--accent` (amarelo). Ao mexer no cadastro, lembre: adicionar um elemento novo direto no
 verde (fora de um card claro) exige dar a ele cor clara; dentro de um card claro, as cores normais valem.
 
-**Onboarding: scroll interno + rodapé fixo (v313).** O `#view-onboarding.screen` NÃO rola
-(`overflow:hidden; padding:0`): o scroll vive no wrapper `.onboarding-scroll` (`js-scroll-shadows`,
-`flex:1; min-height:0; overflow-y:auto`, padding `--space-lg`), que contém `<header>` + `<form>`; o botão
-`#btn-finish-onboarding` fica FORA, no rodapé fixo `.onboarding-footer` (sempre visível na base; o botão
-usa `form="form-onboarding"` para manter o submit). O antigo esquema (screen rolando, botão com
-`margin-top:auto` + elemento espaçador) morreu: além de esconder o botão na rolagem, o padding-top do
-screen deslocava a shade de topo do `.js-scroll-shadows` (sticky não sobe acima da caixa de conteúdo).
+**Onboarding: barras fixas + scroll interno (v314).** O `#view-onboarding.screen` NÃO rola
+(`overflow:hidden; padding:0`) e vira um sanduíche de 3 camadas: TOPO fixo `.onboarding-topbar`
+(header título+subtítulo, fundo `--p-green` — mesmo tom da barra de status —, carrega a safe-area
+superior); MEIO `.onboarding-scroll` (`js-scroll-shadows`, `flex:1; min-height:0; overflow-y:auto`),
+que contém SÓ o `<form>` e tem APENAS padding lateral — o respiro vertical é padding do próprio form
+(padding vertical no container de scroll desloca as shades sticky para dentro da tela); BASE fixa
+`.onboarding-footer` (mesmo verde `--p-green`) com o botão `#btn-finish-onboarding` sempre visível
+(usa `form="form-onboarding"` para manter o submit). O antigo esquema (screen rolando, botão com
+`margin-top:auto` + elemento espaçador) morreu.
 `.screen__header-nav` (`.screen__title` + botão Cancelar) é `display:flex`; o título usa `flex:1;
 text-align:left`, ocupando o espaço restante à esquerda, enquanto o botão fica à direita (`flex-shrink:0`),
 respeitando a margem direita via o padding do scroll — o título usa `--fs-11` (não `--fs-12`)
