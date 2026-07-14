@@ -262,8 +262,10 @@ muda o FILL do próprio elemento, não ganha anel.
 
 **SEMÂNTICA DE CORES (v262) — AMARELO = AÇÃO; AZUL = SELEÇÃO:**
 - **AMARELO (`--a-gold`) é EXCLUSIVO de AÇÕES**: CTAs (`btn--accent`, primários sobre verde), links/botões
-  de texto sobre verde, `.action-conclude-mode`, stepper, `.vaga-add-btn`, dock de confirmação — além dos
-  acentos de marca (IC card, tutorial, ícones de seção) e da faixa 50–74 do IC (cor de tier, não seleção).
+  de texto sobre verde, `.action-conclude-mode`, `.vaga-add-btn` (em `--a-gold-text`), dock de confirmação —
+  além dos acentos de marca (IC card, tutorial, ícones de seção) e da faixa 50–74 do IC (cor de tier, não
+  seleção). Os botões +/- do stepper do Criar vaga são VERDES (`--p-green` + glifo branco, par do
+  `btn--primary` sobre claro) desde a v296: dourado neles competia com o CTA "Publicar vaga".
 - **AZUL (`--info-blue`) é a cor de SELEÇÃO/estado ativo em TODOS os formulários e seletores**, em DOIS
   tons conforme o fundo (contraste): sobre superfície CLARA → fundo `--info-blue-light` + texto
   `--info-blue` (tag-pill, chip--payment, `.chip--active` dos contratos, card de serviço ativo, radio/check

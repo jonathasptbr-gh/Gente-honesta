@@ -1812,6 +1812,9 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* Botões +/- VERDES (par do btn--primary sobre superfície clara): o dourado
+   era herança do painel escuro e virava um segundo CTA competindo com o
+   "Publicar vaga" — amarelo fica só nas AÇÕES principais. */
 .vaga-stepper__btn {
   width: 38px;
   height: 38px;
@@ -1820,8 +1823,8 @@
   justify-content: center;
   border: none;
   border-radius: 50%;
-  background: var(--a-gold);
-  color: var(--p-green-dark);
+  background: var(--p-green);
+  color: var(--t-light);
   cursor: pointer;
   transition: var(--transition);
 }
@@ -2000,7 +2003,7 @@
   font-size: var(--fs-5);
   font-weight: var(--fw-bold);
   background: var(--bg-white);
-  color: var(--t-main);
+  color: var(--t-sub);   /* inativa: texto suave, igual às pílulas de pagamento do cadastro */
   box-shadow: var(--shadow-sm);
   cursor: pointer;
   transition: var(--transition);
