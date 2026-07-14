@@ -147,7 +147,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v312</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v313</span>
     </div>
 
     <!-- =====================================================================
@@ -285,8 +285,12 @@
          TELA — Onboarding  [id: view-onboarding]
          Contrato de visibilidade: .screen + .screen--active (nunca u-hidden)
          ===================================================================== -->
-    <!-- js-scroll-shadows: sombras de fronteira no topo/base do scroll da tela -->
-    <section id="view-onboarding" class="screen js-scroll-shadows">
+    <section id="view-onboarding" class="screen">
+
+        <!-- Scroll INTERNO (js-scroll-shadows): header + formulário rolam aqui;
+             o botão de concluir vive FORA, num rodapé fixo na base da tela.
+             As shades de fronteira colam nas linhas reais de recorte. -->
+        <div class="onboarding-scroll js-scroll-shadows">
 
         <header class="screen__header">
             <div class="screen__header-nav">
@@ -572,14 +576,14 @@
                 </div>
             </div>
 
-            <button type="submit" id="btn-finish-onboarding" class="btn btn--accent btn--large">Concluir Cadastro</button>
-
-            <!-- Espaçador: garante a margem inferior do botão no fim da rolagem
-                 (a caixa do elemento entra na área rolável; padding/margin no fim
-                 não são confiáveis). Ver css/onboarding.css. -->
-            <div class="onboarding-form__bottom-spacer" aria-hidden="true"></div>
-
         </form>
+        </div><!-- /.onboarding-scroll -->
+
+        <!-- Rodapé FIXO: "Concluir Cadastro" sempre visível na base (fora do
+             scroll); form="form-onboarding" preserva o submit do formulário. -->
+        <div class="onboarding-footer">
+            <button type="submit" form="form-onboarding" id="btn-finish-onboarding" class="btn btn--accent btn--large">Concluir Cadastro</button>
+        </div>
     </section>
 
     <!-- =====================================================================

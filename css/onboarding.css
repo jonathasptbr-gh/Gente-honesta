@@ -16,9 +16,6 @@
    afetar telefone/OTP/feed. */
 #view-onboarding.screen {
   background: var(--bg-canvas);   /* verde escuro (igual ao fundo do feed) */
-  /* Shades de fronteira (.js-scroll-shadows) sangram o padding lateral da
-     tela (--space-lg) para cobrir a largura toda. */
-  --shade-bleed: var(--space-lg);
 }
 
 #view-onboarding .screen__title {
@@ -36,50 +33,43 @@
   color: var(--a-gold);
 }
 
-/* Distribui o formulário pela altura restante da tela (depois do cabeçalho)
-   quando o conteúdo é mais curto que a viewport (ex.: "Detalhes
-   profissionais" fechado) — sem isso os campos ficavam agrupados no topo,
-   terminando no meio da tela. flex:1 (não min-height:100%) é essencial: o
-   formulário é irmão do <header> dentro do mesmo .screen flex-column, então
-   min-height:100% contaria a altura TOTAL do .screen, ignorando o espaço já
-   ocupado pelo cabeçalho, e estouraria a tela; flex:1 ocupa exatamente o
-   espaço que sobra. min-height:0 permite que, quando o colapsável abre e o
-   conteúdo passa a ser mais alto que a tela, o formulário cresça livremente
-   e o próprio .screen (overflow-y:auto) assuma o scroll normalmente. */
 .onboarding-form {
   display: flex;
   flex-direction: column;
+}
+
+/* ── Scroll interno + rodapé fixo ──────────────────────────────────────
+   O .screen do cadastro NÃO rola mais: o scroll vive no wrapper
+   .onboarding-scroll (header + formulário), e "Concluir Cadastro" fica num
+   rodapé FIXO sempre visível na base (.onboarding-footer; o botão usa
+   form="form-onboarding" para manter o submit). Isso também corrige as
+   shades do .js-scroll-shadows: com o scroll no próprio .screen, o
+   padding-top da tela deslocava a shade do topo (sticky não sobe acima da
+   caixa de conteúdo do pai) e a de baixo ficava presa na base do aparelho —
+   agora as duas colam nas linhas reais de recorte do scroll. O antigo
+   espaçador de fim de rolagem morreu junto com o `margin-top:auto` do botão. */
+#view-onboarding.screen {
+  overflow: hidden;
+  padding: 0;
+}
+
+.onboarding-scroll {
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-lg) var(--space-lg) var(--space-md);
+  --shade-bleed: var(--space-lg);   /* shades sangram o padding lateral */
 }
 
-/* Empurra o botão final para a base da tela, absorvendo sozinho o espaço
-   sobrando — os campos acima mantêm o espaçamento normal entre si. */
-#btn-finish-onboarding {
-  margin-top: auto;
-  padding-top: var(--space-md);
-}
-
-/* Margem inferior mínima do botão "Concluir" quando a tela ROLA (ex.: "Detalhes
-   profissionais" aberto). Nem o padding-bottom do .screen nem o do .onboarding-form
-   funcionam aqui: o form é flex:1 e seu conteúdo TRANSBORDA para baixo, passando
-   POR CIMA de qualquer padding-bottom (o botão acabava colado na base). Tornar o
-   FORM o container de scroll também não serve — `margin-top:auto` (que fixa o
-   botão na base quando o conteúdo é curto) é resolvido como 0 dentro de um flex
-   container com overflow. Solução: manter o .screen como container de scroll e
-   usar um ELEMENTO espaçador após o botão. A caixa de um elemento SEMPRE entra na
-   área rolável (ao contrário de padding/margin no fim), então o respiro aparece
-   de forma confiável no fim da rolagem; quando o conteúdo é curto, o
-   `margin-top:auto` do botão empurra botão + espaçador juntos para a base. O
-   .screen zera seu padding-bottom para o respiro vir só do espaçador (sem somar
-   duas vezes no caso curto). */
-#view-onboarding.screen {
-  padding-bottom: 0;
-}
-
-.onboarding-form__bottom-spacer {
+.onboarding-footer {
   flex-shrink: 0;
-  height: max(var(--space-lg), env(safe-area-inset-bottom, 0px));
+  padding: var(--space-sm) var(--space-lg) max(var(--space-sm), env(safe-area-inset-bottom, 0px));
+  background: var(--bg-canvas);
+}
+
+.onboarding-footer .btn {
+  width: 100%;
 }
 
 /* Linha foto + campos de nome lado a lado */

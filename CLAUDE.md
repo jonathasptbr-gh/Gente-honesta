@@ -631,18 +631,16 @@ elementos que ficam DIRETAMENTE sobre o verde: cabeçalho (título → `--t-ligh
 no fundo) para `btn--accent` (amarelo). Ao mexer no cadastro, lembre: adicionar um elemento novo direto no
 verde (fora de um card claro) exige dar a ele cor clara; dentro de um card claro, as cores normais valem.
 
-**Onboarding preenche a tela sem sobra (`.onboarding-form`):** `<header class="screen__header">` e
-`<form class="onboarding-form">` são IRMÃOS dentro de `#view-onboarding.screen` (que é `display:flex;
-flex-direction:column`). O form usa `flex: 1; min-height: 0` — NUNCA `min-height: 100%`. Como os dois são
-itens flex na mesma coluna, `min-height:100%` no form referenciaria a altura TOTAL do `.screen`, ignorando
-que o `<header>` já ocupa espaço antes dele, e estouraria a tela; `flex:1` ocupa exatamente o espaço que
-sobra depois do cabeçalho. `#btn-finish-onboarding` usa `margin-top: auto` para ser empurrado até a base,
-absorvendo sozinho a folga quando o conteúdo é mais curto que a tela (ex.: "Detalhes profissionais"
-fechado); quando o colapsável abre e o conteúdo fica mais alto que a tela, a margem automática zera e o
-`.screen` (`overflow-y: auto`) assume o scroll normalmente — nada trava a expansão do colapsável.
+**Onboarding: scroll interno + rodapé fixo (v313).** O `#view-onboarding.screen` NÃO rola
+(`overflow:hidden; padding:0`): o scroll vive no wrapper `.onboarding-scroll` (`js-scroll-shadows`,
+`flex:1; min-height:0; overflow-y:auto`, padding `--space-lg`), que contém `<header>` + `<form>`; o botão
+`#btn-finish-onboarding` fica FORA, no rodapé fixo `.onboarding-footer` (sempre visível na base; o botão
+usa `form="form-onboarding"` para manter o submit). O antigo esquema (screen rolando, botão com
+`margin-top:auto` + elemento espaçador) morreu: além de esconder o botão na rolagem, o padding-top do
+screen deslocava a shade de topo do `.js-scroll-shadows` (sticky não sobe acima da caixa de conteúdo).
 `.screen__header-nav` (`.screen__title` + botão Cancelar) é `display:flex`; o título usa `flex:1;
 text-align:left`, ocupando o espaço restante à esquerda, enquanto o botão fica à direita (`flex-shrink:0`),
-respeitando a margem direita via o padding do próprio `.screen` — o título usa `--fs-11` (não `--fs-12`)
+respeitando a margem direita via o padding do scroll — o título usa `--fs-11` (não `--fs-12`)
 porque, dividindo a linha com o botão, o tamanho padrão de título de tela quebraria "Complete seu Perfil"
 em duas linhas e estouraria a altura da tela sem scroll.
 
@@ -694,13 +692,9 @@ disparam a seção sozinhos. Se ficou pela metade, `finishRegistration` mostra u
 ("Dados profissionais incompletos") oferecendo concluir só o básico (segue) OU completar (`!proceed` →
 `setProDetailsOpen(true)` + `highlightMissingProFields` marca em vermelho os campos vazios — `input-text--error`
 em área/bio — e rola até o primeiro). Os destaques limpam ao
-preencher (seleção de tag, input do bio) e no reset. `#btn-finish-onboarding` ganha
-margem inferior confiável na rolagem via um ELEMENTO espaçador (`.onboarding-form__bottom-spacer`) logo
-após o botão: com o `.screen` como container de scroll, o form (`flex:1`) TRANSBORDA para baixo e passa por
-cima de qualquer `padding-bottom` (do form ou do `.screen`), colando o botão na base. A caixa de um elemento
-sempre entra na área rolável, então o espaçador garante o respiro no fim da rolagem; quando o conteúdo é
-curto, o `margin-top:auto` do botão empurra botão + espaçador juntos para a base. `#view-onboarding.screen`
-zera seu `padding-bottom` para o respiro vir só do espaçador (não somar no caso curto).
+preencher (seleção de tag, input do bio) e no reset. `#btn-finish-onboarding` vive no rodapé FIXO
+`.onboarding-footer`, fora do scroll (ver "Onboarding: scroll interno + rodapé fixo") — sempre visível,
+sem depender de espaçador/margem automática.
 
 Todas as subseções seguem o mesmo padrão visual
 (sem cards/fundos individuais) — "O que você faz?", "Suas Habilidades" e "Padrão de Serviços" são
