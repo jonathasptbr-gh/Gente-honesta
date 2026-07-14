@@ -512,6 +512,10 @@
   min-height: 0;
   display: flex;
   width: 300%;
+  /* Fundo escuro do CORPO dos feeds: a faixa que o overscroll do topo revela
+     ao esticar a lista fica --bg-canvas (o estique parece o próprio corpo do
+     feed esticando, e não o verde da tela vazando por trás). */
+  background: var(--bg-canvas);
   /* Default: mostra o painel central (Profissionais) */
   transform: translateX(-33.3333%);
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
