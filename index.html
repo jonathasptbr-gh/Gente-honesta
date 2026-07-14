@@ -147,7 +147,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v298</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v299</span>
     </div>
 
     <!-- =====================================================================
@@ -726,7 +726,7 @@
 
                         <!-- Ordenação: no topo -->
                         <div class="agenda-filters__group">
-                            <p class="agenda-filters__group-label">Ordenar por:</p>
+                            <p class="agenda-filters__group-label eyebrow">Ordenar por:</p>
                             <div class="agenda-filters__chips">
                                 <button type="button" class="chip chip--active" data-sort="ic"      aria-pressed="true">Confiança</button>
                                 <button type="button" class="chip"              data-sort="name"    aria-pressed="false">A-Z Nome</button>
@@ -739,7 +739,7 @@
 
                         <!-- Confiança + Salvos -->
                         <div class="agenda-filters__group">
-                            <p class="agenda-filters__group-label">Confiança</p>
+                            <p class="agenda-filters__group-label eyebrow">Confiança</p>
                             <div class="agenda-filters__chips">
                                 <button type="button" class="chip chip--saved" data-filter-saved aria-pressed="false">
                                     <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
@@ -759,7 +759,7 @@
 
                         <!-- Disponibilidade -->
                         <div class="agenda-filters__group">
-                            <p class="agenda-filters__group-label">Disponibilidade</p>
+                            <p class="agenda-filters__group-label eyebrow">Disponibilidade</p>
                             <div class="agenda-filters__chips">
                                 <button type="button" class="chip" data-filter-avail="available"   aria-pressed="false">Disponível</button>
                                 <button type="button" class="chip" data-filter-avail="full"        aria-pressed="false">Agenda cheia</button>
@@ -769,7 +769,7 @@
 
                         <!-- Pagamento -->
                         <div class="agenda-filters__group">
-                            <p class="agenda-filters__group-label">Pagamento</p>
+                            <p class="agenda-filters__group-label eyebrow">Pagamento</p>
                             <div class="agenda-filters__chips">
                                 <button type="button" class="chip" data-filter-pay="cash" aria-pressed="false">Dinheiro</button>
                                 <button type="button" class="chip" data-filter-pay="card" aria-pressed="false">Cartão</button>
@@ -809,13 +809,13 @@
                     <!-- ESTADO: CRIAÇÃO (formulário) -->
                     <div id="pedido-form-state" class="pedido-sheet__state">
                         <div class="pedido-field">
-                            <label class="pedido-field__label" for="inp-pedido-text">O que você precisa?</label>
+                            <label class="pedido-field__label eyebrow" for="inp-pedido-text">O que você precisa?</label>
                             <textarea id="inp-pedido-text" class="input-text input-text--multiline pedido-textarea" rows="4" maxlength="280" placeholder="Descreva o serviço que você procura, com o máximo de detalhes…"></textarea>
                             <span class="pedido-field__hint"><span id="pedido-char-count">0</span>/280</span>
                         </div>
 
                         <div class="pedido-field">
-                            <span class="pedido-field__label">Urgência</span>
+                            <span class="pedido-field__label eyebrow">Urgência</span>
                             <div class="pedido-chip-row" id="pedido-urgency">
                                 <button type="button" class="pedido-chip pedido-chip--active" data-urgency="normal" aria-pressed="true">
                                     <span class="material-symbols-rounded" aria-hidden="true">schedule</span>Normal
@@ -827,7 +827,7 @@
                         </div>
 
                         <div class="pedido-field">
-                            <span class="pedido-field__label">Deixar online por</span>
+                            <span class="pedido-field__label eyebrow">Deixar online por</span>
                             <div class="pedido-chip-row" id="pedido-duration">
                                 <button type="button" class="pedido-chip pedido-chip--active" data-duration="12" aria-pressed="true">12h</button>
                                 <button type="button" class="pedido-chip" data-duration="24" aria-pressed="false">24h</button>
@@ -856,7 +856,7 @@
                     <div id="pedido-details-state" class="pedido-sheet__state u-hidden">
                         <div id="pedido-detail-card-container"></div>
                         <div class="pedido-detail-indicated">
-                            <p class="pedido-detail-indicated__header">
+                            <p class="pedido-detail-indicated__header eyebrow">
                                 <span class="material-symbols-rounded" aria-hidden="true">groups</span>
                                 Indicações recebidas
                                 <span class="pedido-detail-indicated__fraction" id="pedido-detail-fraction">0/3</span>
@@ -891,18 +891,18 @@
                     <div class="pedido-sheet__state">
                         <!-- Sem título interno: "Criar vaga" vai para a top bar (setTopBarTitle) -->
                         <div class="pedido-field">
-                            <label class="pedido-field__label" for="inp-vaga-cnpj">CNPJ da empresa</label>
+                            <label class="pedido-field__label eyebrow" for="inp-vaga-cnpj">CNPJ da empresa</label>
                             <input type="text" id="inp-vaga-cnpj" class="input-text" inputmode="numeric" maxlength="18" placeholder="00.000.000/0000-00">
                             <span class="pedido-field__hint pedido-field__hint--left">Os dados da empresa serão buscados no sistema oficial pelo CNPJ.</span>
                         </div>
 
                         <div class="pedido-field">
-                            <label class="pedido-field__label" for="inp-vaga-cargo">Cargo / função</label>
+                            <label class="pedido-field__label eyebrow" for="inp-vaga-cargo">Cargo / função</label>
                             <input type="text" id="inp-vaga-cargo" class="input-text" maxlength="60" placeholder="Ex: Auxiliar de Cozinha">
                         </div>
 
                         <div class="pedido-field">
-                            <span class="pedido-field__label">Número de vagas</span>
+                            <span class="pedido-field__label eyebrow">Número de vagas</span>
                             <div class="vaga-stepper" id="vaga-count">
                                 <button type="button" class="vaga-stepper__btn" id="vaga-count-dec" aria-label="Diminuir número de vagas">
                                     <span class="material-symbols-rounded" aria-hidden="true">remove</span>
@@ -915,7 +915,7 @@
                         </div>
 
                         <div class="pedido-field">
-                            <span class="pedido-field__label">Requisitos</span>
+                            <span class="pedido-field__label eyebrow">Requisitos</span>
                             <div class="vaga-dyn-list" id="vaga-req-list"></div>
                             <button type="button" class="vaga-add-btn" id="btn-add-req">
                                 <span class="material-symbols-rounded" aria-hidden="true">add</span>Adicionar requisito
@@ -923,7 +923,7 @@
                         </div>
 
                         <div class="pedido-field">
-                            <span class="pedido-field__label">Carga horária</span>
+                            <span class="pedido-field__label eyebrow">Carga horária</span>
                             <div class="vaga-time-row">
                                 <div class="vaga-time">
                                     <span class="vaga-time__label">Início</span>
@@ -954,7 +954,7 @@
                         </div>
 
                         <div class="pedido-field">
-                            <label class="pedido-field__label" for="inp-vaga-salario">Salário</label>
+                            <label class="pedido-field__label eyebrow" for="inp-vaga-salario">Salário</label>
                             <div class="vaga-salary">
                                 <span class="vaga-salary__prefix">R$</span>
                                 <input type="text" id="inp-vaga-salario" class="input-text vaga-salary__input" inputmode="numeric" maxlength="9" placeholder="1.500">
@@ -963,7 +963,7 @@
                         </div>
 
                         <div class="pedido-field">
-                            <span class="pedido-field__label">Benefícios <span class="vaga-field__optional">(opcional)</span></span>
+                            <span class="pedido-field__label eyebrow">Benefícios <span class="vaga-field__optional">(opcional)</span></span>
                             <div class="vaga-benefit-pills" id="vaga-benefit-pills">
                                 <button type="button" class="vaga-benefit-pill" data-label="Alimentação" data-icon="lunch_dining" aria-pressed="false">
                                     <span class="material-symbols-rounded" aria-hidden="true">lunch_dining</span>Alimentação
@@ -1133,7 +1133,7 @@
                          Ainda sem dados de cliente — só resumo do serviço + preço.
                          Tom de verde claro sobre o corpo claro da gaveta. -->
                     <div class="contracts-pending">
-                        <h3 class="contracts-pending__label">Contratos pendentes</h3>
+                        <h3 class="contracts-pending__label eyebrow">Contratos pendentes</h3>
 
                         <div class="contract-mini">
                             <button type="button" class="contract-mini__open" aria-label="Abrir contrato">
@@ -1295,7 +1295,7 @@
                 <div class="historico-sheet__scroll">
                     <div class="filters-panel">
                         <div class="agenda-filters__group">
-                            <p class="agenda-filters__group-label">Status</p>
+                            <p class="agenda-filters__group-label eyebrow">Status</p>
                             <div class="agenda-filters__chips">
                                 <button type="button" class="chip chip--active" data-filter-status="all" aria-pressed="true">Todos</button>
                                 <button type="button" class="chip" data-filter-status="active" aria-pressed="false">Ativo</button>
@@ -1305,7 +1305,7 @@
                         </div>
 
                         <div class="agenda-filters__group">
-                            <p class="agenda-filters__group-label">Valor e período</p>
+                            <p class="agenda-filters__group-label eyebrow">Valor e período</p>
                             <div class="contracts-filters__row">
                                 <div class="contracts-filters__field">
                                     <label class="contracts-filters__field-label" for="inp-contracts-min">Valor mín.</label>

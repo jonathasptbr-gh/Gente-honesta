@@ -246,6 +246,9 @@ button, input, textarea {
   display: inline-block;
   line-height: 1;
   white-space: nowrap;
+  /* Imune a text-transform herdado (ex.: rótulos .eyebrow em caixa alta):
+     uppercase no nome do glifo quebra a ligadura e mostra o texto cru. */
+  text-transform: none;
   direction: ltr;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

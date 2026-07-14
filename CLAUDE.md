@@ -354,8 +354,13 @@ borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke
   em vez de reescrever fundo/raio/sombra — nunca adicione contorno.
 - **`.eyebrow` (rótulo/sobretítulo uppercase, `components.css`)** — receita única de rótulo em caixa alta
   (`--p-green`, `--fs-5`, 700, uppercase), compartilhada com `.form-group__label` num seletor agrupado.
-  `.ic-hero__title` a usa no HTML (só mantém extras de layout). Novos rótulos uppercase devem receber a
-  classe em vez de reescrever cor/tamanho/peso/caixa-alta.
+  `.ic-hero__title` a usa no HTML (só mantém extras de layout), e desde a v299 TODOS os labels das gavetas
+  compõem a classe no HTML (`.pedido-field__label`, `.agenda-filters__group-label`,
+  `.contracts-pending__label`, `.pedido-detail-indicated__header` — as regras próprias só guardam layout).
+  Sub-rótulos discretos seguem a receita do `.payment-methods__subgroup-label` (fs-3, bold, `--t-sub`,
+  uppercase): `.vaga-time__label`, `.contracts-filters__field-label`. O `.material-symbols-rounded` base
+  tem `text-transform: none` — ícone dentro de rótulo uppercase não quebra a ligadura do glifo. Novos
+  rótulos uppercase devem receber a classe em vez de reescrever cor/tamanho/peso/caixa-alta.
 - **`.btn__spinner`** (`components.css`) — spinner de carregamento dos botões (glifo `autorenew` girando,
   peso 700). Usar `class="material-symbols-rounded btn__spinner"` no `innerHTML`; a variante `--sm`
   (fonte 16px, margem menor) é para o link de reenvio de SMS. Antes o estilo era inline e duplicado em

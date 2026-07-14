@@ -190,12 +190,9 @@
   gap: var(--space-xs);
 }
 
+/* Compõe .eyebrow no HTML (receita única dos labels do cadastro). */
 .contracts-pending__label {
-  font-size: var(--fs-2);
-  font-weight: var(--fw-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--p-green);   /* rótulo verde sobre o corpo claro, como os do cadastro */
+  margin: 0;
   padding: 2px 2px;
 }
 
@@ -275,8 +272,9 @@
   min-width: 0;
 }
 
+/* Sub-rótulo discreto — mesma receita do sub-label do cadastro (fs-3). */
 .contracts-filters__field-label {
-  font-size: var(--fs-1);
+  font-size: var(--fs-3);
   font-weight: var(--fw-bold);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1406,15 +1404,12 @@
   gap: var(--space-xs);
 }
 
-.pedido-field__label {
-  font-size: var(--fs-5);
-  font-weight: var(--fw-bold);
-  color: var(--p-green);   /* verde dos labels do cadastro, sobre o corpo claro */
-}
+/* .pedido-field__label compõe .eyebrow no HTML (receita única dos labels do
+   cadastro: --p-green, --fs-5, bold, uppercase) — sem redeclarar aqui. */
 
 .pedido-field__hint {
   align-self: flex-end;
-  font-size: var(--fs-2);
+  font-size: var(--fs-3);   /* mesmo corpo do .form-group__hint do cadastro */
   color: var(--t-sub);
   margin-top: -4px;
 }
@@ -1570,10 +1565,13 @@
 }
 
 /* ── Sheet "Criar vaga": listas dinâmicas (requisitos / benefícios) ── */
+/* "(opcional)" dentro de um label .eyebrow — mesma receita do
+   .form-group__optional do cadastro (escapa da caixa alta do label). */
 .vaga-field__optional {
-  font-size: var(--fs-2);
-  font-weight: var(--fw-medium);
+  font-size: var(--fs-3);
+  font-weight: var(--fw-regular);
   color: var(--t-sub);
+  text-transform: none;
 }
 
 .vaga-dyn-list {
@@ -1710,10 +1708,14 @@
   gap: 4px;
 }
 
+/* Sub-rótulo discreto (Início/Fim) — receita do sub-label do cadastro
+   (.payment-methods__subgroup-label: fs-3, bold, --t-sub, uppercase). */
 .vaga-time__label {
-  font-size: var(--fs-2);
-  font-weight: var(--fw-medium);
+  font-size: var(--fs-3);
+  font-weight: var(--fw-bold);
   color: var(--t-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 /* Stepper de horário (meia em meia hora) — reusa o .vaga-stepper do número de
@@ -1885,13 +1887,12 @@
   gap: var(--space-xs);
 }
 
+/* Compõe .eyebrow no HTML (cor/tamanho/peso/caixa-alta); aqui só o layout.
+   O ícone não sofre o uppercase (text-transform:none na base dos ícones). */
 .pedido-detail-indicated__header {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--fs-5);
-  font-weight: var(--fw-heavy);
-  color: var(--p-green-dark);   /* título escuro sobre o corpo claro */
   margin: 0;
 }
 
@@ -2419,12 +2420,8 @@
   gap: 4px;
 }
 
+/* Compõe .eyebrow no HTML (receita única dos labels do cadastro). */
 .agenda-filters__group-label {
-  font-size: var(--fs-2);
-  font-weight: var(--fw-bold);
-  color: var(--p-green);   /* rótulo verde sobre o corpo claro, como os do cadastro */
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   margin: 0;
 }
 
