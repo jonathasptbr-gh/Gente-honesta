@@ -1051,10 +1051,11 @@ filterState {
 - `sortPros(pros)` — ordena conforme `filterState.sort`
 - `reorderAgendaListAnimated()` — reordena cards já renderizados com animação FLIP
 - Pros salvos (`pinnedPros`) aparecem sempre no topo, agrupados separadamente dos demais
-- **Indicador de filtros ativos** = a PRÓPRIA pílula de filtro (`#btn-toggle-filters`, direita do campo):
-  com filtro ativo fica AZUL SÓLIDO (`--info-blue` + conteúdo claro — controle pequeno de marcação) com
-  ícone `filter_alt` + contagem (`#filter-count`); com o sheet aberto fica verde escuro `--p-green` com
-  seta `keyboard_arrow_up` (ESCONDER, não cancelar); em repouso, branca com `tune`. O glifo é decidido em
+- **Indicador de filtros ativos** = a PRÓPRIA pílula de filtro (`#btn-toggle-filters`, direita do campo,
+  que é BRANCO PURO `--bg-white` desde a v304 — o translúcido lavava os tints): com filtro ativo fica no
+  tint azul padrão (`--info-blue-light` + `--info-blue`) com ícone `filter_alt` + contagem
+  (`#filter-count`); com o sheet aberto fica no tint verde (`--p-green-light` + `--p-green`) com seta
+  `keyboard_arrow_up` (ESCONDER, não cancelar); em repouso, branca com `tune`. O glifo é decidido em
   UM lugar (`syncFilterPillIcon`). A contagem = `activeFilterCount()` (`includeIc`+`includeAvail`+
   `includePay`+`savedOnly`; a ORDENAÇÃO não conta, pois não esconde ninguém).
 - **Limpar filtros** (`#btn-clear-filters`, `.agenda-clear-fab`): botão FLUTUANTE semi-transparente

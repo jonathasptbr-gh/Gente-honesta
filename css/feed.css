@@ -2279,13 +2279,14 @@
   pointer-events: none;
 }
 
-/* Campo de busca: fundo branco sobre o verde, sem borda visível */
+/* Campo de busca: BRANCO PURO sobre o verde, sem borda visível (era o
+   translúcido --on-green-solid, que lavava os tints das pílulas internas) */
 .agenda-filters__search {
   width: 100%;
   height: 40px;
   padding: 0 54px 0 36px;   /* direita: espaço para o botão de filtro (pílula) */
   border-radius: var(--radius-pill);
-  background: var(--on-green-solid);
+  background: var(--bg-white);
   font-size: var(--fs-6);
   color: var(--t-main);
   outline: none;
@@ -2372,23 +2373,21 @@
   transition: var(--transition);
 }
 .agenda-filters__filter-pill:active { transform: translateY(-50%) scale(var(--press-scale)); }
-/* Filtros ativos = azul SÓLIDO + conteúdo claro: a pílula é um controle
-   PEQUENO de marcação (ícone + contagem), que na semântica de cores usa o
-   azul sólido mesmo sobre superfície clara (como a caixa do check, o trilho
-   do switch e o thumb do seg-toggle) — o tint --info-blue-light sumia dentro
-   do campo branco. Fica ANTES do --active, que vence quando o sheet está
-   aberto (mesma especificidade, ordem decide). */
+/* Filtros ativos = tint AZUL claro padrão de seleção sobre superfície clara
+   (--info-blue-light + texto --info-blue) — com o campo em branco PURO o tint
+   contrasta bem (sobre o antigo translúcido ele sumia). Fica ANTES do
+   --active, que vence quando o sheet está aberto (mesma especificidade,
+   ordem decide). */
 .agenda-filters__filter-pill--filtered {
-  background: var(--info-blue);
-  color: var(--t-light);
+  background: var(--info-blue-light);
+  color: var(--info-blue);
 }
-/* Estado "sheet de filtros aberto": verde ESCURO sólido + seta para CIMA
+/* Estado "sheet de filtros aberto": tint VERDE claro padrão + seta para CIMA
    (keyboard_arrow_up) — ação de ESCONDER a gaveta (que se recolhe para cima),
-   não de cancelar; por isso não usa o X (pedido explícito do desenvolvedor:
-   tom escuro específico deste estado). */
+   não de cancelar; por isso não usa o X. */
 .agenda-filters__filter-pill--active {
-  background: var(--p-green);
-  color: var(--t-light);
+  background: var(--p-green-light);
+  color: var(--p-green);
 }
 .agenda-filters__filter-pill .material-symbols-rounded { font-size: 1.2rem; }
 
