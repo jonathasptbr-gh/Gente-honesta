@@ -22,10 +22,6 @@
   color: var(--t-light);
 }
 
-#view-onboarding .screen__subtitle {
-  color: var(--p-green-light);
-}
-
 /* "Cancelar" no padrão dos botões de FECHAR do app (.action-close-mode):
    fill branco translúcido + texto claro sobre a barra verde do topo
    (substitui o antigo texto dourado solto). */

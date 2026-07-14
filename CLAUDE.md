@@ -633,8 +633,8 @@ verde (fora de um card claro) exige dar a ele cor clara; dentro de um card claro
 
 **Onboarding: barras fixas + scroll interno (v314).** O `#view-onboarding.screen` NÃO rola
 (`overflow:hidden; padding:0`) e vira um sanduíche de 3 camadas: TOPO fixo `.onboarding-topbar`
-(header título+subtítulo, fundo `--p-green` — mesmo tom da barra de status —, carrega a safe-area
-superior); MEIO `.onboarding-scroll` (`js-scroll-shadows`, `flex:1; min-height:0; overflow-y:auto`),
+(header só com o título — o subtítulo foi removido na v318 —, fundo `--p-green`, mesmo tom da barra
+de status, carrega a safe-area superior); MEIO `.onboarding-scroll` (`js-scroll-shadows`, `flex:1; min-height:0; overflow-y:auto`),
 que contém SÓ o `<form>` e tem APENAS padding lateral — o respiro vertical é padding do próprio form
 (padding vertical no container de scroll desloca as shades sticky para dentro da tela); BASE fixa
 `.onboarding-footer` (mesmo verde `--p-green`) com o botão `#btn-finish-onboarding` sempre visível
