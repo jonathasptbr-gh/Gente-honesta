@@ -147,7 +147,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v304</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v305</span>
     </div>
 
     <!-- =====================================================================
@@ -1355,7 +1355,8 @@
                     </button>
 
                     <div class="agenda-filters__search-wrap">
-                        <span class="material-symbols-rounded agenda-filters__search-icon" aria-hidden="true">search</span>
+                        <!-- Lupa/limpar: vira X clicável quando há texto (limpa o campo) -->
+                        <button type="button" id="btn-search-clear" class="material-symbols-rounded agenda-filters__search-icon" aria-label="Limpar busca" tabindex="-1">search</button>
                         <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar no Gente Honesta...">
                         <!-- Botão de filtro: pílula branca DENTRO da busca, à direita.
                              Com filtros ativos ele mesmo vira o indicador (tint azul +

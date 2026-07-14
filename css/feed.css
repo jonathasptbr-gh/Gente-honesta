@@ -2269,6 +2269,9 @@
   position: relative;
 }
 
+/* Lupa do campo de busca — é um <button>: com texto digitado vira um X
+   VERMELHO clicável que limpa o campo (js: syncSearchClearIcon); sem texto,
+   volta à lupa decorativa (pointer-events:none deixa o toque cair no input). */
 .agenda-filters__search-icon {
   position: absolute;
   left: 10px;
@@ -2276,7 +2279,19 @@
   transform: translateY(-50%);
   color: var(--t-sub);
   font-size: 1.1rem;
+  background: none;
+  padding: 0;
   pointer-events: none;
+}
+
+.agenda-filters__search-icon--clearable {
+  pointer-events: auto;
+  cursor: pointer;
+  color: var(--danger);   /* X vermelho = ação de limpar (padrão do app) */
+}
+
+.agenda-filters__search-icon--clearable:active {
+  transform: translateY(-50%) scale(0.85);   /* alvo minúsculo: feedback forte */
 }
 
 /* Campo de busca: BRANCO PURO sobre o verde, sem borda visível (era o

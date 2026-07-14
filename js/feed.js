@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (agendaSearchInput) {
       agendaSearchInput.placeholder = SEARCH_PLACEHOLDER_CONTRACTS;
       agendaSearchInput.value = '';
+      syncSearchClearIcon();
     }
     contractsFilter.query = '';
     applyContractsFilters();
@@ -92,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (agendaSearchInput) {
       agendaSearchInput.placeholder = SEARCH_PLACEHOLDER_PROS;
       agendaSearchInput.value = '';
+      syncSearchClearIcon();
     }
     renderAgendaList();   // devolve a busca (limpa) aos profissionais
   }
@@ -135,6 +137,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!isContractsSheetOpen()) return;
     contractsFilter.query = agendaSearchInput.value.trim().toLowerCase();
     applyContractsFilters();
+  });
+
+  // --- Lupa ↔ X de limpar: com texto digitado, a lupa vira um X clicável que
+  // zera o campo. Limpezas PROGRAMÁTICAS do campo (abrir/fechar contratos,
+  // resetAgendaList) devem chamar syncSearchClearIcon() — só o evento 'input'
+  // re-sincroniza sozinho.
+  const searchClearBtn = document.getElementById('btn-search-clear');
+  function syncSearchClearIcon() {
+    if (!searchClearBtn || !agendaSearchInput) return;
+    const has = agendaSearchInput.value.length > 0;
+    searchClearBtn.textContent = has ? 'close' : 'search';
+    searchClearBtn.classList.toggle('agenda-filters__search-icon--clearable', has);
+  }
+  agendaSearchInput?.addEventListener('input', syncSearchClearIcon);
+  searchClearBtn?.addEventListener('click', () => {
+    if (!agendaSearchInput || !agendaSearchInput.value) return;
+    agendaSearchInput.value = '';
+    // dispara os listeners reais (re-render dos profissionais / filtro de
+    // contratos) + o próprio sync do ícone
+    agendaSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
   });
 
   // --- Título da top bar: enquanto uma gaveta da action bar está aberta, o
@@ -394,9 +416,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Restaura chip de ordenação padrão (nome)
     const defaultSort = document.querySelector('#panel-agenda-filters [data-sort="name"]');
     if (defaultSort) { defaultSort.classList.add('chip--active'); defaultSort.setAttribute('aria-pressed', 'true'); }
-    // Limpa campo de busca
+    // Limpa campo de busca (limpeza programática → re-sincroniza a lupa/X)
     const search = document.getElementById('inp-agenda-search');
     if (search) search.value = '';
+    syncSearchClearIcon();
     // Fecha painel de filtros se aberto
     closeFiltersSheet();
     // Re-renderiza e volta ao topo
