@@ -1,10 +1,10 @@
 "use strict";
-import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, addVaga } from './feed-data.js';
-import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './feed-config.js';
-import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './feed-utils.js';
-import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './feed-templates.js';
-import { pinnedPros, filterState, scrolledState, scrollToTopPending, pedidoHistory, myPedido, contractsFilter } from './feed-state.js';
-import { PEDIDO_STATUS, PEDIDO_DETAIL_MODE, URGENCY } from './domain.js';
+import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, addVaga } from './repository.js';
+import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
+import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './utils.js';
+import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './templates.js';
+import { pinnedPros, filterState, scrolledState, scrollToTopPending, pedidoHistory, myPedido, contractsFilter } from './state.js';
+import { PEDIDO_STATUS, PEDIDO_DETAIL_MODE, URGENCY } from '../core/domain.js';
 
 // =========================================================================
 // TELA - PRINCIPAL (FEED) - Gerenciador de Comportamentos da Interface
@@ -545,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // renderAgendaList. `showPin` inclui o botão salvar + rodapé (só na lista
   // principal); `withId` põe o id do pro no card (usado pela reordenação FLIP).
   // function declaration (hoisted).
-  /** @param {import('./models.js').Professional} pro */
+  /** @param {import('../core/models.js').Professional} pro */
   function buildProCard(pro, { showPin = true, withId = false } = {}) {
     const card = document.createElement('div');
     card.className = 'pro-card';

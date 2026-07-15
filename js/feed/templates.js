@@ -1,10 +1,10 @@
 // =========================================================================
 // TEMPLATES de HTML do feed — funções puras de string (sem estado mutável).
 // =========================================================================
-import { icTier, icShieldIcon, formatPedidoDate, pedidoHoursLeft } from './feed-utils.js';
-import { availabilityMeta, COMMENTS_PAGE } from './feed-config.js';
-import { getComments } from './feed-data.js';
-import { PEDIDO_STATUS, URGENCY } from './domain.js';
+import { icTier, icShieldIcon, formatPedidoDate, pedidoHoursLeft } from './utils.js';
+import { availabilityMeta, COMMENTS_PAGE } from './config.js';
+import { getComments } from './repository.js';
+import { PEDIDO_STATUS, URGENCY } from '../core/domain.js';
 
 export const icBarHTML = (ic, vertical = false) => {
   const tier = icTier(ic);
@@ -19,13 +19,13 @@ export const qavHTML = (q, a, v) => `
     <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:${v * 10}%"></div></div></div>
   </div>`;
 
-/** @param {import('./models.js').Availability} state */
+/** @param {import('../core/models.js').Availability} state */
 export const availHTML = (state) => {
   const m = availabilityMeta[state] || availabilityMeta.available;
   return `<span class="avail avail--${m.cls}"><span class="avail__dot" aria-hidden="true"></span>${m.label}</span>`;
 };
 
-/** @param {import('./models.js').Comment} c */
+/** @param {import('../core/models.js').Comment} c */
 export const buildCommentHTML = (c) => {
   const MAX = 150;
   const tier = icTier(c.ic);
@@ -73,7 +73,7 @@ export const proBackHTML = () => {
   return _proBackHTML;
 };
 
-/** @param {import('./models.js').Professional} pro */
+/** @param {import('../core/models.js').Professional} pro */
 export const proFooterHTML = (pro) => {
   const hasCash = !!pro.pay?.cash;
   const hasPix  = !!pro.pay?.pix;
@@ -94,7 +94,7 @@ export const proFooterHTML = (pro) => {
   </div>`;
 };
 
-/** @param {import('./models.js').Pedido} p */
+/** @param {import('../core/models.js').Pedido} p */
 export function historicoItemHTML(p) {
   const active = p.status === PEDIDO_STATUS.ACTIVE;
   const statusCls = active ? 'historico-item__status--active' : 'historico-item__status--done';

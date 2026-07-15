@@ -1,13 +1,13 @@
 ---
 description: Arquitetura do feed (#view-feed) — abas, painéis, action bar, gavetas/sheets, cards flip, filtros, pedidos, ajudantes, mock e dívidas do feed.
 paths:
-  - "js/feed.js"
-  - "css/feed.css"
+  - "js/feed/**"
+  - "css/feed/**"
 ---
 
 # Arquitetura do Feed (`#view-feed`)
 
-## Gotchas de `feed.js` (LER PRIMEIRO)
+## Gotchas de `feed/index.js` (LER PRIMEIRO)
 
 - **TDZ em DOMContentLoaded:** `const`/`let` ficam na temporal dead zone até sua linha. Chamar um
   helper `const` antes de declará-lo lança `ReferenceError` silencioso que interrompe TODO o
@@ -86,7 +86,7 @@ arredondados, slide-down "gaveta", backdrop que dim SÓ o feed abaixo da barra. 
 **Botão-abridor vira "Fechar".** Não há botão de fechar dedicado nem título interno na gaveta. O
 próprio abridor da action bar vira botão de fechar (ícone `close` + "Fechar") via `.action-close-mode`
 (`feed.css`: fundo `--on-green-soft` + texto/ícone `--t-light`, `!important` para vencer o fundo de
-cada botão). Setters em `feed.js`: `setMyPedidoButton(mode)` e `setHistoricoButton(mode)` (3 estados
+cada botão). Setters em `feed/index.js`: `setMyPedidoButton(mode)` e `setHistoricoButton(mode)` (3 estados
 `'natural'`/`'close'`/`'conclude'`), `setCriarVagaClose`/`setAjudanteClose` (via `innerHTML`), e o
 `#btn-toggle-filters` (ícone `tune`↔`close`). Como o container (z-300) cobre a barra, tocar no
 "Fechar" dispara o tap-outside do container → fecha. Todos os sheets têm tap-outside
@@ -169,7 +169,7 @@ pedidos (inclusive o ativo), por data (mais recente no topo) via `renderHistoric
 - Tocar no item (fora do excluir) abre `openPedidoDetail(id)`. A delegação dá prioridade ao
   `.historico-item__delete` (`stopPropagation`) antes de abrir.
 
-**Estado (`feed.js`, bloco "PEDIDOS"):** `pedidoHistory[]` (`{id, text, urgency, duration, neighbors,
+**Estado (`feed/index.js`, bloco "PEDIDOS"):** `pedidoHistory[]` (`{id, text, urgency, duration, neighbors,
 createdAt, completedAt, status:'active'|'completed', indicated:[]}`, mock em memória; só UM `active`
 por vez), `myPedido` (objeto de trabalho do form; `resetPedidoForm()` volta aos defaults casando por
 `data-*`, não por posição no DOM), `getActivePedido()`/`getPedidoById(id)`/`detailPedidoId`. Publicar
@@ -305,7 +305,7 @@ Em `components.css`: `btn--danger` (`--danger` + branco, Cancelar); `btn--accent
 
 ## O que ainda é mock
 
-`feed.js` é um **ES module** (`type="module"`) que importa os dados mock de **`js/feed-data.js`**
+`feed/index.js` é um **ES module** (`type="module"`) que importa os dados mock de **`js/feed/repository.js`**
 (`mockProfessionals`, `mockComments`, `mockVagas`, `mockIndicatedByPost`, `avatarSvg`) — é ali que a
 persistência no Firestore vai substituir os exemplos. Detalhe dos dados: `mockProfessionals[]` (5 pros
 `{id, name, tags, ic, q, a, v, avail, pay:{cash,pix,card}, nf, bio}`; `pay.card`: `0`/`'debit'`/número
@@ -324,7 +324,7 @@ Contratar/WhatsApp/Compartilhar dão alerta; pedido/histórico/candidatura sem p
   existe 2× (`bindProCardFlip` p/ popup/detalhe e o handler de `#agenda-list` com pin + modo
   indicação). Unificá-la exige parametrizar pin/indicação.
 - **Avatar SVG inline:** o mesmo data-URI aparece 7× em `index.html` (5 cinza + 2 branco); em
-  `feed.js` já é a const `avatarSvg`. Dedup do HTML exigiria converter `<img>`→background (perde o
+  `feed/index.js` já é a const `avatarSvg`. Dedup do HTML exigiria converter `<img>`→background (perde o
   swap de `src` do `#top-bar-avatar`) → dívida deliberada.
 - **Mock keyed por id:** `mockIndicatedByPost` e as indicações semeadas no publish redeclaram objetos
   que já existem em `mockProfessionals` (com `ic`/`bio` divergentes). Uma fonte única por id evitaria

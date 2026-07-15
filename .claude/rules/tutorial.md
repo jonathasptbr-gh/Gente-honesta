@@ -1,13 +1,13 @@
 ---
 description: Motor genérico de tutorial guiado (coach marks) — reutilizável em qualquer tela.
 paths:
-  - "js/tutorial.js"
-  - "css/tutorial.css"
+  - "js/tutorial/**"
+  - "css/tutorial/**"
 ---
 
 # Tutorial Guiado (Coach Marks)
 
-Motor genérico e reutilizável (`js/tutorial.js` + `css/tutorial.css`) para tours guiados em cima
+Motor genérico e reutilizável (`js/tutorial/tutorial.js` + `css/tutorial.css`) para tours guiados em cima
 de qualquer tela. Hoje usado só no cadastro (`view-onboarding`); a ideia é reaproveitar no feed
 sem recriar elementos por tela.
 
@@ -64,11 +64,11 @@ era sempre visível. O cálculo de lado do balão usa sempre o retângulo ORIGIN
 
 ## Uso atual e reaproveitamento
 
-`window.startOnboardingTutorial()` (`js/onboarding.js`) define 4 passos (dados pessoais, região,
+`window.startOnboardingTutorial()` (`js/onboarding/onboarding.js`) define 4 passos (dados pessoais, região,
 detalhes profissionais, Índice de Confiança — este com `position:'top'` explícito, é o último
-campo antes do botão de concluir) e é chamado por `session.js` ~600ms após
+campo antes do botão de concluir) e é chamado por `auth/session.js` ~600ms após
 `showView('view-onboarding')`. Tutorial id: `'onboarding'`.
 
 Para outra tela: defina `startXTutorial()` no módulo daquela tela com sua lista de passos e chame
 `window.startTutorial(steps, { id: 'nome-unico' })` quando a tela aparece — sem tocar em
-`js/tutorial.js` nem `css/tutorial.css`.
+`js/tutorial/tutorial.js` nem `css/tutorial.css`.

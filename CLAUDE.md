@@ -71,7 +71,7 @@ Carregamento → detecção mobile (head) → onAuthStateChanged →
     Sem displayName? → view-onboarding → finishRegistration → updateProfile
        → onAuthStateChanged de novo → Standalone? view-feed : view-install → view-feed
     Com displayName? → view-feed direto
-       (exceção: login recém-feito, <15s — flag isNewSignIn em session.js — passa pelo
+       (exceção: login recém-feito, <15s — flag isNewSignIn em auth/session.js — passa pelo
         onboarding mesmo com displayName, para o usuário revisar os dados)
 ```
 
@@ -88,54 +88,57 @@ CNAME               — "gentehonesta.com.br"
 icon*.svg / *.png   — arte do ícone/PWA (quadrado full-bleed p/ maskable; arredondado p/ "any";
                       transparente e "intro" p/ usos internos). Fundo verde --p-green
 
-css/   (ordem dos <link> no index.html = ordem da cascata; NÃO reordenar)
-  base.css               — design tokens (:root), roteamento de telas, utilitários, animações
-  components-buttons.css — sistema de botões (.btn + variantes)
-  components-forms.css   — inputs/campos
-  components-surfaces.css— .card, .check-box, ic-bar
-  components-dialogs.css — diálogos + banner de atualização do PWA
-  components-blocks.css  — bloqueios desktop/paisagem + sombras de scroll (.js-scroll-shadows)
-  tutorial.css           — motor de tutorial guiado (destaque + balão)
-  auth.css               — login: auth-section, OTP, carrossel de intro
-  onboarding-form.css    — cadastro: campos, tags, serviço, pagamento, perfil público
-  onboarding-ic-card.css — card do Índice de Confiança (+ adaptativo por altura)
-  onboarding-camera.css  — diálogo da câmera
-  install.css            — tela-guia de instalação do PWA
-  feed-shell.css         — interface do feed + gaveta de contratos + painéis
-  feed-navigation.css    — action bar (pedidos) + bottom bar + feed tabs
-  feed-pedidos.css       — lista de pedidos + cards de post
-  feed-pedido-sheet.css  — sheet "Fazer pedido" / detalhe unificado
-  feed-historico.css     — histórico de pedidos
-  feed-cards-pro.css     — flip + cards de profissional
-  feed-vagas.css         — painel + card de vaga
-  feed-ajudantes.css     — sheet "Serviço de ajudantes"
-  (feed.css / components.css / onboarding.css foram divididos — a cascata é idêntica pela ordem)
+css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; NÃO reordenar)
+  base/base.css            — design tokens (:root), roteamento de telas, utilitários, animações
+  components/buttons.css   — sistema de botões (.btn + variantes)
+  components/forms.css     — inputs/campos
+  components/surfaces.css  — .card, .check-box, ic-bar
+  components/dialogs.css   — diálogos + banner de atualização do PWA
+  components/blocks.css    — bloqueios desktop/paisagem + sombras de scroll (.js-scroll-shadows)
+  tutorial/tutorial.css    — motor de tutorial guiado (destaque + balão)
+  auth/auth.css            — login: auth-section, OTP, carrossel de intro
+  onboarding/form.css      — cadastro: campos, tags, serviço, pagamento, perfil público
+  onboarding/ic-card.css   — card do Índice de Confiança (+ adaptativo por altura)
+  onboarding/camera.css    — diálogo da câmera
+  install/install.css      — tela-guia de instalação do PWA
+  feed/shell.css           — interface do feed + gaveta de contratos + painéis
+  feed/navigation.css      — action bar (pedidos) + bottom bar + feed tabs
+  feed/pedidos.css         — lista de pedidos + cards de post
+  feed/pedido-sheet.css    — sheet "Fazer pedido" / detalhe unificado
+  feed/historico.css       — histórico de pedidos
+  feed/cards-pro.css       — flip + cards de profissional
+  feed/vagas.css           — painel + card de vaga
+  feed/ajudantes.css       — sheet "Serviço de ajudantes"
 
-js/   (a ordem de carga no index.html importa)
-  app.js            — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW
-  tutorial.js       — 2º. Motor genérico de tour (window.startTutorial)
-  install.js        — 3º. PWA: beforeinstallprompt, isStandalone, view-install
-  session.js        — 4º. onAuthStateChanged: decide a tela inicial, resetAuthFlow, tutorial
-  auth.js           — 5º. Login: sendOTP (whitelist), verifyOTP, cooldown, OTP, resetAuthFlow
-  onboarding.js     — 6º. Cadastro: finishRegistration, câmera, tags, serviço, resetOnboardingForm
-  feed.js           — 7º. Feed (ES MODULE): núcleo de event-wiring + render. Importa os módulos
-                          feed-* abaixo. É o único <script type="module">; os outros 6 arquivos
-                          (app/tutorial/install/session/auth/onboarding) seguem <script defer>
-                          clássicos — comunicação cross-arquivo via window.* (module-safe).
-  feed-data.js      — dados mock (mockProfessionals/Comments/Vagas/Helpers/IndicatedByPost) +
-                          avatarSvg. Substituídos pelo Firestore no futuro.
-  feed-config.js    — constantes congeladas: EASE_STD, *_CARD_CFG, TAB_*, SCROLL_*, HELPER_RATES,
-                          placeholders, availOrder/availabilityMeta, COMMENTS_PAGE, MAX_VAGAS/DAY_ORDER.
-  feed-utils.js     — funções puras: icTier/icShieldIcon, formatPedidoDate, pedidoHoursLeft, comingSoon.
-  feed-templates.js — templates de HTML puros: qavHTML, icBarHTML, availHTML, buildCommentHTML,
-                          proBackHTML, proFooterHTML, historicoItemHTML.
-  feed-state.js     — estado mutável compartilhado (objetos, nunca reatribuídos): filterState,
-                          pinnedPros, pedidoHistory, myPedido, scrolledState, scrollToTopPending,
-                          contractsFilter. (Primitivos reatribuídos — activeTab, indicateMode etc. —
-                          seguem no closure de feed.js: mover exige accessors + teste no aparelho.)
-  models.js         — MODELO DE DOMÍNIO: @typedef JSDoc de todas as entidades (Professional/Pedido/
+js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
+  core/app.js       — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW
+  tutorial/tutorial.js — 2º. Motor genérico de tour (window.startTutorial)
+  install/install.js   — 3º. PWA: beforeinstallprompt, isStandalone, view-install
+  auth/session.js   — 4º. onAuthStateChanged: decide a tela inicial, resetAuthFlow, tutorial
+  auth/auth.js      — 5º. Login: sendOTP (whitelist), verifyOTP, cooldown, OTP, resetAuthFlow
+  onboarding/onboarding.js — 6º. Cadastro: finishRegistration, câmera, tags, serviço, resetOnboardingForm
+  core/models.js    — MODELO DE DOMÍNIO: @typedef JSDoc de todas as entidades (Professional/Pedido/
                           Vaga/Helper/Comment/AppState). SÓ doc — não é carregado por <script>.
                           Contrato portável (vira interface TS numa migração).
+  core/domain.js    — ENUMS de domínio (Object.freeze): PEDIDO_STATUS, PEDIDO_DETAIL_MODE, URGENCY,
+                          DURATION, IC_TIER, AVAILABILITY, HELPER_TYPE, TAB, SORT, PAY_METHOD. Fonte
+                          única dos VALORES; comparar/atribuir sempre pelo enum, nunca string crua.
+  feed/index.js     — 7º. Feed (ES MODULE): núcleo de event-wiring + render. Importa os módulos de
+                          js/feed/ abaixo + core/domain.js. É o único <script type="module">; os
+                          outros 6 (core/app, tutorial, install, auth/session, auth/auth, onboarding)
+                          seguem <script defer> clássicos — cross-arquivo via window.* (module-safe).
+  feed/repository.js — REPOSITÓRIO (ponto único de troca pro Firestore): arrays mock module-private +
+                          accessors getProfessionals/getComments/getVagas/getHelpers/getIndicatedByPost
+                          + addVaga. avatarSvg (export direto). Os chamadores só falam com accessors.
+  feed/config.js    — constantes congeladas: EASE_STD, *_CARD_CFG, TAB_*, SCROLL_*, HELPER_RATES,
+                          placeholders, availOrder/availabilityMeta, COMMENTS_PAGE, MAX_VAGAS/DAY_ORDER.
+  feed/utils.js     — funções puras: icTier/icShieldIcon, formatPedidoDate, pedidoHoursLeft, comingSoon.
+  feed/templates.js — templates de HTML puros: qavHTML, icBarHTML, availHTML, buildCommentHTML,
+                          proBackHTML, proFooterHTML, historicoItemHTML.
+  feed/state.js     — estado mutável compartilhado (objetos, nunca reatribuídos): filterState,
+                          pinnedPros, pedidoHistory, myPedido, scrolledState, scrollToTopPending,
+                          contractsFilter. (Primitivos reatribuídos — activeTab, indicateMode etc. —
+                          seguem no closure de feed/index.js: mover exige accessors + teste no aparelho.)
 
 .claude/
   settings.json     — hook SessionStart → session-start.sh
@@ -148,7 +151,7 @@ js/   (a ordem de carga no index.html importa)
 
 ## Firebase
 
-Projeto: `gente-honesta`. **Config pública** em `js/app.js` (normal p/ Firebase web — segurança via
+Projeto: `gente-honesta`. **Config pública** em `js/core/app.js` (normal p/ Firebase web — segurança via
 Firestore Rules).
 
 | Serviço | Uso |
@@ -158,7 +161,7 @@ Firestore Rules).
 | Storage | (previsto para fotos de perfil) |
 
 **Firestore Rules:** `testers` = `allow read: if true` (leitura antes do login p/ verificar
-whitelist); demais coleções exigem autenticação. **Whitelist** em `js/auth.js → sendOTP()` (bloco
+whitelist); demais coleções exigem autenticação. **Whitelist** em `js/auth/auth.js → sendOTP()` (bloco
 `// WHITELIST DE TESTERS`; doc na coleção `testers` com ID = `+5551XXXXXXXXX`). Remover esse bloco ao
 abrir ao público.
 
@@ -216,7 +219,7 @@ numa área, leia a rule correspondente primeiro:**
 | Arquivo | Quando ler / paths | Conteúdo |
 |---|---|---|
 | `design-system.md` | CSS ou `index.html` (`css/**`, `index.html`) | Tokens, semântica de cores, taxonomia, design sem contorno, primitivos (`.card`/`.check-box`/`.chip`/`.eyebrow`), scrollbar, faixas do IC. |
-| `feed.md` | feed (`js/feed.js`, `css/feed.css`) | Abas, painéis, action bar, gavetas/sheets, cards flip, filtros, pedidos, ajudantes, mock e dívidas. Gotchas de `feed.js` (TDZ, hoisting). |
-| `onboarding.md` | cadastro (`js/onboarding.js`, `css/onboarding.css`) | Barras fixas + scroll, Detalhes profissionais, serviço, pagamento, perfil público, card do IC. |
-| `app-core.md` | shell (`js/app.js`, `auth`, `session`, `install`, `service-worker.js`, css do shell) | Globals, `appState`, `openDialog`, mobile-only, telas verdes, loader, Service Worker, atualização do PWA. |
-| `tutorial.md` | tutorial (`js/tutorial.js`, `css/tutorial.css`) | Motor genérico de coach marks e API. |
+| `feed.md` | feed (`js/feed/**`, `css/feed/**`) | Abas, painéis, action bar, gavetas/sheets, cards flip, filtros, pedidos, ajudantes, mock e dívidas. Gotchas de `feed/index.js` (TDZ, hoisting). |
+| `onboarding.md` | cadastro (`js/onboarding/**`, `css/onboarding/**`) | Barras fixas + scroll, Detalhes profissionais, serviço, pagamento, perfil público, card do IC. |
+| `app-core.md` | shell (`js/core/**`, `js/auth/**`, `js/install/**`, `service-worker.js`) | Globals, `appState`, `openDialog`, mobile-only, telas verdes, loader, Service Worker, atualização do PWA. |
+| `tutorial.md` | tutorial (`js/tutorial/**`, `css/tutorial/**`) | Motor genérico de coach marks e API. |

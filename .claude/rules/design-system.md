@@ -50,7 +50,7 @@ padrão dos sheets), `--radius-pill` (28).
 transicionar UMA propriedade específica NÃO componha `transition: color var(--transition)`
 (vira `color all 0.3s`, lista inválida, descartada) — use `--ease` (a mesma curva, sem
 propriedade/duração): `transition: color 0.3s var(--ease)`. Em JS, a const `EASE_STD`
-(`feed.js`) espelha essa curva. `--sheet-ease` (`cubic-bezier(0.32,0.72,0,1)`) é a curva única
+(`feed/index.js`) espelha essa curva. `--sheet-ease` (`cubic-bezier(0.32,0.72,0,1)`) é a curva única
 dos sheets deslizantes. `--scroll-thumb-dark` = thumb da barra fina sobre superfícies CLARAS
 (sobre verde usa-se `--on-green-muted`).
 
@@ -71,7 +71,7 @@ um token; exceções: `clamp()` responsivos (auth.css), ícones Material Symbols
 glifo), `.qav__label` (0.55rem, senão trunca na coluna de 48px) e o numeral-hero 70 do IC
 (1.9rem).
 
-**Altura do viewport:** `--app-height` — definida em `app.js` via `window.innerHeight` (corrige
+**Altura do viewport:** `--app-height` — definida em `core/app.js` via `window.innerHeight` (corrige
 `100vh`/`100dvh` inconsistentes em PWA instalado/webview). Consumida em `html/body` e nos
 `max-height` dos sheets — sempre `var(--app-height, 100dvh)`, nunca `dvh` cru.
 
@@ -169,22 +169,22 @@ Regra de ouro: **"card" = SUPERFÍCIE (contêiner); "botão" = AÇÃO.** Se o el
 - **`.chip` + `.chip--md` (`feed.css`)** — `.chip` é o casco base (radius-pill, inline-flex,
   transição); `.chip--md` é a métrica das pílulas do cadastro (padding `8px 14px`, `--fs-5`).
   Pílulas de pagamento (`chip chip--md chip--payment`) e `.tag-pill` (`chip chip--md tag-pill`,
-  geradas em `onboarding.js`) usam esse casco; `.tag-pill` aplica o tint via seletor de 2 classes
+  geradas em `onboarding/onboarding.js`) usam esse casco; `.tag-pill` aplica o tint via seletor de 2 classes
   `.chip.tag-pill` (vence o `.chip` base por especificidade).
 - **Pílula "tint preenchido" (azul)** — estado selecionado de `.tag-pill` e
   `.chip--payment.chip--active`: fundo `--info-blue-light` + texto `--info-blue`, SEM borda. É a
   linguagem de seleção do app inteiro sobre fundos claros; sobre verde-escuro usa o par invertido
   `--info-blue` sólido + `--t-light`.
 - **`.list-empty-hint` (+ `--block`, `feed.css`)** — empty-state de lista sobre verde
-  (indicados/agenda), no lugar de cor inline em `feed.js`.
-- **Sombras de fronteira de scroll (`.js-scroll-shadows`)** — mecânica única em `app.js`
+  (indicados/agenda), no lugar de cor inline em `feed/index.js`.
+- **Sombras de fronteira de scroll (`.js-scroll-shadows`)** — mecânica única em `core/app.js`
   (`window.watchScrollShadows`): todo container com a classe ganha um par de "shades" sticky
   (topo/base) que acendem quando há conteúdo continuando sob a borda (classes
   `has-scroll-above`/`has-scroll-below`). Aplicada no `#view-onboarding` e nos scrolls das gavetas
   do feed. Container novo que rola sob uma borda recebe a classe no HTML (ou
   `watchScrollShadows(el)` em runtime). A action bar do feed usa a variante própria
   `agenda-filters--elevated` (js: `updateBarElevation`).
-- **Cor da barra de status:** `window.THEME_COLOR` (`app.js`) é a fonte única do verde `#184e1b`
+- **Cor da barra de status:** `window.THEME_COLOR` (`core/app.js`) é a fonte única do verde `#184e1b`
   da `meta[theme-color]`. Todas as telas são verdes → constante. O modo indicação do feed NÃO
   altera o theme-color.
 

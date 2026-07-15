@@ -70,29 +70,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/base.css">
-    <!-- components.css dividido em partes (mesma ordem = cascata idêntica) -->
-    <link rel="stylesheet" href="css/components-buttons.css">
-    <link rel="stylesheet" href="css/components-forms.css">
-    <link rel="stylesheet" href="css/components-surfaces.css">
-    <link rel="stylesheet" href="css/components-dialogs.css">
-    <link rel="stylesheet" href="css/components-blocks.css">
-    <link rel="stylesheet" href="css/tutorial.css">
-    <link rel="stylesheet" href="css/auth.css">
-    <!-- onboarding.css dividido: formulário, card do IC, câmera -->
-    <link rel="stylesheet" href="css/onboarding-form.css">
-    <link rel="stylesheet" href="css/onboarding-ic-card.css">
-    <link rel="stylesheet" href="css/onboarding-camera.css">
-    <link rel="stylesheet" href="css/install.css">
-    <!-- feed.css dividido por tema (mesma ordem = cascata idêntica) -->
-    <link rel="stylesheet" href="css/feed-shell.css">
-    <link rel="stylesheet" href="css/feed-navigation.css">
-    <link rel="stylesheet" href="css/feed-pedidos.css">
-    <link rel="stylesheet" href="css/feed-pedido-sheet.css">
-    <link rel="stylesheet" href="css/feed-historico.css">
-    <link rel="stylesheet" href="css/feed-cards-pro.css">
-    <link rel="stylesheet" href="css/feed-vagas.css">
-    <link rel="stylesheet" href="css/feed-ajudantes.css">
+    <link rel="stylesheet" href="css/base/base.css">
+    <!-- pasta components/ (mesma ordem = cascata idêntica) -->
+    <link rel="stylesheet" href="css/components/buttons.css">
+    <link rel="stylesheet" href="css/components/forms.css">
+    <link rel="stylesheet" href="css/components/surfaces.css">
+    <link rel="stylesheet" href="css/components/dialogs.css">
+    <link rel="stylesheet" href="css/components/blocks.css">
+    <link rel="stylesheet" href="css/tutorial/tutorial.css">
+    <link rel="stylesheet" href="css/auth/auth.css">
+    <!-- pasta onboarding/: formulário, card do IC, câmera -->
+    <link rel="stylesheet" href="css/onboarding/form.css">
+    <link rel="stylesheet" href="css/onboarding/ic-card.css">
+    <link rel="stylesheet" href="css/onboarding/camera.css">
+    <link rel="stylesheet" href="css/install/install.css">
+    <!-- pasta feed/ por tema (mesma ordem = cascata idêntica) -->
+    <link rel="stylesheet" href="css/feed/shell.css">
+    <link rel="stylesheet" href="css/feed/navigation.css">
+    <link rel="stylesheet" href="css/feed/pedidos.css">
+    <link rel="stylesheet" href="css/feed/pedido-sheet.css">
+    <link rel="stylesheet" href="css/feed/historico.css">
+    <link rel="stylesheet" href="css/feed/cards-pro.css">
+    <link rel="stylesheet" href="css/feed/vagas.css">
+    <link rel="stylesheet" href="css/feed/ajudantes.css">
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" defer></script>
@@ -163,7 +163,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v330</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v331</span>
     </div>
 
     <!-- =====================================================================
@@ -1524,14 +1524,14 @@
 
     <!-- Ordem importa: app.js define os globals (Firebase, roteador, diálogos)
          que os módulos seguintes consomem. -->
-    <script src="js/app.js" defer></script>
-    <script src="js/tutorial.js" defer></script>
-    <script src="js/install.js" defer></script>
-    <script src="js/session.js" defer></script>
-    <script src="js/auth.js" defer></script>
-    <script src="js/onboarding.js" defer></script>
-    <!-- feed.js é ES module (importa js/feed-data.js). Os demais scripts seguem
-         clássicos (defer); a comunicação cross-arquivo continua via window.* -->
-    <script src="js/feed.js" type="module"></script>
+    <script src="js/core/app.js" defer></script>
+    <script src="js/tutorial/tutorial.js" defer></script>
+    <script src="js/install/install.js" defer></script>
+    <script src="js/auth/session.js" defer></script>
+    <script src="js/auth/auth.js" defer></script>
+    <script src="js/onboarding/onboarding.js" defer></script>
+    <!-- js/feed/index.js é ES module (importa os demais de js/feed/). Os outros
+         scripts seguem clássicos (defer); comunicação cross-arquivo via window.* -->
+    <script src="js/feed/index.js" type="module"></script>
 </body>
 </html>

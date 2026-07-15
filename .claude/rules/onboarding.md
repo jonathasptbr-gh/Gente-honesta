@@ -1,8 +1,8 @@
 ---
 description: Tela de cadastro (#view-onboarding) — layout de barras fixas, seção Detalhes profissionais, padrão de serviço, pagamento, perfil público e o card do Índice de Confiança.
 paths:
-  - "js/onboarding.js"
-  - "css/onboarding.css"
+  - "js/onboarding/**"
+  - "css/onboarding/**"
 ---
 
 # Cadastro (`#view-onboarding`)
@@ -67,13 +67,13 @@ do feed; largura = valor×10%), com `#svc-fill-quality/agility/value` atualizado
 `updateServiceDisplay` (a largura ANIMA via `transition: width` escopada). Combinações: Padrão 5/5/5,
 Premium 8/5/7, Rápido 5/8/6, Custo-benefício 4/4/3 — **máximo de qualquer barra = 8 (80%)**. Seleção
 ÚNICA estilo RÁDIO (`applyServiceCard`/`setServiceCardActive`): **sempre há um card ativo** ("Padrão"
-já vem selecionado + default `serviceProfile {5,5,5}` em `app.js`); tocar no ativo não faz nada.
+já vem selecionado + default `serviceProfile {5,5,5}` em `core/app.js`); tocar no ativo não faz nada.
 `resetOnboardingForm` volta ao "Padrão".
 
 ## Métodos de pagamento
 
 "Métodos de pagamento aceitos" reproduz as opções do rodapé do card de profissional
-(`proFooterHTML()` em `feed.js`), como pílulas `.chip.chip--payment` (mesmo casco `.chip`; o seletor de
+(`proFooterHTML()` em `feed/index.js`), como pílulas `.chip.chip--payment` (mesmo casco `.chip`; o seletor de
 2 classes `.chip.chip--payment` vence o `.chip` base de `feed.css`). O contexto "aceito" fica só no
 título → as pílulas trazem só o nome ("Dinheiro", "Pix"). **Cartão é grupo à parte**
 (`#container-payment-card`, subtítulo "Cartão") de **seleção única** — `pro.pay.card` é sempre um valor
@@ -107,7 +107,7 @@ medidor, a zona morta (<25%) é PRETA (`#000`); dourado usa `--a-gold` cheio.
 
 **Regras de texto (invioláveis):**
 - Nunca abreviar "IC" em texto visível: sempre "Índice de Confiança" (vale para `helpTexts['btn-ic-info']`
-  em `onboarding.js`, que diz "70%", nunca "100 pontos").
+  em `onboarding/onboarding.js`, que diz "70%", nunca "100 pontos").
 - Nos textos visíveis do card NUNCA usar travessão "—": usar vírgula, ponto e vírgula ou dois-pontos.
 
 **Estrutura (topo → base; seções irmãs num flex column com `justify-content: space-between`):**

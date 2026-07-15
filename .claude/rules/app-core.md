@@ -1,10 +1,9 @@
 ---
 description: Núcleo do app — globals por módulo, estado global, diálogos, mobile-only, telas de auth/install/loader, Service Worker e fluxo de atualização do PWA.
 paths:
-  - "js/app.js"
-  - "js/auth.js"
-  - "js/session.js"
-  - "js/install.js"
+  - "js/core/**"
+  - "js/auth/**"
+  - "js/install/**"
   - "service-worker.js"
   - "css/auth.css"
   - "css/install.css"
@@ -17,25 +16,25 @@ paths:
 
 Cada JS expõe funções/objetos em `window` para acesso cross-module.
 
-**app.js** (base): `window.auth` (Firebase Auth), `window.appState` (estado mutável),
+**core/app.js** (base): `window.auth` (Firebase Auth), `window.appState` (estado mutável),
 `window.showView(viewId)`, `window.navigateTo(stepId)`, `window.openDialog({...})`,
 `window.customAlert(msg, title?, icon?)`, `window.customConfirm(msg, title?, icon?)`,
 `window.watchScrollShadows(el)`, `window.THEME_COLOR`.
 
-**tutorial.js:** `window.startTutorial(steps, opts)`, `window.resetTutorialSeen(id)`.
+**tutorial/tutorial.js:** `window.startTutorial(steps, opts)`, `window.resetTutorialSeen(id)`.
 
-**auth.js:** `window.authTimerInstance`, `window.sendOTP(isResend?)`, `window.verifyOTP()`,
+**auth/auth.js:** `window.authTimerInstance`, `window.sendOTP(isResend?)`, `window.verifyOTP()`,
 `window.resetAuthFlow()` (limpa auth + OTP + delega a `resetOnboardingForm`).
 
-**onboarding.js:** `window.finishRegistration()`, `window.resetOnboardingForm()`,
+**onboarding/onboarding.js:** `window.finishRegistration()`, `window.resetOnboardingForm()`,
 `window.startOnboardingTutorial()`.
 
-**install.js:** `window.deferredInstallPrompt`, `window.isStandalone()`,
+**install/install.js:** `window.deferredInstallPrompt`, `window.isStandalone()`,
 `window.prepareInstallView()`.
 
-**session.js** e **feed.js:** sem exports (tudo em listeners e DOMContentLoaded).
+**auth/session.js** e **feed/index.js:** sem exports (tudo em listeners e DOMContentLoaded).
 
-## Estado global (`window.appState`, em `app.js`)
+## Estado global (`window.appState`, em `core/app.js`)
 
 - `confirmationResult` — objeto de confirmação SMS do Firebase.
 - `photoBlob` — data URL da foto capturada no onboarding.
@@ -54,12 +53,12 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
 `showView(viewId)` troca a tela principal (`.screen` → `.screen--active`); `navigateTo(stepId)`
 troca sub-passo dentro de `#view-auth` (`u-hidden`). Contrato: telas SÓ por `.screen--active`;
 sub-elementos SÓ por `u-hidden`; nunca `display` inline em `.screen`. O `onAuthStateChanged`
-(`session.js`) é quem oculta o loader em transições normais.
+(`auth/session.js`) é quem oculta o loader em transições normais.
 
 ## Diálogos — primitivo único `openDialog`
 
 `window.openDialog({title, message, icon, showCancel, confirmText, cancelText, scrollable})`
-(`app.js`) monta/popula/desmonta o `#dialog-global` com **teardown ÚNICO** (remove os dois
+(`core/app.js`) monta/popula/desmonta o `#dialog-global` com **teardown ÚNICO** (remove os dois
 listeners e limpa sempre `--scrollable`) e **supersede** (um novo diálogo resolve o anterior como
 cancelar, sem empilhar handlers). Retorna `Promise<boolean>`. `customAlert`/`customConfirm` e o
 diálogo de ajuda do onboarding são wrappers finos dele. **Sempre** usar `await customAlert(...)`/
@@ -72,8 +71,8 @@ Escopado ao `#dialog-global`; o diálogo da câmera (`.dialog-box--camera`) tem 
 ## Mobile-only e orientação
 
 `window.IS_MOBILE` é definido sincronicamente no `<head>` (antes de qualquer render). Em desktop,
-`html.is-desktop` + overlay bloqueiam o app. `session.js` verifica `IS_MOBILE` para abortar o
-fluxo; em `app.js` só o REGISTRO do SW é condicionado a `IS_MOBILE` (o `firebase.initializeApp`
+`html.is-desktop` + overlay bloqueiam o app. `auth/session.js` verifica `IS_MOBILE` para abortar o
+fluxo; em `core/app.js` só o REGISTRO do SW é condicionado a `IS_MOBILE` (o `firebase.initializeApp`
 roda também em desktop — inofensivo, o overlay bloqueia a UI). Paisagem bloqueada em dois níveis:
 `manifest.json` (`"orientation": "portrait"`) + overlay CSS em `components.css`
 (`@media (orientation: landscape)`).
@@ -126,7 +125,7 @@ com o `CACHE_NAME` a cada deploy — é a fonte visual de "estou vendo a versão
 
 O SW NÃO chama `self.skipWaiting()` no `install` — o novo worker fica em "waiting" até o usuário
 confirmar:
-1. `app.js` chama `registration.update()` no `window.load` e a cada `visibilitychange → visible`
+1. `core/app.js` chama `registration.update()` no `window.load` e a cada `visibilitychange → visible`
    (detecção rápida, sem depender da checagem automática do navegador de até 24h).
 2. Ao detectar worker novo instalado (`updatefound` → `statechange` → `'installed'`, SÓ quando já
    existe `navigator.serviceWorker.controller`), exibe `#pwa-update-banner`. A página pergunta a
