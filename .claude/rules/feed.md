@@ -306,8 +306,8 @@ Em `components/buttons.css`: `btn--danger` (`--danger` + branco, Cancelar); `btn
 ## O que ainda é mock
 
 `feed/index.js` é um **ES module** (`type="module"`) que lê os dados via os **accessors** do repositório
-**`js/feed/repository.js`** (`getProfessionals`/`getComments`/`getVagas`/`getHelpers`/`getIndicatedByPost`
-+ `addVaga`; `avatarSvg` é export direto). Os arrays mock são module-private — a view NUNCA os toca
+**`js/feed/repository.js`** (`getProfessionals`/`getComments`/`getVagas`/`getHelpers`/`getIndicatedByPost`/
+`getPublishSeedIndicated` + `addVaga`; `avatarSvg` é export direto). Os arrays mock são module-private — a view NUNCA os toca
 direto — então é ali, no repositório, que a persistência no Firestore substitui os exemplos (os
 accessors viram queries async sem mexer nos chamadores). Detalhe dos dados: `mockProfessionals[]` (5 pros
 `{id, name, tags, ic, q, a, v, avail, pay:{cash,pix,card}, nf, bio}`; `pay.card`: `0`/`'debit'`/número
@@ -328,6 +328,8 @@ Contratar/WhatsApp/Compartilhar dão alerta; pedido/histórico/candidatura sem p
 - **Avatar SVG inline:** o mesmo data-URI aparece 7× em `index.html` (5 cinza + 2 branco); em
   `feed/index.js` já é a const `avatarSvg`. Dedup do HTML exigiria converter `<img>`→background (perde o
   swap de `src` do `#top-bar-avatar`) → dívida deliberada.
-- **Mock keyed por id:** `mockIndicatedByPost` e as indicações semeadas no publish redeclaram objetos
-  que já existem em `mockProfessionals` (com `ic`/`bio` divergentes). Uma fonte única por id evitaria
-  divergência — mas os valores divergentes são conteúdo de demo, cuidado ao unificar.
+- **Mock keyed por id:** `mockIndicatedByPost` redeclara objetos que já existem em `mockProfessionals`
+  (com `ic`/`bio` divergentes). Uma fonte única por id evitaria divergência — mas os valores
+  divergentes são conteúdo de demo, cuidado ao unificar. (A outra metade — as indicações semeadas no
+  publish — já saiu do `feed/index.js` para o repositório: `getPublishSeedIndicated()` sobre
+  `mockPublishIndicated`, a mesma dívida de divergência de dados, mas agora atrás do accessor.)

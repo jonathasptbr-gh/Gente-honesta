@@ -13,7 +13,8 @@ Repositório: jonathasptbr-gh/gente-honesta
 > correspondente antes de alterar** — ela tem as convenções específicas que evitam divergência.
 >
 > **Convenções de nomenclatura/estrutura/teoria** (para portabilidade): ver **`CONVENTIONS.md`** na
-> raiz. Modelo de domínio em `js/models.js` (typedefs); enums em `js/domain.js`; dados via repository.
+> raiz. Modelo de domínio em `js/core/models.js` (typedefs); enums em `js/core/domain.js`; dados via
+> repository.
 
 ---
 
@@ -24,7 +25,7 @@ Repositório: jonathasptbr-gh/gente-honesta
   para `main`; **sem build step** — os arquivos são estáticos, o deploy publica o repo direto).
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v331**.
+  bump.) Versão atual: **v332**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**
@@ -85,6 +86,9 @@ manifest.json       — PWA manifest (start_url/scope "./"; background/theme_col
 service-worker.js   — Network-First, cache offline, CACHE_NAME = "gentehonesta-vN"
 CNAME               — "gentehonesta.com.br"
 .nojekyll           — impede o Jekyll do GitHub Pages de processar os arquivos
+.gitignore          — arquivos ignorados pelo git
+CONVENTIONS.md      — convenções portáveis (nomenclatura/estrutura/teoria); ver prosa acima
+AUDITORIA-DESIGN-v260.md — snapshot histórico de auditoria de design (v260); referência, não é código ativo
 icon*.svg / *.png   — arte do ícone/PWA (quadrado full-bleed p/ maskable; arredondado p/ "any";
                       transparente e "intro" p/ usos internos). Fundo verde --p-green
 
@@ -128,8 +132,9 @@ js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
                           outros 6 (core/app, tutorial, install, auth/session, auth/auth, onboarding)
                           seguem <script defer> clássicos — cross-arquivo via window.* (module-safe).
   feed/repository.js — REPOSITÓRIO (ponto único de troca pro Firestore): arrays mock module-private +
-                          accessors getProfessionals/getComments/getVagas/getHelpers/getIndicatedByPost
-                          + addVaga. avatarSvg (export direto). Os chamadores só falam com accessors.
+                          accessors getProfessionals/getComments/getVagas/getHelpers/getIndicatedByPost/
+                          getPublishSeedIndicated + addVaga. avatarSvg (export direto). Os chamadores só
+                          falam com accessors.
   feed/config.js    — constantes congeladas: EASE_STD, *_CARD_CFG, TAB_*, SCROLL_*, HELPER_RATES,
                           placeholders, availOrder/availabilityMeta, COMMENTS_PAGE, MAX_VAGAS/DAY_ORDER.
   feed/utils.js     — funções puras: icTier/icShieldIcon, formatPedidoDate, pedidoHoursLeft, comingSoon.

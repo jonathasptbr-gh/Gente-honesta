@@ -21,6 +21,15 @@ const mockIndicatedByPost = {
   ],
 };
 
+// Indicações semeadas no PRÓPRIO pedido ao publicar (MOCK — mantém o fluxo
+// "ver indicados" demonstrável). Valores propositalmente divergentes de
+// mockProfessionals: são conteúdo de demo, não a mesma fonte por id.
+const mockPublishIndicated = [
+  { name: 'Carlos Almeida', tags: 'Eletricista · Encanador',  ic: 78, q: 7, a: 5, v: 6, avail: 'available',   pay: { cash: true,  pix: true,  card: 6  }, nf: true,  bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
+  { name: 'Fernanda Lima',  tags: 'Costureira · Designer',    ic: 91, q: 9, a: 5, v: 7, avail: 'available',   pay: { cash: false, pix: true,  card: 12 }, nf: true,  bio: 'Costura sob medida e ajustes de roupas. Não trabalha com couro nem com grandes lotes.' },
+  { name: 'Marcos Freitas', tags: 'Marceneiro',               ic: 19, q: 8, a: 4, v: 6, avail: 'full',        pay: { cash: true,  pix: true,  card: 'debit' }, nf: true, bio: 'Móveis sob medida em madeira. Tenho alta demanda, combine o prazo com antecedência.' },
+];
+
 // Avaliações de exemplo (mesmo bloco p/ todos os profissionais; 5 por vez).
 const mockComments = [
   { text: 'Chegou na hora marcada e resolveu tudo sem complicação. Recomendo sem hesitar.', author: 'Ana Souza', ic: 88 },
@@ -149,5 +158,8 @@ export const getVagas = () => mockVagas;
 export const getHelpers = () => mockHelpers;
 // Indicações de um post de TERCEIROS (o próprio pedido usa pedido.indicated).
 export const getIndicatedByPost = (postId) => mockIndicatedByPost[postId] || [];
+// Semente de indicações do PRÓPRIO pedido no publish — cópia nova por chamada
+// (cada pedido carrega seu array independente, como no literal inline anterior).
+export const getPublishSeedIndicated = () => mockPublishIndicated.map(p => ({ ...p }));
 // Única escrita hoje: publica uma vaga nova no topo da lista.
 export const addVaga = (vaga) => { mockVagas.unshift(vaga); };

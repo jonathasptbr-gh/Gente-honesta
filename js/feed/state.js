@@ -5,6 +5,8 @@
 // (activeTab, indicateMode, etc.) seguem no closure de feed.js por enquanto.
 // =========================================================================
 
+import { SORT, URGENCY, DURATION } from '../core/domain.js';
+
 // --- Profissionais / filtros ---
 // IDs dos cards fixados no topo da lista (persistência em memória por sessão)
 export const pinnedPros = new Set();
@@ -16,7 +18,7 @@ export const filterState = {
   includeAvail: new Set(),
   includePay:   new Set(),
   savedOnly:    false,
-  sort:         'ic',   // padrão: ordenar por Índice de Confiança (maior→menor)
+  sort:         SORT.IC,   // padrão: ordenar por Índice de Confiança (maior→menor)
 };
 
 // --- Navegação (scroll das abas) ---
@@ -29,7 +31,7 @@ export const scrollToTopPending = { vagas: false, home: false, pedidos: false };
 
 // --- Pedidos ---
 export const pedidoHistory = []; // {id, text, urgency, duration, neighbors, createdAt, completedAt, status:'active'|'completed', indicated:[]}
-export const myPedido = { text: '', urgency: 'normal', duration: '12', neighbors: false }; // objeto de trabalho do formulário
+export const myPedido = { text: '', urgency: URGENCY.NORMAL, duration: DURATION.H12, neighbors: false }; // objeto de trabalho do formulário
 
 // --- Contratos ---
 // Filtro combinado (texto da busca + chip de status) sobre os cards mockados.

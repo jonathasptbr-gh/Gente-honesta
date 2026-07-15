@@ -1,10 +1,10 @@
 "use strict";
-import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, addVaga } from './repository.js';
+import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, getPublishSeedIndicated, addVaga } from './repository.js';
 import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
 import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './utils.js';
 import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './templates.js';
 import { pinnedPros, filterState, scrolledState, scrollToTopPending, pedidoHistory, myPedido, contractsFilter } from './state.js';
-import { PEDIDO_STATUS, PEDIDO_DETAIL_MODE, URGENCY } from '../core/domain.js';
+import { PEDIDO_STATUS, PEDIDO_DETAIL_MODE, URGENCY, SORT, TAB, DURATION, HELPER_TYPE, PAY_METHOD } from '../core/domain.js';
 
 // =========================================================================
 // TELA - PRINCIPAL (FEED) - Gerenciador de Comportamentos da Interface
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
     filterState.includeAvail.clear();
     filterState.includePay.clear();
     filterState.savedOnly = false;
-    filterState.sort = 'ic';
+    filterState.sort = SORT.IC;
     // Limpa chips visuais no painel de filtros
     document.querySelectorAll('#panel-agenda-filters .chip--active').forEach(c => {
       c.classList.remove('chip--active');
@@ -426,10 +426,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Pagamento: OR — passa se aceitar ao menos um dos métodos marcados.
     if (filterState.includePay.size > 0) {
       const hasMatch =
-        (filterState.includePay.has('cash') && p.pay?.cash) ||
-        (filterState.includePay.has('pix')  && p.pay?.pix)  ||
-        (filterState.includePay.has('card') && p.pay?.card && p.pay.card !== 0) ||
-        (filterState.includePay.has('nf')   && p.nf === true);
+        (filterState.includePay.has(PAY_METHOD.CASH) && p.pay?.cash) ||
+        (filterState.includePay.has(PAY_METHOD.PIX)  && p.pay?.pix)  ||
+        (filterState.includePay.has(PAY_METHOD.CARD) && p.pay?.card && p.pay.card !== 0) ||
+        (filterState.includePay.has(PAY_METHOD.NF)   && p.nf === true);
       if (!hasMatch) return false;
     }
     return true;
@@ -440,12 +440,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // que mapeiam id→pro antes de delegar) — antes eram dois switch idênticos.
   function comparePros(a, b) {
     switch (filterState.sort) {
-      case 'ic':      return b.ic - a.ic;
-      case 'avail':   return (availOrder[a.avail] ?? 3) - (availOrder[b.avail] ?? 3);
-      case 'quality': return b.q - a.q;
-      case 'agility': return b.a - a.a;
-      case 'value':   return b.v - a.v;
-      default:        return a.name.localeCompare(b.name, 'pt-BR');
+      case SORT.IC:      return b.ic - a.ic;
+      case SORT.AVAIL:   return (availOrder[a.avail] ?? 3) - (availOrder[b.avail] ?? 3);
+      case SORT.QUALITY: return b.q - a.q;
+      case SORT.AGILITY: return b.a - a.a;
+      case SORT.VALUE:   return b.v - a.v;
+      default:           return a.name.localeCompare(b.name, 'pt-BR');
     }
   }
 
@@ -1695,7 +1695,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---- Função 2: chamar um ajudante ----
-    let helperCallType = 'light';
+    let helperCallType = HELPER_TYPE.LIGHT;
 
     // Card do ajudante: mesmo padrão visual dos cards de profissional do feed
     // (classes .pro-card__*: avatar retrato, nome, IC-bar, botão WhatsApp verde),
@@ -1778,7 +1778,7 @@ document.addEventListener('DOMContentLoaded', () => {
       opt.addEventListener('click', () => {
         helperCallType = opt.dataset.type;
         const seg = document.getElementById('helper-type');
-        seg?.classList.toggle('seg-toggle--heavy', helperCallType === 'heavy');
+        seg?.classList.toggle('seg-toggle--heavy', helperCallType === HELPER_TYPE.HEAVY);
         seg?.querySelectorAll('.seg-toggle__opt').forEach(o => {
           const active = o === opt;
           o.classList.toggle('seg-toggle__opt--active', active);
@@ -1983,9 +1983,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const idx = TAB_ORDER.indexOf(tabName);
     slider.style.transform = `translateX(${idx * 100}%)`;
   };
-  updateSlider('home'); // posiciona o slider na aba ativa inicial
+  updateSlider(TAB.HOME); // posiciona o slider na aba ativa inicial
 
-  let activeTab = 'home';
+  let activeTab = TAB.HOME;
 
   const agendaListEl    = document.getElementById('agenda-list');
   const pedidosScrollEl = document.getElementById('pedidos-scroll');
@@ -2017,8 +2017,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Move o slider amarelo para a nova aba
     updateSlider(tabName);
     // Desliza o painel correto
-    if (tabName === 'pedidos') showPedidosPanel();
-    else if (tabName === 'vagas') showVagasPanel();
+    if (tabName === TAB.PEDIDOS) showPedidosPanel();
+    else if (tabName === TAB.VAGAS) showVagasPanel();
     else showProsPanel();
     // Reflete o estado de scroll do NOVO painel na elevação da barra
     updateBarElevation();
@@ -2034,9 +2034,9 @@ document.addEventListener('DOMContentLoaded', () => {
           // ignora o botão até chegar ao topo (senão a seta pisca durante a
           // animação, quando scrollTop ainda está acima do threshold).
           scrollToTopPending[clickedTab] = true;
-          if (clickedTab === 'home')    agendaListEl?.scrollTo({ top: 0, behavior: 'smooth' });
-          if (clickedTab === 'pedidos') pedidosScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
-          if (clickedTab === 'vagas')   vagasScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
+          if (clickedTab === TAB.HOME)    agendaListEl?.scrollTo({ top: 0, behavior: 'smooth' });
+          if (clickedTab === TAB.PEDIDOS) pedidosScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
+          if (clickedTab === TAB.VAGAS)   vagasScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
           scrolledState[clickedTab] = false;
           setTabButton(clickedTab, false);
         }
@@ -2066,11 +2066,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
     // Ordem dos painéis: vagas ← home → pedidos
     if (dx < 0) {
-      if (activeTab === 'vagas')   switchToTab('home');
-      else if (activeTab === 'home') switchToTab('pedidos');
+      if (activeTab === TAB.VAGAS)   switchToTab(TAB.HOME);
+      else if (activeTab === TAB.HOME) switchToTab(TAB.PEDIDOS);
     } else {
-      if (activeTab === 'pedidos') switchToTab('home');
-      else if (activeTab === 'home') switchToTab('vagas');
+      if (activeTab === TAB.PEDIDOS) switchToTab(TAB.HOME);
+      else if (activeTab === TAB.HOME) switchToTab(TAB.VAGAS);
     }
   }, { passive: true });
 
@@ -2124,8 +2124,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // rolado — barra "flat" = usuário está no TOPO da lista (indicador de topo).
   // function declaration (hoistada): também chamada por switchToTab.
   function updateBarElevation() {
-    const el = activeTab === 'home' ? agendaListEl
-             : activeTab === 'pedidos' ? pedidosScrollEl : vagasScrollEl;
+    const el = activeTab === TAB.HOME ? agendaListEl
+             : activeTab === TAB.PEDIDOS ? pedidosScrollEl : vagasScrollEl;
     feedActionBar?.classList.toggle('agenda-filters--elevated', (el?.scrollTop || 0) > 2);
   }
 
@@ -2150,9 +2150,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // "pending" para o botão voltar a refletir o scroll real na hora.
     el?.addEventListener('touchstart', () => { scrollToTopPending[tabKey] = false; }, { passive: true });
   };
-  wireScrollTab(agendaListEl,  'home');
-  wireScrollTab(pedidosScrollEl, 'pedidos');
-  wireScrollTab(vagasScrollEl,  'vagas');
+  wireScrollTab(agendaListEl,  TAB.HOME);
+  wireScrollTab(pedidosScrollEl, TAB.PEDIDOS);
+  wireScrollTab(vagasScrollEl,  TAB.VAGAS);
 
 
 
@@ -2430,7 +2430,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resetPedidoForm = () => {
     myPedido.text = '';
     myPedido.urgency = URGENCY.NORMAL;
-    myPedido.duration = '12';
+    myPedido.duration = DURATION.H12;
     myPedido.neighbors = false;
     // Marca o chip cujo data-* CASA com o valor default — não por posição no
     // DOM: se a ordem dos chips mudar, seleção visual e myPedido não divergem.
@@ -2465,12 +2465,9 @@ document.addEventListener('DOMContentLoaded', () => {
       createdAt: Date.now(),
       completedAt: null,
       status: PEDIDO_STATUS.ACTIVE,
-      // MOCK: semeia indicações para o fluxo "ver indicados" ficar demonstrável.
-      indicated: [
-        { name: 'Carlos Almeida', tags: 'Eletricista · Encanador',  ic: 78, q: 7, a: 5, v: 6, avail: 'available',   pay: { cash: true,  pix: true,  card: 6  }, nf: true,  bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
-        { name: 'Fernanda Lima',  tags: 'Costureira · Designer',    ic: 91, q: 9, a: 5, v: 7, avail: 'available',   pay: { cash: false, pix: true,  card: 12 }, nf: true,  bio: 'Costura sob medida e ajustes de roupas. Não trabalha com couro nem com grandes lotes.' },
-        { name: 'Marcos Freitas', tags: 'Marceneiro',               ic: 19, q: 8, a: 4, v: 6, avail: 'full',        pay: { cash: true,  pix: true,  card: 'debit' }, nf: true, bio: 'Móveis sob medida em madeira. Tenho alta demanda, combine o prazo com antecedência.' },
-      ],
+      // MOCK: semeia indicações para o fluxo "ver indicados" ficar demonstrável
+      // (fonte única no repositório; cópia nova por pedido).
+      indicated: getPublishSeedIndicated(),
     };
     pedidoHistory.push(pedido);
     resetPedidoForm();

@@ -110,7 +110,7 @@ telas fica por conta do fade-out do loader.
 ## Service Worker
 
 Incrementar `CACHE_NAME` (`service-worker.js`) a cada deploy com mudanças de cache (atual:
-`gentehonesta-v331`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
+`gentehonesta-v332`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
 caches antigos. **CRÍTICO — o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`:** sem
 isso, o `Cache-Control: max-age=600` do GitHub Pages devolvia arquivos VELHOS por até 10 min após
 um deploy e o botão "Atualizar" recarregava a versão antiga. `no-cache` = revalida via ETag (304

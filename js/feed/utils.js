@@ -2,8 +2,10 @@
 // UTILS do feed — funções PURAS (dependem só de argumentos + globais).
 // =========================================================================
 
+import { IC_TIER } from '../core/domain.js';
+
 // Faixa do IC e escudo (fonte única dos limiares 75/50/25).
-export function icTier(ic) { return ic >= 75 ? 'ok' : ic >= 50 ? 'warn' : ic >= 25 ? 'alert' : 'bad'; }
+export function icTier(ic) { return ic >= 75 ? IC_TIER.OK : ic >= 50 ? IC_TIER.WARN : ic >= 25 ? IC_TIER.ALERT : IC_TIER.BAD; }
 export function icShieldIcon(ic) { return ic >= 75 ? 'gpp_good' : ic >= 50 ? 'shield_question' : ic >= 25 ? 'gpp_maybe' : 'gpp_bad'; }
 
 // Stub de "funcionalidade em breve" (WhatsApp/Compartilhar).
