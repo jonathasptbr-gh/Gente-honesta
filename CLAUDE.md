@@ -115,7 +115,13 @@ js/   (a ordem de carga no index.html importa)
   session.js        — 4º. onAuthStateChanged: decide a tela inicial, resetAuthFlow, tutorial
   auth.js           — 5º. Login: sendOTP (whitelist), verifyOTP, cooldown, OTP, resetAuthFlow
   onboarding.js     — 6º. Cadastro: finishRegistration, câmera, tags, serviço, resetOnboardingForm
-  feed.js           — 7º. Feed: painéis, modo indicação, cards, filtros, pedidos, scroll-to-top
+  feed.js           — 7º. Feed (ES MODULE, type="module"): painéis, modo indicação, cards,
+                          filtros, pedidos, scroll-to-top. Importa js/feed-data.js
+  feed-data.js      — ES module: dados mock (mockProfessionals/mockComments/mockVagas/
+                          mockIndicatedByPost) + avatarSvg. Substituídos pelo Firestore no futuro
+
+  Nota: só feed.js é ES module (para importar feed-data.js); os outros 6 seguem <script defer>
+  clássicos. A comunicação cross-arquivo continua via window.* (module-safe).
 
 .claude/
   settings.json     — hook SessionStart → session-start.sh

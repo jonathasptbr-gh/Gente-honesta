@@ -163,7 +163,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v323</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v324</span>
     </div>
 
     <!-- =====================================================================
@@ -1530,6 +1530,8 @@
     <script src="js/session.js" defer></script>
     <script src="js/auth.js" defer></script>
     <script src="js/onboarding.js" defer></script>
-    <script src="js/feed.js" defer></script>
+    <!-- feed.js é ES module (importa js/feed-data.js). Os demais scripts seguem
+         clássicos (defer); a comunicação cross-arquivo continua via window.* -->
+    <script src="js/feed.js" type="module"></script>
 </body>
 </html>

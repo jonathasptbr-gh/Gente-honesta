@@ -305,7 +305,9 @@ Em `components.css`: `btn--danger` (`--danger` + branco, Cancelar); `btn--accent
 
 ## O que ainda é mock
 
-Em `DOMContentLoaded` de `feed.js`: `mockProfessionals[]` (5 pros
+`feed.js` é um **ES module** (`type="module"`) que importa os dados mock de **`js/feed-data.js`**
+(`mockProfessionals`, `mockComments`, `mockVagas`, `mockIndicatedByPost`, `avatarSvg`) — é ali que a
+persistência no Firestore vai substituir os exemplos. Detalhe dos dados: `mockProfessionals[]` (5 pros
 `{id, name, tags, ic, q, a, v, avail, pay:{cash,pix,card}, nf, bio}`; `pay.card`: `0`/`'debit'`/número
 = parcelas), `mockComments[]` (15, exibidos 5 por vez), `mockIndicatedByPost{}` (post de TERCEIROS →
 pros; o próprio pedido usa `pedido.indicated`), `mockVagas[]` (3), `mockHelpers`. Placeholders:
