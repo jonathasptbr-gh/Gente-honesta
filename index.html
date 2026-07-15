@@ -147,7 +147,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v320</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v321</span>
     </div>
 
     <!-- =====================================================================
@@ -305,12 +305,12 @@
             <!-- ── Foto + Nome + Sobrenome ──────────────────────────────── -->
             <div id="field-photo" class="profile-header-row">
                 <div class="profile-header-row__photo">
-                    <div id="media-preview" class="media-capture__display" role="button" tabindex="0" aria-label="Tirar foto de perfil">
+                    <button type="button" id="media-preview" class="media-capture__display" aria-label="Tirar foto de perfil">
                         <div id="media-placeholder" class="media-capture__placeholder">
                             <span class="material-symbols-rounded" aria-hidden="true">photo_camera</span>
                             <span class="media-capture__placeholder-text">Adicionar foto</span>
                         </div>
-                    </div>
+                    </button>
                 </div>
                 <div class="profile-header-row__fields">
                     <div class="form-group form-group--no-margin">
@@ -341,7 +341,7 @@
 
             <!-- ── Detalhes profissionais (opcional) — seção colapsável ─────── -->
             <div class="collapsible">
-                <button type="button" id="btn-toggle-prodetails" class="collapsible__trigger">
+                <button type="button" id="btn-toggle-prodetails" class="collapsible__trigger" aria-expanded="false" aria-controls="panel-prodetails">
                     <span class="material-symbols-rounded" aria-hidden="true">work</span>
                     Detalhes profissionais <span class="form-group__optional">(opcional)</span>
                     <span class="material-symbols-rounded collapsible__chevron" aria-hidden="true">expand_more</span>
@@ -481,7 +481,7 @@
                          dados profissionais preenchidos. -->
                     <div class="form-group">
                         <button type="button" id="chk-profile-public" class="card card--shadow profile-public-check" aria-pressed="false">
-                            <span class="profile-public-check__box"><span class="material-symbols-rounded" aria-hidden="true">check</span></span>
+                            <span class="profile-public-check__box check-box"><span class="material-symbols-rounded" aria-hidden="true">check</span></span>
                             <span class="profile-public-check__text">Tornar meu perfil público para buscas e indicações na minha região</span>
                         </button>
                     </div>
@@ -709,7 +709,7 @@
             <div class="historico-sheet__backdrop" id="historico-sheet-backdrop"></div>
             <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
-                <!-- Sem header interno: o título vai para a top bar (setTopBarTitle) -->
+                <!-- Sem header interno (a top bar de título foi eliminada na v287) -->
                 <div class="historico-sheet__scroll js-scroll-shadows">
                     <div id="historico-list" class="historico-list">
                         <!-- Preenchido via JS -->
@@ -750,13 +750,13 @@
                                     <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
                                     Apenas salvos
                                 </button>
-                                <button type="button" class="chip chip--ic chip--ic-ok"    data-filter-ic="ok"    aria-pressed="false">
+                                <button type="button" class="chip chip--ic chip--ic-ok"    data-filter-ic="ok"    aria-pressed="false" aria-label="Confiança alta">
                                     <span class="material-symbols-rounded" aria-hidden="true">gpp_good</span>
                                 </button>
-                                <button type="button" class="chip chip--ic chip--ic-warn"  data-filter-ic="warn"  aria-pressed="false">
+                                <button type="button" class="chip chip--ic chip--ic-warn"  data-filter-ic="warn"  aria-pressed="false" aria-label="Confiança média">
                                     <span class="material-symbols-rounded" aria-hidden="true">shield_question</span>
                                 </button>
-                                <button type="button" class="chip chip--ic chip--ic-alert" data-filter-ic="alert" aria-pressed="false">
+                                <button type="button" class="chip chip--ic chip--ic-alert" data-filter-ic="alert" aria-pressed="false" aria-label="Confiança baixa">
                                     <span class="material-symbols-rounded" aria-hidden="true">gpp_maybe</span>
                                 </button>
                             </div>
@@ -801,8 +801,7 @@
             <div class="pedido-sheet__backdrop" id="pedido-sheet-backdrop"></div>
             <div class="pedido-sheet__clip">
             <div class="pedido-sheet__panel">
-                <!-- Sem header interno: o título ("Fazer pedido"/"Pedido atual"/
-                     "Pedido concluído") vai para a top bar (setTopBarTitle) -->
+                <!-- Sem header interno (a top bar de título foi eliminada na v287) -->
                 <div class="pedido-sheet__body js-scroll-shadows">
 
                     <!-- ESTADO: CRIAÇÃO (formulário) -->
@@ -888,7 +887,7 @@
             <div class="pedido-sheet__panel">
                 <div class="pedido-sheet__body js-scroll-shadows">
                     <div class="pedido-sheet__state">
-                        <!-- Sem título interno: "Criar vaga" vai para a top bar (setTopBarTitle) -->
+                        <!-- Sem título interno (a top bar de título foi eliminada na v287) -->
                         <div class="pedido-field">
                             <label class="pedido-field__label eyebrow" for="inp-vaga-cnpj">CNPJ da empresa</label>
                             <input type="text" id="inp-vaga-cnpj" class="input-text" inputmode="numeric" maxlength="18" placeholder="00.000.000/0000-00">
@@ -997,7 +996,7 @@
 
                         <div class="pedido-field">
                             <button type="button" class="vaga-check" id="chk-vaga-curriculo" aria-pressed="false">
-                                <span class="vaga-check__box" aria-hidden="true">
+                                <span class="vaga-check__box check-box" aria-hidden="true">
                                     <span class="material-symbols-rounded">check</span>
                                 </span>
                                 <span class="vaga-check__text">Exigir currículo em PDF ou foto <span class="vaga-field__optional">(opcional)</span></span>
@@ -1031,7 +1030,7 @@
             <div class="pedido-sheet__backdrop" id="ajudante-sheet-backdrop"></div>
             <div class="pedido-sheet__clip">
             <div class="pedido-sheet__panel">
-                <!-- Sem header interno: "Serviço de ajudantes" vai para a top bar (setTopBarTitle) -->
+                <!-- Sem header interno (a top bar de título foi eliminada na v287) -->
 
                 <div class="pedido-sheet__body js-scroll-shadows">
 
@@ -1477,15 +1476,15 @@
             <nav class="feed-tabs-pill" role="tablist" aria-label="Seções do app">
                 <!-- Indicador deslizante — posicionado via JS (translateX) -->
                 <div class="feed-tabs-pill__slider" aria-hidden="true"></div>
-                <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="vagas" aria-label="Vagas">
+                <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="vagas" aria-label="Vagas" aria-selected="false">
                     <span class="material-symbols-rounded" aria-hidden="true">work</span>
                     <span class="feed-tabs-pill__tab-label">Vagas</span>
                 </button>
-                <button type="button" class="feed-tabs-pill__tab feed-tabs-pill__tab--active" role="tab" data-tab="home" aria-label="Profissionais">
+                <button type="button" class="feed-tabs-pill__tab feed-tabs-pill__tab--active" role="tab" data-tab="home" aria-label="Profissionais" aria-selected="true">
                     <span class="material-symbols-rounded" aria-hidden="true">person_search</span>
                     <span class="feed-tabs-pill__tab-label">Profissionais</span>
                 </button>
-                <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="pedidos" aria-label="Pedidos">
+                <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="pedidos" aria-label="Pedidos" aria-selected="false">
                     <span class="material-symbols-rounded" aria-hidden="true">view_agenda</span>
                     <span class="feed-tabs-pill__tab-label">Pedidos</span>
                 </button>

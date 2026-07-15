@@ -29,133 +29,10 @@
 }
 
 
-/* ===========================================
-   TOP BAR — fundo verde, elementos brancos
-   ======================================== */
-.top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 48px;
-  padding: var(--space-xs) var(--space-md) 0; /* sem bottom: a busca abaixo já tem top padding */
-  padding-top: calc(var(--space-xs) + env(safe-area-inset-top, 0px)); /* iOS standalone: não entrar sob o notch */
-  background: var(--p-green);
-  border-bottom: none;
-  z-index: 10;
-  flex-shrink: 0;
-}
-
-.top-bar__brand {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 5px;
-  font-size: var(--fs-10);
-  font-weight: var(--fw-heavy);
-  color: var(--t-light);
-}
-
-/* Selo de versão discreto ao lado da marca (sobrescrito dourado pequeno).
-   Some quando uma gaveta abre e o título da seção ocupa a marca (setTopBarTitle). */
-.top-bar__version {
-  align-self: flex-start;   /* sobe como sobrescrito */
-  font-size: var(--fs-1);
-  font-weight: var(--fw-bold);
-  color: var(--a-gold);
-  letter-spacing: 0.02em;
-  font-variant-numeric: tabular-nums;
-  user-select: none;
-}
-
-.top-bar__action {
-  background: none;
-  border: none;
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  min-width: 46px;
-  padding: 2px 6px;          /* reduzido de 3px → 2px: cabe dentro dos 40px disponíveis */
-  border-radius: var(--radius-md);
-  transition: var(--transition);
-}
-
-.top-bar__action-label {
-  font-size: var(--fs-1);
-  font-weight: var(--fw-medium);
-  line-height: 1;
-  color: var(--t-sub);
-}
-
-/* No topo verde os rótulos (Perfil/Contratos) são claros; o "Fechar" dos painéis
-   herda o cinza padrão acima, garantindo contraste sobre fundo claro. */
-.top-bar .top-bar__action-label {
-  color: var(--t-light);
-}
-
-/* Botão "Perfil" = foto/avatar RETANGULAR (mesmo formato 3:4 das fotos de
-   profissionais), SEM rótulo (a foto ocupa o espaço todo do botão); placeholder
-   cinza quando não há foto salva (JS troca o src por window.appState.photoBlob).
-   Sem o rótulo, o botão só precisa do padding vertical mínimo. */
-.top-bar__action--profile {
-  padding: 2px;
-  /* Alinha o avatar à margem lateral externa (--space-md), igual à action bar
-     abaixo. Sem isto, o min-width:46px do .top-bar__action centralizava o avatar
-     de 30px, deixando-o ~8px "para dentro" da borda do botão. */
-  padding-left: 0;
-  align-items: flex-start;
-}
-
-.top-bar__avatar {
-  width: 30px;
-  height: 40px;
-  border-radius: var(--radius-xs);
-  object-fit: cover;
-  background: var(--border-light);
-  border: 1.5px solid var(--t-light);
-}
-
-.top-bar__action:active {
-  background: var(--on-green-faint);
-}
-
-.top-bar__notif-icon {
-  font-size: 1.4rem;   /* reduzido de 1.6rem: ~22px + rótulo ~10px + pad 4px = 36px ≤ 40px */
-  color: var(--t-light);
-}
-
-/* Avatar 3x4 (portrait) — moldura branca sólida */
-.avatar-img {
-  width: 36px;
-  height: 48px;
-  border-radius: var(--radius-xs);
-  border: 2.5px solid var(--t-light);
-  background: var(--border-light);
-  object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
-}
-
-/* Badge de notificação */
-.notif-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  background: var(--danger);
-  color: var(--t-light);
-  font-size: var(--fs-2);
-  font-weight: var(--fw-bold);
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  border: 1.5px solid var(--p-green);
-}
+/* TOP BAR removida na v287: perfil, contratos, busca e selo de versão foram
+   consolidados na linha de busca da action bar (.agenda-filters). Todo o bloco
+   .top-bar*/.notif-badge era CSS órfão (nenhum elemento no HTML/JS o usa) e foi
+   removido. O avatar de perfil vive hoje em .agenda-filters__profile-img. */
 
 
 /* ===========================================
@@ -742,7 +619,7 @@
   cursor: pointer;
   position: relative;     /* fica acima do slider (z-index) */
   z-index: 1;
-  transition: color var(--transition);
+  transition: color 0.3s var(--ease);
 }
 
 .feed-tabs-pill__tab-label {
@@ -754,7 +631,7 @@
 
 .feed-tabs-pill__tab .material-symbols-rounded {
   font-size: 1.4rem;
-  transition: font-variation-settings var(--transition);
+  transition: font-variation-settings 0.3s var(--ease);
 }
 
 /* Aba ativa: só cor muda (o slider amarelo é o fundo) */
@@ -1379,15 +1256,15 @@
 /* O detalhe do pedido agora também é um DROPDOWN (mesmo slide-down do histórico),
    não mais tela cheia — herda .pedido-sheet__panel acima. */
 
-/* Sem header interno nos dropdowns: o título da gaveta vai para a top bar
-   (setTopBarTitle em feed.js troca o "Gente Honesta" enquanto ela está aberta). */
+/* Sem header interno nos dropdowns (removido na v268 p/ liberar espaço); a
+   top bar de título foi eliminada na v287, então a gaveta não tem título. */
 
 .pedido-sheet__body {
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
   scrollbar-width: thin;
-  scrollbar-color: rgba(var(--p-green-dark-rgb), 0.28) transparent;
+  scrollbar-color: var(--scroll-thumb-dark) transparent;
   /* respiro para o último controle não colar na borda inferior do aparelho */
   padding-bottom: env(safe-area-inset-bottom, 0px);
   /* Área de scroll EDGE-TO-EDGE no card: estende o body até as DUAS bordas
@@ -1405,7 +1282,7 @@
 /* Barra SEMPRE visível (formulários criar pedido/vaga, detalhe do pedido).
    Thumb ESCURO: o painel agora é claro. */
 .pedido-sheet__body::-webkit-scrollbar { width: 5px; }
-.pedido-sheet__body::-webkit-scrollbar-thumb { background: rgba(var(--p-green-dark-rgb), 0.28); border-radius: 4px; }
+.pedido-sheet__body::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
 
 .pedido-sheet__state {
   display: flex;
@@ -1819,32 +1696,8 @@
   transition: var(--transition);
 }
 
-.vaga-check__box {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-xs);
-  border: 2px solid var(--border-mid);
-  background: transparent;
-  transition: var(--transition);
-}
-
-.vaga-check__box .material-symbols-rounded {
-  font-size: 1.1rem;
-  color: var(--t-light);
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.vaga-check[aria-pressed="true"] .vaga-check__box {
-  background: var(--info-blue);
-  border-color: var(--info-blue);
-}
-
-.vaga-check[aria-pressed="true"] .vaga-check__box .material-symbols-rounded { opacity: 1; }
+/* A caixa (.vaga-check__box) usa o primitivo .check-box (components.css);
+   o estado marcado vem do aria-pressed do botão-pai #chk-vaga-curriculo. */
 
 .vaga-check__text {
   font-size: var(--fs-5);
@@ -2020,7 +1873,7 @@
   transform: translateY(0);
 }
 
-/* Sem header interno: o título vai para a top bar (setTopBarTitle). */
+/* Sem header interno (a top bar de título foi eliminada na v287). */
 
 .historico-sheet__scroll {
   flex: 1;
@@ -2028,7 +1881,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: rgba(var(--p-green-dark-rgb), 0.28) transparent;
+  scrollbar-color: var(--scroll-thumb-dark) transparent;
   /* Área de scroll edge-to-edge no card (ver .pedido-sheet__body): barra na
      borda direita, shades de fronteira cobrindo a largura toda. */
   margin-left: calc(-1 * var(--space-md));
@@ -2041,7 +1894,7 @@
 /* Barra SEMPRE visível (histórico de pedidos e painel de filtros).
    Thumb ESCURO: o painel agora é claro. */
 .historico-sheet__scroll::-webkit-scrollbar { width: 5px; }
-.historico-sheet__scroll::-webkit-scrollbar-thumb { background: rgba(var(--p-green-dark-rgb), 0.28); border-radius: 4px; }
+.historico-sheet__scroll::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
 
 .historico-list {
   display: flex;
@@ -2771,7 +2624,7 @@
   overflow-y: auto;
   min-height: 0;
   scrollbar-width: thin;
-  scrollbar-color: rgba(var(--p-green-dark-rgb), 0.28) transparent;
+  scrollbar-color: var(--scroll-thumb-dark) transparent;
   padding-bottom: var(--space-xs);
   padding-right: 4px;
 }
@@ -2779,7 +2632,7 @@
 /* Barra SEMPRE visível — verso do card de profissional expandido (comentários).
    Fundo claro → thumb escuro translúcido. */
 .pro-card__back-comments::-webkit-scrollbar { width: 5px; }
-.pro-card__back-comments::-webkit-scrollbar-thumb { background: rgba(var(--p-green-dark-rgb), 0.28); border-radius: 4px; }
+.pro-card__back-comments::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
 
 .pro-card__comments-list {
   display: flex;
@@ -3111,24 +2964,6 @@
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-/* Ícone riscado na diagonal (ex: sem nota fiscal) */
-.icon-crossed {
-  position: relative;
-  display: inline-block;
-}
-
-.icon-crossed::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -1px;
-  right: -1px;
-  height: 1.5px;
-  background: currentColor;
-  transform: rotate(-35deg);
-  pointer-events: none;
-}
-
 .pro-card__name {
   font-size: var(--fs-7);
   font-weight: var(--fw-bold);
@@ -3306,7 +3141,7 @@
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(var(--p-green-dark-rgb), 0.28) transparent;
+  scrollbar-color: var(--scroll-thumb-dark) transparent;
   padding: var(--space-sm) var(--space-md);
   display: flex;
   flex-direction: column;
@@ -3315,7 +3150,7 @@
 
 /* Barra SEMPRE visível — formulário de candidatura no verso do card de vaga. */
 .vaga-card__back-form::-webkit-scrollbar { width: 5px; }
-.vaga-card__back-form::-webkit-scrollbar-thumb { background: rgba(var(--p-green-dark-rgb), 0.28); border-radius: 4px; }
+.vaga-card__back-form::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
 
 /* Footer: botão voltar + botão enviar lado a lado */
 .vaga-card__back-footer {

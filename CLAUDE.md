@@ -255,6 +255,12 @@ Variáveis em `css/base.css :root`:
 **Sombras e transições:** `--shadow-sm`, `--shadow-lg`, `--transition`. Preferir os tokens de sombra a
 recriar `box-shadow` à mão. Os cards em repouso do feed (`.post-card`, `.vaga-card__front`) usam
 `--shadow-sm`, igual ao `.contract-card` — as antigas sombras duplas bespoke foram reconciliadas.
+**`--transition` é `all 0.3s …`** — para transicionar UMA propriedade específica NÃO componha
+`transition: color var(--transition)` (vira `color all 0.3s`, lista inválida, descartada): use o token
+**`--ease`** (a MESMA curva, sem propriedade/duração), ex.: `transition: color 0.3s var(--ease)`. Em JS,
+a const `EASE_STD` (`feed.js`) espelha essa curva para as transições montadas em runtime.
+**`--scroll-thumb-dark`** é o thumb da barra de rolagem fina sobre superfícies CLARAS (versos de card,
+gavetas claras); sobre verde usa-se `--on-green-muted`.
 
 **Destaque de estado por COR, NUNCA por sombra:** sombras coloridas de destaque furavam bordas/divs e
 viravam linha sólida — foram REMOVIDAS (não há mais `--focus-ring`/`--ring-gold`/`--ring-danger`). O estado
@@ -352,6 +358,11 @@ borda de UA e outro não). Pendência: alguns botões do feed ainda são bespoke
   `.ic-card` (`card card--shadow` + gradiente verde próprio) e nos passos do install (`card card--soft`,
   contraste no verde). Ao criar uma superfície clara nova, componha a partir de `.card` (+ `--shadow`)
   em vez de reescrever fundo/raio/sombra — nunca adicione contorno.
+- **`.check-box` (primitiva de caixa de marcação, `components.css`)** — caixa 24×24 (radius-xs, borda
+  `--border-mid`, glifo `--t-light`) usada no check "perfil público" (cadastro) e no "exigir currículo"
+  (criar vaga). O estado marcado é lido do **`aria-pressed` do BOTÃO-pai** que contém a caixa
+  (`[aria-pressed="true"] .check-box` → fill/borda `--info-blue`), então serve a qualquer toggle novo:
+  dê `class="check-box"` ao span da caixa e alterne `aria-pressed` no botão.
 - **`.eyebrow` (rótulo/sobretítulo uppercase, `components.css`)** — receita única de rótulo em caixa alta
   (`--p-green`, `--fs-5`, 700, uppercase), compartilhada com `.form-group__label` num seletor agrupado.
   `.ic-hero__title` a usa no HTML (só mantém extras de layout), e desde a v299 TODOS os labels das gavetas
@@ -667,15 +678,13 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v279`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v321`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
 
-**Selo de versão (`#version-badge`):** desde a v279 vive DENTRO da top bar do feed, ao lado da marca
-"Gente Honesta" (`.top-bar__version` em `feed.css`: sobrescrito dourado pequeno `--fs-1`) — não é mais um
-marcador flutuante fixo. É um irmão de `.top-bar__brand-text` (o texto da marca), então `setTopBarTitle`
-troca só o TEXTO da marca e ESCONDE o selo (`u-hidden`) enquanto o título de uma gaveta ocupa a top bar,
-restaurando-o ao fechar. Mostra a versão do deploy servido (os arquivos são Network-First, então reflete
-o que o usuário está vendo, ao contrário do SW que pode estar defasado). Só aparece no feed (não nas telas
-de auth/onboarding/install). **O texto de `#version-badge` em `index.html` (`v###`) DEVE ser bumpado JUNTO
+**Selo de versão (`#version-badge`):** com a remoção da top bar (v287), o selo voltou para o
+**loader global** (`class="overlay-loader__version"` no `#loader-global`, `index.html`) — não vive mais
+na top bar do feed nem existe mais `.top-bar__version`/`setTopBarTitle`. Mostra a versão do deploy
+servido (os arquivos são Network-First, então reflete o que o usuário está vendo, ao contrário do SW que
+pode estar defasado). **O texto de `#version-badge` em `index.html` (`v###`) DEVE ser bumpado JUNTO
 com o `CACHE_NAME`** a cada deploy — é a fonte visual de "estou vendo a versão nova?".
 
 **Seção "Detalhes profissionais" — abertura ANIMADA + obrigatoriedade condicional:** o painel
@@ -891,13 +900,10 @@ normal (pendentes → ativos → concluído → cancelado — o antigo `column-r
 tela-cheia). `closeContractsSheet` tem guarda de early-return (evita TDZ de `renderAgendaList` no setup)
 e é chamado por `showVagasPanel`/`showPedidosPanel` nas trocas de aba.
 
-**NÃO há mais header/título INTERNO nos submenus (v268).** O título da gaveta vai para a TOP BAR: a
-função hoistada `setTopBarTitle(titulo)` (`feed.js`) troca o texto "Gente Honesta" (`.top-bar__brand`)
-pelo título da seção enquanto ela está aberta, e `setTopBarTitle(null)` restaura a marca ao fechar.
-Cada `open*` seta seu título ("Criar vaga", "Serviço de ajudantes", "Histórico de pedidos", "Filtros",
-"Fazer pedido"/"Pedido atual"/"Pedido concluído"); nos EMPILHAMENTOS (detalhe sobre histórico), o close
-restaura o título da gaveta que continua aberta atrás (mesma lógica dos botões Fechar), e o
-`closeFiltersSheet` (chamado preventivamente nas trocas de aba) só restaura se o sheet estava aberto.
+**NÃO há mais header/título INTERNO nos submenus (v268).** Antes o título da gaveta ia para a top bar,
+mas a top bar foi eliminada na v287 — hoje as gavetas simplesmente não têm título (a função
+`setTopBarTitle` era um no-op e foi REMOVIDA). Se um dia voltar a necessidade de rotular a gaveta, será
+preciso um novo alvo de título (não existe mais `.top-bar`).
 
 **NÃO há mais botão de fechar dedicado dentro do header do submenu.** No lugar, o **próprio botão-abridor**
 da action bar vira um **botão de fechar padrão** (ícone `close` + "Fechar") enquanto seu submenu está
@@ -1113,7 +1119,7 @@ Bottom sheet de criação de vaga, acionado pelo `#btn-criar-vaga` da action bar
 `.pedido-sheet__actions--footer` — sempre visível na base. Essa faixa tem fundo BRANCO `--bg-white`
 (contrasta com o corpo `--bg-soft` do painel; o CTA dourado se destaca), edge-to-edge (margem negativa
 anula o padding do painel) e cantos inferiores `--radius-lg`. **Sem título interno** (como todos os
-dropdowns desde a v268: o título vive na top bar via `setTopBarTitle`).
+dropdowns desde a v268; a top bar de título foi eliminada na v287, então a gaveta não tem título).
 **Reaproveita o scaffolding do `pedido-sheet`** (mesmas classes `.pedido-sheet*`, `.pedido-field*`,
 `.pedido-chip*` — o bottom-sheet-formulário padrão do app), com estilos próprios só para as listas
 dinâmicas (`css/feed.css`, bloco "Sheet Criar vaga"): `.vaga-dyn-list` / `.vaga-dyn-row` (input +
@@ -1269,17 +1275,19 @@ arriscadas que o ganho imediato. Ao mexer nessas áreas, prefira consolidar em v
 - **Scaffolding de flip 3D duplicado:** `.pro-card__*` e `.vaga-card__*` (`feed.css`) repetem quase
   idêntico o maquinário de flip (`preserve-3d`, `rotateY(180deg)` no verso, pares `backface-visibility`,
   colapso `--expanded height:0`). Candidato a uma base `.flip-card*` compartilhada parametrizada.
-- **Construção de card de profissional em dois caminhos:** `renderFlippableProCards` (usado no popup de
-  indicados e nos detalhes do pedido) vs. a construção inline em `renderAgendaList`; e a delegação de
-  clique do flip existe duas vezes (`bindProCardFlip` e o handler de `#agenda-list`). Unificar num único
-  builder + uma única delegação parametrizada por modo (com/sem pin).
-- **Diálogos hand-rolled:** `customAlert`, `customConfirm` (`app.js`) e o diálogo de ajuda do onboarding
-  (`onboarding.js`) montam/populam/desmontam `#dialog-global` de formas quase iguais, e cada um adiciona
-  um `click` novo ao `#btn-dialog-confirm` a cada chamada (handlers empilham em reentrância). Extrair um
-  primitivo `openDialog({title, message, icon, showCancel, scrollable})` com teardown consistente.
-- **Avatar SVG inline duplicado:** o mesmo `data:image/svg+xml` de avatar-placeholder aparece 8× em
-  `index.html` (6 cinzas + 2 brancos, só muda o `fill`); dentro de `feed.js` já foi consolidado numa
-  const única (`avatarSvg`). Fatorar o lado do HTML num helper/constante única.
+- **Construção de card de profissional — builder RESOLVIDO, delegação PENDENTE:** o scaffolding do card
+  virou fonte única `buildProCard(pro, {showPin, withId})` (`feed.js`), usada por `renderFlippableProCards`
+  E por `renderAgendaList`. A **delegação de clique do flip** ainda existe duas vezes (`bindProCardFlip`
+  para o popup/detalhe e o handler de `#agenda-list` com pin + modo indicação) — unificá-la exigiria
+  parametrizar pin/indicação e ainda está aberto.
+- **Diálogos — RESOLVIDO:** existe o primitivo `window.openDialog({title, message, icon, showCancel,
+  confirmText, cancelText, scrollable})` (`app.js`), com teardown ÚNICO (remove os dois listeners e limpa
+  sempre `--scrollable`) e supersede (um novo diálogo resolve o anterior como cancelar, sem empilhar
+  handlers). `customAlert`/`customConfirm` e o diálogo de ajuda do onboarding são wrappers finos dele.
+- **Avatar SVG inline duplicado:** o mesmo `data:image/svg+xml` de avatar-placeholder aparece 7× em
+  `index.html` (5 cinzas + 2 brancos, só muda o `fill`); dentro de `feed.js` já foi consolidado numa
+  const única (`avatarSvg`). Fatorar o lado do HTML num helper/constante única exige converter os `<img>`
+  em background (perde o swap de `src` do `#top-bar-avatar`), então segue como dívida deliberada.
 - **Mock:** `mockIndicatedByPost` redeclara objetos de profissional que já existem em `mockProfessionals`
   (com `ic`/bio ligeiramente diferentes), e as indicações semeadas na publicação do pedido (`feed.js`,
   bloco do publish) redeclaram os MESMOS objetos uma 3ª vez. Uma fonte única keyed por id evitaria
