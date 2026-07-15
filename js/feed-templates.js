@@ -4,6 +4,7 @@
 import { icTier, icShieldIcon, formatPedidoDate, pedidoHoursLeft } from './feed-utils.js';
 import { availabilityMeta, COMMENTS_PAGE } from './feed-config.js';
 import { mockComments } from './feed-data.js';
+import { PEDIDO_STATUS, URGENCY } from './domain.js';
 
 export const icBarHTML = (ic, vertical = false) => {
   const tier = icTier(ic);
@@ -95,12 +96,12 @@ export const proFooterHTML = (pro) => {
 
 /** @param {import('./models.js').Pedido} p */
 export function historicoItemHTML(p) {
-  const active = p.status === 'active';
+  const active = p.status === PEDIDO_STATUS.ACTIVE;
   const statusCls = active ? 'historico-item__status--active' : 'historico-item__status--done';
   const statusInner = active
     ? `<span class="material-symbols-rounded" aria-hidden="true">bolt</span>Ativo · ${pedidoHoursLeft(p) > 0 ? pedidoHoursLeft(p) + 'h' : 'Expirado'}`
     : `<span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluído`;
-  const urgentBadge = p.urgency === 'urgent'
+  const urgentBadge = p.urgency === URGENCY.URGENT
     ? `<span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>`
     : '';
   return `

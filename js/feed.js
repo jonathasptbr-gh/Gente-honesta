@@ -4,6 +4,7 @@ import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availO
 import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './feed-utils.js';
 import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './feed-templates.js';
 import { pinnedPros, filterState, scrolledState, scrollToTopPending, pedidoHistory, myPedido, contractsFilter } from './feed-state.js';
+import { PEDIDO_STATUS, PEDIDO_DETAIL_MODE, URGENCY } from './domain.js';
 
 // =========================================================================
 // TELA - PRINCIPAL (FEED) - Gerenciador de Comportamentos da Interface
@@ -2174,7 +2175,7 @@ document.addEventListener('DOMContentLoaded', () => {
   //  null     → sem detalhe aberto (comportamento normal)
   let pedidoDetailMode = null;
 
-  const getActivePedido = () => pedidoHistory.find(p => p.status === 'active') || null;
+  const getActivePedido = () => pedidoHistory.find(p => p.status === PEDIDO_STATUS.ACTIVE) || null;
   const getPedidoById   = (id) => pedidoHistory.find(p => p.id === id) || null;
 
   const btnHistorico     = document.getElementById('btn-historico-pedidos');
@@ -2291,8 +2292,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const pedido = getPedidoById(id);
     if (!pedido) return;
     detailPedidoId = id;
-    const active = pedido.status === 'active';
-    pedidoDetailMode = active ? 'active' : 'old';
+    const active = pedido.status === PEDIDO_STATUS.ACTIVE;
+    pedidoDetailMode = active ? PEDIDO_DETAIL_MODE.ACTIVE : PEDIDO_DETAIL_MODE.OLD;
     pedidoFormState?.classList.add('u-hidden');
     pedidoDetailsState?.classList.remove('u-hidden');
     renderPedidoDetails(pedido);
@@ -2358,10 +2359,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // (Histórico em modo conclude) — o botão de baixo foi ocultado para não duplicar.
   const concluirDetailPedido = async () => {
     const pedido = getPedidoById(detailPedidoId);
-    if (!pedido || pedido.status !== 'active') return;
+    if (!pedido || pedido.status !== PEDIDO_STATUS.ACTIVE) return;
     const ok = await customConfirm('Ao concluir, seu pedido sairá do ar e não receberá novas indicações. Ele continua salvo no seu histórico. Deseja continuar?', 'Concluir pedido', 'check_circle');
     if (!ok) return;
-    pedido.status = 'completed';
+    pedido.status = PEDIDO_STATUS.COMPLETED;
     pedido.completedAt = Date.now();
     renderMyPedidoButton();
     renderHistoricoList();
@@ -2378,8 +2379,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target.closest('.pedido-sheet__panel')) return;
     // O botão do lado "Pedido atual" (btnMyPedido) tem ação própria: conclui (pedido
     // ativo) ou navega (pedido antigo). O botão Histórico é "Fechar" (default abaixo).
-    if (pedidoDetailMode === 'active' && tapHitsButton(e, btnMyPedido)) { concluirDetailPedido(); return; }
-    if (pedidoDetailMode === 'old' && tapHitsButton(e, btnMyPedido)) { myPedidoNavigate(); return; }
+    if (pedidoDetailMode === PEDIDO_DETAIL_MODE.ACTIVE && tapHitsButton(e, btnMyPedido)) { concluirDetailPedido(); return; }
+    if (pedidoDetailMode === PEDIDO_DETAIL_MODE.OLD && tapHitsButton(e, btnMyPedido)) { myPedidoNavigate(); return; }
     // TROCA DIRETA para o Histórico: no FORM "Fazer pedido" o botão Histórico está
     // NATURAL (não é "Fechar"/"Concluir") → tocar nele fecha o pedido e abre o
     // histórico num único toque.
@@ -2428,7 +2429,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Volta o formulário aos defaults (após publicar ou ao concluir/limpar).
   const resetPedidoForm = () => {
     myPedido.text = '';
-    myPedido.urgency = 'normal';
+    myPedido.urgency = URGENCY.NORMAL;
     myPedido.duration = '12';
     myPedido.neighbors = false;
     // Marca o chip cujo data-* CASA com o valor default — não por posição no
@@ -2463,7 +2464,7 @@ document.addEventListener('DOMContentLoaded', () => {
       neighbors: myPedido.neighbors,
       createdAt: Date.now(),
       completedAt: null,
-      status: 'active',
+      status: PEDIDO_STATUS.ACTIVE,
       // MOCK: semeia indicações para o fluxo "ver indicados" ficar demonstrável.
       indicated: [
         { name: 'Carlos Almeida', tags: 'Eletricista · Encanador',  ic: 78, q: 7, a: 5, v: 6, avail: 'available',   pay: { cash: true,  pix: true,  card: 6  }, nf: true,  bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
