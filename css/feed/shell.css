@@ -181,10 +181,23 @@
    Ordem NORMAL de leitura (a gaveta desce do topo): pendentes → ativos →
    concluído → cancelado. (O antigo column-reverse era do painel tela-cheia,
    que tinha o dock na base.) */
+/* Scroll rente à borda SUPERIOR do painel (mesma correção do #vaga-sheet): o
+   painel tem padding-top --space-md, então o scroll — e com ele a shade de topo
+   (sticky, top:0) — começava --space-md ABAIXO da borda real. Resultado: uma
+   "margem" fixa fora do scroll no topo e a sombra de fronteira flutuando alguns
+   px abaixo da base da action bar (sticky não sobe acima da caixa de conteúdo do
+   pai). Puxa o scroll até a borda superior do painel (anula o padding-top dele)
+   e devolve o respiro como padding-top do CONTEÚDO rolável (.contracts-list) —
+   assim a shade cola na fronteira, alinhada com a top bar. */
+#contracts-sheet .historico-sheet__scroll {
+  margin-top: calc(-1 * var(--space-md));
+}
+
 .contracts-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+  padding-top: var(--space-md);
 }
 
 /* base .card dá raio + border:none; o FUNDO do card inteiro vem do status,
