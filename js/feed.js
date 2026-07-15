@@ -3,6 +3,7 @@ import { mockIndicatedByPost, mockComments, mockProfessionals, avatarSvg, mockVa
 import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './feed-config.js';
 import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './feed-utils.js';
 import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './feed-templates.js';
+import { pinnedPros, filterState, scrolledState, scrollToTopPending, pedidoHistory, myPedido, contractsFilter } from './feed-state.js';
 
 // =========================================================================
 // TELA - PRINCIPAL (FEED) - Gerenciador de Comportamentos da Interface
@@ -47,9 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (icon) icon.textContent = on ? 'close' : 'contract';
   }
 
-  // Filtro combinado (texto da busca + chip de status) sobre os cards mockados.
-  // Minicontratos pendentes não têm status próprio: aparecem só em "Todos".
-  const contractsFilter = { query: '', status: 'all' };
   function applyContractsFilters() {
     const q = contractsFilter.query;
     contractsSheet?.querySelectorAll('.contract-card').forEach((card) => {
@@ -346,18 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Renderização do Bloco de Indicados
   // =========================================================================
 
-  // IDs dos cards fixados no topo da lista (persistência em memória por sessão)
-  const pinnedPros = new Set();
 
-  // Filtros inclusivos: sets vazios = sem filtro = mostra todos.
-  // Clicar num chip adiciona ao set (whitelist); clicar de novo remove.
-  const filterState = {
-    includeIc:    new Set(),
-    includeAvail: new Set(),
-    includePay:   new Set(),
-    savedOnly:    false,
-    sort:         'ic',   // padrão: ordenar por Índice de Confiança (maior→menor)
-  };
 
   // Quantos FILTROS estão ativos (ordenação NÃO conta — não esconde ninguém).
   // Alimenta o indicador/limpar ao lado do campo de busca.
@@ -1996,12 +1983,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   updateSlider('home'); // posiciona o slider na aba ativa inicial
 
-  const scrolledState = { vagas: false, home: false, pedidos: false };
-  // Enquanto a rolagem PROGRAMÁTICA "Voltar ao topo" acontece, os eventos de
-  // scroll ainda veem scrollTop > threshold e repunham o ícone de seta — o
-  // botão piscava (seta → padrão → seta → padrão) até chegar ao topo. Esta flag
-  // (por aba) faz o handler de scroll IGNORAR o botão durante a subida.
-  const scrollToTopPending = { vagas: false, home: false, pedidos: false };
   let activeTab = 'home';
 
   const agendaListEl    = document.getElementById('agenda-list');
@@ -2185,14 +2166,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Tocar num item do histórico abre esse MESMO detalhe unificado.
   // MOCK: nada persiste no Firestore; histórico e indicações vivem em memória.
   let pedidoIdSeq = 1;
-  const pedidoHistory = []; // {id, text, urgency, duration, neighbors, createdAt, completedAt, status:'active'|'completed', indicated:[]}
   let detailPedidoId = null;      // id do pedido exibido no sheet de detalhe
   // Modo do topo enquanto um DETALHE de pedido está aberto:
   //  'active' → btn Histórico vira "Concluir pedido"; btn Fazer/Pedido vira "Fechar"
   //  'old'    → btn Histórico vira "Fechar"; btn Fazer/Pedido fica natural (navega)
   //  null     → sem detalhe aberto (comportamento normal)
   let pedidoDetailMode = null;
-  const myPedido = { text: '', urgency: 'normal', duration: '12', neighbors: false }; // objeto de trabalho do formulário
 
   const getActivePedido = () => pedidoHistory.find(p => p.status === 'active') || null;
   const getPedidoById   = (id) => pedidoHistory.find(p => p.id === id) || null;

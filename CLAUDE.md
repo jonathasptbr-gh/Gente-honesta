@@ -115,13 +115,21 @@ js/   (a ordem de carga no index.html importa)
   session.js        — 4º. onAuthStateChanged: decide a tela inicial, resetAuthFlow, tutorial
   auth.js           — 5º. Login: sendOTP (whitelist), verifyOTP, cooldown, OTP, resetAuthFlow
   onboarding.js     — 6º. Cadastro: finishRegistration, câmera, tags, serviço, resetOnboardingForm
-  feed.js           — 7º. Feed (ES MODULE, type="module"): painéis, modo indicação, cards,
-                          filtros, pedidos, scroll-to-top. Importa js/feed-data.js
-  feed-data.js      — ES module: dados mock (mockProfessionals/mockComments/mockVagas/
-                          mockIndicatedByPost) + avatarSvg. Substituídos pelo Firestore no futuro
-
-  Nota: só feed.js é ES module (para importar feed-data.js); os outros 6 seguem <script defer>
-  clássicos. A comunicação cross-arquivo continua via window.* (module-safe).
+  feed.js           — 7º. Feed (ES MODULE): núcleo de event-wiring + render. Importa os módulos
+                          feed-* abaixo. É o único <script type="module">; os outros 6 arquivos
+                          (app/tutorial/install/session/auth/onboarding) seguem <script defer>
+                          clássicos — comunicação cross-arquivo via window.* (module-safe).
+  feed-data.js      — dados mock (mockProfessionals/Comments/Vagas/Helpers/IndicatedByPost) +
+                          avatarSvg. Substituídos pelo Firestore no futuro.
+  feed-config.js    — constantes congeladas: EASE_STD, *_CARD_CFG, TAB_*, SCROLL_*, HELPER_RATES,
+                          placeholders, availOrder/availabilityMeta, COMMENTS_PAGE, MAX_VAGAS/DAY_ORDER.
+  feed-utils.js     — funções puras: icTier/icShieldIcon, formatPedidoDate, pedidoHoursLeft, comingSoon.
+  feed-templates.js — templates de HTML puros: qavHTML, icBarHTML, availHTML, buildCommentHTML,
+                          proBackHTML, proFooterHTML, historicoItemHTML.
+  feed-state.js     — estado mutável compartilhado (objetos, nunca reatribuídos): filterState,
+                          pinnedPros, pedidoHistory, myPedido, scrolledState, scrollToTopPending,
+                          contractsFilter. (Primitivos reatribuídos — activeTab, indicateMode etc. —
+                          seguem no closure de feed.js: mover exige accessors + teste no aparelho.)
 
 .claude/
   settings.json     — hook SessionStart → session-start.sh
