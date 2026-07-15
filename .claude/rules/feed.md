@@ -85,7 +85,7 @@ arredondados, slide-down "gaveta", backdrop que dim SÓ o feed abaixo da barra. 
 
 **Botão-abridor vira "Fechar".** Não há botão de fechar dedicado nem título interno na gaveta. O
 próprio abridor da action bar vira botão de fechar (ícone `close` + "Fechar") via `.action-close-mode`
-(`feed.css`: fundo `--on-green-soft` + texto/ícone `--t-light`, `!important` para vencer o fundo de
+(`feed/navigation.css`: fundo `--on-green-soft` + texto/ícone `--t-light`, `!important` para vencer o fundo de
 cada botão). Setters em `feed/index.js`: `setMyPedidoButton(mode)` e `setHistoricoButton(mode)` (3 estados
 `'natural'`/`'close'`/`'conclude'`), `setCriarVagaClose`/`setAjudanteClose` (via `innerHTML`), e o
 `#btn-toggle-filters` (ícone `tune`↔`close`). Como o container (z-300) cobre a barra, tocar no
@@ -297,7 +297,7 @@ Abridor vira "Fechar" (`setAjudanteClose`); fecha por tap-outside.
 | `.comment--entering` | `commentFadeIn` fade+slide-up 0.22s |
 | `.indicated-popup__scroll` | Wrapper de scroll do popup (fora do header) |
 
-Em `components.css`: `btn--danger` (`--danger` + branco, Cancelar); `btn--accent` (`--a-gold` +
+Em `components/buttons.css`: `btn--danger` (`--danger` + branco, Cancelar); `btn--accent` (`--a-gold` +
 `--p-green-dark`, Concluir pedido/CTAs).
 
 > Scrollbar: os 3 feeds ESCONDEM a barra; todo o resto usa barra fina sempre visível — detalhe
@@ -305,9 +305,11 @@ Em `components.css`: `btn--danger` (`--danger` + branco, Cancelar); `btn--accent
 
 ## O que ainda é mock
 
-`feed/index.js` é um **ES module** (`type="module"`) que importa os dados mock de **`js/feed/repository.js`**
-(`mockProfessionals`, `mockComments`, `mockVagas`, `mockIndicatedByPost`, `avatarSvg`) — é ali que a
-persistência no Firestore vai substituir os exemplos. Detalhe dos dados: `mockProfessionals[]` (5 pros
+`feed/index.js` é um **ES module** (`type="module"`) que lê os dados via os **accessors** do repositório
+**`js/feed/repository.js`** (`getProfessionals`/`getComments`/`getVagas`/`getHelpers`/`getIndicatedByPost`
++ `addVaga`; `avatarSvg` é export direto). Os arrays mock são module-private — a view NUNCA os toca
+direto — então é ali, no repositório, que a persistência no Firestore substitui os exemplos (os
+accessors viram queries async sem mexer nos chamadores). Detalhe dos dados: `mockProfessionals[]` (5 pros
 `{id, name, tags, ic, q, a, v, avail, pay:{cash,pix,card}, nf, bio}`; `pay.card`: `0`/`'debit'`/número
 = parcelas), `mockComments[]` (15, exibidos 5 por vez), `mockIndicatedByPost{}` (post de TERCEIROS →
 pros; o próprio pedido usa `pedido.indicated`), `mockVagas[]` (3), `mockHelpers`. Placeholders:
@@ -317,7 +319,7 @@ Contratar/WhatsApp/Compartilhar dão alerta; pedido/histórico/candidatura sem p
 
 ## Dívidas técnicas (feed) — consolidar ao mexer
 
-- **Scaffolding de flip 3D duplicado:** `.pro-card__*` e `.vaga-card__*` (`feed.css`) repetem quase
+- **Scaffolding de flip 3D duplicado:** `.pro-card__*` e `.vaga-card__*` (`feed/historico.css` e `feed/vagas.css`) repetem quase
   idêntico o maquinário de flip (`preserve-3d`, `rotateY(180deg)`, `backface-visibility`, colapso
   `--expanded height:0`). Candidato a uma base `.flip-card*` compartilhada.
 - **Delegação de clique do flip PENDENTE:** o builder já é único (`buildProCard`), mas a delegação

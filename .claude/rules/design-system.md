@@ -150,23 +150,23 @@ Regra de ouro: **"card" = SUPERFÍCIE (contêiner); "botão" = AÇÃO.** Se o el
 
 ## Primitivos / helpers reutilizáveis
 
-- **`.card` (`components.css`)** — casco das superfícies claras. Invariante: `--radius-md` +
+- **`.card` (`components/surfaces.css`)** — casco das superfícies claras. Invariante: `--radius-md` +
   fundo claro + `border:none`. Modificadores `--soft` (`--bg-soft`) e `--shadow` (`--shadow-sm`).
   Já em `.contract-card`, `.location-check`, `.profile-public-check`, `.ic-card`, passos do
   install. Compor a partir dele para qualquer superfície clara nova.
-- **`.check-box` (`components.css`)** — caixa de marcação 24×24 (radius-xs, borda `--border-mid`,
+- **`.check-box` (`components/surfaces.css`)** — caixa de marcação 24×24 (radius-xs, borda `--border-mid`,
   glifo `--t-light`). O estado marcado lê o **`aria-pressed` do BOTÃO-pai**
   (`[aria-pressed="true"] .check-box` → fill/borda `--info-blue`). Serve a qualquer toggle novo.
   Usada no check "perfil público" (cadastro) e "exigir currículo" (criar vaga).
-- **`.eyebrow` (`components.css`)** — rótulo uppercase (`--p-green`, `--fs-5`, 700), agrupada com
+- **`.eyebrow` (`components/forms.css`)** — rótulo uppercase (`--p-green`, `--fs-5`, 700), agrupada com
   `.form-group__label`. TODOS os labels das gavetas compõem a classe no HTML. Sub-rótulos
   discretos seguem `.payment-methods__subgroup-label` (fs-3, bold, `--t-sub`, uppercase). O
   `.material-symbols-rounded` base tem `text-transform: none` (ícone dentro de rótulo uppercase
   não quebra o glifo).
-- **`.btn__spinner` (`components.css`)** — spinner de loading dos botões (glifo `autorenew`
+- **`.btn__spinner` (`components/buttons.css`)** — spinner de loading dos botões (glifo `autorenew`
   girando). `class="material-symbols-rounded btn__spinner"`; variante `--sm` p/ o link de
   reenvio de SMS.
-- **`.chip` + `.chip--md` (`feed.css`)** — `.chip` é o casco base (radius-pill, inline-flex,
+- **`.chip` + `.chip--md` (`feed/historico.css`)** — `.chip` é o casco base (radius-pill, inline-flex,
   transição); `.chip--md` é a métrica das pílulas do cadastro (padding `8px 14px`, `--fs-5`).
   Pílulas de pagamento (`chip chip--md chip--payment`) e `.tag-pill` (`chip chip--md tag-pill`,
   geradas em `onboarding/onboarding.js`) usam esse casco; `.tag-pill` aplica o tint via seletor de 2 classes
@@ -175,7 +175,7 @@ Regra de ouro: **"card" = SUPERFÍCIE (contêiner); "botão" = AÇÃO.** Se o el
   `.chip--payment.chip--active`: fundo `--info-blue-light` + texto `--info-blue`, SEM borda. É a
   linguagem de seleção do app inteiro sobre fundos claros; sobre verde-escuro usa o par invertido
   `--info-blue` sólido + `--t-light`.
-- **`.list-empty-hint` (+ `--block`, `feed.css`)** — empty-state de lista sobre verde
+- **`.list-empty-hint` (+ `--block`, `feed/historico.css`)** — empty-state de lista sobre verde
   (indicados/agenda), no lugar de cor inline em `feed/index.js`.
 - **Sombras de fronteira de scroll (`.js-scroll-shadows`)** — mecânica única em `core/app.js`
   (`window.watchScrollShadows`): todo container com a classe ganha um par de "shades" sticky

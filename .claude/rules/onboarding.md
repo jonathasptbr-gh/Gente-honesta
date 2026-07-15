@@ -74,7 +74,7 @@ já vem selecionado + default `serviceProfile {5,5,5}` em `core/app.js`); tocar 
 
 "Métodos de pagamento aceitos" reproduz as opções do rodapé do card de profissional
 (`proFooterHTML()` em `feed/index.js`), como pílulas `.chip.chip--payment` (mesmo casco `.chip`; o seletor de
-2 classes `.chip.chip--payment` vence o `.chip` base de `feed.css`). O contexto "aceito" fica só no
+2 classes `.chip.chip--payment` vence o `.chip` base de `feed/historico.css`). O contexto "aceito" fica só no
 título → as pílulas trazem só o nome ("Dinheiro", "Pix"). **Cartão é grupo à parte**
 (`#container-payment-card`, subtítulo "Cartão") de **seleção única** — `pro.pay.card` é sempre um valor
 único (`0`/`'debit'`/número de parcelas), nunca combinação: tocar em Débito/Crédito à vista/até 6x/até

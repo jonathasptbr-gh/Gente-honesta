@@ -5,9 +5,9 @@ paths:
   - "js/auth/**"
   - "js/install/**"
   - "service-worker.js"
-  - "css/auth.css"
-  - "css/install.css"
-  - "css/components.css"
+  - "css/auth/**"
+  - "css/install/**"
+  - "css/components/**"
 ---
 
 # Núcleo do app (shell)
@@ -74,7 +74,7 @@ Escopado ao `#dialog-global`; o diálogo da câmera (`.dialog-box--camera`) tem 
 `html.is-desktop` + overlay bloqueiam o app. `auth/session.js` verifica `IS_MOBILE` para abortar o
 fluxo; em `core/app.js` só o REGISTRO do SW é condicionado a `IS_MOBILE` (o `firebase.initializeApp`
 roda também em desktop — inofensivo, o overlay bloqueia a UI). Paisagem bloqueada em dois níveis:
-`manifest.json` (`"orientation": "portrait"`) + overlay CSS em `components.css`
+`manifest.json` (`"orientation": "portrait"`) + overlay CSS em `components/blocks.css`
 (`@media (orientation: landscape)`).
 
 ## Telas verdes (shell)
@@ -110,7 +110,7 @@ telas fica por conta do fade-out do loader.
 ## Service Worker
 
 Incrementar `CACHE_NAME` (`service-worker.js`) a cada deploy com mudanças de cache (atual:
-`gentehonesta-v322`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
+`gentehonesta-v331`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
 caches antigos. **CRÍTICO — o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`:** sem
 isso, o `Cache-Control: max-age=600` do GitHub Pages devolvia arquivos VELHOS por até 10 min após
 um deploy e o botão "Atualizar" recarregava a versão antiga. `no-cache` = revalida via ETag (304
