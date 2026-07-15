@@ -678,7 +678,7 @@ o ícone fica automaticamente centralizado com o texto. `.btn--text .material-sy
 
 **`text-decoration` não propaga de forma confiável para filhos de um flex container:** `.pro-card__meta-item--inactive` (rodapé do card de profissional, `proFooterHTML()` em `feed.js`) risca só o texto do método de pagamento indisponível, nunca o ícone — mas o `text-decoration: line-through` está no span do RÓTULO (`.pro-card__meta-item__label`), não em `.pro-card__meta-item--inactive` diretamente. Colocar o risco no item (que é `display: inline-flex`) e tentar excluir o ícone com `text-decoration: none` nele NÃO funciona no Chrome: como `.pro-card__meta-item` é um flex container, o ícone (item flex) é "blockificado" e o navegador ignora esse `none`, riscando o ícone mesmo assim. A solução é aplicar o risco direto no span do texto, nunca herdado de um ancestral flex.
 
-**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v321`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
+**Service Worker:** incrementar `CACHE_NAME` em `service-worker.js` a cada deploy com mudanças de cache. Versão atual: `gentehonesta-v322`. Os arquivos CSS e JS são atualizados automaticamente pelo Network-First; o incremento serve para forçar limpeza de caches antigos. **CRÍTICO (v264): o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`** — sem isso, o `Cache-Control: max-age=600` do GitHub Pages fazia o `fetch()` do SW devolver arquivos VELHOS do cache HTTP do navegador por até 10 minutos após um deploy, e o botão "Atualizar" do banner recarregava a página recebendo a versão antiga de novo (a atualização parecia não fazer nada). `no-cache` = revalida no servidor via ETag (304 quando nada mudou, custo mínimo). Cross-origin (fontes do Google) segue o cache normal. NUNCA remover esse `cache: 'no-cache'`.
 
 **Selo de versão (`#version-badge`):** com a remoção da top bar (v287), o selo voltou para o
 **loader global** (`class="overlay-loader__version"` no `#loader-global`, `index.html`) — não vive mais
@@ -1038,8 +1038,11 @@ Estrutura HTML obrigatória (qualquer mudança deve manter esta hierarquia):
 
 Quando o usuário rola para baixo em qualquer painel (threshold: 80px), o ícone e label da aba ativa mudam para `arrow_upward` / "Voltar ao topo". Tocar na aba ativa enquanto scrollada executa `scrollTo({ top:0, behavior:'smooth' })` e restaura o botão imediatamente.
 
+**Guarda contra piscada durante a subida (`scrollToTopPending`):** a rolagem programática é `behavior:'smooth'`, então durante a animação os eventos de `scroll` ainda veem `scrollTop > threshold` e repunham o ícone de seta — o botão piscava (seta → padrão → seta → padrão) até chegar ao topo. A flag `scrollToTopPending[tab]` (setada no clique, antes de rolar) faz o handler de scroll IGNORAR o botão durante a subida; ela é limpa quando `scrollTop <= threshold` (chegou ao topo) ou num `touchstart` na lista (o usuário interrompeu a subida manualmente, e o botão volta a refletir o scroll real na hora).
+
 Estado relevante em `feed.js`:
 - `scrolledState` — `{ vagas, home, pedidos }` (booleans, persistem ao trocar de aba)
+- `scrollToTopPending` — `{ vagas, home, pedidos }` (guarda anti-piscada durante o "Voltar ao topo")
 - `activeTab` — string com a aba corrente
 - `setTabButton(tabName, scrolled)` — atualiza ícone/label do botão
 - `switchToTab(tabName)` — ponto único de troca de aba; reseta botão anterior, restaura estado do novo; também usado pelo swipe

@@ -2258,6 +2258,11 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSlider('home'); // posiciona o slider na aba ativa inicial
 
   const scrolledState = { vagas: false, home: false, pedidos: false };
+  // Enquanto a rolagem PROGRAMÁTICA "Voltar ao topo" acontece, os eventos de
+  // scroll ainda veem scrollTop > threshold e repunham o ícone de seta — o
+  // botão piscava (seta → padrão → seta → padrão) até chegar ao topo. Esta flag
+  // (por aba) faz o handler de scroll IGNORAR o botão durante a subida.
+  const scrollToTopPending = { vagas: false, home: false, pedidos: false };
   let activeTab = 'home';
 
   const agendaListEl    = document.getElementById('agenda-list');
@@ -2303,6 +2308,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (clickedTab === activeTab) {
         // Toque na aba já ativa: rola ao topo se estiver scrollada
         if (scrolledState[clickedTab]) {
+          // Marca a subida programática ANTES de rolar: o handler de scroll
+          // ignora o botão até chegar ao topo (senão a seta pisca durante a
+          // animação, quando scrollTop ainda está acima do threshold).
+          scrollToTopPending[clickedTab] = true;
           if (clickedTab === 'home')    agendaListEl?.scrollTo({ top: 0, behavior: 'smooth' });
           if (clickedTab === 'pedidos') pedidosScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
           if (clickedTab === 'vagas')   vagasScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2403,12 +2412,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const wireScrollTab = (el, tabKey) => {
     el?.addEventListener('scroll', () => {
       updateBarElevation();
+      // Durante a subida "Voltar ao topo": não mexe no botão (ele já foi
+      // restaurado ao ícone padrão no clique). Libera ao chegar ao topo.
+      if (scrollToTopPending[tabKey]) {
+        if (el.scrollTop <= SCROLL_THRESHOLD) scrollToTopPending[tabKey] = false;
+        return;
+      }
       const scrolled = el.scrollTop > SCROLL_THRESHOLD;
       if (scrolledState[tabKey] !== scrolled) {
         scrolledState[tabKey] = scrolled;
         if (activeTab === tabKey) setTabButton(tabKey, scrolled);
       }
     }, { passive: true });
+    // Se o usuário interrompe a subida tocando na lista, cancela o modo
+    // "pending" para o botão voltar a refletir o scroll real na hora.
+    el?.addEventListener('touchstart', () => { scrollToTopPending[tabKey] = false; }, { passive: true });
   };
   wireScrollTab(agendaListEl,  'home');
   wireScrollTab(pedidosScrollEl, 'pedidos');
