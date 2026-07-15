@@ -384,6 +384,9 @@
   transform: translateY(-50%);
   color: var(--t-sub);
   font-size: 1.1rem;
+  /* Preset FORTE (wght 700): glifo mais espesso p/ a lupa (e o X de limpar)
+     se destacarem no campo — mesmo tamanho, só o traço mais pesado. */
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
   background: none;
   padding: 0;
   pointer-events: none;
