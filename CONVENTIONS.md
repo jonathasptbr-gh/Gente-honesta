@@ -17,10 +17,10 @@ próprio e **não** faz parte destas convenções — aqui só falamos do artefa
 
 ## Modelo de domínio
 
-- As FORMAS dos dados vivem em **`js/models.js`** como `@typedef` JSDoc (fonte única). Ao criar ou
+- As FORMAS dos dados vivem em **`js/core/models.js`** como `@typedef` JSDoc (fonte única). Ao criar ou
   alterar uma entidade, atualize o typedef e referencie-o nas funções que a consomem
   (`@param {import('./models.js').Pedido} p`). Numa migração, os typedefs viram interfaces TS 1:1.
-- Os VALORES de domínio (enums) vivem em **`js/domain.js`** como objetos congelados
+- Os VALORES de domínio (enums) vivem em **`js/core/domain.js`** como objetos congelados
   (`Object.freeze`): `PEDIDO_STATUS`, `IC_TIER`, `AVAILABILITY`, `HELPER_TYPE`, `URGENCY`,
   `DURATION`, `TAB`, `SORT`, `PAY_METHOD`. Na lógica JS, comparar/atribuir SEMPRE pelo enum
   (`status === PEDIDO_STATUS.ACTIVE`), nunca por string crua. Os `data-*` no HTML são a única exceção
