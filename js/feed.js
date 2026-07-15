@@ -1,5 +1,5 @@
 "use strict";
-import { mockIndicatedByPost, mockComments, mockProfessionals, avatarSvg, mockVagas, mockHelpers } from './feed-data.js';
+import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, addVaga } from './feed-data.js';
 import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './feed-config.js';
 import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './feed-utils.js';
 import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './feed-templates.js';
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Atualiza badge de contagem no header
-    const indicated = mockIndicatedByPost[postId] || [];
+    const indicated = getIndicatedByPost(postId);
     const countEl = document.getElementById('indicate-count-value');
     if (countEl) countEl.textContent = `${indicated.length}/3`;
 
@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = e.target.closest('.pro-card__load-more');
     if (!btn) return false;
     const offset = parseInt(btn.dataset.offset, 10);
-    const nextBatch = mockComments.slice(offset, offset + COMMENTS_PAGE);
+    const nextBatch = getComments().slice(offset, offset + COMMENTS_PAGE);
     const list = btn.closest('.pro-card__back-comments')?.querySelector('.pro-card__comments-list');
     if (!list) return true;
     const card = btn.closest('.pro-card');
@@ -481,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const newOffset = offset + COMMENTS_PAGE;
-    if (newOffset >= mockComments.length) btn.remove();
+    if (newOffset >= getComments().length) btn.remove();
     else btn.dataset.offset = String(newOffset);
 
     // Anima a altura do card para acomodar os novos comentários suavemente
@@ -600,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderIndicatedBlock = (postId) => {
     const list = document.getElementById('agenda-indicated-list');
     if (!list) return;
-    renderFlippableProCards(list, mockIndicatedByPost[postId] || []);
+    renderFlippableProCards(list, getIndicatedByPost(postId));
   };
 
 
@@ -725,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateFilterIndicator();   // reflete filtros ativos no indicador/limpar da barra
     const query = document.getElementById('inp-agenda-search')?.value.trim().toLowerCase() || '';
-    const searched = mockProfessionals.filter(p =>
+    const searched = getProfessionals().filter(p =>
       p.name.toLowerCase().includes(query) || p.tags.toLowerCase().includes(query)
     );
     const filtered = applyFilters(searched);
@@ -764,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pinnedCards = cards.filter(c =>  pinnedPros.has(c.id));
     const otherCards  = cards.filter(c => !pinnedPros.has(c.id));
 
-    const proMap = new Map(mockProfessionals.map(p => [p.id, p]));
+    const proMap = new Map(getProfessionals().map(p => [p.id, p]));
     const sortCards = (arr) => [...arr].sort((a, b) => {
       const proA = proMap.get(a.id);
       const proB = proMap.get(b.id);
@@ -813,7 +813,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!list) return;
     list.innerHTML = '';
 
-    mockVagas.forEach(vaga => {
+    getVagas().forEach(vaga => {
       const card = document.createElement('article');
       card.className = 'vaga-card';
       card.id = vaga.id;
@@ -1173,9 +1173,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentsList = card.querySelector('.pro-card__comments-list');
     const backComments = card.querySelector('.pro-card__back-comments');
     if (!commentsList || !backComments) return;
-    commentsList.innerHTML = mockComments.slice(0, COMMENTS_PAGE).map(buildCommentHTML).join('');
+    commentsList.innerHTML = getComments().slice(0, COMMENTS_PAGE).map(buildCommentHTML).join('');
     let btn = backComments.querySelector('.pro-card__load-more');
-    if (mockComments.length > COMMENTS_PAGE) {
+    if (getComments().length > COMMENTS_PAGE) {
       if (!btn) {
         btn = document.createElement('button');
         btn.type = 'button';
@@ -1265,7 +1265,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Sheet "Criar vaga" ─────────────────────────────────────────────────
   // Formulário de criação de vaga (mock, sem persistência no Firestore).
-  // Ao publicar, a vaga entra no topo de mockVagas + re-renderiza a lista, e o
+  // Ao publicar, a vaga entra no topo da lista via addVaga() + re-renderiza, e o
   // botão "Criar vaga" da action bar vira "Ver vaga" (rola até o card criado).
   {
     const vagaSheet    = document.getElementById('vaga-sheet');
@@ -1567,7 +1567,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const displayName = window.auth?.currentUser?.displayName || 'Você';
 
       myVagaId = `vaga-user-${Date.now()}`;
-      mockVagas.unshift({
+      addVaga({
         id: myVagaId,
         cnpj,                 // dados oficiais (nome/endereço) serão buscados depois
         empresa: '',          // vazio → o card mostra o CNPJ até virem os dados oficiais
@@ -1730,7 +1730,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sorteia N ajudantes distintos de um tipo, excluindo ids já em uso.
     // Fisher-Yates só como placeholder da entrega "aleatória" (real: ordem de chegada).
     const drawHelpers = (type, count, excludeIds = []) => {
-      const pool = mockHelpers.filter(h => h.type === type && !excludeIds.includes(h.id));
+      const pool = getHelpers().filter(h => h.type === type && !excludeIds.includes(h.id));
       for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];

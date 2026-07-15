@@ -1,11 +1,16 @@
 // =========================================================================
-// DADOS MOCK DO FEED (placeholder do backend) + avatar-placeholder.
-// Importado por feed.js. Quando a persistência no Firestore entrar, é aqui
-// que os dados de exemplo são substituídos pelas consultas reais.
+// REPOSITÓRIO DO FEED — ponto ÚNICO de troca pro Firestore.
+//
+// Hoje é a fonte mock (placeholder do backend): os arrays abaixo são
+// module-private e só saem daqui pelos ACCESSORS no fim do arquivo
+// (getProfessionals/getComments/getVagas/getHelpers/getIndicatedByPost +
+// addVaga). Os chamadores (feed.js, feed-templates.js) NUNCA tocam os arrays
+// crus — falam só com os accessors. Quando a persistência no Firestore entrar,
+// é SÓ aqui que os accessors viram consultas async, sem mexer nos chamadores.
 // =========================================================================
 
 // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Dados mockados de indicações por post
-export const mockIndicatedByPost = {
+const mockIndicatedByPost = {
   '0': [
     { name: 'Carlos Almeida', tags: 'Eletricista · Encanador',  ic: 78, q: 7, a: 5, v: 6, avail: 'available',   pay: { cash: true,  pix: true,  card: 6  }, nf: true,  bio: 'Atende serviços elétricos e hidráulicos residenciais. Não faz obras de grande porte nem trabalha em altura.' },
     { name: 'Roberto Nunes',  tags: 'Pintor · Gesseiro',        ic: 38, q: 6, a: 5, v: 5, avail: 'unavailable', pay: { cash: true,  pix: false, card: 0  }, nf: false, bio: 'Pintura e pequenos reparos em gesso. Estou no início de carreira, então os prazos podem variar.' },
@@ -17,7 +22,7 @@ export const mockIndicatedByPost = {
 };
 
 // Avaliações de exemplo (mesmo bloco p/ todos os profissionais; 5 por vez).
-export const mockComments = [
+const mockComments = [
   { text: 'Chegou na hora marcada e resolveu tudo sem complicação. Recomendo sem hesitar.', author: 'Ana Souza', ic: 88 },
   { text: 'Profissional competente e comunicativo. Explicou cada etapa antes de executar, sem surpresas no valor final.', author: 'Marcos Lima', ic: 71 },
   { text: 'Trabalho limpo e rápido. Excelente custo-benefício.', author: 'Júlia Ferreira', ic: 95 },
@@ -37,7 +42,7 @@ export const mockComments = [
 
 // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Dados mockados de profissionais
 // avail: 'available' (Disponível/verde) | 'full' (Agenda cheia/amarelo) | 'unavailable' (Indisponível/vermelho)
-export const mockProfessionals = [
+const mockProfessionals = [
   // pay: formas de pagamento — cash (dinheiro), pix, card (0 = não aceita,
   //      'debit' = só débito, número = crédito parcelado em até Nx) · nf: emite nota fiscal
   { id: 'pro-0', name: 'Carlos Almeida', tags: 'Eletricista · Encanador', ic: 92, q: 8, a: 6, v: 7, avail: 'available',   pay: { cash: true,  pix: true,  card: 6       }, nf: true,  bio: 'Atendo serviços elétricos e hidráulicos residenciais. Não faço obras de grande porte nem trabalho em altura.' },
@@ -50,7 +55,7 @@ export const mockProfessionals = [
 export const avatarSvg = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>`;
 
 // Vagas de exemplo.
-export const mockVagas = [
+const mockVagas = [
   {
     id: 'vaga-0',
     empresa: 'Restaurante da Esquina',
@@ -120,7 +125,7 @@ export const mockVagas = [
 ];
 
 // Pool mock de ajudantes (placeholder do backend).
-export const mockHelpers = [
+const mockHelpers = [
   { id: 'help-1',  first: 'Lucas',    last: 'Andrade',  ic: 84, phone: '5511990000001', type: 'heavy' },
   { id: 'help-2',  first: 'Bruna',    last: 'Carvalho', ic: 71, phone: '5511990000002', type: 'light' },
   { id: 'help-3',  first: 'Diego',    last: 'Moraes',   ic: 63, phone: '5511990000003', type: 'heavy' },
@@ -132,3 +137,17 @@ export const mockHelpers = [
   { id: 'help-9',  first: 'Marcelo',  last: 'Duarte',   ic: 68, phone: '5511990000009', type: 'heavy' },
   { id: 'help-10', first: 'Tatiane',  last: 'Ribeiro',  ic: 59, phone: '5511990000010', type: 'light' },
 ];
+
+// -------------------------------------------------------------------------
+// ACCESSORS (a interface do repositório). Devolvem a REFERÊNCIA VIVA do mock
+// em memória — as mutações in-place dos chamadores seguem válidas. No futuro,
+// viram consultas async ao Firestore SEM mudar a assinatura vista aqui fora.
+// -------------------------------------------------------------------------
+export const getProfessionals = () => mockProfessionals;
+export const getComments = () => mockComments;
+export const getVagas = () => mockVagas;
+export const getHelpers = () => mockHelpers;
+// Indicações de um post de TERCEIROS (o próprio pedido usa pedido.indicated).
+export const getIndicatedByPost = (postId) => mockIndicatedByPost[postId] || [];
+// Única escrita hoje: publica uma vaga nova no topo da lista.
+export const addVaga = (vaga) => { mockVagas.unshift(vaga); };

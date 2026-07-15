@@ -3,7 +3,7 @@
 // =========================================================================
 import { icTier, icShieldIcon, formatPedidoDate, pedidoHoursLeft } from './feed-utils.js';
 import { availabilityMeta, COMMENTS_PAGE } from './feed-config.js';
-import { mockComments } from './feed-data.js';
+import { getComments } from './feed-data.js';
 import { PEDIDO_STATUS, URGENCY } from './domain.js';
 
 export const icBarHTML = (ic, vertical = false) => {
@@ -37,9 +37,9 @@ export const buildCommentHTML = (c) => {
 let _proBackHTML = null;
 export const proBackHTML = () => {
   if (_proBackHTML) return _proBackHTML;
-  const initial = mockComments.slice(0, COMMENTS_PAGE);
+  const initial = getComments().slice(0, COMMENTS_PAGE);
   const commentsHTML = initial.map(buildCommentHTML).join('');
-  const hasMore = mockComments.length > COMMENTS_PAGE;
+  const hasMore = getComments().length > COMMENTS_PAGE;
   const loadMoreBtn = hasMore
     ? `<button type="button" class="pro-card__load-more" data-offset="${COMMENTS_PAGE}"><span class="material-symbols-rounded" aria-hidden="true">expand_more</span>ver mais comentários</button>`
     : '';
