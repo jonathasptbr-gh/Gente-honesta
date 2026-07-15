@@ -22,14 +22,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const SEARCH_PLACEHOLDER_PROS      = 'Buscar no Gente Honesta...';
   const SEARCH_PLACEHOLDER_CONTRACTS = 'Buscar contratos...';
 
+  // Curva de easing padrão (= token CSS --ease) usada nas transições montadas
+  // em JS — fonte única para não desincronizar da curva do CSS.
+  const EASE_STD = 'cubic-bezier(0.4, 0, 0.2, 1)';
+
   // function declarations (hoistadas): usadas pelo listener do botão de
   // filtros e pelos show*Panel definidos adiante.
   function isContractsSheetOpen() {
     return !!contractsSheet?.classList.contains('historico-sheet--open');
   }
 
-  // Ancora o dropdown na base da action bar (mesma medida das demais gavetas)
-  function anchorContractsSheet(el) {
+  // Ancora um sheet-dropdown na BASE da action bar (= topo da caixa do feed),
+  // via --sheet-top. A barra tem altura variável (safe-area), então medimos em
+  // runtime. Helper ÚNICO (function hoistada): usado por TODAS as gavetas —
+  // contratos, criar vaga, ajudante, filtros, pedido e histórico.
+  function anchorBelowActionBar(el) {
     const bar = document.getElementById('feed-action-bar');
     if (bar && el) el.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
   }
@@ -84,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openContractsSheet() {
     closeFiltersSheet();   // filtros de profissionais, se abertos
-    anchorContractsSheet(contractsSheet);
+    anchorBelowActionBar(contractsSheet);
     contractsSheet?.classList.add('historico-sheet--open');
     // Abriu → para de piscar (marca como "visto"). Sem persistência: a cada
     // abertura do app o botão volta a piscar até ser aberto uma vez.
@@ -97,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     contractsFilter.query = '';
     applyContractsFilters();   // também reflete os filtros de contratos na pílula
-    setTopBarTitle('Contratos');
   }
 
   function closeContractsSheet() {
@@ -105,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closeContractsFiltersSheet();
     contractsSheet?.classList.remove('historico-sheet--open');
     setContractsButtonClose(false);
-    setTopBarTitle(null);
     if (agendaSearchInput) {
       agendaSearchInput.placeholder = SEARCH_PLACEHOLDER_PROS;
       agendaSearchInput.value = '';
@@ -117,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Sheet de filtros de contratos: aberto pelo MESMO botão de filtros da barra
   // (roteado pelo estado da gaveta no listener do #btn-toggle-filters).
   function openContractsFiltersSheet() {
-    anchorContractsSheet(contractsFiltersSheet);
+    anchorBelowActionBar(contractsFiltersSheet);
     contractsFiltersSheet?.classList.add('historico-sheet--open');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
@@ -175,18 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
     agendaSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
   });
 
-  // --- Título da top bar: enquanto uma gaveta da action bar está aberta, o
-  // "Gente Honesta" vira o título da seção (os headers internos das gavetas
-  // foram removidos para liberar espaço). null/omitido = restaura a marca.
-  // function declaration (hoistada): usada por open/close definidos antes e depois.
-  // A top bar foi eliminada (v287); não há mais alvo para o título das gavetas.
-  // Mantido como no-op tolerante para não quebrar as chamadas existentes das
-  // gavetas (Criar vaga, Histórico, Filtros, etc.). Se um dia voltar um alvo de
-  // título com a classe .top-bar__brand-text, ele volta a funcionar sozinho.
-  function setTopBarTitle(title) {
-    const text = document.querySelector('.top-bar__brand-text');
-    if (text) text.textContent = title || 'Gente Honesta';
-  }
 
   // --- Avatar do botão "Perfil" (top bar): usa a foto salva do cadastro
   // (window.appState.photoBlob) quando existe; senão mantém o placeholder cinza
@@ -272,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ao escolher um profissional na lista, o bloco de confirmação aparece fixo na
   // base. A barra de status permanece verde (todo o app é verde — controlada
   // globalmente em app.js), então este modo não mexe no theme-color.
-  const feedTopBar    = document.querySelector('#feed-top-bar');
   const feedBottomBar = document.querySelector('#feed-bottom-bar');
   const screenBorder  = document.getElementById('indicate-screen-border');
 
@@ -325,7 +317,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('agenda-list')?.classList.add('agenda-list--indicate-mode');
 
     showProsPanel();
-    feedTopBar?.classList.add('u-hidden');
     feedBottomBar?.classList.add('u-hidden');
     indicatedBlock?.classList.remove('u-hidden');
     screenBorder?.classList.add('indicate-screen-border--active');
@@ -336,7 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
     activePostId = null;
     selectedProId = null;
     indicatedBlock?.classList.add('u-hidden');
-    feedTopBar?.classList.remove('u-hidden');
     feedBottomBar?.classList.remove('u-hidden');
     screenBorder?.classList.remove('indicate-screen-border--active');
     document.getElementById('agenda-list')?.classList.remove('agenda-list--indicate-mode');
@@ -460,7 +450,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const availOrder = { available: 0, full: 1, unavailable: 2 };
-  const sortPros = (pros) => [...pros].sort((a, b) => {
+  // Comparador ÚNICO de profissionais conforme filterState.sort (function
+  // hoistada). Usado por sortPros (objetos pro) e por sortCards (cards do DOM,
+  // que mapeiam id→pro antes de delegar) — antes eram dois switch idênticos.
+  function comparePros(a, b) {
     switch (filterState.sort) {
       case 'ic':      return b.ic - a.ic;
       case 'avail':   return (availOrder[a.avail] ?? 3) - (availOrder[b.avail] ?? 3);
@@ -469,7 +462,9 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'value':   return b.v - a.v;
       default:        return a.name.localeCompare(b.name, 'pt-BR');
     }
-  });
+  }
+
+  const sortPros = (pros) => [...pros].sort(comparePros);
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Dados mockados de indicações por post
   const mockIndicatedByPost = {
@@ -578,7 +573,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.transition = 'none';
         card.style.height = currentH + 'px';
         requestAnimationFrame(() => requestAnimationFrame(() => {
-          card.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
+          card.style.transition = `height 0.3s ${EASE_STD}`;
           card.style.height = newH + 'px';
           setTimeout(() => { card.style.height = 'auto'; card.style.transition = ''; }, 320);
         }));
@@ -652,6 +647,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Card padrão de profissional: coluna esquerda (foto + QAV) e coluna direita
   // (nome/profissão/disponibilidade + ações do cabeçalho + bio).
   // showPin=false omite o botão de fixar (ex: cards de referência na confirmação).
+  // Stub ÚNICO de "funcionalidade ainda não implementada" (WhatsApp/Compartilhar):
+  // centraliza o sufixo "— funcionalidade em breve." repetido em 5 lugares.
+  const comingSoon = (label, title, icon) =>
+    customAlert(`${label} — funcionalidade em breve.`, title, icon);
+
   const proCardHTML = (pro, showPin = true) => {
     const isPinned = pinnedPros.has(pro.id);
     const pinBtn = showPin
@@ -684,6 +684,19 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
   };
 
+  // Constrói UM card de profissional flipável (frente + verso). Fonte ÚNICA do
+  // scaffolding — antes o mesmo innerHTML era montado inline aqui e em
+  // renderAgendaList. `showPin` inclui o botão salvar + rodapé (só na lista
+  // principal); `withId` põe o id do pro no card (usado pela reordenação FLIP).
+  // function declaration (hoisted).
+  function buildProCard(pro, { showPin = true, withId = false } = {}) {
+    const card = document.createElement('div');
+    card.className = 'pro-card';
+    if (withId) card.id = pro.id;
+    card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, showPin)}</div>${proBackHTML()}</div></div>`;
+    return card;
+  }
+
   // Renderiza cards de profissional flipáveis (com verso de comentários + WhatsApp)
   // numa lista arbitrária. Reutilizado no popup de indicados e nos detalhes do pedido.
   // function declaration (hoisted): pode ser chamada antes da sua linha no callback.
@@ -693,12 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
       listEl.innerHTML = '<span class="list-empty-hint">Nenhuma indicação ainda.</span>';
       return;
     }
-    pros.forEach(pro => {
-      const card = document.createElement('div');
-      card.className = 'pro-card';
-      card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, false)}</div>${proBackHTML()}</div></div>`;
-      listEl.appendChild(card);
-    });
+    pros.forEach(pro => listEl.appendChild(buildProCard(pro, { showPin: false })));
   }
 
   // Registra delegação de cliques de flip num container de pro-cards.
@@ -710,11 +718,11 @@ document.addEventListener('DOMContentLoaded', () => {
     containerEl.addEventListener('click', (e) => {
       if (handleLoadMoreComments(e)) return;
       if (e.target.closest('.pro-card__back-btn--whatsapp')) {
-        customAlert('Abrir WhatsApp — funcionalidade em breve.', 'WhatsApp', 'chat');
+        comingSoon('Abrir WhatsApp', 'WhatsApp', 'chat');
         return;
       }
       if (e.target.closest('.pro-card__back-btn--share')) {
-        customAlert('Compartilhar perfil — funcionalidade em breve.', 'Compartilhar', 'share');
+        comingSoon('Compartilhar perfil', 'Compartilhar', 'share');
         return;
       }
       if (e.target.closest('.pro-card__back-btn--back') || e.target.closest('.pro-card__back')) {
@@ -727,7 +735,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const isFlipped = card.classList.contains('pro-card--flipped');
       containerEl.querySelectorAll('.pro-card--flipped').forEach(el => { if (el !== card) proCardFlipToFront(el); });
       if (isFlipped) proCardFlipToFront(card);
-      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 930); }
+      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS); }
     });
   }
 
@@ -799,13 +807,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botão WhatsApp no verso
     if (e.target.closest('.pro-card__back-btn--whatsapp')) {
-      customAlert('Abrir WhatsApp — funcionalidade em breve.', 'WhatsApp', 'chat');
+      comingSoon('Abrir WhatsApp', 'WhatsApp', 'chat');
       return;
     }
 
     // Botão Compartilhar no verso
     if (e.target.closest('.pro-card__back-btn--share')) {
-      customAlert('Compartilhar perfil — funcionalidade em breve.', 'Compartilhar', 'share');
+      comingSoon('Compartilhar perfil', 'Compartilhar', 'share');
       return;
     }
 
@@ -836,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
       card.classList.add('pro-card--selected');
       selectedProId = card.id;
       proCardFlipToBack(card);
-      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 930);
+      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
     } else {
       // ── Navegação normal: flip para o verso ou fecha se já estava aberto ──
       const isFlipped = card.classList.contains('pro-card--flipped');
@@ -844,7 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el !== card) proCardFlipToFront(el);
       });
       if (isFlipped) proCardFlipToFront(card);
-      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 930); }
+      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS); }
     }
   });
 
@@ -892,13 +900,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    final.forEach(pro => {
-      const card = document.createElement('div');
-      card.className = 'pro-card';
-      card.id = pro.id;
-      card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro)}</div>${proBackHTML()}</div></div>`;
-      list.appendChild(card);
-    });
+    final.forEach(pro => list.appendChild(buildProCard(pro, { showPin: true, withId: true })));
 
     // Fim do feed: linha-aviso de que a lista da região terminou
     list.insertAdjacentHTML('beforeend',
@@ -923,14 +925,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const proA = proMap.get(a.id);
       const proB = proMap.get(b.id);
       if (!proA || !proB) return 0;
-      switch (filterState.sort) {
-        case 'ic':      return proB.ic - proA.ic;
-        case 'avail':   return (availOrder[proA.avail] ?? 3) - (availOrder[proB.avail] ?? 3);
-        case 'quality': return proB.q - proA.q;
-        case 'agility': return proB.a - proA.a;
-        case 'value':   return proB.v - proA.v;
-        default:        return proA.name.localeCompare(proB.name, 'pt-BR');
-      }
+      return comparePros(proA, proB);
     });
 
     [...sortCards(pinnedCards), ...sortCards(otherCards)].forEach(c => {
@@ -952,7 +947,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Dois rAF: garante que o navegador pinte o estado deslocado antes de animar
     requestAnimationFrame(() => requestAnimationFrame(() => {
       cards.forEach(c => {
-        c.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
+        c.style.transition = `transform 0.45s ${EASE_STD}`;
         c.style.transform = '';
       });
     }));
@@ -1291,6 +1286,9 @@ document.addEventListener('DOMContentLoaded', () => {
     backSel:   '.pro-card__back',
     footerSel: '.pro-card__back-actions',
   };
+  // Atraso para rolar o card à vista DEPOIS do flip + expansão terminarem
+  // (+ buffer). Derivado do cfg para não desincronizar se a animação mudar.
+  const PRO_FLIP_SETTLE_MS = PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs + 50; // 930
 
   function flipCardToBack(card, cfg) {
     const frontH = card.offsetHeight;
@@ -1312,7 +1310,7 @@ document.addEventListener('DOMContentLoaded', () => {
           card.style.clipPath = 'inset(0 0 0 0)';
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              const timing = `${cfg.expandMs}ms cubic-bezier(0.4,0,0.2,1)`;
+              const timing = `${cfg.expandMs}ms ${EASE_STD}`;
               card.style.transition = `height ${timing}`;
               card.style.height     = backH + 'px';
               if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = ''; }
@@ -1338,7 +1336,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.clipPath = 'inset(0 0 0 0)';
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const timing = `${cfg.collMs}ms cubic-bezier(0.4,0,0.2,1)`;
+        const timing = `${cfg.collMs}ms ${EASE_STD}`;
         card.style.transition = `height ${timing}`;
         card.style.height     = frontH + 'px';
         if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = `translateY(-${delta}px)`; }
@@ -1393,7 +1391,7 @@ document.addEventListener('DOMContentLoaded', () => {
     det.style.height = fromH + 'px';
     void det.offsetHeight;                 // reflow: fixa a altura inicial
     requestAnimationFrame(() => {
-      det.style.transition = 'height 0.3s cubic-bezier(0.4,0,0.2,1)';
+      det.style.transition = `height 0.3s ${EASE_STD}`;
       det.style.height = toH + 'px';
     });
     const finish = (ev) => {
@@ -1476,7 +1474,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (e.target.closest('.vaga-card__btn-share')) {
-      customAlert('Compartilhar vaga — funcionalidade em breve.', 'Compartilhar', 'share');
+      comingSoon('Compartilhar vaga', 'Compartilhar', 'share');
       return;
     }
 
@@ -1711,16 +1709,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const openVagaSheet = () => {
-      // Ancora o dropdown na base da action bar (mesmo slide-down do pedido/histórico)
-      const bar = document.getElementById('feed-action-bar');
-      if (bar) vagaSheet?.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
+      anchorBelowActionBar(vagaSheet);
       vagaSheet?.classList.add('pedido-sheet--open');
       setCriarVagaClose(true);
-      setTopBarTitle('Criar vaga');
     };
     const closeVagaSheet = () => {
       vagaSheet?.classList.remove('pedido-sheet--open');
-      setTopBarTitle(null);
       // Só restaura para "Criar vaga" se ainda não há vaga publicada; após publicar,
       // o botão já foi trocado para "Ver vaga" e não deve ser sobrescrito.
       if (!myVagaId) setCriarVagaClose(false);
@@ -1913,17 +1907,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const openAjudanteSheet = () => {
       renderHelperAvailability();
       renderHelperCall();
-      // Ancora o dropdown na base da action bar (mesmo slide-down do pedido/histórico)
-      const bar = document.getElementById('feed-action-bar');
-      if (bar) ajudanteSheet?.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
+      anchorBelowActionBar(ajudanteSheet);
       ajudanteSheet?.classList.add('pedido-sheet--open');
       setAjudanteClose(true);
-      setTopBarTitle('Serviço de ajudantes');
     };
     const closeAjudanteSheet = () => {
       ajudanteSheet?.classList.remove('pedido-sheet--open');
       setAjudanteClose(false);
-      setTopBarTitle(null);
     };
 
     btnAjudante?.addEventListener('click', openAjudanteSheet);
@@ -2138,7 +2128,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Só restaura o título se o sheet estava mesmo aberto: closeFiltersSheet é
     // chamado preventivamente nas trocas de aba e não pode apagar o título de
     // outra gaveta.
-    if (sheet?.classList.contains('historico-sheet--open')) setTopBarTitle(null);
     sheet?.classList.remove('historico-sheet--open');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'false');
@@ -2147,11 +2136,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function openFiltersSheet() {
     const sheet = document.getElementById('filters-sheet');
-    // Ancora o dropdown na base da action bar (medido em runtime pela safe-area)
-    const bar = document.getElementById('feed-action-bar');
-    if (bar && sheet) sheet.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
+    anchorBelowActionBar(sheet);
     sheet?.classList.add('historico-sheet--open');
-    setTopBarTitle('Filtros');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
     btn?.classList.add('agenda-filters__filter-pill--active');
@@ -2293,9 +2279,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Volta o botão da aba anterior ao padrão
     setTabButton(activeTab, false);
     activeTab = tabName;
-    // Marca visualmente a nova aba ativa
+    // Marca visualmente a nova aba ativa (+ aria-selected p/ leitor de tela)
     document.querySelectorAll('.feed-tabs-pill__tab').forEach(t => {
-      t.classList.toggle('feed-tabs-pill__tab--active', t.dataset.tab === tabName);
+      const isActive = t.dataset.tab === tabName;
+      t.classList.toggle('feed-tabs-pill__tab--active', isActive);
+      t.setAttribute('aria-selected', String(isActive));
     });
     // Restaura o estado de scroll da nova aba no botão
     setTabButton(tabName, scrolledState[tabName] ?? false);
@@ -2410,32 +2398,21 @@ document.addEventListener('DOMContentLoaded', () => {
     feedActionBar?.classList.toggle('agenda-filters--elevated', (el?.scrollTop || 0) > 2);
   }
 
-  agendaListEl?.addEventListener('scroll', () => {
-    updateBarElevation();
-    const scrolled = agendaListEl.scrollTop > SCROLL_THRESHOLD;
-    if (scrolledState.home !== scrolled) {
-      scrolledState.home = scrolled;
-      if (activeTab === 'home') setTabButton('home', scrolled);
-    }
-  }, { passive: true });
-
-  pedidosScrollEl?.addEventListener('scroll', () => {
-    updateBarElevation();
-    const scrolled = pedidosScrollEl.scrollTop > SCROLL_THRESHOLD;
-    if (scrolledState.pedidos !== scrolled) {
-      scrolledState.pedidos = scrolled;
-      if (activeTab === 'pedidos') setTabButton('pedidos', scrolled);
-    }
-  }, { passive: true });
-
-  vagasScrollEl?.addEventListener('scroll', () => {
-    updateBarElevation();
-    const scrolled = vagasScrollEl.scrollTop > SCROLL_THRESHOLD;
-    if (scrolledState.vagas !== scrolled) {
-      scrolledState.vagas = scrolled;
-      if (activeTab === 'vagas') setTabButton('vagas', scrolled);
-    }
-  }, { passive: true });
+  // Fábrica ÚNICA para os 3 feeds: eleva a barra + alterna o botão da aba para
+  // "Voltar ao topo" ao passar do threshold (antes eram 3 handlers idênticos).
+  const wireScrollTab = (el, tabKey) => {
+    el?.addEventListener('scroll', () => {
+      updateBarElevation();
+      const scrolled = el.scrollTop > SCROLL_THRESHOLD;
+      if (scrolledState[tabKey] !== scrolled) {
+        scrolledState[tabKey] = scrolled;
+        if (activeTab === tabKey) setTabButton(tabKey, scrolled);
+      }
+    }, { passive: true });
+  };
+  wireScrollTab(agendaListEl,  'home');
+  wireScrollTab(pedidosScrollEl, 'pedidos');
+  wireScrollTab(vagasScrollEl,  'vagas');
 
 
 
@@ -2538,16 +2515,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // aberto atrás, volta a "Fechar" + "Histórico de pedidos"; senão, ao natural.
     const historicoOpen = document.getElementById('historico-sheet')?.classList.contains('historico-sheet--open');
     setHistoricoButton(historicoOpen ? 'close' : 'natural');
-    setTopBarTitle(historicoOpen ? 'Histórico de pedidos' : null);
   };
 
-  // Ancora um sheet-dropdown na BASE da action bar (= topo da caixa do feed),
-  // via --sheet-top. A barra tem altura variável (safe-area), então medimos em
-  // runtime. Usado pelo formulário de pedido e pelo histórico (mesmo slide-down).
-  const anchorBelowActionBar = (el) => {
-    const bar = document.getElementById('feed-action-bar');
-    if (bar && el) el.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
-  };
 
   // Data curta legível: "12 jul, 14:30"
   const formatPedidoDate = (ts) => new Date(ts).toLocaleString('pt-BR', {
@@ -2577,7 +2546,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // da base da action bar — mesmo slide-down do histórico (sem --full, que é
   // reservado ao detalhe em tela cheia).
   const openPedidoForm = () => {
-    setTopBarTitle('Fazer pedido');
     pedidoFormState?.classList.remove('u-hidden');
     pedidoDetailsState?.classList.add('u-hidden');
     detailPedidoId = null;
@@ -2598,7 +2566,6 @@ document.addEventListener('DOMContentLoaded', () => {
     detailPedidoId = id;
     const active = pedido.status === 'active';
     pedidoDetailMode = active ? 'active' : 'old';
-    setTopBarTitle(active ? 'Pedido atual' : 'Pedido concluído');
     pedidoFormState?.classList.add('u-hidden');
     pedidoDetailsState?.classList.remove('u-hidden');
     renderPedidoDetails(pedido);
@@ -2737,11 +2704,17 @@ document.addEventListener('DOMContentLoaded', () => {
     myPedido.urgency = 'normal';
     myPedido.duration = '12';
     myPedido.neighbors = false;
-    document.querySelectorAll('#pedido-urgency .pedido-chip, #pedido-duration .pedido-chip').forEach((c) => {
-      const first = c === c.parentElement.querySelector('.pedido-chip');
-      c.classList.toggle('pedido-chip--active', first);
-      c.setAttribute('aria-pressed', String(first));
-    });
+    // Marca o chip cujo data-* CASA com o valor default — não por posição no
+    // DOM: se a ordem dos chips mudar, seleção visual e myPedido não divergem.
+    const selectDefaultChip = (groupId, dataKey, value) => {
+      document.querySelectorAll(`#${groupId} .pedido-chip`).forEach((c) => {
+        const on = c.dataset[dataKey] === value;
+        c.classList.toggle('pedido-chip--active', on);
+        c.setAttribute('aria-pressed', String(on));
+      });
+    };
+    selectDefaultChip('pedido-urgency', 'urgency', myPedido.urgency);
+    selectDefaultChip('pedido-duration', 'duration', myPedido.duration);
     if (pedidoNeighbors) pedidoNeighbors.setAttribute('aria-pressed', 'false');
     if (inpPedidoText) { inpPedidoText.value = ''; inpPedidoText.classList.remove('input-text--error'); }
     if (pedidoCharCount) pedidoCharCount.textContent = '0';
@@ -2845,7 +2818,6 @@ document.addEventListener('DOMContentLoaded', () => {
     anchorBelowActionBar(historicoSheet);
     historicoSheet?.classList.add('historico-sheet--open');
     setHistoricoButton('close');
-    setTopBarTitle('Histórico de pedidos');
   };
   const closeHistorico = () => {
     historicoSheet?.classList.remove('historico-sheet--open');
@@ -2853,7 +2825,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Histórico segue como "Fechar" e o título do DETALHE permanece na top bar;
     // senão ambos voltam ao natural.
     setHistoricoButton(pedidoDetailMode ? 'close' : 'natural');
-    if (!pedidoDetailMode) setTopBarTitle(null);
   };
 
   historicoSheet?.addEventListener('click', (e) => {

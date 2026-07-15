@@ -249,8 +249,18 @@ window.navigateTo = function(stepId) {
 // COMPONENTE - INTERFACE GLOBAL - Diálogo Universal Customizado
 // =========================================================================
 
-// COMPONENTE - INTERFACE GLOBAL - Diálogo Universal Customizado - Alerta Simples (Ok)
-window.customAlert = function(message, title = "Aviso", iconClass = "error") {
+// COMPONENTE - INTERFACE GLOBAL - Diálogo Universal Customizado - PRIMITIVO ÚNICO
+// Monta/popula/desmonta o #dialog-global com teardown ÚNICO (remove os dois
+// listeners E limpa sempre a classe --scrollable, mesmo quando o alerta não a
+// usou — antes um diálogo de ajuda interrompido deixava a classe presa no
+// próximo alerta). Se um novo diálogo abrir sobre um pendente, o anterior é
+// resolvido como `false` (cancelar) e seus handlers são desligados, evitando o
+// empilhamento em que um clique resolvia dois diálogos.
+// Retorna Promise<boolean>: true = confirmar, false = cancelar/fechar.
+let _dialogSupersede = null; // teardown do diálogo atualmente aberto (se houver)
+window.openDialog = function({ title = "Aviso", message = "", icon = "error",
+                               showCancel = false, confirmText = "Ok",
+                               cancelText = "Cancelar", scrollable = false } = {}) {
   return new Promise((resolve) => {
     const dialog = document.getElementById('dialog-global');
     const btnConfirm = document.getElementById('btn-dialog-confirm');
@@ -258,73 +268,56 @@ window.customAlert = function(message, title = "Aviso", iconClass = "error") {
     const titleEl = document.getElementById('dialog-title');
     const messageEl = document.getElementById('dialog-message');
     const iconEl = document.getElementById('dialog-icon');
-    if (!dialog || !btnConfirm || !btnCancel || !titleEl || !messageEl || !iconEl) {
-      console.warn('[dialog] elementos ausentes');
-      return resolve(true);
-    }
-
-    titleEl.innerText = title;
-    messageEl.innerText = message;
-    iconEl.innerHTML = `<span class="material-symbols-rounded">${iconClass}</span>`;
-
-    btnCancel.classList.add('u-hidden'); // Alerta padrão não exibe opção de rejeição
-    btnConfirm.innerText = "Ok";
-
-    dialog.classList.remove('u-hidden');
-
-    const closeHandler = () => {
-      dialog.classList.add('u-hidden');
-      btnConfirm.removeEventListener('click', closeHandler);
-      resolve(true);
-    };
-
-    btnConfirm.addEventListener('click', closeHandler);
-  });
-};
-
-// COMPONENTE - INTERFACE GLOBAL - Diálogo Universal Customizado - Confirmação Dual (Ok/Cancelar)
-window.customConfirm = function(message, title = "Confirmação", iconClass = "help") {
-  return new Promise((resolve) => {
-    const dialog = document.getElementById('dialog-global');
-    const btnConfirm = document.getElementById('btn-dialog-confirm');
-    const btnCancel = document.getElementById('btn-dialog-cancel');
-    const titleEl = document.getElementById('dialog-title');
-    const messageEl = document.getElementById('dialog-message');
-    const iconEl = document.getElementById('dialog-icon');
+    const box = dialog?.querySelector('.dialog-box');
     if (!dialog || !btnConfirm || !btnCancel || !titleEl || !messageEl || !iconEl) {
       console.warn('[dialog] elementos ausentes');
       return resolve(false); // default seguro: equivale a cancelar a ação
     }
 
+    // Substitui um diálogo ainda pendente (resolve o anterior como cancelar).
+    if (_dialogSupersede) _dialogSupersede();
+
     titleEl.innerText = title;
     messageEl.innerText = message;
-    iconEl.innerHTML = `<span class="material-symbols-rounded">${iconClass}</span>`;
-
-    btnCancel.classList.remove('u-hidden'); // Exibe a opção de cancelamento/recusa
-    btnConfirm.innerText = "Confirmar";
-    btnCancel.innerText = "Cancelar";
-
+    iconEl.innerHTML = `<span class="material-symbols-rounded">${icon}</span>`;
+    btnConfirm.innerText = confirmText;
+    btnCancel.innerText = cancelText;
+    btnCancel.classList.toggle('u-hidden', !showCancel);
+    box?.classList.toggle('dialog-box--scrollable', !!scrollable);
     dialog.classList.remove('u-hidden');
-
-    const confirmHandler = () => {
-      cleanup();
-      resolve(true);
-    };
-
-    const cancelHandler = () => {
-      cleanup();
-      resolve(false);
-    };
 
     const cleanup = () => {
       dialog.classList.add('u-hidden');
-      btnConfirm.removeEventListener('click', confirmHandler);
-      btnCancel.removeEventListener('click', cancelHandler);
+      box?.classList.remove('dialog-box--scrollable');
+      btnConfirm.removeEventListener('click', onConfirm);
+      btnCancel.removeEventListener('click', onCancel);
+      _dialogSupersede = null;
+    };
+    const settle = (value) => { cleanup(); resolve(value); };
+    const onConfirm = () => settle(true);
+    const onCancel = () => settle(false);
+    // Se superado por outro diálogo: desliga sem esconder (o novo já reusa o box).
+    _dialogSupersede = () => {
+      btnConfirm.removeEventListener('click', onConfirm);
+      btnCancel.removeEventListener('click', onCancel);
+      _dialogSupersede = null;
+      resolve(false);
     };
 
-    btnConfirm.addEventListener('click', confirmHandler);
-    btnCancel.addEventListener('click', cancelHandler);
+    btnConfirm.addEventListener('click', onConfirm);
+    btnCancel.addEventListener('click', onCancel);
   });
+};
+
+// Alerta simples (Ok) — sem opção de rejeição.
+window.customAlert = function(message, title = "Aviso", iconClass = "error") {
+  return window.openDialog({ title, message, icon: iconClass, showCancel: false, confirmText: "Ok" });
+};
+
+// Confirmação dual (Confirmar/Cancelar).
+window.customConfirm = function(message, title = "Confirmação", iconClass = "help") {
+  return window.openDialog({ title, message, icon: iconClass, showCancel: true,
+                             confirmText: "Confirmar", cancelText: "Cancelar" });
 };
 
 

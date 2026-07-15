@@ -333,7 +333,7 @@
   font-size: 1.5rem;
   color: var(--t-sub);
   flex-shrink: 0;
-  transition: color var(--transition);
+  transition: color 0.3s var(--ease);
 }
 
 /* Carregamento: gira o ícone de STATUS (direita, que recebe o progress_activity
@@ -360,7 +360,7 @@
   font-size: 1.4rem;
   color: var(--t-disabled);
   flex-shrink: 0;
-  transition: color var(--transition);
+  transition: color 0.3s var(--ease);
 }
 
 /* Localização confirmada: sem realce de fundo/borda no card inteiro — o check verde
@@ -586,34 +586,8 @@
   transform: scale(var(--press-scale-subtle));
 }
 
-.profile-public-check__box {
-  flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-xs);
-  border: 2px solid var(--border-mid);
-  background: transparent;
-  transition: var(--transition);
-}
-
-.profile-public-check__box .material-symbols-rounded {
-  font-size: 1.1rem;
-  color: var(--t-light);
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.profile-public-check[aria-pressed="true"] .profile-public-check__box {
-  background: var(--info-blue);
-  border-color: var(--info-blue);
-}
-
-.profile-public-check[aria-pressed="true"] .profile-public-check__box .material-symbols-rounded {
-  opacity: 1;
-}
+/* A caixa (.profile-public-check__box) usa o primitivo .check-box
+   (components.css); o estado marcado vem do aria-pressed do botão-pai. */
 
 .profile-public-check__text {
   font-size: var(--fs-5);

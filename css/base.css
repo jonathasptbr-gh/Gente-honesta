@@ -134,6 +134,11 @@
   --blur-sm: 5px;
   --blur-lg: 14px;
 
+  /* Thumb da barra de rolagem fina sobre superfícies CLARAS (versos de card,
+     corpos das gavetas claras) — verde-escuro translúcido. Sobre superfícies
+     VERDES usa-se --on-green-muted (claro). Token único: o valor se repetia 8×. */
+  --scroll-thumb-dark: rgba(var(--p-green-dark-rgb), 0.28);
+
   /* Curva de easing padrão dos sheets deslizantes (bottom-sheets e dropdowns).
      Fonte única do par pedido/histórico; agenda e indicados agora seguem a mesma. */
   --sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
@@ -148,6 +153,11 @@
 
   /* Transição padrão */
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Curva de easing sozinha (sem propriedade/duração) — para transições de UMA
+     propriedade específica. Compor `transition: color var(--transition)` gerava
+     `color all 0.3s …` (lista inválida → declaração descartada, sem animação);
+     usar `transition: color 0.3s var(--ease)`. É a MESMA curva de --transition. */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Espaçamento */
   --space-xs: 8px;
@@ -351,10 +361,6 @@ button, input, textarea {
 .u-fade-out {
   opacity: 0;
   pointer-events: none;
-}
-
-.u-mt-20 {
-  margin-top: var(--space-md);
 }
 
 .text-accent {

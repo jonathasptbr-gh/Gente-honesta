@@ -32,15 +32,19 @@ const clearNameErrors = () =>
 // ARRASTAVA o último naco (sobrava um título "parado") antes de sumir — a
 // sanfona parecia não ir até o fim. Com easeIn o fechamento vai suave até 0.
 // =========================================================================
-const PRODETAILS_OPEN_TRANSITION  = `height 1000ms cubic-bezier(0.33, 1, 0.68, 1)`; // easeOutCubic
-const PRODETAILS_CLOSE_TRANSITION = `height 500ms cubic-bezier(0.32, 0, 0.67, 0)`;  // easeInCubic
+const PRODETAILS_OPEN_MS  = 1000; // duração da abertura (fonte única: usada na transição E no atraso do scroll)
+const PRODETAILS_CLOSE_MS = 500;
+const PRODETAILS_OPEN_TRANSITION  = `height ${PRODETAILS_OPEN_MS}ms cubic-bezier(0.33, 1, 0.68, 1)`; // easeOutCubic
+const PRODETAILS_CLOSE_TRANSITION = `height ${PRODETAILS_CLOSE_MS}ms cubic-bezier(0.32, 0, 0.67, 0)`;  // easeInCubic
 
 function setProDetailsOpen(open, animate = true) {
+  const trigger = document.getElementById('btn-toggle-prodetails');
   const panel = document.getElementById('panel-prodetails');
-  const collapsible = document.getElementById('btn-toggle-prodetails')?.closest('.collapsible');
+  const collapsible = trigger?.closest('.collapsible');
   if (!panel || !collapsible) return;
 
   const isOpen = !panel.classList.contains('u-hidden');
+  trigger?.setAttribute('aria-expanded', String(open)); // reflete o estado ao leitor de tela
   if (open === isOpen) return; // já no estado desejado
 
   // Remove o listener de uma animação anterior que não terminou (toggle rápido)
@@ -121,11 +125,11 @@ function highlightMissingProFields({ tags, bio }) {
   const bioInput = document.getElementById('inp-bio');
   if (!tags) areaInput?.classList.add('input-text--error');
   if (!bio) bioInput?.classList.add('input-text--error');
-  // Espera a animação de abertura (~1s) antes de rolar até o campo
+  // Espera a animação de abertura terminar antes de rolar até o campo (+buffer)
   setTimeout(() => {
     const first = !tags ? areaInput : bioInput;
     first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 1020);
+  }, PRODETAILS_OPEN_MS + 20);
 }
 
 
@@ -529,11 +533,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (photoPreviewImg) photoPreviewImg.classList.add('u-hidden');
   };
 
-  // Abre ao clicar na moldura
+  // Abre ao clicar na moldura (é um <button>: Enter/Espaço já disparam o click
+  // nativamente — não precisa de handler de keydown manual).
   mediaPreview?.addEventListener('click', openCameraDialog);
-  mediaPreview?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCameraDialog(); }
-  });
 
   // Botão esquerdo: tirar foto OU refazer
   btnSnap?.addEventListener('click', async () => {
@@ -901,34 +903,10 @@ Importante: essa é só uma escolha inicial. Com o tempo, as avaliações que vo
   };
 
   Object.entries(helpTexts).forEach(([btnId, { title, icon, text }]) => {
-    document.getElementById(btnId)?.addEventListener('click', async () => {
-      // Abre o diálogo padrão e adiciona classe de scroll após abrir
-      const dialog = document.getElementById('dialog-global');
-      const msgEl = document.getElementById('dialog-message');
-      const titleEl = document.getElementById('dialog-title');
-      const iconEl = document.getElementById('dialog-icon');
-      const btnCancel = document.getElementById('btn-dialog-cancel');
-      const btnConfirm = document.getElementById('btn-dialog-confirm');
-      const box = dialog?.querySelector('.dialog-box');
-      if (!dialog || !msgEl || !titleEl || !iconEl || !btnCancel || !btnConfirm) return;
-
-      titleEl.innerText = title;
-      msgEl.innerText = text;
-      iconEl.innerHTML = `<span class="material-symbols-rounded">${icon}</span>`;
-      btnCancel.classList.add('u-hidden');
-      btnConfirm.innerText = 'Entendi';
-      box?.classList.add('dialog-box--scrollable');
-      dialog.classList.remove('u-hidden');
-
-      await new Promise(resolve => {
-        const handler = () => {
-          dialog.classList.add('u-hidden');
-          box?.classList.remove('dialog-box--scrollable');
-          btnConfirm.removeEventListener('click', handler);
-          resolve();
-        };
-        btnConfirm.addEventListener('click', handler);
-      });
+    document.getElementById(btnId)?.addEventListener('click', () => {
+      // Diálogo de ajuda: mesmo primitivo dos alertas, com scroll interno.
+      window.openDialog({ title, message: text, icon, showCancel: false,
+                          confirmText: 'Entendi', scrollable: true });
     });
   });
 

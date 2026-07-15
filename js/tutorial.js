@@ -337,10 +337,6 @@
   // para incluir esse conteúdo — usado tanto no "buraco" da máscara/destaque
   // (pra revelar o conteúdo recém-aberto, e não deixá-lo escurecido/bloqueado)
   // quanto no cálculo de posição do balão (pra não ficar por cima dele).
-  // Também devolve o próprio elemento-irmão (`extraEl`) — é nele que
-  // scrollIntoView({block:'end'}) precisa rolar quando o balão vai para cima,
-  // já que rolar o alvo original não moveria esse conteúdo extra para dentro
-  // da tela.
   function getExtendedRect(targetEl, rect) {
     if (!siblingStartedHidden) return rect;
     const sibling = targetEl.nextElementSibling;
@@ -352,7 +348,7 @@
     const left = Math.min(rect.left, sRect.left);
     const right = Math.max(rect.right, sRect.right);
     const bottom = Math.max(rect.bottom, sRect.bottom);
-    return { top: rect.top, left, right, bottom, width: right - left, height: bottom - rect.top, extraEl: sibling };
+    return { top: rect.top, left, right, bottom, width: right - left, height: bottom - rect.top };
   }
 
   function positionStep() {

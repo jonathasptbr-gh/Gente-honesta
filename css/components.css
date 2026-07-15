@@ -311,6 +311,43 @@
 
 
 /* ===========================================
+   CHECKBOX — primitivo compartilhado (.check-box)
+   Caixa de marcação 24×24 usada no check "perfil público" (cadastro) e no
+   "exigir currículo" (criar vaga) — antes eram dois blocos idênticos em
+   arquivos diferentes. O estado marcado é lido do aria-pressed do BOTÃO-pai
+   que contém a caixa (contrato genérico), então serve a qualquer toggle novo.
+   ======================================== */
+.check-box {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--border-mid);
+  background: transparent;
+  transition: var(--transition);
+}
+
+.check-box .material-symbols-rounded {
+  font-size: 1.1rem;
+  color: var(--t-light);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+[aria-pressed="true"] .check-box {
+  background: var(--info-blue);
+  border-color: var(--info-blue);
+}
+
+[aria-pressed="true"] .check-box .material-symbols-rounded {
+  opacity: 1;
+}
+
+
+/* ===========================================
    ÍNDICE DE CONFIANÇA — Componente ic-bar
    Reutilizado em cards do feed e na agenda
    ======================================== */
