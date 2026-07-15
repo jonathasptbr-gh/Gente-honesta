@@ -1,0 +1,142 @@
+---
+description: Núcleo do app — globals por módulo, estado global, diálogos, mobile-only, telas de auth/install/loader, Service Worker e fluxo de atualização do PWA.
+paths:
+  - "js/app.js"
+  - "js/auth.js"
+  - "js/session.js"
+  - "js/install.js"
+  - "service-worker.js"
+  - "css/auth.css"
+  - "css/install.css"
+  - "css/components.css"
+---
+
+# Núcleo do app (shell)
+
+## Globals exportados por módulo
+
+Cada JS expõe funções/objetos em `window` para acesso cross-module.
+
+**app.js** (base): `window.auth` (Firebase Auth), `window.appState` (estado mutável),
+`window.showView(viewId)`, `window.navigateTo(stepId)`, `window.openDialog({...})`,
+`window.customAlert(msg, title?, icon?)`, `window.customConfirm(msg, title?, icon?)`,
+`window.watchScrollShadows(el)`, `window.THEME_COLOR`.
+
+**tutorial.js:** `window.startTutorial(steps, opts)`, `window.resetTutorialSeen(id)`.
+
+**auth.js:** `window.authTimerInstance`, `window.sendOTP(isResend?)`, `window.verifyOTP()`,
+`window.resetAuthFlow()` (limpa auth + OTP + delega a `resetOnboardingForm`).
+
+**onboarding.js:** `window.finishRegistration()`, `window.resetOnboardingForm()`,
+`window.startOnboardingTutorial()`.
+
+**install.js:** `window.deferredInstallPrompt`, `window.isStandalone()`,
+`window.prepareInstallView()`.
+
+**session.js** e **feed.js:** sem exports (tudo em listeners e DOMContentLoaded).
+
+## Estado global (`window.appState`, em `app.js`)
+
+- `confirmationResult` — objeto de confirmação SMS do Firebase.
+- `photoBlob` — data URL da foto capturada no onboarding.
+- `stream` — MediaStream da câmera (parar ao fechar).
+- `selectedTags` — array de áreas profissionais.
+- `cooldownActive` — rate-limit do SMS ativo.
+- `locationConfirmed` — GPS validado.
+- `serviceProfile` — `{quality, agility, price}` (0-10) do card de padrão de serviço.
+- `paymentMethods` — `{cash, pix, card, nf}`; `card` é `0 | 'debit' | 1 | 6 | 12` (mesmo formato
+  de `pro.pay.card`, nunca combinação). **`cash` nasce `true`** (Dinheiro pré-selecionado).
+- `profilePublic` — boolean, default `false` (o check pressupõe os dados profissionais
+  preenchidos).
+
+## Roteamento SPA
+
+`showView(viewId)` troca a tela principal (`.screen` → `.screen--active`); `navigateTo(stepId)`
+troca sub-passo dentro de `#view-auth` (`u-hidden`). Contrato: telas SÓ por `.screen--active`;
+sub-elementos SÓ por `u-hidden`; nunca `display` inline em `.screen`. O `onAuthStateChanged`
+(`session.js`) é quem oculta o loader em transições normais.
+
+## Diálogos — primitivo único `openDialog`
+
+`window.openDialog({title, message, icon, showCancel, confirmText, cancelText, scrollable})`
+(`app.js`) monta/popula/desmonta o `#dialog-global` com **teardown ÚNICO** (remove os dois
+listeners e limpa sempre `--scrollable`) e **supersede** (um novo diálogo resolve o anterior como
+cancelar, sem empilhar handlers). Retorna `Promise<boolean>`. `customAlert`/`customConfirm` e o
+diálogo de ajuda do onboarding são wrappers finos dele. **Sempre** usar `await customAlert(...)`/
+`await customConfirm(...)` — nunca `alert()`/`confirm()` nativos.
+
+**Visual:** padrão VERDE (como as telas) — fundo `--p-green`, ícone dourado, título `--t-light`,
+mensagem `--p-green-light`, confirmar dourado, cancelar branco translúcido (`.btn--outline`).
+Escopado ao `#dialog-global`; o diálogo da câmera (`.dialog-box--camera`) tem tratamento próprio.
+
+## Mobile-only e orientação
+
+`window.IS_MOBILE` é definido sincronicamente no `<head>` (antes de qualquer render). Em desktop,
+`html.is-desktop` + overlay bloqueiam o app. `session.js` verifica `IS_MOBILE` para abortar o
+fluxo; em `app.js` só o REGISTRO do SW é condicionado a `IS_MOBILE` (o `firebase.initializeApp`
+roda também em desktop — inofensivo, o overlay bloqueia a UI). Paisagem bloqueada em dois níveis:
+`manifest.json` (`"orientation": "portrait"`) + overlay CSS em `components.css`
+(`@media (orientation: landscape)`).
+
+## Telas verdes (shell)
+
+Todo o app é verde (`--p-green`), então a `meta[theme-color]` é verde em todas via a constante
+única `window.THEME_COLOR = '#184e1b'`.
+
+- **Auth/install:** `#view-auth.screen` tem fundo `--p-green`; `#view-install.screen` usa
+  `--bg-canvas`. A classe `.auth-section` (nos dois) já nasce com textos claros
+  (`.auth-section__title` → `--t-light`, textos/legal/cooldown → `--p-green-light`, links →
+  `--a-gold`). Primários (`Enviar SMS`, `Verificar e Entrar`, `Instalar agora`) viram amarelos
+  (`#view-auth .btn--primary, #view-install .btn--primary`), botões de texto → `--a-gold`. Inputs
+  e cards de passo têm fundo claro e se destacam sozinhos.
+- **Intro (boas-vindas):** 1º slide usa `<img src="icon-intro.svg" class="intro-carousel__icon-img">`
+  (recorte justo do operário); slides 2/3 mantêm glifos Material dourados. Título do 1º slide é só
+  "Gente Honesta". Os 3 ícones compartilham o mesmo slot de altura fixa
+  (`clamp(5.5rem,26vw,8.5rem)`). `#btn-start` usa `btn--accent`. Dots inativos em branco
+  translúcido, ativo BRANCO `--t-light` (o azul de seleção sumiria no fundo escuro).
+- **Seta "voltar" é ÍCONE, nunca caractere:** `#btn-back-phone` usa
+  `<span class="material-symbols-rounded">arrow_back</span>` — um glifo digitado como texto solto
+  não compartilha a métrica das letras e fica mais baixo. `.btn--text .material-symbols-rounded`
+  fixa o ícone em `1.1rem`.
+
+## Loader global
+
+`#loader-global` — mostrado/ocultado com `u-hidden`. O `onAuthStateChanged` é o único responsável
+por ocultá-lo em transições normais; em erros onde o auth não muda, remover manualmente. **CSS
+crítico inline no `<head>`** pinta o `html` de verde e dá ao `.overlay-loader` a cobertura
+(`position:fixed; inset:0; background:#184e1b; z-index:9999`) — sem isso havia flash branco no fim
+do splash. **Telas não têm animação de entrada** (`.screen` sem `animation`): a transição entre
+telas fica por conta do fade-out do loader.
+
+## Service Worker
+
+Incrementar `CACHE_NAME` (`service-worker.js`) a cada deploy com mudanças de cache (atual:
+`gentehonesta-v322`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
+caches antigos. **CRÍTICO — o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`:** sem
+isso, o `Cache-Control: max-age=600` do GitHub Pages devolvia arquivos VELHOS por até 10 min após
+um deploy e o botão "Atualizar" recarregava a versão antiga. `no-cache` = revalida via ETag (304
+quando nada mudou). Cross-origin (fontes do Google) segue o cache normal. **NUNCA remover esse
+`cache: 'no-cache'`.**
+
+**Selo de versão (`#version-badge`):** vive no loader global
+(`class="overlay-loader__version"` no `#loader-global`). O texto (`v###`) DEVE ser bumpado JUNTO
+com o `CACHE_NAME` a cada deploy — é a fonte visual de "estou vendo a versão nova?".
+
+## Atualização do PWA (banner "Nova versão disponível")
+
+O SW NÃO chama `self.skipWaiting()` no `install` — o novo worker fica em "waiting" até o usuário
+confirmar:
+1. `app.js` chama `registration.update()` no `window.load` e a cada `visibilitychange → visible`
+   (detecção rápida, sem depender da checagem automática do navegador de até 24h).
+2. Ao detectar worker novo instalado (`updatefound` → `statechange` → `'installed'`, SÓ quando já
+   existe `navigator.serviceWorker.controller`), exibe `#pwa-update-banner`. A página pergunta a
+   versão ao novo worker via `MessageChannel` (`{type:'GET_VERSION'}` → SW responde `APP_VERSION`
+   derivado do `CACHE_NAME`) e atualiza `#pwa-update-text`.
+3. Clique em "Atualizar" → `postMessage({type:'SKIP_WAITING'})` → SW chama `self.skipWaiting()` →
+   `clients.claim()` no `activate`.
+4. `oncontrollerchange` dispara `location.reload()` — **mas só se** o clique pediu a troca (flag
+   `updateRequested`). `clients.claim()` também dispara `controllerchange` sozinho na primeiríssima
+   instalação; sem essa guarda, todo primeiro acesso recarregaria sozinho.
+
+Nunca recarrega sem o clique do usuário. O reload só entrega arquivos novos por causa do
+`cache: 'no-cache'`. `#pwa-update-banner` usa `u-hidden` exclusivo, `z-index: 10000`.
