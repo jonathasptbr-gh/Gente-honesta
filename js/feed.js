@@ -544,6 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // renderAgendaList. `showPin` inclui o botão salvar + rodapé (só na lista
   // principal); `withId` põe o id do pro no card (usado pela reordenação FLIP).
   // function declaration (hoisted).
+  /** @param {import('./models.js').Professional} pro */
   function buildProCard(pro, { showPin = true, withId = false } = {}) {
     const card = document.createElement('div');
     card.className = 'pro-card';

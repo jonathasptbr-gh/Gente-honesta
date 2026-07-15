@@ -11,6 +11,9 @@ Repositório: jonathasptbr-gh/gente-honesta
 > **Documentação detalhada:** este arquivo é o índice + o essencial sempre carregado. O detalhe de
 > cada área vive em `.claude/rules/*.md` (ver o índice no fim). **Ao mexer numa área, leia a rule
 > correspondente antes de alterar** — ela tem as convenções específicas que evitam divergência.
+>
+> **Convenções de nomenclatura/estrutura/teoria** (para portabilidade): ver **`CONVENTIONS.md`** na
+> raiz. Modelo de domínio em `js/models.js` (typedefs); enums em `js/domain.js`; dados via repository.
 
 ---
 
@@ -130,6 +133,9 @@ js/   (a ordem de carga no index.html importa)
                           pinnedPros, pedidoHistory, myPedido, scrolledState, scrollToTopPending,
                           contractsFilter. (Primitivos reatribuídos — activeTab, indicateMode etc. —
                           seguem no closure de feed.js: mover exige accessors + teste no aparelho.)
+  models.js         — MODELO DE DOMÍNIO: @typedef JSDoc de todas as entidades (Professional/Pedido/
+                          Vaga/Helper/Comment/AppState). SÓ doc — não é carregado por <script>.
+                          Contrato portável (vira interface TS numa migração).
 
 .claude/
   settings.json     — hook SessionStart → session-start.sh

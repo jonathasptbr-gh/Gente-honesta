@@ -18,11 +18,13 @@ export const qavHTML = (q, a, v) => `
     <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:${v * 10}%"></div></div></div>
   </div>`;
 
+/** @param {import('./models.js').Availability} state */
 export const availHTML = (state) => {
   const m = availabilityMeta[state] || availabilityMeta.available;
   return `<span class="avail avail--${m.cls}"><span class="avail__dot" aria-hidden="true"></span>${m.label}</span>`;
 };
 
+/** @param {import('./models.js').Comment} c */
 export const buildCommentHTML = (c) => {
   const MAX = 150;
   const tier = icTier(c.ic);
@@ -70,6 +72,7 @@ export const proBackHTML = () => {
   return _proBackHTML;
 };
 
+/** @param {import('./models.js').Professional} pro */
 export const proFooterHTML = (pro) => {
   const hasCash = !!pro.pay?.cash;
   const hasPix  = !!pro.pay?.pix;
@@ -90,6 +93,7 @@ export const proFooterHTML = (pro) => {
   </div>`;
 };
 
+/** @param {import('./models.js').Pedido} p */
 export function historicoItemHTML(p) {
   const active = p.status === 'active';
   const statusCls = active ? 'historico-item__status--active' : 'historico-item__status--done';
