@@ -404,8 +404,9 @@ document.addEventListener('DOMContentLoaded', () => {
       c.classList.remove('chip--active');
       c.setAttribute('aria-pressed', 'false');
     });
-    // Restaura chip de ordenação padrão (nome)
-    const defaultSort = document.querySelector('#panel-agenda-filters [data-sort="name"]');
+    // Restaura o chip de ordenação padrão (Confiança) — CASA com filterState.sort
+    // (SORT.IC) acima e com o chip ativo no load inicial.
+    const defaultSort = document.querySelector(`#panel-agenda-filters [data-sort="${SORT.IC}"]`);
     if (defaultSort) { defaultSort.classList.add('chip--active'); defaultSort.setAttribute('aria-pressed', 'true'); }
     // Limpa campo de busca (limpeza programática → re-sincroniza a lupa/X)
     const search = document.getElementById('inp-agenda-search');
