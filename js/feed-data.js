@@ -118,3 +118,17 @@ export const mockVagas = [
     ],
   },
 ];
+
+// Pool mock de ajudantes (placeholder do backend).
+export const mockHelpers = [
+  { id: 'help-1',  first: 'Lucas',    last: 'Andrade',  ic: 84, phone: '5511990000001', type: 'heavy' },
+  { id: 'help-2',  first: 'Bruna',    last: 'Carvalho', ic: 71, phone: '5511990000002', type: 'light' },
+  { id: 'help-3',  first: 'Diego',    last: 'Moraes',   ic: 63, phone: '5511990000003', type: 'heavy' },
+  { id: 'help-4',  first: 'Patrícia', last: 'Nogueira', ic: 90, phone: '5511990000004', type: 'light' },
+  { id: 'help-5',  first: 'Rafael',   last: 'Teixeira', ic: 55, phone: '5511990000005', type: 'heavy' },
+  { id: 'help-6',  first: 'Camila',   last: 'Barros',   ic: 78, phone: '5511990000006', type: 'light' },
+  { id: 'help-7',  first: 'Anderson', last: 'Pires',    ic: 47, phone: '5511990000007', type: 'heavy' },
+  { id: 'help-8',  first: 'Juliana',  last: 'Fonseca',  ic: 82, phone: '5511990000008', type: 'light' },
+  { id: 'help-9',  first: 'Marcelo',  last: 'Duarte',   ic: 68, phone: '5511990000009', type: 'heavy' },
+  { id: 'help-10', first: 'Tatiane',  last: 'Ribeiro',  ic: 59, phone: '5511990000010', type: 'light' },
+];

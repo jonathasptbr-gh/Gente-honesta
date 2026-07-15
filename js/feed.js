@@ -1,5 +1,6 @@
 "use strict";
-import { mockIndicatedByPost, mockComments, mockProfessionals, avatarSvg, mockVagas } from './feed-data.js';
+import { mockIndicatedByPost, mockComments, mockProfessionals, avatarSvg, mockVagas, mockHelpers } from './feed-data.js';
+import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './feed-config.js';
 
 // =========================================================================
 // TELA - PRINCIPAL (FEED) - Gerenciador de Comportamentos da Interface
@@ -20,12 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const contractsFiltersSheet = document.getElementById('contracts-filters-sheet');
   const btnOpenContracts      = document.getElementById('btn-open-contracts');
   const agendaSearchInput     = document.getElementById('inp-agenda-search');
-  const SEARCH_PLACEHOLDER_PROS      = 'Buscar no Gente Honesta...';
-  const SEARCH_PLACEHOLDER_CONTRACTS = 'Buscar contratos...';
-
-  // Curva de easing padrão (= token CSS --ease) usada nas transições montadas
-  // em JS — fonte única para não desincronizar da curva do CSS.
-  const EASE_STD = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
   // function declarations (hoistadas): usadas pelo listener do botão de
   // filtros e pelos show*Panel definidos adiante.
@@ -450,7 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return true;
   });
 
-  const availOrder = { available: 0, full: 1, unavailable: 2 };
   // Comparador ÚNICO de profissionais conforme filterState.sort (function
   // hoistada). Usado por sortPros (objetos pro) e por sortCards (cards do DOM,
   // que mapeiam id→pro antes de delegar) — antes eram dois switch idênticos.
@@ -489,13 +483,6 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:${v * 10}%"></div></div></div>
     </div>`;
 
-  // Disponibilidade do profissional: ponto colorido + rótulo (mesma filosofia de cor da ic-bar).
-  // Estados: 'available' (verde), 'full' (amarelo), 'unavailable' (vermelho).
-  const availabilityMeta = {
-    available:   { cls: 'available',   label: 'Disponível'   },
-    full:        { cls: 'full',        label: 'Agenda cheia' },
-    unavailable: { cls: 'unavailable', label: 'Indisponível' },
-  };
   const availHTML = (state) => {
     const m = availabilityMeta[state] || availabilityMeta.available;
     return `<span class="avail avail--${m.cls}"><span class="avail__dot" aria-hidden="true"></span>${m.label}</span>`;
@@ -511,7 +498,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span></p></div>`;
   };
 
-  const COMMENTS_PAGE = 5;
 
   // Appends next batch of comments to the card; removes the button when exhausted.
   // function declaration — chamado antes da sua posição textual em bindProCardFlip e agenda-list.
@@ -1165,22 +1151,6 @@ document.addEventListener('DOMContentLoaded', () => {
       '<div class="feed-end-cap"><span class="feed-end-cap__text">Você viu todas as vagas disponíveis na sua região no momento</span></div>');
   };
 
-  // ── Motor genérico de animação flip+expansão ─────────────────────────────
-  const VAGA_CARD_CFG = {
-    flipMs: 560, expandMs: 450, collMs: 370,
-    flippedClass: 'vaga-card--flipped', expandedClass: 'vaga-card--expanded',
-    backSel:   '.vaga-card__back',
-    footerSel: '.vaga-card__back-footer',
-  };
-  const PRO_CARD_CFG = {
-    flipMs: 500, expandMs: 380, collMs: 300,
-    flippedClass: 'pro-card--flipped', expandedClass: 'pro-card--expanded',
-    backSel:   '.pro-card__back',
-    footerSel: '.pro-card__back-actions',
-  };
-  // Atraso para rolar o card à vista DEPOIS do flip + expansão terminarem
-  // (+ buffer). Derivado do cfg para não desincronizar se a animação mudar.
-  const PRO_FLIP_SETTLE_MS = PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs + 50; // 930
 
   function flipCardToBack(card, cfg) {
     const frontH = card.offsetHeight;
@@ -1416,8 +1386,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCountInc  = document.getElementById('vaga-count-inc');
     const chkCurriculo = document.getElementById('chk-vaga-curriculo');
 
-    const MAX_VAGAS = 20;
-    const DAY_ORDER = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
     let vagaCount = 1;
     let myVagaId  = null;
 
@@ -1743,26 +1711,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // onde a entrega real seria "por ordem de chegada". Reusa icBarHTML/avatarSvg.
   // =========================================================================
   {
-    // Diárias padrão (em reais), iguais para todo usuário; pesado > leve.
-    const HELPER_RATES = { light: 100, heavy: 180 };
-
-    // Chaves de persistência local (cooldown removido — sem bloqueio de tempo).
-    const LS_HELPER_AVAIL    = 'gh_helper_availability'; // { light, heavy }
-    const LS_HELPER_DRAW     = 'gh_helper_draw';         // { date, type, helpers[] }
-
-    // Pool mock de ajudantes disponíveis (placeholder do backend).
-    const mockHelpers = [
-      { id: 'help-1',  first: 'Lucas',    last: 'Andrade',  ic: 84, phone: '5511990000001', type: 'heavy' },
-      { id: 'help-2',  first: 'Bruna',    last: 'Carvalho', ic: 71, phone: '5511990000002', type: 'light' },
-      { id: 'help-3',  first: 'Diego',    last: 'Moraes',   ic: 63, phone: '5511990000003', type: 'heavy' },
-      { id: 'help-4',  first: 'Patrícia', last: 'Nogueira', ic: 90, phone: '5511990000004', type: 'light' },
-      { id: 'help-5',  first: 'Rafael',   last: 'Teixeira', ic: 55, phone: '5511990000005', type: 'heavy' },
-      { id: 'help-6',  first: 'Camila',   last: 'Barros',   ic: 78, phone: '5511990000006', type: 'light' },
-      { id: 'help-7',  first: 'Anderson', last: 'Pires',    ic: 47, phone: '5511990000007', type: 'heavy' },
-      { id: 'help-8',  first: 'Juliana',  last: 'Fonseca',  ic: 82, phone: '5511990000008', type: 'light' },
-      { id: 'help-9',  first: 'Marcelo',  last: 'Duarte',   ic: 68, phone: '5511990000009', type: 'heavy' },
-      { id: 'help-10', first: 'Tatiane',  last: 'Ribeiro',  ic: 59, phone: '5511990000010', type: 'light' },
-    ];
 
     // Data local AAAA-MM-DD — a validade do sorteio é "até a meia-noite daquele
     // dia", então basta comparar a data do calendário local.
@@ -2130,16 +2078,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // anterior; ao retornar, a aba reflete o estado real do scroll da lista.
   // =========================================================================
 
-  const TAB_DEFAULTS = {
-    vagas:   { icon: 'work',          label: 'Vagas'         },
-    home:    { icon: 'person_search', label: 'Profissionais' },
-    pedidos: { icon: 'view_agenda',   label: 'Pedidos'       },
-  };
-  const SCROLL_TOP_STATE = { icon: 'arrow_upward', label: 'Voltar ao topo' };
-  const SCROLL_THRESHOLD = 80; // px a partir do qual mostra "Voltar ao topo"
-
-  // Ordem fixa dos painéis (esq → dir): define o translateX do slider
-  const TAB_ORDER = ['vagas', 'home', 'pedidos'];
 
   const updateSlider = (tabName) => {
     const slider = document.querySelector('.feed-tabs-pill__slider');
