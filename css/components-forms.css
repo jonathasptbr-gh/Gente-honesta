@@ -1,0 +1,161 @@
+/* ===========================================
+   FORMULÁRIOS & INPUTS
+   ======================================== */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 100%;
+  margin-bottom: var(--space-md);
+}
+
+.form-group--no-margin {
+  margin-bottom: 0;
+}
+
+/* Rótulo/eyebrow uppercase — linguagem única de "sobretítulo" do app.
+   .form-group__label (label de campo) e qualquer subtítulo de seção
+   compartilham esta receita; adicione a classe .eyebrow a novos rótulos
+   em vez de reescrever cor/tamanho/peso/caixa-alta à mão. */
+.eyebrow,
+.form-group__label {
+  color: var(--p-green);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+}
+
+.form-group__hint {
+  text-align: right;
+  font-size: var(--fs-3);
+  color: var(--t-sub);
+}
+
+.form-group__optional {
+  font-size: var(--fs-3);
+  font-weight: var(--fw-regular);
+  color: var(--t-sub);
+  text-transform: none;
+}
+
+.form-group__description {
+  font-size: var(--fs-4);
+  color: var(--t-main);   /* texto escuro (quase preto), não o cinza --t-sub */
+  line-height: 1.4;
+  margin-bottom: var(--space-xs);
+}
+
+.input-text {
+  width: 100%;
+  padding: 14px;
+  font-size: var(--fs-8);
+  border: none;                    /* sem contorno: o campo se define pelo fundo claro + sombra */
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  color: var(--t-main);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  outline: none;
+  appearance: none;
+}
+
+/* Foco = leve mudança de COR do próprio campo (tint verde-claro), não sombra —
+   sombras de destaque furavam bordas e viravam linha sólida. */
+.input-text:focus {
+  background: var(--p-green-light);
+}
+
+/* Autofill do navegador (Chrome/Samsung Internet): por padrão pinta o campo de
+   AZUL-CLARO e mantém a cor mesmo após perder o foco. Repintamos o fundo com a
+   cor normal do campo via box-shadow inset (preservando a --shadow-sm), fixamos
+   o texto escuro e travamos a transição de fundo para o azul não voltar/piscar. */
+.input-text:-webkit-autofill,
+.input-text:-webkit-autofill:hover,
+.input-text:-webkit-autofill:active {
+  -webkit-box-shadow: inset 0 0 0 1000px var(--bg-white), var(--shadow-sm);
+  -webkit-text-fill-color: var(--t-main);
+  caret-color: var(--t-main);
+  transition: background-color 9999s ease-in-out 0s;
+}
+.input-text:-webkit-autofill:focus {
+  -webkit-box-shadow: inset 0 0 0 1000px var(--p-green-light), var(--shadow-sm);
+}
+
+/* Hint (placeholder) um pouco menor: evita corte em campos de 1 linha
+   e reduz o volume do placeholder longo no textarea de habilidades */
+.input-text::placeholder {
+  font-size: var(--fs-5);
+}
+
+.input-text--center {
+  text-align: center;
+  font-weight: var(--fw-bold);
+  letter-spacing: 1px;
+}
+
+.input-text--multiline {
+  resize: none;
+  min-height: 90px;
+}
+
+.input-text--maxed {
+  background: var(--danger-soft);
+}
+
+/* ALERTA DE CAMPO OBRIGATÓRIO (única exceção à regra sem-contorno): campos que
+   DEVEM ser preenchidos e ficaram vazios no submit ganham uma LINHA VERMELHA de
+   borda + fundo de alerta. Aplicado via JS (finishRegistration / criar vaga) nos
+   campos obrigatórios: foto, nome, sobrenome e registro de região no cadastro.
+   `!important` para vencer o `border:none` do reset e do `.card`. */
+.input-text--error {
+  border: 2px solid var(--danger) !important;
+  background: var(--danger-soft);
+}
+
+/* Agrupadas: erro de validação (obrigatório vazio no submit) e erro de GPS do
+   mesmo card usam o MESMO mecanismo canônico — linha vermelha + fundo de alerta. */
+.location-check--error-validation,
+.location-check--error {
+  border: 2px solid var(--danger) !important;
+  background: var(--danger-soft);
+}
+
+/* A moldura da foto ganha a LINHA VERMELHA sólida no erro (sem tracejado em repouso). */
+.media-capture__display--error {
+  border: 2px solid var(--danger) !important;
+}
+
+/* ── Labels flutuantes ── */
+.input-float {
+  position: relative;
+}
+
+.input-text--float {
+  padding-top: var(--space-md);
+  padding-bottom: var(--space-xs);
+}
+
+.input-float__label {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: all 0.2s ease;
+  transform-origin: left top;
+  font-size: var(--fs-8);
+  font-weight: var(--fw-regular);
+  color: var(--t-disabled);
+  text-transform: none;
+}
+
+.input-text--float:focus + .input-float__label,
+.input-text--float:not(:placeholder-shown) + .input-float__label {
+  top: 6px;
+  transform: translateY(0) scale(0.72);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  color: var(--p-green);
+}
+
+

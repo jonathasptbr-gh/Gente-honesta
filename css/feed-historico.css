@@ -1,0 +1,742 @@
+/* =========================================================================
+   HISTÓRICO DE PEDIDOS — dropdown que DESCE da base da action bar (#historico-
+   sheet). O painel ancora em --sheet-top (medido em JS = rodapé da barra = topo
+   da caixa do feed), spanning edge-to-edge com cantos inferiores arredondados,
+   entra descendo (translateY + fade) e parece a base do módulo dos botões se
+   estendendo: o backdrop dim SÓ o feed abaixo (top: --sheet-top), a barra fica
+   acesa. Inclui o pedido ativo; ordenada por data (mais recente no topo). Cada
+   item abre o detalhe unificado (pedido + indicados) ao ser tocado.
+   ========================================================================= */
+.historico-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none;
+  visibility: hidden;
+  /* Container = só captador de toques (ver .pedido-sheet). O recorte da gaveta
+     fica no wrapper .historico-sheet__clip (overflow:hidden), não em mask/
+     clip-path — evita o flash de 1 frame sobre o cabeçalho no fechamento. */
+  transition: visibility 0s linear 0.5s; /* mantém visível durante o fecho */
+}
+
+.historico-sheet--open {
+  pointer-events: auto;
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+/* Wrapper que recorta a gaveta (ver .pedido-sheet__clip). */
+.historico-sheet__clip {
+  position: absolute;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.historico-sheet__backdrop {
+  position: absolute;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.historico-sheet--open .historico-sheet__backdrop { opacity: 1; }
+
+/* Variante "barra viva" (gaveta de contratos + filtros de contratos): o
+   CONTAINER começa em --sheet-top em vez de cobrir a tela toda — os toques na
+   action bar chegam aos botões/busca reais (sem roteamento por retângulo).
+   Clip e backdrop, que ancoram em --sheet-top RELATIVO ao container, voltam a
+   0 (o container já está na fronteira). DEVE vir depois das regras base
+   (mesma especificidade; a ordem decide). */
+.historico-sheet--bar-clear {
+  top: var(--sheet-top, 0px);
+}
+
+.historico-sheet--bar-clear .historico-sheet__clip,
+.historico-sheet--bar-clear .historico-sheet__backdrop {
+  top: 0;
+}
+
+.historico-sheet__panel {
+  position: absolute;
+  top: 0;                 /* relativo ao .historico-sheet__clip (já em --sheet-top) */
+  left: var(--space-md);  /* card menos largo, como o .pedido-sheet__panel */
+  right: var(--space-md);
+  pointer-events: auto;   /* o clip é pointer-events:none; o painel reativa */
+  max-height: calc(var(--app-height, 100dvh) - var(--sheet-top, 0px) - 12px);
+  background: var(--bg-soft);   /* padrão claro (ver .pedido-sheet__panel) */
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  /* Gaveta: fechado = totalmente acima da linha de recorte; desce ao abrir.
+     Sem fade de opacidade — deslize puro. Duração calma (0.5s). */
+  transform: translateY(-100%);
+  transition: transform 0.5s var(--sheet-ease);
+}
+
+.historico-sheet--open .historico-sheet__panel {
+  transform: translateY(0);
+}
+
+/* Sem header interno (a top bar de título foi eliminada na v287). */
+
+.historico-sheet__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb-dark) transparent;
+  /* Área de scroll edge-to-edge no card (ver .pedido-sheet__body): barra na
+     borda direita, shades de fronteira cobrindo a largura toda. */
+  margin-left: calc(-1 * var(--space-md));
+  padding-left: var(--space-md);
+  margin-right: calc(-1 * var(--space-md));
+  padding-right: var(--space-md);
+  --shade-bleed: var(--space-md);
+}
+
+/* Barra SEMPRE visível (histórico de pedidos e painel de filtros).
+   Thumb ESCURO: o painel agora é claro. */
+.historico-sheet__scroll::-webkit-scrollbar { width: 5px; }
+.historico-sheet__scroll::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
+
+.historico-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.historico-empty {
+  margin: 0;
+  padding: var(--space-md) 0;
+  text-align: center;
+  font-size: var(--fs-4);
+  color: var(--t-sub);
+}
+
+/* Cards BRANCOS sobre o corpo cinza (padrão claro do cadastro), mantendo o
+   raio de "balão" com o canto inferior DIREITO reto (espelho do feed, que tem
+   o inferior esquerdo reto). */
+.historico-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px 18px 4px 18px;
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.historico-item:active {
+  transform: scale(var(--press-scale-subtle));
+  background: var(--bg-input);
+}
+
+.historico-item__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.historico-item__date {
+  font-size: var(--fs-2);
+  color: var(--t-sub);
+}
+
+/* Lixeira: sem moldura circular (reset do chrome nativo do button), glifo
+   vermelho para destaque. */
+.historico-item__delete {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--danger);
+  transition: var(--transition);
+}
+
+.historico-item__delete:active { transform: scale(0.85); }
+.historico-item__delete .material-symbols-rounded {
+  font-size: 1.35rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.historico-item__text {
+  margin: 0;
+  font-size: var(--fs-4);
+  line-height: 1.35;
+  color: var(--t-main);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Base do card: dois badges de largura IGUAL (status à esquerda, indicações à
+   direita). O badge de ativo carrega o tempo restante. */
+.historico-item__footer {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.historico-item__status,
+.historico-item__count {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historico-item__status .material-symbols-rounded,
+.historico-item__count .material-symbols-rounded {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.historico-item__status--active { background: var(--info-blue-light); color: var(--info-blue); }
+.historico-item__status--done   { background: var(--bg-soft); color: var(--t-sub); }
+
+.historico-item__count {
+  background: var(--bg-soft);
+  color: var(--t-sub);
+}
+
+/* Cards de indicados são interativos (flip) mesmo dentro do sheet de detalhes */
+.pedido-detail-indicated__list .pro-card { pointer-events: auto; }
+
+.pedido-detail-indicated__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* Borda dourada nas bordas da tela durante modo indicação */
+.indicate-screen-border {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 200;
+  background:
+    linear-gradient(to bottom, rgba(var(--a-gold-rgb), 0.22) 0%, transparent 7%),
+    linear-gradient(to top,    rgba(var(--a-gold-rgb), 0.22) 0%, transparent 7%),
+    linear-gradient(to right,  rgba(var(--a-gold-rgb), 0.18) 0%, transparent 5%),
+    linear-gradient(to left,   rgba(var(--a-gold-rgb), 0.18) 0%, transparent 5%);
+  box-shadow: inset 0 0 0 2px rgba(var(--a-gold-rgb), 0.7);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.indicate-screen-border--active {
+  opacity: 1;
+}
+
+/* Card de referência: text + badge de contagem lado a lado */
+.indicate-ref__body-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 4px var(--space-sm) 10px;
+}
+
+.indicate-ref__body-row .pedido-item__text {
+  flex: 1;
+  padding: 0;
+}
+
+.indicate-ref__body-row .post-card__indicate-info {
+  flex-shrink: 0;
+}
+
+/* Componente QAV (Qualidade / Agilidade / Valor) — ícone + barra colorida,
+   empilhados. Reutilizado nos indicados e na lista expandida de contatos. */
+.qav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;    /* preenche os 48px do col-left para o flex:1 das barras resolver */
+}
+
+.qav__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;    /* cada linha ocupa toda a largura disponível */
+}
+
+.qav__label {
+  font-size: 0.55rem; /* exceção abaixo de --fs-1: com 0.6rem o rótulo trunca na coluna de 48px */
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.qav__bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-light);
+  overflow: hidden;
+}
+
+.qav__fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.qav__item--quality .qav__label { color: var(--success-fill); }
+.qav__item--quality .qav__fill  { background: var(--success-fill); }
+.qav__item--agility .qav__label { color: var(--info-blue); }
+.qav__item--agility .qav__fill  { background: var(--info-blue); }
+.qav__item--value   .qav__label { color: var(--a-gold-text); }
+.qav__item--value   .qav__fill  { background: var(--a-gold); }
+
+/* ── Disponibilidade do profissional (ponto + rótulo) — mesma lógica de cor da ic-bar ──
+   available = verde · full = amarelo · unavailable = vermelho */
+.avail {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;   /* não estica em colunas flex (pro-card__head-text) */
+  gap: 5px;
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.avail__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.avail--available   { color: var(--t-sub); }
+.avail--available   .avail__dot { background: var(--success-fill); }
+
+.avail--full        { color: var(--t-sub); }
+.avail--full        .avail__dot { background: var(--a-gold-text); }
+
+.avail--unavailable { color: var(--t-sub); }
+.avail--unavailable .avail__dot { background: var(--danger); }
+
+/* Filtros da agenda */
+.agenda-filters {
+  /* Sem top bar (v287): a action bar é o elemento mais ao topo e carrega o
+     safe-area superior (notch/barra de status), como a top bar carregava antes. */
+  padding: calc(var(--space-sm) + env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
+  background: var(--p-green);
+  flex-shrink: 0;
+  position: relative; /* ancora o painel absoluto */
+  display: flex;
+  flex-direction: column;
+  z-index: 30;   /* pinta a sombra de elevação SOBRE os painéis do feed */
+  transition: box-shadow 0.25s ease;
+}
+
+/* Elevação por scroll (js: updateBarElevation): a sombra na fronteira só
+   aparece quando o feed ativo está ROLADO — barra "flat" = usuário está no
+   TOPO da lista (indicador de topo); com conteúdo passando por baixo, a
+   sombra marca a sobreposição. Sombra BEM FORTE de propósito (dupla, no
+   quase-preto do verde escuro): os tokens padrão sumiam sobre o --bg-canvas. */
+.agenda-filters--elevated {
+  box-shadow: 0 8px 22px rgba(var(--p-green-dark-rgb), 0.6),
+              0 2px 8px rgba(var(--p-green-dark-rgb), 0.45);
+}
+
+.agenda-filters__search-wrap {
+  flex: 1;
+  position: relative;
+}
+
+/* Lupa do campo de busca — é um <button>: com texto digitado vira um X
+   VERMELHO clicável que limpa o campo (js: syncSearchClearIcon); sem texto,
+   volta à lupa decorativa (pointer-events:none deixa o toque cair no input). */
+.agenda-filters__search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--t-sub);
+  font-size: 1.1rem;
+  background: none;
+  padding: 0;
+  pointer-events: none;
+}
+
+.agenda-filters__search-icon--clearable {
+  pointer-events: auto;
+  cursor: pointer;
+  color: var(--danger);   /* X vermelho = ação de limpar (padrão do app) */
+}
+
+.agenda-filters__search-icon--clearable:active {
+  transform: translateY(-50%) scale(0.85);   /* alvo minúsculo: feedback forte */
+}
+
+/* Campo de busca: BRANCO PURO sobre o verde, sem borda visível (era o
+   translúcido --on-green-solid, que lavava os tints das pílulas internas) */
+.agenda-filters__search {
+  width: 100%;
+  height: 40px;
+  padding: 0 54px 0 36px;   /* direita: espaço para o botão de filtro (pílula) */
+  border-radius: var(--radius-pill);
+  background: var(--bg-white);
+  font-size: var(--fs-6);
+  color: var(--t-main);
+  outline: none;
+}
+
+.agenda-filters__search:focus {
+  background: var(--p-green-light);
+}
+
+/* Botão de contratos (antigo botão de filtros): compõe .btn .btn--icon (HTML);
+   aqui só o tamanho de 40px da action bar (o padrão .btn--icon é 44px) e as cores
+   sobre o verde. Ícone PRETO (--t-main, o quase-preto padrão de texto). */
+.agenda-filters__icon-btn {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-white);
+  color: var(--t-main);
+  position: relative;
+}
+
+/* Notificação de contratos: o FUNDO do botão pisca entre branco e AMARELO
+   (--a-gold, o acento de ação/marca — o verde claro ficava discreto demais);
+   o ícone preto fica parado. A classe --notify começa no HTML e é removida
+   ao abrir os contratos (js: openContractsSheet). */
+@keyframes contractsNotifyBlink {
+  0%, 100% { background: var(--bg-white); }
+  50%      { background: var(--a-gold); }
+}
+.agenda-filters__icon-btn--notify {
+  animation: contractsNotifyBlink 1.1s ease-in-out infinite;
+}
+
+/* Gaveta de contratos aberta: o abridor vira "Fechar" no MESMO padrão dos
+   demais abridores da barra (.action-close-mode): fill branco translúcido
+   sobre o verde da action bar + X claro. (O verde sólido anterior destoava
+   do padrão de fechar do app.) */
+.agenda-filters__icon-btn--active {
+  background: var(--on-green-soft);
+  color: var(--t-light);
+}
+
+/* ── Perfil na search row (movido do antigo top bar) ── */
+.agenda-filters__profile {
+  flex-shrink: 0;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  transition: var(--transition);
+}
+.agenda-filters__profile:active { transform: scale(var(--press-scale)); }
+/* Avatar REDONDO com moldura branca (anel de avatar = borda FUNCIONAL,
+   permitida pelo design sem contorno) — mesmo tamanho (40px) do botão de
+   contratos do outro lado. */
+.agenda-filters__profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--t-light);
+  object-fit: cover;
+  background: var(--border-light);
+}
+
+/* ── Botão de FILTRO: pílula branca DENTRO da busca, à direita. Ícone PRETO
+   (--t-main). Com filtros ativos, a PRÓPRIA pílula vira o indicador (tint azul
+   de seleção + contagem — modificador --filtered); tocar sempre abre a gaveta
+   de filtros (o "limpar" vive no botão dentro da gaveta). ── */
+.agenda-filters__filter-pill {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-white);
+  color: var(--t-main);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  z-index: 1;   /* acima do input */
+  transition: var(--transition);
+}
+.agenda-filters__filter-pill:active { transform: translateY(-50%) scale(var(--press-scale)); }
+/* Filtros ativos = tint AZUL claro padrão de seleção sobre superfície clara
+   (--info-blue-light + texto --info-blue) — com o campo em branco PURO o tint
+   contrasta bem (sobre o antigo translúcido ele sumia). Fica ANTES do
+   --active, que vence quando o sheet está aberto (mesma especificidade,
+   ordem decide). */
+.agenda-filters__filter-pill--filtered {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
+}
+/* Estado "sheet de filtros aberto": tint VERDE claro padrão + seta para CIMA
+   (keyboard_arrow_up) — ação de ESCONDER a gaveta (que se recolhe para cima),
+   não de cancelar; por isso não usa o X. */
+.agenda-filters__filter-pill--active {
+  background: var(--p-green-light);
+  color: var(--p-green);
+}
+.agenda-filters__filter-pill .material-symbols-rounded { font-size: 1.2rem; }
+
+/* Contagem de filtros ativos dentro da pílula (some com u-hidden quando 0) */
+.agenda-filters__filter-count {
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* Chips dentro do painel de filtros (#filters-sheet): pílulas BRANCAS como
+   cards sobre o corpo cinza claro (mesmo padrão das pílulas de pagamento do
+   cadastro); a seleção usa o tint azul do .chip--active base. */
+.filters-panel .chip {
+  box-shadow: var(--shadow-sm);
+}
+
+.filters-panel .chip:not(.chip--active) {
+  background: var(--bg-white);
+}
+
+/* Conteúdo do painel de filtros — vive dentro do #filters-sheet (dropdown
+   top-level que reusa .historico-sheet*: fundo claro --bg-soft, slide-down,
+   backdrop). Aqui só o layout interno das seções. */
+.filters-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.agenda-filters__group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Compõe .eyebrow no HTML (receita única dos labels do cadastro). */
+.agenda-filters__group-label {
+  margin: 0;
+}
+
+/* Chips: quebra de linha, alinhados à esquerda */
+.agenda-filters__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Botão "Adicionar seus contatos como favoritos" — dourado, centralizado */
+/* "Adicionar contatos" = botão padrão (.btn.btn--accent); só a margem própria.
+   (Antes era uma pílula bespoke; agora segue o mesmo padrão dos demais.) */
+.agenda-filters__add-contacts-btn {
+  margin-top: var(--space-sm);
+}
+
+/* Botão FLUTUANTE "Limpar filtros" (#btn-clear-filters) — pílula de vidro
+   escuro semi-transparente (--overlay + blur) centrada acima da bottom bar,
+   dentro do painel de profissionais (desliza junto na troca de aba); aparece
+   só com filtro ativo (u-hidden via updateFilterIndicator). */
+.feed-panel--pros { position: relative; }   /* âncora do flutuante */
+
+.agenda-clear-fab {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  z-index: 20;   /* acima da lista; abaixo da bottom bar (z25) */
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--overlay);
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+  backdrop-filter: blur(var(--blur-sm));
+  color: var(--t-light);
+  font-size: var(--fs-5);
+  box-shadow: var(--shadow-sm);
+}
+
+.agenda-clear-fab .material-symbols-rounded { font-size: 1.1rem; }
+
+/* recompõe o translateX no :active (o scale do .btn sozinho descentralizaria) */
+.agenda-clear-fab:active { transform: translateX(-50%) scale(var(--press-scale)); }
+
+/* ── Chips de IC (ícone colorido, tamanho compacto) ──────────── */
+.chip--ic {
+  padding: 5px 10px;
+  gap: 0;
+}
+
+.chip--ic .material-symbols-rounded {
+  font-size: 1.15rem;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+}
+
+/* Tier colors: mantidas em ambos os estados (padrão e selecionado) */
+.filters-panel .chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
+.filters-panel .chip--ic-warn  .material-symbols-rounded { color: var(--a-gold);      }
+.filters-panel .chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
+
+/* Chip "Apenas salvos": ícone no mesmo tamanho dos IC chips desta seção */
+.chip--saved .material-symbols-rounded {
+  font-size: 1.05rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Chips de filtro (fora do painel — estilo base preservado) */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-4);
+  font-weight: var(--fw-medium);
+  background: var(--bg-soft);
+  color: var(--t-sub);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+/* Modificador de TAMANHO "médio" do chip — métrica única das pílulas do
+   cadastro (tags de profissão e pagamento): fonte --fs-5, padding 8px 14px.
+   Só o casco/tamanho; a COR de estado fica por conta de cada contexto
+   (verde no feed, azul no cadastro). Sem borda (design sem contorno). */
+.chip--md {
+  padding: var(--space-xs) 14px;
+  font-size: var(--fs-5);
+}
+
+/* Seleção sobre superfície CLARA = receita tint azul do cadastro */
+.chip--active {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
+}
+
+/* Abas da agenda */
+/* Lista da agenda */
+.agenda-list {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+}
+
+/* Na home a lista de contatos é o conteúdo principal e a barra inferior flutua
+   por cima — reserva espaço no fim para o último card não ficar coberto.
+   Fundo verde-escuro (--bg-canvas) dá o mesmo contraste do popup: topo branco x lista. */
+#view-feed .agenda-list {
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-canvas);
+  scrollbar-width: none;
+}
+
+#view-feed .agenda-list::-webkit-scrollbar { display: none; }
+
+/* Label "Estes são os profissionais na sua região" */
+.agenda-list__region-label {
+  text-align: center;
+  font-size: var(--fs-4);
+  color: var(--on-green-strong); /* legível sobre o --bg-canvas escuro */
+  padding: var(--space-xs) 0 var(--space-sm);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.01em;
+}
+
+/* ── Fim de feed: linha-aviso "você viu tudo" nos 3 feeds (profissionais,
+   vagas e pedidos) — texto discreto entre dois traços, sobre o --bg-canvas. */
+.feed-end-cap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xs) var(--space-xs);
+  color: var(--on-green-med);
+  font-size: var(--fs-3);
+  text-align: center;
+}
+
+.feed-end-cap::before,
+.feed-end-cap::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--on-green-soft);   /* divisor funcional, não contorno */
+}
+
+.feed-end-cap__text {
+  flex-shrink: 0;
+  max-width: 72%;
+}
+
+/* Overscroll do topo (attachTopOverscroll em feed.js): contém o encadeamento
+   para o body — sem isto, o estique no topo podia disparar o pull-to-refresh
+   nativo do navegador. */
+#view-feed .agenda-list,
+.vagas-scroll,
+.feed-panel--pedidos .scroll-area {
+  overscroll-behavior-y: contain;
+}
+
+/* Aviso de "lista vazia" sobre superfície verde (indicados/agenda). Extraído
+   do estilo inline duplicado em feed.js. Base: inline compacto (verso/indicados);
+   --block: centralizado com respiro (lista principal da agenda). */
+.list-empty-hint {
+  font-size: var(--fs-4);
+  color: var(--on-green-strong);
+}
+
+.list-empty-hint--block {
+  display: block;
+  text-align: center;
+  padding: var(--space-xl) 0;
+  font-size: var(--fs-6);
+}
+
+/* Base do card — overflow:hidden para animação de altura; sem perspective aqui
+   (overflow:hidden + preserve-3d no mesmo ancestral quebra o flip em WebKit/Blink). */
+.pro-card {
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+/* Wrapper de perspectiva separado do overflow */
+.pro-card__3d {
+  perspective: 1800px;
+}
+

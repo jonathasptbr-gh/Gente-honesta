@@ -1,0 +1,317 @@
+/* ── Índice de Confiança (card do onboarding) — "SELO DE REPUTAÇÃO" ──
+   Card BRANCO como os demais campos do cadastro, distinguido pela borda
+   dourada suave e pelo leve brilho dourado no canto. Textos nas cores padrão
+   dos cards claros da tela (títulos --p-green-dark, corpo --t-sub). Conteúdo
+   (de cima p/ baixo): cabeçalho, hero 70 na moldura-escudo, medidor
+   segmentado com os 4 escudos do sistema e pino, nota e rodapé-lema. */
+/* Card "Sua reputação na plataforma" (o card EXTERNO/maior): verde escuro em
+   degradê com sombra nas bordas — é o card ESCURO da dupla; o card interno do
+   hero é o mais claro (lógica invertida). Textos internos já são claros. */
+.ic-card {
+  position: relative;
+  background: linear-gradient(145deg, var(--p-green), var(--p-green-dark));
+  box-shadow: var(--shadow-lg);
+  padding: 14px var(--space-md);
+  overflow: hidden;
+}
+
+.ic-card__info-btn {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px;
+  z-index: 2;
+}
+
+.ic-card__info-btn .material-symbols-rounded {
+  font-size: 1.2rem;
+  color: var(--p-green-light);   /* claro sobre o card verde */
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Cabeçalho no PADRÃO dos TÍTULOS do cadastro ("Detalhes profissionais",
+   "Registrar sua região atual"): ícone verde 24px + texto --fs-7, 800,
+   --p-green-dark, sem uppercase */
+.ic-card__head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-right: 26px;  /* espaço p/ o botão de ajuda (?) */
+}
+
+.material-symbols-rounded.ic-card__head-icon {
+  font-size: 1.5rem;
+  color: var(--a-gold);   /* ícone dourado sobre o card verde */
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
+}
+
+.ic-card__eyebrow {
+  font-size: var(--fs-7);
+  font-weight: var(--fw-heavy);
+  color: var(--t-light);   /* título branco sobre o card verde */
+}
+
+/* Hero do IC (subtítulo + frase + moldura-escudo/70): NÃO é mais um card/moldura —
+   os itens ficam soltos direto sobre o card externo verde escuro (sem fundo, sem
+   inset). Título dourado e subtítulo branco, o 70 e o escudo dourados destacam. */
+.ic-card__intro {
+  padding: 0;
+}
+
+/* IC preenche o vão até o botão (flex 1 0 auto: cresce no espaço livre, nunca
+   encolhe abaixo do conteúdo). Em telas curtas fica na altura do conteúdo e a
+   página rola. As seções internas se distribuem (space-between) para ocupar a
+   altura extra sem sobrar vão em uma ponta só. */
+.form-group--ic-fill {
+  flex: 1 0 auto;
+  /* Último grupo do form: o respiro da base vem SÓ do padding-bottom do
+     form — sem isto, o margin-bottom herdado do .form-group somava com ele
+     e a margem até o rodapé ficava o DOBRO da do topo. */
+  margin-bottom: 0;
+}
+
+.form-group--ic-fill .ic-card {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+/* ── Hero: título + mensagem de responsabilidade à esquerda, 70 à direita ──
+   SEM gap: a caixa do 70 deve começar exatamente onde o texto termina, para a
+   centralização considerar a zona real disponível (ver .ic-hero__value). */
+.ic-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* A moldura-escudo (com o 70 dentro) se CENTRALIZA na zona REAL disponível:
+   do fim do bloco de texto até a BORDA do card interno (a margem negativa
+   anula o padding direito do .ic-card__intro, e o hero sem gap faz a caixa
+   começar rente ao texto). */
+.ic-hero__badge {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Moldura em forma de escudo: SVG só de contorno (stroke dourado, sem
+   preenchimento), no formato dos escudos do app */
+.ic-hero__badge-shield {
+  display: block;
+  width: 4.9rem;
+  height: 5.3rem;
+}
+
+/* O 70 fica DENTRO da moldura; o centro visual do escudo é um pouco acima do
+   centro da caixa (o desenho afunila para baixo), daí o -55%. */
+.ic-hero__value {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -55%);
+  font-size: 1.9rem;   /* exceção deliberada: numeral-hero entre --fs-12 e --fs-13; snapar mudaria o visual */
+  font-weight: var(--fw-heavy);
+  line-height: 1;
+  /* degradê mais escuro (ouro → ocre): o tom claro sumia no fundo branco */
+  background: linear-gradient(165deg, var(--a-gold) 20%, var(--a-gold-text) 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Texto à esquerda, com largura contida para dar mais respiro ao 70 */
+.ic-hero__info {
+  min-width: 0;
+  flex: 0 1 62%;
+  text-align: left;
+}
+
+/* O SUBTÍTULO do card vive no hero, ao lado do 70 (nunca é escondido) —
+   usa a classe .eyebrow (mesma receita de .form-group__label: --p-green,
+   --fs-5, 700, uppercase); aqui ficam só os extras específicos do hero. */
+.ic-hero__title {
+  display: block;
+  line-height: 1.2;
+  margin-bottom: 2px;
+  color: var(--a-gold);   /* título dourado sobre o card verde (sobrepõe o verde do .eyebrow) */
+}
+
+.ic-hero__text {
+  font-size: var(--fs-3);
+  line-height: 1.45;
+  color: var(--t-light);   /* subtítulo branco sobre o card verde */
+}
+
+/* ── Medidor: zonas ACIMA da barra segmentada (4 faixas); pino "VOCÊ" em 70%
+   ABAIXO dela (linha subindo até a barra + etiqueta pulsante) ── */
+.ic-meter {
+  position: relative;
+  padding-bottom: 26px;  /* espaço do pino abaixo da barra */
+}
+
+.ic-meter__pin {
+  position: absolute;
+  bottom: 0;
+  left: 70%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.ic-meter__pin-tag {
+  font-size: var(--fs-1);
+  font-weight: var(--fw-heavy);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;   /* "Confiança atual" numa linha só */
+  color: var(--p-green-dark);
+  background: var(--a-gold);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  animation: icPinPulse 2.2s ease-out infinite;
+}
+
+.ic-meter__pin-line {
+  width: 2px;
+  height: 7px;
+  background: var(--a-gold);
+}
+
+@keyframes icPinPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(var(--p-green-rgb), 0.40); }
+  70%  { box-shadow: 0 0 0 7px rgba(var(--p-green-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--p-green-rgb), 0); }
+}
+
+.ic-meter__track {
+  display: flex;
+  gap: 3px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.ic-meter__seg {
+  flex: 1;
+}
+
+.ic-meter__seg--bad   { background: #000000; }
+.ic-meter__seg--alert { background: var(--danger); }
+.ic-meter__seg--warn  { background: var(--a-gold); }
+.ic-meter__seg--ok    { background: var(--success-fill); }
+
+/* Zonas (ACIMA da barra): escudo do sistema + faixa numérica, uma por segmento */
+.ic-meter__zones {
+  display: flex;
+  margin-bottom: 6px;
+}
+
+.ic-zone {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1px;
+  opacity: 0.78;   /* zonas "futuras" levemente apagadas; a atual acende */
+}
+
+.ic-zone__shield {
+  font-size: 1.35rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.ic-zone__range {
+  font-size: var(--fs-1);
+  font-weight: var(--fw-heavy);
+}
+
+/* Cores por faixa: a <25% (zona "morta") é PRETA (`#000`), igual ao segmento
+   `.ic-meter__seg--bad` da barra; dourado/vermelho/verde-sucesso seguem visíveis.
+   O texto dourado usa --a-gold cheio (o ocre escuro sumiria no verde). */
+.ic-zone--bad   .ic-zone__shield, .ic-zone--bad   .ic-zone__range { color: #000000; }
+.ic-zone--alert .ic-zone__shield, .ic-zone--alert .ic-zone__range { color: var(--danger); }
+.ic-zone--warn  .ic-zone__shield { color: var(--a-gold); }
+.ic-zone--warn  .ic-zone__range { color: var(--a-gold); }
+.ic-zone--ok    .ic-zone__shield, .ic-zone--ok    .ic-zone__range { color: var(--success-fill); }
+
+/* Zona atual (50–74, onde o usuário começa): acesa e com o escudo maior */
+.ic-zone--current {
+  opacity: 1;
+}
+
+.ic-zone--current .ic-zone__shield {
+  font-size: 1.6rem;
+}
+
+/* ── O que move o índice: nota única (a antiga tabela sobe/desce foi removida;
+   some nas telas baixas via @media, junto com o container) ── */
+.ic-factors__note {
+  font-size: var(--fs-1);
+  font-style: italic;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--p-green-light);   /* claro sobre o card verde */
+}
+
+/* ── Rodapé-lema (mesmo tamanho de fonte da nota, centralizado como ela) ── */
+.ic-card__footer {
+  font-size: var(--fs-1);
+  line-height: 1.45;
+  text-align: center;
+  color: var(--p-green-light);   /* claro sobre o card verde */
+  border-top: 1px solid var(--on-green-muted);   /* divisor translúcido sobre o verde */
+  padding-top: 6px;
+}
+
+/* Destaque DOURADO no card verde, em linha própria (display:block quebra) */
+.ic-card__footer strong {
+  display: block;
+  color: var(--a-gold);
+  font-weight: var(--fw-bold);
+}
+
+/* ── Adaptativo por altura (inclui a redução pela barra do navegador): esconde
+   extras e compacta para o card caber sem rolagem com "Detalhes profissionais"
+   fechado. O hero 70 e o medidor com os 4 escudos ficam SEMPRE. Limiares
+   MEDIDOS (altura intrínseca da tela em cada estado + folga p/ variação de
+   fonte): completo ~819px, sem rodapé ~776px, sem nota ~751px, compacto
+   ~689px. */
+@media (max-height: 823px) {
+  #view-onboarding .ic-card__footer { display: none; }
+}
+
+@media (max-height: 780px) {
+  #view-onboarding .ic-factors { display: none; }
+  #view-onboarding .ic-card { padding: var(--space-sm) var(--space-md); }
+}
+
+@media (max-height: 755px) {
+  /* Telas bem curtas: compacta cabeçalho, card interno, hero e medidor
+     (nada mais é escondido) */
+  #view-onboarding .ic-card { padding: 10px var(--space-md); }
+  #view-onboarding .ic-card__eyebrow { font-size: var(--fs-6); }
+  #view-onboarding .ic-card__head-icon { font-size: 1.3rem; }
+  #view-onboarding .ic-hero__badge-shield { width: 3.1rem; height: 3.4rem; }
+  #view-onboarding .ic-hero__value { font-size: var(--fs-10); }
+  #view-onboarding .ic-hero__text { display: none; }
+  #view-onboarding .ic-meter { padding-bottom: var(--space-md); }
+  #view-onboarding .ic-meter__zones { margin-bottom: 4px; }
+  #view-onboarding .ic-meter__track { height: 8px; }
+  #view-onboarding .ic-zone__shield { font-size: 1.15rem; }
+  #view-onboarding .ic-zone--current .ic-zone__shield { font-size: 1.35rem; }
+}
+

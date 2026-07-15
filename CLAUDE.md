@@ -85,14 +85,28 @@ CNAME               — "gentehonesta.com.br"
 icon*.svg / *.png   — arte do ícone/PWA (quadrado full-bleed p/ maskable; arredondado p/ "any";
                       transparente e "intro" p/ usos internos). Fundo verde --p-green
 
-css/
-  base.css          — design tokens (:root), roteamento de telas, utilitários, animações
-  components.css    — botões, inputs, ic-bar, diálogos, .card, .check-box, .eyebrow, bloqueios desktop/landscape
-  tutorial.css      — motor de tutorial guiado (destaque + balão)
-  auth.css          — login: auth-section, OTP, carrossel de intro
-  onboarding.css    — cadastro: câmera, tags, localização, padrão de serviço, pagamento, ic-card
-  install.css       — tela-guia de instalação do PWA
-  feed.css          — feed, bottom bar, painéis, gavetas/sheets, cards de pro/vaga
+css/   (ordem dos <link> no index.html = ordem da cascata; NÃO reordenar)
+  base.css               — design tokens (:root), roteamento de telas, utilitários, animações
+  components-buttons.css — sistema de botões (.btn + variantes)
+  components-forms.css   — inputs/campos
+  components-surfaces.css— .card, .check-box, ic-bar
+  components-dialogs.css — diálogos + banner de atualização do PWA
+  components-blocks.css  — bloqueios desktop/paisagem + sombras de scroll (.js-scroll-shadows)
+  tutorial.css           — motor de tutorial guiado (destaque + balão)
+  auth.css               — login: auth-section, OTP, carrossel de intro
+  onboarding-form.css    — cadastro: campos, tags, serviço, pagamento, perfil público
+  onboarding-ic-card.css — card do Índice de Confiança (+ adaptativo por altura)
+  onboarding-camera.css  — diálogo da câmera
+  install.css            — tela-guia de instalação do PWA
+  feed-shell.css         — interface do feed + gaveta de contratos + painéis
+  feed-navigation.css    — action bar (pedidos) + bottom bar + feed tabs
+  feed-pedidos.css       — lista de pedidos + cards de post
+  feed-pedido-sheet.css  — sheet "Fazer pedido" / detalhe unificado
+  feed-historico.css     — histórico de pedidos
+  feed-cards-pro.css     — flip + cards de profissional
+  feed-vagas.css         — painel + card de vaga
+  feed-ajudantes.css     — sheet "Serviço de ajudantes"
+  (feed.css / components.css / onboarding.css foram divididos — a cascata é idêntica pela ordem)
 
 js/   (a ordem de carga no index.html importa)
   app.js            — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW

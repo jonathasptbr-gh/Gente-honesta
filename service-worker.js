@@ -4,7 +4,7 @@
 // CONFIGURAÇÃO DO SERVICE WORKER - Definições de Cache
 // =========================================================================
 
-const CACHE_NAME = "gentehonesta-v322";
+const CACHE_NAME = "gentehonesta-v323";
 // Versão legível derivada do CACHE_NAME (ex.: "v261") — enviada à página sob demanda
 // (mensagem GET_VERSION) para exibir no banner "Nova versão disponível".
 const APP_VERSION = CACHE_NAME.replace("gentehonesta-", "");
@@ -15,12 +15,25 @@ const urlsToCache = [
   "./index.html",
   "./manifest.json",
   "./css/base.css",
-  "./css/components.css",
+  "./css/components-buttons.css",
+  "./css/components-forms.css",
+  "./css/components-surfaces.css",
+  "./css/components-dialogs.css",
+  "./css/components-blocks.css",
   "./css/tutorial.css",
   "./css/auth.css",
-  "./css/onboarding.css",
+  "./css/onboarding-form.css",
+  "./css/onboarding-ic-card.css",
+  "./css/onboarding-camera.css",
   "./css/install.css",
-  "./css/feed.css",
+  "./css/feed-shell.css",
+  "./css/feed-navigation.css",
+  "./css/feed-pedidos.css",
+  "./css/feed-pedido-sheet.css",
+  "./css/feed-historico.css",
+  "./css/feed-cards-pro.css",
+  "./css/feed-vagas.css",
+  "./css/feed-ajudantes.css",
   "./js/app.js",
   "./js/tutorial.js",
   "./js/install.js",

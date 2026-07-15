@@ -1,0 +1,128 @@
+/* ===========================================
+   SISTEMA DE BOTÕES (Design System)
+
+   Hierarquia de modificadores:
+   — Estilo:    --primary | --accent | --outline | --white | --danger | --text
+   — Estrutura: --large | --pill | --close | --fab | --icon
+   TODO botão de AÇÃO (rótulo e/ou ícone) herda .btn — é a fundação única
+   (sem borda, flex-center, cursor, transição, :active). Ver "Taxonomia de
+   elementos" no CLAUDE.md: card = superfície; botão = ação; chip = pílula.
+   ======================================== */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-8);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: scale(var(--press-scale));
+}
+
+/* — Modificadores de Estilo — */
+.btn--primary {
+  background: var(--p-green);
+  color: var(--t-light);
+}
+
+.btn--accent {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.btn--outline {
+  background: var(--bg-soft);
+  color: var(--t-sub);
+}
+
+.btn--white {
+  background: var(--bg-white);
+  color: var(--p-green-dark);
+}
+
+.btn--danger {
+  background: var(--danger);
+  color: var(--t-light);
+}
+
+/* Spinner de carregamento dos botões (SMS / reenvio) — extraído do inline-style
+   duplicado em auth.js. Base: glifo autorenew girando, peso 700 (o padrão 500
+   fica fino demais ao lado do texto em negrito). --sm para o link de reenvio. */
+.btn__spinner {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: var(--space-xs);
+  font-size: 22px;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
+  animation: spin 1s linear infinite;
+}
+
+.btn__spinner--sm {
+  margin-right: 4px;
+  font-size: 16px;
+}
+
+.btn--text {
+  background: none;
+  padding: 8px 0;
+  color: var(--p-green);
+  text-align: left;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+/* Ícone de seta (ex.: "← Voltar") como Material Symbol em vez de caractere
+   de texto — um glifo de seta comum não se alinha verticalmente ao centro
+   do texto ao lado (métrica de fonte diferente); dentro do .btn flex com
+   align-items:center, o ícone fica perfeitamente centrado com o rótulo. */
+.btn--text .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
+.btn--text:active {
+  transform: none;
+  opacity: 0.7;
+}
+
+/* Botão "Fechar" / dispensar — caixa compacta para cabeçalhos de painéis */
+.btn--close {
+  padding: 7px 12px;
+  font-size: var(--fs-4);
+  gap: 5px;
+  border-radius: var(--radius-md);
+}
+
+.btn--close .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
+/* — Modificadores de Estrutura — */
+.btn--large {
+  width: 100%;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-9);
+}
+
+.btn--pill {
+  padding: 10px var(--space-md);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-6);
+}
+
+/* Botão SÓ-ÍCONE: quadrado, sem padding lateral. Categoria canônica das ações
+   de ícone em cards (voltar, compartilhar, pin). Combine com uma cor/bg. */
+.btn--icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  flex-shrink: 0;
+}
+

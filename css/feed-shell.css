@@ -1,0 +1,432 @@
+/* ===========================================
+   INTERFACE PRINCIPAL (FEED)
+
+   Cadeia de altura:
+   body(100dvh flex-col) → .screen--active(flex:1 min-h:0) → #view-feed(flex col) → feed-body(flex:1 min-h:0) → scroll-area(flex:1 overflow-y) → bottom-bar(flex-shrink:0)
+
+   #view-feed não precisa mais forçar height:100% — o flex:1 do .screen--active
+   já o constranga ao tamanho exato do body. Apenas garante flex-col e overflow:hidden.
+   ======================================== */
+/* A VISIBILIDADE do feed é governada EXCLUSIVAMENTE por .screen / .screen--active.
+   NUNCA declarar `display` aqui: o seletor de ID (#view-feed) tem especificidade
+   maior que `.screen { display:none }`, então um `display:flex` fixo manteria o
+   feed renderizado para SEMPRE — inclusive na tela de auth/onboarding e após o
+   logout. Era exatamente isso que causava (1) a "tela dividida" entre intro e feed
+   e (2) o feed empurrando/cortando a barra inferior. Aqui só ajustamos o layout
+   interno (sem tocar em display). */
+#view-feed.screen {
+  padding: 0;
+  position: relative;          /* ancora overlays internos (ex.: painel de notificações) */
+  overflow: hidden;            /* o scroll real acontece em .scroll-area, não no container */
+}
+
+/* 2 SETORES: topo (auto) | feed (1fr). A barra inferior NÃO ocupa linha — ela
+   flutua (position:absolute) sobre o feed, que rola por baixo dela. A altura via
+   --app-height (JS) garante que o fundo do #view-feed é a base visível real. */
+#view-feed.screen--active {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+
+/* TOP BAR removida na v287: perfil, contratos, busca e selo de versão foram
+   consolidados na linha de busca da action bar (.agenda-filters). Todo o bloco
+   .top-bar*/.notif-badge era CSS órfão (nenhum elemento no HTML/JS o usa) e foi
+   removido. O avatar de perfil vive hoje em .agenda-filters__profile-img. */
+
+
+/* ===========================================
+   GAVETA DE CONTRATOS (dropdown abaixo da action bar, padrão claro)
+
+   Reusa o scaffolding .historico-sheet* (container/clip/panel, slide-down,
+   backdrop) com a variante --bar-clear (definida junto do .historico-sheet):
+   o container começa em --sheet-top e NÃO cobre a action bar — a busca de
+   profissionais segue viva ("Buscar contratos") e o botão de filtros abre o
+   #contracts-filters-sheet. Aqui ficam só os estilos do CONTEÚDO.
+   ======================================== */
+
+/* CTA "Criar minicontrato" — filho direto do painel (fora do scroll), estica
+   na largura; a altura de 40px vem do grupo de CTAs (#btn-new-contract). */
+.contracts-create__btn {
+  gap: var(--space-xs);
+}
+
+/* "+" no peso forte (preset filled forte), coerente com o texto em negrito do
+   botão — o wght 500 padrão do ícone ficava fino demais ao lado do rótulo. */
+.contracts-create__btn .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+}
+
+/* ── Contratos PENDENTES (primeiros da lista) ──
+   Antigos "genéricos"/minicontratos, ainda sem dados de cliente. Tom de VERDE
+   CLARO (o mesmo tint dos contratos ativos), distinguindo-os dos cards já
+   firmados logo abaixo. */
+.contracts-pending {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* Compõe .eyebrow no HTML (receita única dos labels do cadastro). */
+.contracts-pending__label {
+  margin: 0;
+  padding: 2px 2px;
+}
+
+.contract-mini {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: 10px var(--space-sm);
+  background: var(--p-green-light);   /* tom de verde claro */
+  box-shadow: var(--shadow-sm);       /* definição sobre o corpo --bg-soft */
+  border-radius: var(--radius-md);
+}
+
+/* Corpo clicável (abre/visualiza o contrato). Recém-criado ainda não tem dados
+   de cliente: mostra só o resumo do serviço + preço. */
+.contract-mini__open {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+  padding: 2px 0;
+  transition: var(--transition);
+}
+
+.contract-mini__open:active {
+  transform: scale(var(--press-scale-subtle));
+}
+
+.contract-mini__summary {
+  display: block;
+  font-size: var(--fs-6);
+  font-weight: var(--fw-medium);
+  color: var(--t-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contract-mini__actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Editar/compartilhar: MESMO padrão dos botões-ícone de ação dos cards de
+   profissional (.btn.btn--icon .pro-card__back-btn--share/--back): fill claro
+   --bg-soft + ícone --t-sub. Compõe .btn (fundação: flex-center, radius, :active).
+   Só reduz a métrica de 44px para caber na linha compacta do minicontrato. */
+.contract-mini__btn {
+  width: 36px;
+  height: 36px;
+  background: var(--bg-soft);
+  color: var(--t-sub);
+}
+
+.contract-mini__btn .material-symbols-rounded {
+  font-size: 1.2rem;
+}
+
+
+/* ── Campos de valor/período (vivem no #contracts-filters-sheet) ──
+   A antiga seção de busca interna dos contratos foi removida: o texto vem da
+   busca da action bar e os filtros vivem no sheet próprio (chips de status
+   reusam o padrão .filters-panel .chip). */
+.contracts-filters__row {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.contracts-filters__field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+/* Sub-rótulo discreto — mesma receita do sub-label do cadastro (fs-3). */
+.contracts-filters__field-label {
+  font-size: var(--fs-3);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--t-sub);
+}
+
+.contracts-filters__input {
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  background: var(--bg-white);   /* card branco sobre o corpo --bg-soft */
+  box-shadow: var(--shadow-sm);
+  font-size: var(--fs-5);
+  color: var(--t-main);
+  outline: none;
+  appearance: none;
+  transition: var(--transition);
+}
+
+.contracts-filters__input:focus {
+  background: var(--p-green-light);
+}
+
+
+/* ── Lista de contratos ──
+   Ordem NORMAL de leitura (a gaveta desce do topo): pendentes → ativos →
+   concluído → cancelado. (O antigo column-reverse era do painel tela-cheia,
+   que tinha o dock na base.) */
+.contracts-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* base .card dá raio + border:none; o FUNDO do card inteiro vem do status,
+   destacando fortemente a situação. --shadow-sm define o card sobre o corpo
+   claro --bg-soft (o tint sozinho contrastava pouco). */
+.contract-card {
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Card INTEIRO no tint do status (a mesma cor que os badges usavam antes):
+   ativo = verde claro; concluído = azul claro; cancelado = vermelho claro. */
+.contract-card--active    { background: var(--p-green-light); }
+.contract-card--done      { background: var(--info-blue-light); }
+.contract-card--cancelled { background: var(--danger-soft); }
+
+/* Linha superior: cliente (foto + nome + IC) | status */
+.contract-card__main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.contract-card__client {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.contract-card__avatar {
+  width: 42px;
+  height: 56px;
+  border-radius: var(--radius-xs);
+  object-fit: cover;
+  border: 2px solid var(--border-light);
+  background: var(--bg-soft);
+  flex-shrink: 0;
+}
+
+.contract-card__client-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.contract-card__name {
+  font-size: var(--fs-7);
+  font-weight: var(--fw-bold);
+  color: var(--t-main);
+  line-height: 1.2;
+}
+
+/* Selo de status — pílula */
+.contract-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+
+.contract-card__status .material-symbols-rounded {
+  font-size: 0.95rem;
+}
+
+/* Badge = versão SÓLIDA e forte da cor do status + texto branco: máximo destaque
+   sobre o card, que está no tint claro do mesmo matiz. */
+.contract-card__status--active {
+  background: var(--p-green);
+  color: var(--t-light);
+}
+
+.contract-card__status--done {
+  background: var(--info-blue);
+  color: var(--t-light);
+}
+
+.contract-card__status--cancelled {
+  background: var(--danger);
+  color: var(--t-light);
+}
+
+.contract-card__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--t-light);   /* ponto branco sobre o badge verde sólido */
+}
+
+/* Datas de início e fim */
+/* Coluna direita do topo: badge de status + datas empilhadas logo abaixo dele.
+   Tira as datas da faixa horizontal antiga (que comia altura), liberando o corpo
+   inteiro para a descrição/valor. */
+.contract-card__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.contract-card__dates {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.contract-card__date {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-2);
+  font-weight: var(--fw-medium);
+  color: var(--t-sub);
+  white-space: nowrap;
+}
+
+.contract-card__date .material-symbols-rounded {
+  font-size: 1.05rem;
+  color: var(--p-green);
+}
+
+/* Corpo: descrição (esquerda) + valor em destaque (direita) */
+.contract-card__body {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-sm);
+}
+
+.contract-card__desc {
+  flex: 1;
+  font-size: var(--fs-5);
+  line-height: 1.45;
+  color: var(--t-main);
+  min-width: 0;
+}
+
+.contract-card__value-box {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  padding-left: var(--space-sm);
+  border-left: 1px solid var(--border-light);
+  text-align: right;
+}
+
+.contract-card__value {
+  font-size: var(--fs-11);
+  font-weight: var(--fw-heavy);
+  color: var(--p-green);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.contract-card__payment {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
+  color: var(--t-sub);
+  white-space: nowrap;
+}
+
+.contract-card__payment .material-symbols-rounded {
+  font-size: 1rem;
+}
+
+
+/* ===========================================
+   FEED BODY + ABAS DE CONTEÚDO
+   ======================================== */
+.feed-body {
+  flex: 1;
+  min-height: 0; /* essencial: permite que filho flex shrink e não transborde o pai */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ===========================================
+   PAINÉIS DESLIZANTES — Profissionais ↔ Pedidos
+   O .feed-body é o viewport de recorte (overflow:hidden já declarado acima).
+   .feed-panels tem largura dupla e desliza via transform.
+   ======================================== */
+.feed-panels {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  width: 300%;
+  /* Fundo escuro do CORPO dos feeds: a faixa que o overscroll do topo revela
+     ao esticar a lista fica --bg-canvas (o estique parece o próprio corpo do
+     feed esticando, e não o verde da tela vazando por trás). */
+  background: var(--bg-canvas);
+  /* Default: mostra o painel central (Profissionais) */
+  transform: translateX(-33.3333%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Slide para a esquerda: mostra o painel de Vagas */
+.feed-panels--vagas {
+  transform: translateX(0);
+}
+
+/* Slide para a direita: mostra o painel de Pedidos */
+.feed-panels--pedidos {
+  transform: translateX(-66.6667%);
+}
+
+/* Cada painel ocupa exatamente a largura visível (33.333% do container de 300%) */
+.feed-panel {
+  flex: 0 0 33.3333%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* O scroll do painel de pedidos herda o mesmo visual da lista principal */
+.feed-panel--pedidos .scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-canvas);
+  padding: var(--space-md);
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  scrollbar-width: none;
+}
+
+.feed-panel--pedidos .scroll-area::-webkit-scrollbar { display: none; }
+

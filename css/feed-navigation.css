@@ -1,0 +1,291 @@
+/* ===========================================
+   ACTION BAR — estado Pedidos
+   A barra verde exibe o botão "Fazer um pedido" no lugar da busca
+   ======================================== */
+
+/* Slot que RECORTA (overflow) o trilho deslizante — o mesmo esquema do feed.
+   Margem negativa anula o padding horizontal da barra: o viewport de recorte vai
+   até a BORDA DA TELA (igual ao feed), então o carrossel não "corta" antes da
+   borda. O respiro dos botões passa para o padding de cada linha (abaixo). */
+.agenda-filters__action-row {
+  position: relative;
+  height: 40px;
+  flex-shrink: 0;
+  overflow: hidden;
+  margin-left: calc(-1 * var(--space-md));
+  margin-right: calc(-1 * var(--space-md));
+}
+
+/* Trilho: as 3 linhas ficam LADO A LADO (300%) e o trilho desliza por translateX,
+   igual ao .feed-panels (mesma curva/duração), então a barra "acompanha" a aba em
+   carrossel. Default = busca (Profissionais) no centro → translateX(-33.3333%). */
+.agenda-filters__track {
+  display: flex;
+  width: 300%;
+  height: 100%;
+  transform: translateX(-33.3333%);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modo vagas → mostra a linha da esquerda; modo pedidos → a da direita. */
+.agenda-filters--vagas .agenda-filters__track { transform: translateX(0); }
+.agenda-filters--pedidos .agenda-filters__track { transform: translateX(-66.6667%); }
+
+/* Cada linha ocupa 1/3 do trilho (= largura visível da barra). Ordem no DOM:
+   vagas | busca | pedidos (mesma ordem das abas). */
+.agenda-filters__search-row,
+.agenda-filters__vagas-row,
+.agenda-filters__pedidos-row {
+  flex: 0 0 33.3333%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  /* o respiro que antes vinha do padding da barra vive AQUI, dentro de cada linha,
+     pois o viewport agora vai até a borda da tela */
+  padding: 0 var(--space-md);
+}
+
+/* A linha de pedidos estica os botões à altura toda e usa gap um pouco maior */
+.agenda-filters__pedidos-row {
+  align-items: stretch;
+  gap: var(--space-sm);
+}
+
+/* Botões da linha de vagas — mesma altura e cantos do btn padrão (.btn = radius-md) */
+.agenda-filters__vagas-btn {
+  height: 40px;
+  flex: 1;          /* 50/50 estável entre os dois botões */
+  min-width: 0;     /* sem isso o texto define a largura mínima e o par "dança" ao trocar o rótulo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);   /* espaço ícone↔texto, igual aos botões padrão (add/close não colam no rótulo) */
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  touch-action: manipulation;
+  white-space: nowrap;
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.agenda-filters__vagas-btn--criar {
+  background: var(--bg-white);
+  color: var(--p-green-dark);
+}
+
+.agenda-filters__vagas-btn--criar:active {
+  background: var(--bg-soft);
+}
+
+/* "Chamar ajudante do dia" — ocupa o espaço restante */
+.agenda-filters__vagas-btn--ajudante {
+  flex: 1;
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+.agenda-filters__vagas-btn--ajudante:active {
+  opacity: 0.88;
+}
+
+.agenda-filters__vagas-btn .material-symbols-rounded {
+  flex-shrink: 0;   /* tamanho/peso vêm do padrão único de ícone da barra (ver .pedido-action__icon…) */
+}
+
+/* ===========================================
+   BARRA INFERIOR — controles flutuantes (FAB) sobre o feed
+   transparente: o feed rola por baixo; só os controles capturam toque
+   ======================================== */
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  padding-bottom: calc(var(--space-xs) + env(safe-area-inset-bottom, 0px));
+  background: transparent;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  pointer-events: none;            /* vãos transparentes deixam passar scroll/tap do feed */
+}
+
+/* apenas os controles (botões laterais e pílula) são clicáveis e ficam por cima do blur */
+.bottom-bar > * {
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Faixa de vidro fosco ATRÁS dos controles: o feed rola por baixo e o desfoque
+   melhora o contraste. Fica num ::before (z-index:-1) para os botões/abas
+   continuarem nítidos por cima. A máscara faz a faixa sumir suavemente no topo. */
+.bottom-bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(var(--p-green-dark-rgb), 0.55), rgba(var(--p-green-dark-rgb), 0));
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  -webkit-mask-image: linear-gradient(to top, #000 60%, transparent);
+  mask-image: linear-gradient(to top, #000 60%, transparent);
+  pointer-events: none;
+}
+
+/* ===========================================
+   FEED TABS — barra central na bottom-bar
+   ======================================== */
+.feed-tabs-pill {
+  flex: 1;
+  display: flex;
+  align-items: stretch;        /* tabs preenchem toda a altura */
+  position: relative;          /* âncora do slider absoluto */
+  gap: 0;
+  background: var(--p-green);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;            /* slider não vaza fora da barra */
+}
+
+/* Indicador deslizante — substitui o background do tab ativo. DOURADO de
+   propósito (exceção deliberada à regra "seleção = azul"): a bottom bar é a
+   barra de NAVEGAÇÃO/AÇÃO principal do app, não um seletor de formulário. */
+.feed-tabs-pill__slider {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / 3);    /* 1/3 da área interna */
+  background: var(--a-gold);
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+  transform: translateX(100%);      /* posição inicial: aba home (índice 1) */
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.feed-tabs-pill__tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 5px 2px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: transparent;
+  color: var(--on-green-med);
+  cursor: pointer;
+  position: relative;     /* fica acima do slider (z-index) */
+  z-index: 1;
+  transition: color 0.3s var(--ease);
+}
+
+.feed-tabs-pill__tab-label {
+  font-size: var(--fs-1);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  letter-spacing: 0.2px;
+}
+
+.feed-tabs-pill__tab .material-symbols-rounded {
+  font-size: 1.4rem;
+  transition: font-variation-settings 0.3s var(--ease);
+}
+
+/* Aba ativa: só cor muda (o slider amarelo é o fundo) */
+.feed-tabs-pill__tab--active {
+  color: var(--p-green-dark);
+}
+
+.feed-tabs-pill__tab--active .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
+}
+
+/* Estado "Voltar ao topo" (js: setTabButton): seta REFORÇADA — no opsz 48 o
+   traço da arrow_upward afinava no tamanho pequeno da aba; opsz 24 + wght 700
+   engrossam o glifo. Vem DEPOIS do --active para vencer (mesma especificidade). */
+.feed-tabs-pill__tab--totop .material-symbols-rounded {
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+}
+
+.feed-tabs-pill__tab:not(.feed-tabs-pill__tab--active):active {
+  color: var(--t-light);
+}
+
+.scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-md);
+  /* espaço para o último conteúdo passar acima dos controles flutuantes */
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Botões da action bar de pedidos (Histórico / Fazer pedido) — largura 50/50 */
+.pedido-action__btn {
+  flex: 1;
+  min-width: 0;   /* largura ESTÁVEL 50/50: sem isso min-width:auto faz o botão
+                     crescer com o texto (ex.: "Concluir pedido") e empurrar o vizinho */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-size: var(--fs-6);
+  white-space: nowrap;
+}
+
+/* MODO "FECHAR": qualquer botão-abridor de submenu da action bar (Histórico,
+   Fazer pedido, Criar vaga, Serviço de ajudantes) vira um botão de fechar padrão
+   (X + "Fechar") enquanto seu submenu está aberto. Aparência neutra translúcida
+   sobre o verde da barra — vence o fundo dourado/branco de cada botão. */
+.action-close-mode {
+  background: var(--on-green-soft) !important;
+  color: var(--t-light) !important;
+}
+.action-close-mode .material-symbols-rounded {
+  color: var(--t-light) !important;
+}
+
+/* PADRÃO ÚNICO de ícone dos botões da barra de ação superior — Histórico, Fazer
+   pedido/Pedido atual, Serviço de ajudantes, Criar vaga (add) e o estado "Fechar"
+   (close). Tamanho 1.1rem + bold, condizente com o texto (--fs-6, bold) ao lado.
+   Um lugar só → todos ficam iguais. (O botão de contratos NÃO entra aqui: é
+   só-ícone, sem rótulo, então usa um ícone maior — ver .agenda-filters__icon-btn.) */
+.pedido-action__icon,
+.agenda-filters__vagas-btn .material-symbols-rounded,
+.action-close-mode .material-symbols-rounded {
+  font-size: 1.1rem !important;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24 !important;
+}
+
+/* Contratos é SÓ-ÍCONE (sem rótulo nem badge): ícone maior, preenchido e
+   centralizado pelo flex do .btn — o 1.1rem do grupo ficava pequeno e parecia
+   deslocado num alvo de 40px. */
+.agenda-filters__icon-btn .material-symbols-rounded {
+  font-size: 1.5rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+/* MODO "CONCLUIR": ao ver o detalhe do pedido ATIVO, o botão Histórico vira o
+   botão de ação "Concluir pedido" (dourado, como o btn--accent) — vence o
+   fundo branco do btn--white. */
+.action-conclude-mode {
+  background: var(--a-gold) !important;
+  color: var(--p-green-dark) !important;
+}
+.action-conclude-mode .material-symbols-rounded {
+  color: var(--p-green-dark) !important;
+}
+
+

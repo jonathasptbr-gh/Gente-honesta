@@ -1,0 +1,184 @@
+/* ===========================================
+   DIÁLOGOS E SOBREPOSIÇÕES
+   ======================================== */
+.overlay-dialog,
+.overlay-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.overlay-loader {
+  background: var(--p-green);
+  transition: opacity .4s ease;
+}
+
+.overlay-loader__spinner {
+  width: 80px;
+  height: 80px;
+  border: 8px solid var(--on-green-soft);
+  border-top-color: var(--t-light);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+/* Selo de versão discreto no rodapé da tela de loading (spinner fica centrado). */
+.overlay-loader__version {
+  position: absolute;
+  bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.05em;
+  color: var(--on-green-med);
+}
+
+.overlay-dialog {
+  padding: var(--space-lg);
+  background: var(--overlay);
+  backdrop-filter: blur(var(--blur-sm));
+}
+
+.dialog-box {
+  width: 100%;
+  max-width: 360px;
+  padding: 28px var(--space-lg);
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: dialogScaleUp .25s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.dialog-box__icon {
+  margin-bottom: 16px;
+  color: var(--p-green);
+}
+
+.dialog-box__icon .material-symbols-rounded {
+  font-size: 3.5rem;
+}
+
+.dialog-box__title {
+  margin-bottom: 10px;
+  font-size: var(--fs-11);
+  font-weight: var(--fw-heavy);
+  color: var(--p-green-dark);
+}
+
+.dialog-box__message {
+  margin-bottom: var(--space-lg);
+  color: var(--t-sub);
+  line-height: 1.5;
+}
+
+.dialog-box__actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.dialog-box__actions .btn {
+  flex: 1;
+}
+
+/* Dialog com scroll para textos longos */
+.dialog-box--scrollable .dialog-box__message {
+  max-height: calc(var(--app-height, 100dvh) * 0.55);
+  overflow-y: auto;
+  text-align: left;
+  line-height: 1.6;
+  padding-right: 4px;
+  white-space: pre-wrap;
+  scrollbar-width: thin;
+  scrollbar-color: var(--on-green-muted) transparent;
+}
+
+/* Barra SEMPRE visível (padrão dos containers de scroll fora dos 3 feeds).
+   Thumb claro: o único diálogo com scroll é o de ajuda (#dialog-global, verde). */
+.dialog-box--scrollable .dialog-box__message::-webkit-scrollbar { width: 5px; }
+.dialog-box--scrollable .dialog-box__message::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
+
+/* ── Diálogos de alerta/decisão/ajuda (#dialog-global) no padrão VERDE ──
+   Mesma linguagem das telas verdes: fundo --p-green, ícone dourado, textos
+   claros, CONFIRMAR dourado (o primary verde sumiria no fundo) e CANCELAR
+   branco translúcido. Escopado ao #dialog-global — o diálogo da câmera
+   (.dialog-box--camera) segue com seu tratamento próprio. */
+#dialog-global .dialog-box {
+  background: var(--p-green);
+}
+
+#dialog-global .dialog-box__icon {
+  color: var(--a-gold);
+}
+
+#dialog-global .dialog-box__title {
+  color: var(--t-light);
+}
+
+#dialog-global .dialog-box__message {
+  color: var(--p-green-light);
+}
+
+#dialog-global .btn--primary {
+  background: var(--a-gold);
+  color: var(--p-green-dark);
+}
+
+#dialog-global .btn--outline {
+  background: var(--on-green-soft);
+  color: var(--t-light);
+}
+
+
+/* ===========================================
+   BANNER DE ATUALIZAÇÃO DO PWA
+   Faixa fixa na base da tela — nunca bloqueia o app (sem backdrop), fica
+   acima de tudo (inclusive do tutorial) e some só quando o usuário toca em
+   "Atualizar" (ver app.js). Nunca recarrega sozinha.
+   ======================================== */
+.pwa-update-banner {
+  position: fixed;
+  left: var(--space-md);
+  right: var(--space-md);
+  bottom: max(var(--space-md), env(safe-area-inset-bottom, 0px));
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 14px var(--space-md);
+  background: var(--p-green-dark);
+  color: var(--t-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  animation: stepFadeIn 0.3s ease-out;
+}
+
+.pwa-update-banner__icon {
+  flex-shrink: 0;
+  color: var(--a-gold);
+}
+
+.pwa-update-banner__text {
+  flex: 1;
+  font-size: var(--fs-6);
+  font-weight: var(--fw-bold);
+  line-height: 1.3;
+}
+
+.pwa-update-banner__btn {
+  flex-shrink: 0;
+  padding: 8px 18px;
+}
+
+.pwa-update-banner__btn:disabled {
+  opacity: 0.6;
+}
+
+
+/* Selo de versão: agora vive DENTRO da top bar, ao lado da marca "Gente Honesta"
+   (`.top-bar__version` em feed.css) — não é mais um marcador flutuante fixo. */
+
+

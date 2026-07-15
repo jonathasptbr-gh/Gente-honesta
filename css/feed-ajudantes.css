@@ -1,0 +1,318 @@
+/* ===========================================================================
+   SERVIÇO DE AJUDANTES (sheet #ajudante-sheet)
+   Reaproveita o scaffolding claro do .pedido-sheet. As duas funções ficam
+   sempre visíveis (disponibilizar-se em cima, chamar embaixo), separadas por
+   um divisor. Os checkbox de disponibilidade são próprios; o card do ajudante
+   sorteado reutiliza as classes .pro-card__* dos cards de profissional.
+   =========================================================================== */
+
+/* O fundo claro --bg-soft do painel já vem da base .pedido-sheet__panel (agora
+   compartilhado por pedido/vaga/ajudante), não precisa mais de override aqui. */
+
+/* Seção de função + título com ícone — padrão dos títulos de seção do cadastro
+   (ícone verde + texto escuro sobre o corpo claro) */
+.ajudante-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.ajudante-section__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-7);
+  font-weight: var(--fw-heavy);
+  color: var(--p-green-dark);
+}
+
+.ajudante-section__title .material-symbols-rounded {
+  font-size: 1.4rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+}
+
+/* Divisor entre as duas funções */
+.ajudante-divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: var(--space-md) 0;
+}
+
+/* Texto introdutório de cada função (sobre o corpo claro do sheet) */
+.ajudante-intro {
+  font-size: var(--fs-5);
+  line-height: 1.4;
+  color: var(--t-sub);
+  margin: 0 0 var(--space-md);
+}
+
+/* ── Checkbox de disponibilidade (leve / pesado) — card BRANCO sobre o corpo
+   cinza; marcado = tint azul de superfície clara ── */
+.helper-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.helper-toggle + .helper-toggle {
+  margin-top: var(--space-sm);
+}
+
+.helper-toggle__check {
+  font-size: 1.7rem;
+  color: var(--border-mid);
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.helper-toggle__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.helper-toggle__name {
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-7);
+  color: var(--t-main);
+}
+
+.helper-toggle__desc {
+  font-size: var(--fs-3);
+  color: var(--t-sub);
+  line-height: 1.35;
+}
+
+.helper-toggle__rate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  font-weight: var(--fw-heavy);
+  font-size: var(--fs-9);
+  color: var(--a-gold-text);   /* ocre: dourado de texto sobre fundo claro */
+  line-height: 1.1;
+}
+
+.helper-toggle__rate small {
+  font-size: var(--fs-2);
+  font-weight: var(--fw-medium);
+  color: var(--t-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Estado marcado — tint azul de superfície clara (mesmo padrão do card de
+   serviço ativo do cadastro): fundo --info-blue-light + textos --info-blue. */
+.helper-toggle--on {
+  background: var(--info-blue-light);
+}
+
+.helper-toggle--on .helper-toggle__check,
+.helper-toggle--on .helper-toggle__name,
+.helper-toggle--on .helper-toggle__rate {
+  color: var(--info-blue);
+}
+
+.helper-toggle--on .helper-toggle__desc,
+.helper-toggle--on .helper-toggle__rate small {
+  color: var(--t-sub);
+}
+
+.helper-toggle:active {
+  transform: scale(var(--press-scale-subtle));
+}
+
+/* Seletor SLIDE (segmentado) leve/pesado do "Chamar ajudante": trilho BRANCO
+   sobre o corpo cinza, com um "thumb" AZUL (seleção) que DESLIZA entre as
+   duas opções. */
+.seg-toggle {
+  position: relative;
+  display: flex;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+}
+.seg-toggle__thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: var(--radius-pill);
+  background: var(--info-blue);
+  transition: transform 0.3s var(--sheet-ease);
+  z-index: 0;
+}
+.seg-toggle--heavy .seg-toggle__thumb { transform: translateX(100%); }
+.seg-toggle__opt {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  padding: 9px 8px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  color: var(--t-sub);   /* opção inativa: texto escuro suave sobre o trilho branco */
+  cursor: pointer;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+}
+.seg-toggle__opt--active { color: var(--t-light); }   /* opção ativa: texto claro sobre o thumb azul */
+
+/* "Chamar ajudante" = botão padrão (.btn.btn--accent); só ajusta largura/margem.
+   Sem radius-pill: fica no MESMO raio (--radius-md) dos "Publicar vaga/pedido". */
+.ajudante-call-btn {
+  width: 100%;
+  margin-top: var(--space-md);
+}
+
+/* Botões de AÇÃO principais dos sheets (Publicar pedido, Publicar vaga, Chamar
+   ajudante, Sincronizar contatos): o padding base de 16px do .btn os deixava
+   altos demais. Reduz o padding vertical para a altura ficar próxima dos botões
+   da action bar (Criar vaga/Histórico/Fazer pedido = 40px). */
+#btn-pedido-publish,
+#btn-vaga-publish,
+#btn-call-helper,
+#btn-sync-contacts,
+#btn-new-contract {
+  padding: 11px var(--space-md);
+}
+
+/* Nota "válido até a meia-noite" — card branco sobre o corpo cinza */
+.ajudante-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 var(--space-md);
+  padding: 10px 12px;
+  font-size: var(--fs-4);
+  line-height: 1.35;
+  color: var(--t-sub);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
+}
+
+.ajudante-note .material-symbols-rounded {
+  font-size: 1.15rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+}
+
+/* ── Lista de ajudantes sorteados ── */
+.helper-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Card do ajudante: mesmo padrão dos cards de profissional (.pro-card__front),
+   com elementos reduzidos. O botão WhatsApp (.pro-card__back-btn--whatsapp)
+   passa a ser um item de largura total abaixo do cabeçalho. */
+/* Card do ajudante: foto à esquerda (topo), coluna direita com a linha
+   nome+confiança e o botão do WhatsApp logo abaixo (ambos ao lado da foto). */
+.pro-card__front--helper {
+  align-items: flex-start;
+}
+
+.pro-card__front--helper .helper-wa {
+  width: 100%;
+  text-decoration: none;
+}
+
+/* Cabeçalho da seção "chamar": título à esquerda, botão cancelar à direita.
+   min-height fixa evita que a linha cresça quando o botão aparece/some. */
+.ajudante-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  min-height: 34px;
+  margin-bottom: var(--space-xs);
+}
+
+.ajudante-section__head .ajudante-section__title {
+  margin: 0;
+}
+
+/* Botão "Cancelar" — compacto, encaixa na altura da linha do título */
+.ajudante-cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--danger);
+  color: var(--t-light);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.ajudante-cancel-btn .material-symbols-rounded {
+  font-size: 1.05rem;
+}
+
+.ajudante-cancel-btn:active {
+  transform: scale(var(--press-scale));
+}
+
+/* Bloco de cooldown pós-cancelamento (cronômetro até liberar o botão) */
+.ajudante-cooldown {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 14px;
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-md);
+}
+
+.ajudante-cooldown > .material-symbols-rounded {
+  font-size: 1.9rem;
+  color: var(--p-green);
+  flex-shrink: 0;
+}
+
+.ajudante-cooldown__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ajudante-cooldown__label {
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-6);
+  color: var(--t-main);
+}
+
+.ajudante-cooldown__timer {
+  font-size: var(--fs-4);
+  line-height: 1.35;
+  color: var(--t-sub);
+}
+
+.ajudante-cooldown__timer strong {
+  color: var(--a-gold-text);
+  font-variant-numeric: tabular-nums;
+}

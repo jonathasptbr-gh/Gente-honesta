@@ -1,0 +1,629 @@
+/* =========================================================================
+   PEDIDO SHEET — criar / gerenciar meu pedido (gaveta CLARA, padrão do cadastro)
+   Mesmo padrão de slide + backdrop do indicated-popup.
+   ========================================================================= */
+.pedido-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none;
+  visibility: hidden;
+  /* Container = APENAS captador de toques edge-to-edge (inset:0) para rotear o
+     botão "Fechar"/"Concluir" sobre a barra. O RECORTE da gaveta NÃO fica aqui:
+     um wrapper .pedido-sheet__clip (top:--sheet-top; overflow:hidden) recorta o
+     painel. Antes usávamos mask/clip-path no container: clip-path furava o
+     hit-test; mask deixava um FLASH de 1 frame do conteúdo sobre o cabeçalho no
+     fim do fechamento (o layer do painel des-compositava e a máscara não era
+     aplicada por 1 quadro). overflow:hidden num wrapper real não tem esse
+     artefato. */
+  transition: visibility 0s linear 0.5s;
+}
+
+.pedido-sheet--open {
+  pointer-events: auto;
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+/* Wrapper que RECORTA a gaveta: cobre de --sheet-top até a base, esconde o que
+   sobe acima da fronteira (overflow:hidden). pointer-events:none para os toques
+   atravessarem até o container (captador) — só o painel dentro é interativo. */
+.pedido-sheet__clip {
+  position: absolute;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Formulário (padrão) = DROPDOWN: o backdrop dim SÓ o feed abaixo da action bar
+   (top: --sheet-top), mantendo a barra acesa para o painel parecer a base dela
+   se estendendo. No detalhe (--full) cobre a tela toda. */
+.pedido-sheet__backdrop {
+  position: absolute;
+  top: var(--sheet-top, 0px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay);
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.pedido-sheet--open .pedido-sheet__backdrop { opacity: 1; }
+
+/* Formulário "Fazer pedido" = DROPDOWN que desce da base da action bar (mesmo
+   slide-down do histórico): ancora em --sheet-top, entra descendo como gaveta. */
+/* PADRÃO CLARO (mesmo da seção "Detalhes profissionais" do cadastro): corpo
+   cinza claro --bg-soft com os elementos internos BRANCOS se destacando como
+   cards — compartilhado por fazer pedido, detalhe do pedido, criar vaga e
+   serviço de ajudantes (reusam .pedido-sheet). O card do painel é MENOS LARGO
+   que a tela: recua --space-md de cada lado, alinhado ao conteúdo da action
+   bar (mesma largura útil dos cards do cadastro). */
+.pedido-sheet__panel {
+  position: absolute;
+  z-index: 1;
+  top: 0;                 /* relativo ao .pedido-sheet__clip (já em --sheet-top) */
+  left: var(--space-md);
+  right: var(--space-md);
+  pointer-events: auto;   /* o clip é pointer-events:none; o painel reativa */
+  background: var(--bg-soft);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-height: calc(var(--app-height, 100dvh) - var(--sheet-top, 0px) - 12px);
+  /* Gaveta: fechado = totalmente acima da linha de recorte (100% da própria
+     altura), aberto = na posição. Sem fade de opacidade — deslize puro.
+     Duração calma (0.5s) para o deslize ficar suave. */
+  transform: translateY(-100%);
+  transition: transform 0.5s var(--sheet-ease);
+}
+
+.pedido-sheet--open .pedido-sheet__panel {
+  transform: translateY(0);
+}
+
+/* Abertura do detalhe a partir de um item do histórico (FLIP): o painel aparece
+   INSTANTANEAMENTE (mesmo fundo claro --bg-soft do histórico, sem slide/flash) e a animação
+   fica por conta do card (que sobe da posição do item) e das indicações (que
+   entram depois) — controlados por estilo inline em openPedidoDetail. */
+.pedido-sheet--morph .pedido-sheet__panel {
+  transition: none !important;
+  transform: none !important;
+}
+
+/* O detalhe do pedido agora também é um DROPDOWN (mesmo slide-down do histórico),
+   não mais tela cheia — herda .pedido-sheet__panel acima. */
+
+/* Sem header interno nos dropdowns (removido na v268 p/ liberar espaço); a
+   top bar de título foi eliminada na v287, então a gaveta não tem título. */
+
+.pedido-sheet__body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb-dark) transparent;
+  /* respiro para o último controle não colar na borda inferior do aparelho */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Área de scroll EDGE-TO-EDGE no card: estende o body até as DUAS bordas
+     laterais do painel (anula o padding dele e o devolve como padding interno)
+     → o conteúdo mantém o respiro, a barra fica no gutter/borda direita e as
+     shades de fronteira (.js-scroll-shadows) cobrem a largura toda do card,
+     sem "margens" nas pontas da sombra. */
+  margin-left: calc(-1 * var(--space-md));
+  padding-left: var(--space-md);
+  margin-right: calc(-1 * var(--space-md));
+  padding-right: var(--space-md);
+  --shade-bleed: var(--space-md);   /* sangria das shades até a borda do card */
+}
+
+/* Barra SEMPRE visível (formulários criar pedido/vaga, detalhe do pedido).
+   Thumb ESCURO: o painel agora é claro. */
+.pedido-sheet__body::-webkit-scrollbar { width: 5px; }
+.pedido-sheet__body::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
+
+.pedido-sheet__state {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Campo: label + controle */
+.pedido-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* .pedido-field__label compõe .eyebrow no HTML (receita única dos labels do
+   cadastro: --p-green, --fs-5, bold, uppercase) — sem redeclarar aqui. */
+
+.pedido-field__hint {
+  align-self: flex-end;
+  font-size: var(--fs-3);   /* mesmo corpo do .form-group__hint do cadastro */
+  color: var(--t-sub);
+  margin-top: -4px;
+}
+
+.pedido-textarea { resize: none; }
+
+/* Linha de chips de seleção única (urgência / duração) */
+.pedido-chip-row {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+/* Pílula BRANCA como card sobre o corpo cinza (padrão das pílulas de pagamento
+   do cadastro); seleção = tint azul de superfície clara. */
+.pedido-chip {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px 14px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  background: var(--bg-white);
+  color: var(--t-main);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+}
+
+.pedido-chip .material-symbols-rounded {
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.pedido-chip:active { transform: scale(var(--press-scale)); }
+
+.pedido-chip--active {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
+}
+
+/* Toggle (cidades vizinhas) — card BRANCO sobre o corpo cinza */
+.pedido-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+}
+
+.pedido-toggle__info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.pedido-toggle__info > .material-symbols-rounded {
+  color: var(--p-green);   /* ícone verde sobre card claro, como no cadastro */
+  font-size: 1.5rem;
+}
+
+.pedido-toggle__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pedido-toggle__title {
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  color: var(--t-main);
+}
+
+.pedido-toggle__sub {
+  font-size: var(--fs-2);
+  color: var(--t-sub);
+}
+
+.pedido-switch {
+  flex-shrink: 0;
+  width: 46px;
+  height: 27px;
+  border-radius: var(--radius-pill);
+  background: var(--border-light);   /* trilho cinza sobre o card branco */
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.pedido-switch__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--bg-white);
+  transition: transform 0.2s ease;
+}
+
+.pedido-toggle[aria-pressed="true"] .pedido-switch { background: var(--info-blue); }
+.pedido-toggle[aria-pressed="true"] .pedido-switch__knob { transform: translateX(19px); }
+
+/* Ações (Cancelar / Publicar) */
+.pedido-sheet__actions {
+  display: flex;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.pedido-sheet__actions .btn { flex: 1; }
+
+/* Rodapé fixo do sheet (fora do body que rola): sempre visível na base. Ganha
+   uma FAIXA BRANCA (contrasta com o corpo cinza --bg-soft; o CTA dourado se
+   destaca sobre ela). Estende-se até as bordas do painel (anula o padding dele)
+   e acompanha os cantos inferiores arredondados. */
+.pedido-sheet__actions--footer {
+  flex-shrink: 0;
+  /* margin-top negativo anula o gap do painel → a faixa encosta na base do
+     body (conteúdo rola RENTE à faixa, sem vão). safe-area vai aqui (o rodapé
+     é o elemento colado à base da tela), não no body. */
+  margin: calc(-1 * var(--space-sm)) calc(-1 * var(--space-md)) calc(-1 * var(--space-md));
+  padding: var(--space-md);
+  padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom, 0px));
+  background: var(--bg-white);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* Criar vaga: o título vive DENTRO do body (rola com os campos). Para o conteúdo
+   rolar rente às bordas (topo do painel e faixa verde do rodapé) sem "margem
+   estranha", puxa o body até a borda superior e transforma o respiro do topo em
+   padding rolável; a base perde o safe-area (a faixa verde já o carrega). */
+#vaga-sheet .pedido-sheet__body {
+  margin-top: calc(-1 * var(--space-md));
+  padding-bottom: 0;
+}
+
+/* Respiro do topo e do fim do scroll no CONTEÚDO (não no container):
+   (a) topo — padding-top no body deslocava a shade sticky do .js-scroll-shadows
+   (sticky não sobe acima da caixa de conteúdo do pai, então a sombra flutuava
+   abaixo da linha real de recorte); como padding de CONTEÚDO, rola igual e a
+   shade cola na fronteira; (b) base — Chrome às vezes ignora padding-bottom
+   no container de scroll, então o último elemento não encosta na faixa do
+   rodapé. */
+#vaga-sheet .pedido-sheet__body .pedido-sheet__state {
+  padding-top: var(--space-md);
+  padding-bottom: var(--space-md);
+}
+
+/* ── Sheet "Criar vaga": listas dinâmicas (requisitos / benefícios) ── */
+/* "(opcional)" dentro de um label .eyebrow — mesma receita do
+   .form-group__optional do cadastro (escapa da caixa alta do label). */
+.vaga-field__optional {
+  font-size: var(--fs-3);
+  font-weight: var(--fw-regular);
+  color: var(--t-sub);
+  text-transform: none;
+}
+
+.vaga-dyn-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.vaga-dyn-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.vaga-dyn-row .input-text { flex: 1; }
+
+/* Botão de remover linha (X) — discreto, card branco sobre o corpo cinza */
+.vaga-dyn-remove {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  color: var(--t-sub);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-dyn-remove:active { transform: scale(var(--press-scale)); }
+.vaga-dyn-remove .material-symbols-rounded { font-size: 1.2rem; }
+
+/* Botão "Adicionar requisito / benefício" — texto dourado (ação) sobre pílula
+   branca, SEM borda (design sem contorno). --a-gold-text: o ocre de TEXTO
+   dourado sobre fundo claro. */
+.vaga-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-white);
+  color: var(--a-gold-text);
+  box-shadow: var(--shadow-sm);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-add-btn:active { transform: scale(var(--press-scale)); }
+.vaga-add-btn .material-symbols-rounded { font-size: 1.1rem; }
+
+/* Card de vaga recém-criado: destaque temporário ao tocar "Ver vaga" */
+.vaga-card--highlight {
+  animation: vagaHighlight 1.6s ease;
+}
+
+@keyframes vagaHighlight {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--p-green-rgb), 0); }
+  25%      { box-shadow: 0 0 0 4px var(--a-gold); }
+}
+
+/* Hint alinhado à esquerda (padrão do hint é à direita) */
+.pedido-field__hint--left { align-self: flex-start; }
+
+/* Endereço pendente no card (vaga criada por CNPJ, sem dados oficiais ainda) */
+.vaga-card__company-address--pending {
+  color: var(--t-sub);
+  font-style: italic;
+  text-decoration: none;
+  cursor: default;
+}
+
+/* ── Stepper +/- do número de vagas — trilho branco sobre o corpo cinza ── */
+.vaga-stepper {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-sm);
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Botões +/- VERDES (par do btn--primary sobre superfície clara): o dourado
+   era herança do painel escuro e virava um segundo CTA competindo com o
+   "Publicar vaga" — amarelo fica só nas AÇÕES principais. */
+.vaga-stepper__btn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--p-green);
+  color: var(--t-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-stepper__btn:active { transform: scale(0.92); }
+.vaga-stepper__btn:disabled { opacity: 0.4; cursor: default; }
+.vaga-stepper__btn .material-symbols-rounded {
+  font-size: 1.3rem;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+}
+
+.vaga-stepper__value {
+  min-width: 2ch;
+  text-align: center;
+  font-size: var(--fs-8);
+  font-weight: var(--fw-heavy);
+  color: var(--t-main);
+}
+
+/* ── Carga horária: seletores de hora (meia em meia) + dias ── */
+.vaga-time-row {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.vaga-time {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Sub-rótulo discreto (Início/Fim) — receita do sub-label do cadastro
+   (.payment-methods__subgroup-label: fs-3, bold, --t-sub, uppercase). */
+.vaga-time__label {
+  font-size: var(--fs-3);
+  font-weight: var(--fw-bold);
+  color: var(--t-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Stepper de horário (meia em meia hora) — reusa o .vaga-stepper do número de
+   vagas (nosso padrão), no lugar do <select> nativo do sistema. Ocupa a largura
+   da coluna, com os botões nas pontas e o horário centralizado. */
+.vaga-stepper--time {
+  align-self: stretch;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.vaga-stepper--time .vaga-stepper__value {
+  font-variant-numeric: tabular-nums;
+}
+
+.vaga-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--space-xs);
+}
+
+.vaga-day {
+  flex: 1;
+  min-width: 42px;
+  padding: 9px 0;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-4);
+  font-weight: var(--fw-bold);
+  background: var(--bg-white);
+  color: var(--t-main);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-day:active { transform: scale(var(--press-scale)); }
+
+.vaga-day--active {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
+}
+
+/* Erro de obrigatório = LINHA vermelha de borda (mecanismo canônico único) */
+.vaga-days--error { border: 2px solid var(--danger); border-radius: var(--radius-md); }
+
+/* ── Salário: campo numérico com R$ e /mês externos ── */
+.vaga-salary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.vaga-salary__prefix,
+.vaga-salary__suffix {
+  font-size: var(--fs-8);
+  font-weight: var(--fw-heavy);
+  color: var(--t-main);
+  flex-shrink: 0;
+}
+
+/* Largura CONTIDA (não flex:1): o campo aceita no máximo 9 caracteres
+   ("9.999.999"), então ocupar a linha toda deixava um vazio estranho entre o
+   número e o "/mês". 150px comporta o maior valor com folga; pode encolher
+   em telas estreitas. */
+.vaga-salary__input { flex: 0 1 150px; width: 150px; }
+
+/* ── Check "Exigir currículo" + aviso — card branco, caixa no padrão do check
+   de perfil público do cadastro (borda --border-mid; marcado = azul sólido) ── */
+.vaga-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: var(--transition);
+}
+
+/* A caixa (.vaga-check__box) usa o primitivo .check-box (components.css);
+   o estado marcado vem do aria-pressed do botão-pai #chk-vaga-curriculo. */
+
+.vaga-check__text {
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  color: var(--t-main);
+}
+
+.vaga-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--a-gold-text);   /* ocre: texto dourado legível sobre fundo claro */
+  font-style: normal;
+}
+
+.vaga-warn .material-symbols-rounded {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Benefícios: pílulas de seleção (ícone + texto, mesmo padrão dos cards) ── */
+.vaga-benefit-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vaga-benefit-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  background: var(--bg-white);
+  color: var(--t-sub);   /* inativa: texto suave, igual às pílulas de pagamento do cadastro */
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-benefit-pill:active { transform: scale(var(--press-scale)); }
+
+.vaga-benefit-pill .material-symbols-rounded {
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.vaga-benefit-pill[aria-pressed="true"] {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
+}
+
+/* Lista de indicados inline dentro do sheet de detalhes */
+.pedido-detail-indicated {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* Compõe .eyebrow no HTML (cor/tamanho/peso/caixa-alta); aqui só o layout.
+   O ícone não sofre o uppercase (text-transform:none na base dos ícones). */
+.pedido-detail-indicated__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.pedido-detail-indicated__header .material-symbols-rounded { font-size: 1.2rem; }
+
+.pedido-detail-indicated__fraction {
+  margin-left: auto;
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  color: var(--t-sub);
+}
+
+/* Empty-state dentro dos sheets claros (o .list-empty-hint base é claro-sobre-verde) */
+.pedido-sheet .list-empty-hint {
+  color: var(--t-sub);
+}
+
