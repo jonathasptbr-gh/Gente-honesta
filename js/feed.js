@@ -1,6 +1,8 @@
 "use strict";
 import { mockIndicatedByPost, mockComments, mockProfessionals, avatarSvg, mockVagas, mockHelpers } from './feed-data.js';
 import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './feed-config.js';
+import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './feed-utils.js';
+import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './feed-templates.js';
 
 // =========================================================================
 // TELA - PRINCIPAL (FEED) - Gerenciador de Comportamentos da Interface
@@ -463,40 +465,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ---- Modelos padronizados de exibição (reutilizados em vários lugares) ----
-  // function declarations (hoistadas): icTier também é usado por applyFilters,
-  // definido ANTES desta linha — fonte única dos limiares 75/50/25.
-  function icTier(ic) { return ic >= 75 ? 'ok' : ic >= 50 ? 'warn' : ic >= 25 ? 'alert' : 'bad'; }
-  function icShieldIcon(ic) { return ic >= 75 ? 'gpp_good' : ic >= 50 ? 'shield_question' : ic >= 25 ? 'gpp_maybe' : 'gpp_bad'; }
 
-  // Confiança compacta: (escudo) ##% Confiável — ou vertical (escudo/cima, %/meio, palavra/baixo)
-  const icBarHTML = (ic, vertical = false) => {
-    const tier = icTier(ic);
-    const shield = icShieldIcon(ic);
-    return `<div class="ic-bar ic-bar--${tier}${vertical ? ' ic-bar--vertical' : ''}"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">${shield}</span><span class="ic-bar__value">${ic}%</span><span class="ic-bar__label">Confiável</span></div>`;
-  };
 
-  // Índices Qualidade / Agilidade / Valor: label colorido acima de barra colorida
-  const qavHTML = (q, a, v) => `
-    <div class="qav">
-      <div class="qav__item qav__item--quality"><span class="qav__label">Qualidade</span><div class="qav__bar"><div class="qav__fill" style="width:${q * 10}%"></div></div></div>
-      <div class="qav__item qav__item--agility"><span class="qav__label">Agilidade</span><div class="qav__bar"><div class="qav__fill" style="width:${a * 10}%"></div></div></div>
-      <div class="qav__item qav__item--value"><span class="qav__label">Valor</span><div class="qav__bar"><div class="qav__fill" style="width:${v * 10}%"></div></div></div>
-    </div>`;
 
-  const availHTML = (state) => {
-    const m = availabilityMeta[state] || availabilityMeta.available;
-    return `<span class="avail avail--${m.cls}"><span class="avail__dot" aria-hidden="true"></span>${m.label}</span>`;
-  };
 
-  // Verso do card (flip): comentários em scroll + barra de ações.
-
-  const buildCommentHTML = (c) => {
-    const MAX = 150;
-    const tier = icTier(c.ic);
-    const shield = icShieldIcon(c.ic);
-    const text = c.text.length > MAX ? c.text.slice(0, MAX).trimEnd() + '...' : c.text;
-    return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span></p></div>`;
-  };
 
 
   // Appends next batch of comments to the card; removes the button when exhausted.
@@ -542,74 +514,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return true;
   }
 
-  let _proBackHTML = null;
-  const proBackHTML = () => {
-    if (_proBackHTML) return _proBackHTML;
-    const initial = mockComments.slice(0, COMMENTS_PAGE);
-    const commentsHTML = initial.map(buildCommentHTML).join('');
-    const hasMore = mockComments.length > COMMENTS_PAGE;
-    const loadMoreBtn = hasMore
-      ? `<button type="button" class="pro-card__load-more" data-offset="${COMMENTS_PAGE}"><span class="material-symbols-rounded" aria-hidden="true">expand_more</span>ver mais comentários</button>`
-      : '';
-    _proBackHTML = `
-      <div class="pro-card__back">
-        <div class="pro-card__comments-header">
-          <span class="material-symbols-rounded" aria-hidden="true">chat_bubble</span>
-          Comentários
-        </div>
-        <div class="pro-card__back-comments">
-          <div class="pro-card__comments-list">${commentsHTML}</div>
-          ${loadMoreBtn}
-        </div>
-        <div class="pro-card__back-actions">
-          <button type="button" class="btn btn--icon pro-card__back-btn pro-card__back-btn--back" aria-label="Voltar">
-            <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
-          </button>
-          <button type="button" class="btn pro-card__back-btn pro-card__back-btn--whatsapp">
-            <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
-          </button>
-          <button type="button" class="btn btn--icon pro-card__back-btn pro-card__back-btn--share" aria-label="Compartilhar">
-            <span class="material-symbols-rounded" aria-hidden="true">share</span>
-          </button>
-          <button type="button" class="btn pro-card__back-btn pro-card__back-btn--cancel-indicate">Cancelar</button>
-          <button type="button" class="btn pro-card__back-btn pro-card__back-btn--confirm-indicate">
-            <span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar
-          </button>
-        </div>
-      </div>
-    `;
-    return _proBackHTML;
-  };
 
-  // Rodapé do card: todos os 4 itens sempre visíveis.
-  // Ativos (profissional aceita/emite) = estilo normal; inativos = opacos + riscados.
-  const proFooterHTML = (pro) => {
-    const hasCash = !!pro.pay?.cash;
-    const hasPix  = !!pro.pay?.pix;
-    const hasCard = pro.pay?.card === 'debit' || pro.pay?.card > 0;
-    const hasNF   = pro.nf === true;
-    const cardLabel = pro.pay?.card === 'debit' ? 'Débito'
-      : pro.pay?.card === 1 ? 'À vista'
-      : hasCard ? `até ${pro.pay.card}x`
-      : 'Cartão';
-    const cls = active => `pro-card__meta-item${active ? '' : ' pro-card__meta-item--inactive'}`;
-    const item = (active, icon, label) =>
-      `<span class="${cls(active)}"><span class="material-symbols-rounded">${icon}</span><span class="pro-card__meta-item__label">${label}</span></span>`;
-    return `<div class="pro-card__meta">
-      ${item(hasCash, 'attach_money', 'Dinheiro')}
-      ${item(hasPix, 'qr_code_2', 'Pix')}
-      ${item(hasCard, 'credit_card', cardLabel)}
-      ${item(hasNF, 'receipt_long', 'NF')}
-    </div>`;
-  };
 
   // Card padrão de profissional: coluna esquerda (foto + QAV) e coluna direita
   // (nome/profissão/disponibilidade + ações do cabeçalho + bio).
   // showPin=false omite o botão de fixar (ex: cards de referência na confirmação).
-  // Stub ÚNICO de "funcionalidade ainda não implementada" (WhatsApp/Compartilhar):
-  // centraliza o sufixo "— funcionalidade em breve." repetido em 5 lugares.
-  const comingSoon = (label, title, icon) =>
-    customAlert(`${label} — funcionalidade em breve.`, title, icon);
 
   const proCardHTML = (pro, showPin = true) => {
     const isPinned = pinnedPros.has(pro.id);
@@ -2366,17 +2275,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
 
-  // Data curta legível: "12 jul, 14:30"
-  const formatPedidoDate = (ts) => new Date(ts).toLocaleString('pt-BR', {
-    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit',
-  }).replace('.', '');
 
-  // Horas restantes de um pedido ativo (arredondado para cima; 0 = expirado).
-  const pedidoHoursLeft = (pedido) => {
-    const totalMs = parseInt(pedido.duration, 10) * 3600 * 1000;
-    const remainingMs = Math.max(0, totalMs - (Date.now() - pedido.createdAt));
-    return Math.ceil(remainingMs / (3600 * 1000));
-  };
 
   // Preenche o detalhe: card de REFERÊNCIA no topo (MESMO modelo do histórico,
   // via historicoItemHTML) + fração + lista de indicados. O card de baixo
@@ -2610,32 +2509,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Markup de UM item de pedido — usado tanto na lista do histórico quanto como
   // card de referência no TOPO do detalhe (mesmo modelo de card). function
   // declaration → hoistada, usável por renderPedidoDetails (definida acima).
-  function historicoItemHTML(p) {
-    const active = p.status === 'active';
-    const statusCls = active ? 'historico-item__status--active' : 'historico-item__status--done';
-    const statusInner = active
-      ? `<span class="material-symbols-rounded" aria-hidden="true">bolt</span>Ativo · ${pedidoHoursLeft(p) > 0 ? pedidoHoursLeft(p) + 'h' : 'Expirado'}`
-      : `<span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluído`;
-    const urgentBadge = p.urgency === 'urgent'
-      ? `<span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>`
-      : '';
-    return `
-      <article class="historico-item" data-pedido-id="${p.id}" role="button" tabindex="0">
-        <div class="historico-item__top">
-          <span class="historico-item__date">${formatPedidoDate(p.createdAt)}</span>
-          <button type="button" class="historico-item__delete" data-delete-id="${p.id}" aria-label="Excluir pedido">
-            <span class="material-symbols-rounded" aria-hidden="true">delete</span>
-          </button>
-        </div>
-        <p class="historico-item__text">${urgentBadge}${p.text}</p>
-        <div class="historico-item__footer">
-          <span class="historico-item__status ${statusCls}">${statusInner}</span>
-          <span class="historico-item__count">
-            <span class="material-symbols-rounded" aria-hidden="true">groups</span>${p.indicated.length}/3 indicações
-          </span>
-        </div>
-      </article>`;
-  }
 
   // Renderiza a lista do histórico, mais recentes no topo.
   function renderHistoricoList() {
