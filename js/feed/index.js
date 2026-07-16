@@ -2397,11 +2397,17 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPedidoDetails(pedido);
     anchorBelowActionBar(pedidoSheet);
     pedidoSheet?.classList.remove('pedido-sheet--full');
-    // Botões do topo: Histórico → "Fechar" (nos dois casos); o botão "Pedido atual"
-    // vira "Concluir pedido" quando o pedido é ATIVO, ou fica natural quando é
-    // ANTIGO (para pular direto ao pedido atual / fazer um novo).
-    setHistoricoButton('close');
-    setMyPedidoButton(active ? 'conclude' : 'natural');
+    // Botões do topo:
+    //  ATIVO → "Concluir pedido" no lado HISTÓRICO + "Fechar" no lado Pedido atual.
+    //  ANTIGO → "Fechar" no lado Histórico + Pedido atual natural (pular ao pedido
+    //           atual / fazer um novo).
+    if (active) {
+      setHistoricoButton('conclude');
+      setMyPedidoButton('close');
+    } else {
+      setHistoricoButton('close');
+      setMyPedidoButton('natural');
+    }
 
     const cardEl = document.querySelector('#pedido-detail-card-container .historico-item');
     const indicatedEl = pedidoSheet?.querySelector('.pedido-detail-indicated');
@@ -2468,16 +2474,16 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Sem botão Cancelar: fecha pelo botão "Fechar" (opener) ou tocando fora do painel.
-  // Toque FORA do painel (barra ou backdrop). Os botões do topo agora têm ação
-  // própria dependendo do modo do detalhe, então roteamos o toque:
-  //  - detalhe ATIVO + toque no Histórico ("Concluir") → conclui;
+  // Toque FORA do painel (barra ou backdrop). Os botões do topo têm ação própria
+  // dependendo do modo do detalhe, então roteamos o toque:
+  //  - detalhe ATIVO + toque no HISTÓRICO ("Concluir pedido") → conclui;
+  //    (o lado Pedido atual está "Fechar" → cai no fechar padrão abaixo);
   //  - detalhe ANTIGO + toque no Fazer/Pedido atual (natural) → navega;
   //  - qualquer outro toque fora do painel → fecha.
   pedidoSheet?.addEventListener('click', (e) => {
     if (e.target.closest('.pedido-sheet__panel')) return;
-    // O botão do lado "Pedido atual" (btnMyPedido) tem ação própria: conclui (pedido
-    // ativo) ou navega (pedido antigo). O botão Histórico é "Fechar" (default abaixo).
-    if (pedidoDetailMode === PEDIDO_DETAIL_MODE.ACTIVE && tapHitsButton(e, btnMyPedido)) { concluirDetailPedido(); return; }
+    // ATIVO: "Concluir pedido" está no lado HISTÓRICO; o lado Pedido atual é "Fechar".
+    if (pedidoDetailMode === PEDIDO_DETAIL_MODE.ACTIVE && tapHitsButton(e, btnHistorico)) { concluirDetailPedido(); return; }
     if (pedidoDetailMode === PEDIDO_DETAIL_MODE.OLD && tapHitsButton(e, btnMyPedido)) { myPedidoNavigate(); return; }
     // TROCA DIRETA para o Histórico: no FORM "Fazer pedido" o botão Histórico está
     // NATURAL (não é "Fechar"/"Concluir") → tocar nele fecha o pedido e abre o

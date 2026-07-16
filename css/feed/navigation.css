@@ -82,15 +82,15 @@
   opacity: 0.88;
 }
 
-/* "Serviço de ajudantes" — à DIREITA: dourado padrão (mesmo do Criar vaga). */
+/* "Serviço de ajudantes" — ação secundária, à DIREITA: pílula branca. */
 .agenda-filters__vagas-btn--ajudante {
   flex: 1;
-  background: var(--a-gold);
+  background: var(--bg-white);
   color: var(--p-green-dark);
 }
 
 .agenda-filters__vagas-btn--ajudante:active {
-  opacity: 0.88;
+  background: var(--bg-soft);
 }
 
 .agenda-filters__vagas-btn .material-symbols-rounded {

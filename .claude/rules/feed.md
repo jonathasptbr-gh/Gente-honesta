@@ -57,9 +57,9 @@ MESMA curva/duração do `.feed-panels`. Estados: `#bar-vagas-state` (**Criar va
 no `#feed-action-bar` controlam a posição. Não usar `opacity`/`display:none` p/ alternar linhas — quem
 esconde é o `overflow:hidden` + `translateX`.
 
-> **Estado vagas — ordem/cor dos botões:** ESQUERDA = **Criar vaga** (`#btn-criar-vaga`); DIREITA =
-> **Serviço de ajudantes** (`#btn-chamar-ajudante`). AMBOS em DOURADO padrão (`--a-gold`, `:active`
-> opacity 0.88) via `--criar`/`--ajudante`.
+> **Estado vagas — ordem/cor dos botões:** ESQUERDA = **Criar vaga** (`#btn-criar-vaga`, DOURADO
+> `--a-gold`, AÇÃO principal); DIREITA = **Serviço de ajudantes** (`#btn-chamar-ajudante`, pílula
+> BRANCA, secundário). Classes função-nomeadas `--criar` (dourado) / `--ajudante` (branco).
 
 ## Submenus dropdown (gavetas) + botão-abridor que vira "Fechar"
 
@@ -129,7 +129,7 @@ Flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas`, texto `
 
 ## Action bar de pedidos — DOIS botões sempre visíveis
 
-- `#btn-historico-pedidos` (`btn--accent`, dourado) — **Histórico**, sempre visível.
+- `#btn-historico-pedidos` (`btn--white`) — **Histórico**, sempre visível.
 - `#btn-my-pedido` (`btn--accent`) — via `renderMyPedidoButton()`: **"Fazer pedido"** (`add`) sem
   pedido ativo → abre o formulário; **"Pedido atual"** (`receipt_long`) com pedido ativo → abre o
   detalhe unificado.
@@ -153,11 +153,11 @@ painel aparece instantâneo (`.pedido-sheet--morph`), o card SOBE da posição d
 (`translateY(sourceRect.top - lastRect.top)` → `0`) e só então as indicações deslizam (no
 `transitionend` do card, com fallback por timer). Sem `sourceEl` → slide-down padrão.
 
-**Botões do topo (evita dois "Fechar"):** `pedidoDetailMode` (`'active'`/`'old'`/`null`). Concluir
-fica no lado "Pedido atual" (btnMyPedido); Fechar no lado Histórico (btnHistorico). Ativo → Histórico
-"Fechar" + Pedido atual "Concluir pedido" (`.action-conclude-mode`). Antigo → Histórico "Fechar" +
-Pedido atual natural. Tap-outside roteia por `tapHitsButton`: ativo+PedidoAtual →
-`concluirDetailPedido`; antigo+PedidoAtual → `myPedidoNavigate`; resto → `closePedidoSheet`.
+**Botões do topo (evita dois "Fechar"):** `pedidoDetailMode` (`'active'`/`'old'`/`null`). Ativo →
+Histórico "Concluir pedido" (`.action-conclude-mode`) + Pedido atual "Fechar". Antigo → Histórico
+"Fechar" + Pedido atual natural. Tap-outside roteia por `tapHitsButton`: ativo+**Histórico** →
+`concluirDetailPedido` (Pedido atual "Fechar" cai no fechar padrão); antigo+PedidoAtual →
+`myPedidoNavigate`; resto → `closePedidoSheet`.
 
 ## Histórico de pedidos (`#historico-sheet`)
 
