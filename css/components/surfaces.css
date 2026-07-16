@@ -120,7 +120,11 @@
 .ic-bar--sm .ic-bar__frame { width: 1.3rem; height: 1.4rem; }
 .ic-bar--sm .ic-bar__value { font-size: var(--fs-1); }
 
-.ic-bar--lg .ic-bar__frame { width: 2.15rem; height: 2.3rem; }
-.ic-bar--lg .ic-bar__value { font-size: var(--fs-5); }
+/* --lg é usado só no cabeçalho do card de profissional, onde o escudo ACOMPANHA
+   a altura das 3 linhas empilhadas (nome/profissão/disponibilidade) — a regra de
+   preenchimento fica em css/feed/cards-pro.css (.pro-card__head-right .ic-bar--lg),
+   junto do contexto que estica. Estes são só o fallback fixo p/ qualquer outro uso. */
+.ic-bar--lg .ic-bar__frame { width: 2.4rem; height: 2.6rem; }
+.ic-bar--lg .ic-bar__value { font-size: var(--fs-7); }
 
 

@@ -393,6 +393,22 @@
   flex-shrink: 0;
 }
 
+/* Escudo --lg ACOMPANHA a altura do cabeçalho (nome + profissão +
+   disponibilidade empilhados): o head-right já estica com o head
+   (align-items:stretch), o escudo preenche essa altura (flex:1) e a largura sai
+   da razão do viewBox (24:26). O número cresce junto para não ficar minúsculo. */
+.pro-card__head-right .ic-bar--lg {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.pro-card__head-right .ic-bar--lg .ic-bar__frame {
+  height: 100%;
+  width: auto;
+}
+.pro-card__head-right .ic-bar--lg .ic-bar__value {
+  font-size: var(--fs-9);
+}
+
 /* FITA DE MARCADOR (contato salvo): faixa diagonal no canto superior esquerdo,
    recortada à moldura da foto (inset 0 + raio da foto + overflow:hidden) para
    cruzar a foto e terminar rente às bordas. Só aparece com .pro-card--pinned;

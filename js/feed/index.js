@@ -1168,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="vaga-card__poster">
               <img class="vaga-card__poster-avatar" src="${avatarSvg}" alt="">
-              <span class="vaga-card__poster-name">Divulgado por <strong>${vaga.poster.name}</strong></span>
+              <span class="vaga-card__poster-name"><strong>${vaga.poster.name}</strong></span>
               <span class="vaga-card__poster-ic">${icBarHTML(vaga.poster.ic, 'sm')}</span>
             </div>
             <div class="vaga-card__body">
