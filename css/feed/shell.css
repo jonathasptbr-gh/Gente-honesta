@@ -31,7 +31,7 @@
 
 /* TOP BAR removida na v287: perfil, contratos, busca e selo de versão foram
    consolidados na linha de busca da action bar (.agenda-filters). Todo o bloco
-   .top-bar*/.notif-badge era CSS órfão (nenhum elemento no HTML/JS o usa) e foi
+   .top-bar / .notif-badge era CSS órfão (nenhum elemento no HTML/JS o usa) e foi
    removido. O avatar de perfil vive hoje em .agenda-filters__profile-img. */
 
 
@@ -45,9 +45,19 @@
    #contracts-filters-sheet. Aqui ficam só os estilos do CONTEÚDO.
    ======================================== */
 
-/* CTA "Criar minicontrato" — filho direto do painel (fora do scroll), estica
-   na largura; a altura de 40px vem do grupo de CTAs (#btn-new-contract). */
+/* ── Rodapé do painel: CTA "Criar minicontrato" + botão de pendentes ──
+   Linha fixa na base (fora do scroll). O CTA estica; o botão de pendentes é
+   só-ícone e casa a altura pelo align-items:stretch. */
+.contracts-footer {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-sm);
+}
+
+/* CTA "Criar minicontrato": ocupa o espaço restante ao lado do botão de
+   pendentes. */
 .contracts-create__btn {
+  flex: 1;
   gap: var(--space-xs);
 }
 
@@ -57,14 +67,63 @@
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
 }
 
-/* ── Contratos PENDENTES (primeiros da lista) ──
-   Antigos "genéricos"/minicontratos, ainda sem dados de cliente. Tom de VERDE
-   CLARO (o mesmo tint dos contratos ativos), distinguindo-os dos cards já
-   firmados logo abaixo. */
+/* Botão só-ícone que revela a gaveta de pendentes (glifo "aguardando"). Card
+   branco como o CTA vizinho; altura estica p/ casar com o CTA (o .btn--icon
+   fixa 44×44 — aqui só a largura importa). Aberto → tint AZUL de seleção
+   (padrão do app p/ estado ativo sobre superfície clara). */
+.contracts-pending-toggle {
+  height: auto;
+  background: var(--bg-white);
+  color: var(--t-main);
+  box-shadow: var(--shadow-sm);
+}
+
+.contracts-pending-toggle .material-symbols-rounded {
+  font-size: 1.4rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
+}
+
+.contracts-pending-toggle--active {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
+}
+
+/* ── Gaveta de CONTRATOS PENDENTES (collapse abaixo do rodapé) ──
+   Contêiner que anima a altura via grid-template-rows 0fr→1fr (sem medir em
+   JS): fechado por padrão. O painel tem gap --space-sm entre filhos; enquanto
+   fechado, a margin-top negativa ANULA esse gap (a bandeja recolhida não deixa
+   um vão sob o rodapé) e, ao abrir, volta a 0 → o gap padrão reaparece. */
 .contracts-pending {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: calc(-1 * var(--space-sm));
+  transition: grid-template-rows 0.4s var(--sheet-ease),
+              margin-top 0.4s var(--sheet-ease);
+}
+
+.contracts-pending--open {
+  grid-template-rows: 1fr;
+  margin-top: 0;
+}
+
+/* CLIP do collapse: o item da grade. overflow:hidden + min-height:0 dão a ele
+   min-size 0 (item overflow≠visible → mínimo automático 0), então o track 0fr
+   recolhe a 0 de verdade. NÃO leva padding — padding no item da grade daria a
+   ele min-size próprio (o vão residual que impedia o fechamento total). */
+.contracts-pending__clip {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Bandeja CINZA (dentro do clip): agrupa os minicontratos em cards BRANCOS. O
+   padding vive AQUI, não no clip. */
+.contracts-pending__tray {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+  background: var(--bg-input);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
 }
 
 /* Compõe .eyebrow no HTML (receita única dos labels do cadastro). */
@@ -73,14 +132,15 @@
   padding: 2px 2px;
 }
 
+/* Minicontrato: card BRANCO sobre a bandeja cinza (--shadow-sm o define). */
 .contract-mini {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
   padding: 10px var(--space-sm);
-  background: var(--p-green-light);   /* tom de verde claro */
-  box-shadow: var(--shadow-sm);       /* definição sobre o corpo --bg-soft */
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
   border-radius: var(--radius-md);
 }
 

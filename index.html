@@ -163,7 +163,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v338</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v339</span>
     </div>
 
     <!-- =====================================================================
@@ -1157,33 +1157,6 @@
                 <div class="historico-sheet__scroll js-scroll-shadows">
                 <div id="contracts-list" class="contracts-list">
 
-                    <!-- Contratos PENDENTES (antigos "genéricos"): primeiros da lista.
-                         Ainda sem dados de cliente — só resumo do serviço + preço.
-                         Tom de verde claro sobre o corpo claro da gaveta. -->
-                    <div class="contracts-pending">
-                        <h3 class="contracts-pending__label eyebrow">Contratos pendentes</h3>
-
-                        <div class="contract-mini">
-                            <button type="button" class="contract-mini__open" aria-label="Abrir contrato">
-                                <span class="contract-mini__summary">Montagem de móveis · R$ 320</span>
-                            </button>
-                            <div class="contract-mini__actions">
-                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Editar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
-                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Compartilhar"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>
-                            </div>
-                        </div>
-
-                        <div class="contract-mini">
-                            <button type="button" class="contract-mini__open" aria-label="Abrir contrato">
-                                <span class="contract-mini__summary">Pintura de sala · R$ 850</span>
-                            </button>
-                            <div class="contract-mini__actions">
-                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Editar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
-                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Compartilhar"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Contrato ATIVO -->
                     <article class="card contract-card contract-card--active">
                         <div class="contract-card__main">
@@ -1306,12 +1279,49 @@
 
                 </div>
                 </div>
-                <!-- CTA fixo na BASE do painel (fora do scroll; a lista rola por cima,
-                     com a shade de fronteira acendendo logo acima do botão) -->
-                <button type="button" id="btn-new-contract" class="btn btn--accent contracts-create__btn">
-                    <span class="material-symbols-rounded" aria-hidden="true">add</span>
-                    Criar minicontrato
-                </button>
+                <!-- Rodapé fixo na BASE do painel (fora do scroll; a lista rola por
+                     cima, com a shade de fronteira acendendo logo acima). CTA de criar
+                     + botão só-ícone que revela a gaveta de contratos pendentes. -->
+                <div class="contracts-footer">
+                    <button type="button" id="btn-new-contract" class="btn btn--accent contracts-create__btn">
+                        <span class="material-symbols-rounded" aria-hidden="true">add</span>
+                        Criar minicontrato
+                    </button>
+                    <button type="button" id="btn-toggle-pending" class="btn btn--icon contracts-pending-toggle" aria-label="Contratos pendentes" aria-expanded="false" aria-controls="contracts-pending">
+                        <span class="material-symbols-rounded" aria-hidden="true">pending_actions</span>
+                    </button>
+                </div>
+
+                <!-- Gaveta de CONTRATOS PENDENTES: oculta por padrão, revelada pelo
+                     botão do rodapé (collapse via grid-template-rows 0fr→1fr). Bandeja
+                     CINZA (--bg-input) com os minicontratos em cards BRANCOS. -->
+                <div id="contracts-pending" class="contracts-pending">
+                    <div class="contracts-pending__clip">
+                    <div class="contracts-pending__tray">
+                        <h3 class="contracts-pending__label eyebrow">Contratos pendentes</h3>
+
+                        <div class="contract-mini">
+                            <button type="button" class="contract-mini__open" aria-label="Abrir contrato">
+                                <span class="contract-mini__summary">Montagem de móveis · R$ 320</span>
+                            </button>
+                            <div class="contract-mini__actions">
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Editar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Compartilhar"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>
+                            </div>
+                        </div>
+
+                        <div class="contract-mini">
+                            <button type="button" class="contract-mini__open" aria-label="Abrir contrato">
+                                <span class="contract-mini__summary">Pintura de sala · R$ 850</span>
+                            </button>
+                            <div class="contract-mini__actions">
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Editar"><span class="material-symbols-rounded" aria-hidden="true">edit</span></button>
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Compartilhar"><span class="material-symbols-rounded" aria-hidden="true">share</span></button>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
             </div>
             </div>
         </div>

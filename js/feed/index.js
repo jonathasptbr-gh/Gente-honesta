@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const contractsFiltersSheet = document.getElementById('contracts-filters-sheet');
   const btnOpenContracts      = document.getElementById('btn-open-contracts');
   const agendaSearchInput     = document.getElementById('inp-agenda-search');
+  const pendingWrap           = document.getElementById('contracts-pending');
+  const btnTogglePending      = document.getElementById('btn-toggle-pending');
 
   // function declarations (hoistadas): usadas pelo listener do botão de
   // filtros e pelos show*Panel definidos adiante.
@@ -49,6 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (icon) icon.textContent = on ? 'close' : 'contract';
   }
 
+  // Revela/oculta a gaveta de contratos pendentes (collapse via grid-rows no
+  // CSS). Estado só visual: aria-expanded + tint azul de ativo no botão-abridor.
+  function setPendingOpen(open) {
+    pendingWrap?.classList.toggle('contracts-pending--open', open);
+    btnTogglePending?.classList.toggle('contracts-pending-toggle--active', open);
+    btnTogglePending?.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
   function applyContractsFilters() {
     const q = contractsFilter.query;
     contractsSheet?.querySelectorAll('.contract-card').forEach((card) => {
@@ -57,16 +67,15 @@ document.addEventListener('DOMContentLoaded', () => {
                           card.classList.contains(`contract-card--${contractsFilter.status}`);
       card.classList.toggle('u-hidden', !(matchText && matchStatus));
     });
-    const pending = contractsSheet?.querySelector('.contracts-pending');
-    if (pending) {
-      let anyMini = false;
-      pending.querySelectorAll('.contract-mini').forEach((mini) => {
-        const show = contractsFilter.status === 'all' && (!q || mini.textContent.toLowerCase().includes(q));
-        mini.classList.toggle('u-hidden', !show);
-        if (show) anyMini = true;
-      });
-      pending.classList.toggle('u-hidden', !anyMini);   // some junto com o rótulo
-    }
+    // Pendentes: bandeja separada, revelada pelo botão do rodapé. Só faz sentido
+    // sob "Todos" (não são um status filtrável) — com status específico, oculta
+    // o botão-abridor e recolhe a gaveta. O texto da busca filtra os minicontratos.
+    const showPending = contractsFilter.status === 'all';
+    btnTogglePending?.classList.toggle('u-hidden', !showPending);
+    if (!showPending) setPendingOpen(false);
+    pendingWrap?.querySelectorAll('.contract-mini').forEach((mini) => {
+      mini.classList.toggle('u-hidden', !!q && !mini.textContent.toLowerCase().includes(q));
+    });
     updateFilterIndicator();   // reflete o estado dos filtros de contratos na pílula
   }
 
@@ -100,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
       syncSearchClearIcon();
     }
     contractsFilter.query = '';
+    setPendingOpen(false);     // cada abertura começa com a gaveta de pendentes recolhida
     applyContractsFilters();   // também reflete os filtros de contratos na pílula
   }
 
@@ -138,6 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnOpenContracts?.addEventListener('click', () => {
     if (isContractsSheetOpen()) closeContractsSheet(); else openContractsSheet();
+  });
+
+  // Botão só-ícone do rodapé: alterna a gaveta de contratos pendentes.
+  btnTogglePending?.addEventListener('click', () => {
+    setPendingOpen(!pendingWrap?.classList.contains('contracts-pending--open'));
   });
 
   // Tap-outside fecha. Os containers --bar-clear começam ABAIXO da barra, então
