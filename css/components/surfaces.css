@@ -80,11 +80,6 @@
   display: block;
   width: 1.8rem;
   height: 1.95rem;
-  /* Sombra FORTE seguindo o contorno do escudo (drop-shadow usa a silhueta do
-     path, não uma caixa). Substitui a linha de borda como definição da forma:
-     uma camada rente (contorno) + uma de profundidade. */
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5))
-          drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
 }
 
 /* SEM linha de borda (stroke: none vence o stroke do markup). Preenchimento
@@ -94,6 +89,10 @@
 .ic-bar__frame path {
   fill: currentColor;
   stroke: none;
+  /* Sombra da borda PARA DENTRO (inset), seguindo a silhueta do escudo — ver o
+     filtro #ic-inset-shadow no index.html. Aplicado no path (espaço do viewBox)
+     p/ escalar com o tamanho do escudo. */
+  filter: url(#ic-inset-shadow);
 }
 
 /* Faixa "warn": o ouro puro (--a-gold) é claro demais p/ número claro em cima;
