@@ -87,8 +87,9 @@ Preset médio (blocos Pro/pílulas): `'wght' 600, 'opsz' 24`.
   deliberada** (texto AZUL `--info-blue`, não dourado): `.vaga-add-btn` ("Adicionar requisito/
   benefício"), para casar com o azul de seleção da própria gaveta. **Exceção deliberada:** o slider da bottom bar
   (`.feed-tabs-pill__slider`) é dourado — é navegação/ação principal, não seletor. Os steppers
-  +/- do Criar vaga são VERDES (`--p-green` + glifo branco), para não competir com o CTA
-  "Publicar vaga".
+  +/- do Criar vaga têm glifo AZUL (`--info-blue`, wght 600) sobre o trilho branco (padrão do
+  botão interativo sobre fundo branco), e o botão "Adicionar requisito/benefício" (`.vaga-add-btn`)
+  usa o MESMO `--info-blue` — nenhum dourado na gaveta, para não competir com o CTA "Publicar vaga".
 - **AZUL (`--info-blue`) é a cor de SELEÇÃO/estado ativo em TODOS os formulários e seletores**,
   em dois tons por contraste: sobre superfície CLARA → fundo `--info-blue-light` + texto
   `--info-blue` (tag-pill, chip--payment, chips de contrato/candidatura/serviço/busca de área,
