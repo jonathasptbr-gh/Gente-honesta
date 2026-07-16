@@ -41,6 +41,8 @@ export const PRO_FLIP_SETTLE_MS = PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs + 
 
 // Criar vaga:
 export const MAX_VAGAS = 20;
+// Teto de candidatos inscritos por vaga (fração exibida na gaveta de detalhe).
+export const MAX_CANDIDATOS = 20;
 export const DAY_ORDER = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
 // Serviço de ajudantes:

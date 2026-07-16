@@ -163,7 +163,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v335</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v336</span>
     </div>
 
     <!-- =====================================================================
@@ -1029,6 +1029,25 @@
                      está sempre visível na base enquanto o formulário rola por cima. -->
                 <div class="pedido-sheet__actions pedido-sheet__actions--footer">
                     <button type="button" id="btn-vaga-publish" class="btn btn--accent">Publicar vaga</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- ── Sheet "Ver vaga" — detalhe da vaga que o usuário publicou ─────
+             Reaproveita o scaffolding do pedido-sheet (gaveta clara padrão).
+             Mostra o MESMO visual do card (via vagaContentHTML), SEM o card e
+             SEM "Me candidatar"; no rodapé, "Analisar candidatos" + a fração de
+             candidatos inscritos. Conteúdo preenchido em feed.js (renderVagaDetail).
+             Contrato: visibilidade por .pedido-sheet--open. -->
+        <div id="vaga-detail-sheet" class="pedido-sheet" role="dialog" aria-modal="true">
+            <div class="pedido-sheet__backdrop" id="vaga-detail-sheet-backdrop"></div>
+            <div class="pedido-sheet__clip">
+            <div class="pedido-sheet__panel">
+                <div class="pedido-sheet__body js-scroll-shadows">
+                    <div class="pedido-sheet__state">
+                        <div id="vaga-detail-content"><!-- preenchido via JS --></div>
+                    </div>
                 </div>
             </div>
             </div>

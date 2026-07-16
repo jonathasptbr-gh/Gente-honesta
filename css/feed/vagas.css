@@ -675,3 +675,78 @@
 }
 
 
+/* ===========================================
+   GAVETA "VER VAGA" — detalhe da vaga do dono
+   O conteúdo do card renderiza DIRETO na gaveta (sem o casco do card): reusa
+   as classes .vaga-card__* para manter o MESMO visual. A faixa da empresa e a
+   linha do divulgador sangram até as bordas do painel (banner de topo); as
+   seções do corpo alinham à largura útil da gaveta. Sem "Me candidatar".
+   ======================================== */
+#vaga-detail-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Faixa da empresa + divulgador: edge-to-edge no painel (anula o padding lateral
+   da gaveta; o padding interno próprio de cada um devolve o alinhamento). */
+#vaga-detail-content .vaga-card__company-strip,
+#vaga-detail-content .vaga-card__poster {
+  margin-left: calc(-1 * var(--space-md));
+  margin-right: calc(-1 * var(--space-md));
+}
+
+/* Corpo: sem o padding lateral do card (a gaveta já dá o respiro) — as seções
+   alinham com o texto da faixa/divulgador. Mantém o respiro vertical. */
+#vaga-detail-content .vaga-card__body {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Rodapé de ações da gaveta: "Analisar candidatos" + fração de candidatos.
+   stretch iguala a altura dos dois; mesmo par botão-de-ação + badge-de-fração
+   dos cards de pedido. */
+.vaga-detail__actions {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+}
+
+/* CTA "Analisar candidatos" — herda .btn.btn--accent (dourado = ação); aqui só
+   ocupa a linha e alinha o ícone. */
+.vaga-detail__analyze-btn {
+  flex: 1;
+  gap: 6px;
+}
+
+.vaga-detail__analyze-btn .material-symbols-rounded {
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Badge de fração (N/20) — card BRANCO sobre o corpo cinza da gaveta (padrão das
+   pílulas dos sheets), com o mesmo desenho fração + ícone de pessoas do
+   .post-card__indicate-info dos cards de pedido. É um <button>. */
+.vaga-detail__count {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  color: var(--t-sub);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-bold);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.vaga-detail__count:active { transform: scale(var(--press-scale)); }
+
+.vaga-detail__count-value { line-height: 1; }
+
+.vaga-detail__count .material-symbols-rounded { font-size: 1.2rem; }
+

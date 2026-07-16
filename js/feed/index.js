@@ -1,6 +1,6 @@
 "use strict";
 import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, getPublishSeedIndicated, addVaga } from './repository.js';
-import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
+import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, MAX_CANDIDATOS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
 import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './utils.js';
 import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './templates.js';
 import { pinnedPros, filterState, scrolledState, scrollToTopPending, pedidoHistory, myPedido, contractsFilter } from './state.js';
@@ -809,84 +809,51 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
 
 
-  const renderVagasList = () => {
-    const list = document.getElementById('vagas-list');
-    if (!list) return;
-    list.innerHTML = '';
+  // Conteúdo visual da vaga (faixa da empresa + divulgador + corpo com
+  // requisitos/detalhes/benefícios), SEM o casco do card nem as ações. Fonte
+  // ÚNICA usada pela FRENTE do card de vaga (renderVagasList) E pela gaveta de
+  // detalhe da vaga (renderVagaDetail) — o "mesmo visual do card, sem o card".
+  // `bodyTailHTML` é injetado ao FIM do corpo (no card = as ações apply/share).
+  // Hoistada (function) para ficar disponível antes de suas chamadas.
+  function vagaContentHTML(vaga, bodyTailHTML = '') {
+    const posterTier   = icTier(vaga.poster.ic);
+    const posterShield = icShieldIcon(vaga.poster.ic);
 
-    getVagas().forEach(vaga => {
-      const card = document.createElement('article');
-      card.className = 'vaga-card';
-      card.id = vaga.id;
+    const reqHTML = vaga.requisitos.map(r =>
+      `<li class="vaga-card__req"><span class="material-symbols-rounded" aria-hidden="true">check_small</span>${r}</li>`
+    ).join('');
 
-      const posterTier   = icTier(vaga.poster.ic);
-      const posterShield = icShieldIcon(vaga.poster.ic);
+    const benefitHTML = vaga.beneficios.map(b =>
+      `<span class="vaga-card__benefit"><span class="material-symbols-rounded" aria-hidden="true">${b.icon}</span>${b.label}</span>`
+    ).join('');
 
-      const reqHTML = vaga.requisitos.map(r =>
-        `<li class="vaga-card__req"><span class="material-symbols-rounded" aria-hidden="true">check_small</span>${r}</li>`
-      ).join('');
-
-      const benefitHTML = vaga.beneficios.map(b =>
-        `<span class="vaga-card__benefit"><span class="material-symbols-rounded" aria-hidden="true">${b.icon}</span>${b.label}</span>`
-      ).join('');
-
-      // Seção de benefícios só aparece se a vaga tiver algum (vagas do usuário
-      // podem não ter benefícios — evita um cabeçalho "Benefícios" vazio).
-      const benefitSectionHTML = vaga.beneficios.length ? `
+    // Seção de benefícios só aparece se a vaga tiver algum (vagas do usuário
+    // podem não ter benefícios — evita um cabeçalho "Benefícios" vazio).
+    const benefitSectionHTML = vaga.beneficios.length ? `
               <div class="vaga-card__section">
                 <p class="vaga-card__section-label">Benefícios</p>
                 <div class="vaga-card__benefits">${benefitHTML}</div>
               </div>` : '';
 
-      const vagasLabel = vaga.vagas === 1 ? '1 vaga disponível' : `${vaga.vagas} vagas disponíveis`;
+    const vagasLabel = vaga.vagas === 1 ? '1 vaga disponível' : `${vaga.vagas} vagas disponíveis`;
 
-      const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(vaga.mapsQuery)}`;
+    const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(vaga.mapsQuery)}`;
 
-      // Nome da empresa: se ainda não temos os dados oficiais (vaga criada por
-      // CNPJ), mostramos o próprio CNPJ como identificador. Idem para o endereço,
-      // que vira uma nota "pendente" (não-link) até virem os dados do sistema.
-      const companyName = vaga.empresa || (vaga.cnpj ? `CNPJ ${vaga.cnpj}` : '');
-      const addressHTML = vaga.endereco
-        ? `<a class="vaga-card__company-address" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver no Google Maps: ${vaga.endereco}">
+    // Nome da empresa: se ainda não temos os dados oficiais (vaga criada por
+    // CNPJ), mostramos o próprio CNPJ como identificador. Idem para o endereço,
+    // que vira uma nota "pendente" (não-link) até virem os dados do sistema.
+    const companyName = vaga.empresa || (vaga.cnpj ? `CNPJ ${vaga.cnpj}` : '');
+    const addressHTML = vaga.endereco
+      ? `<a class="vaga-card__company-address" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver no Google Maps: ${vaga.endereco}">
                   <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
                   ${vaga.endereco}
                 </a>`
-        : `<span class="vaga-card__company-address vaga-card__company-address--pending">
+      : `<span class="vaga-card__company-address vaga-card__company-address--pending">
                   <span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>
                   Dados da empresa em verificação
                 </span>`;
 
-      // Currículo na candidatura só aparece se a vaga exigir (legado: undefined = exige).
-      const exigeCurriculo = vaga.exigeCurriculo !== false;
-      const curriculoSectionHTML = exigeCurriculo ? `
-              <!-- 5. Currículo -->
-              <div class="candid-section">
-                <p class="candid-section-label">Currículo completo</p>
-                <label class="candid-upload-btn" data-vaga="${vaga.id}">
-                  <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
-                  <span class="candid-upload-text">Adicionar currículo em foto ou PDF</span>
-                  <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
-                </label>
-              </div>` : '';
-
-      const reqObsHTML = vaga.requisitos.map((r, i) => `
-        <details class="candid-req-obs">
-          <summary class="candid-req-obs-label">${r}</summary>
-          <textarea
-            class="candid-req-obs-input"
-            name="obs-${vaga.id}-${i}"
-            rows="2"
-            placeholder="Escreva uma observação…"
-            aria-label="Observação sobre: ${r}"
-          ></textarea>
-        </details>
-      `).join('');
-
-      card.innerHTML = `
-        <div class="vaga-card__3d">
-        <div class="vaga-card__flipper">
-          <!-- FRENTE -->
-          <div class="vaga-card__front">
+    return `
             <div class="vaga-card__company-strip">
               <span class="material-symbols-rounded vaga-card__company-icon" aria-hidden="true">domain</span>
               <div class="vaga-card__company-info">
@@ -927,6 +894,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
               </div>
               ${benefitSectionHTML}
+              ${bodyTailHTML}
+            </div>`;
+  }
+
+  const renderVagasList = () => {
+    const list = document.getElementById('vagas-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    getVagas().forEach(vaga => {
+      const card = document.createElement('article');
+      card.className = 'vaga-card';
+      card.id = vaga.id;
+
+      // Currículo na candidatura só aparece se a vaga exigir (legado: undefined = exige).
+      const exigeCurriculo = vaga.exigeCurriculo !== false;
+      const curriculoSectionHTML = exigeCurriculo ? `
+              <!-- 5. Currículo -->
+              <div class="candid-section">
+                <p class="candid-section-label">Currículo completo</p>
+                <label class="candid-upload-btn" data-vaga="${vaga.id}">
+                  <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
+                  <span class="candid-upload-text">Adicionar currículo em foto ou PDF</span>
+                  <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
+                </label>
+              </div>` : '';
+
+      const reqObsHTML = vaga.requisitos.map((r, i) => `
+        <details class="candid-req-obs">
+          <summary class="candid-req-obs-label">${r}</summary>
+          <textarea
+            class="candid-req-obs-input"
+            name="obs-${vaga.id}-${i}"
+            rows="2"
+            placeholder="Escreva uma observação…"
+            aria-label="Observação sobre: ${r}"
+          ></textarea>
+        </details>
+      `).join('');
+
+      const cardActionsHTML = `
               <div class="vaga-card__actions">
                 <button type="button" class="btn vaga-card__btn-apply">
                   Me candidatar
@@ -934,8 +942,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button type="button" class="btn vaga-card__btn-share" aria-label="Compartilhar vaga">
                   <span class="material-symbols-rounded" aria-hidden="true">share</span>
                 </button>
-              </div>
-            </div>
+              </div>`;
+
+      card.innerHTML = `
+        <div class="vaga-card__3d">
+        <div class="vaga-card__flipper">
+          <!-- FRENTE -->
+          <div class="vaga-card__front">
+            ${vagaContentHTML(vaga, cardActionsHTML)}
           </div><!-- /front -->
 
           <!-- VERSO: formulário de candidatura (sem header) -->
@@ -1458,42 +1472,69 @@ document.addEventListener('DOMContentLoaded', () => {
       if (reqList) { reqList.innerHTML = ''; addDynRow(reqList, 'Ex: Experiência com atendimento', '', true); }
     };
 
-    // O botão "Criar vaga" vira um botão de fechar (X) enquanto o sheet está aberto.
-    const CRIAR_VAGA_HTML = '<span class="material-symbols-rounded" aria-hidden="true">add</span>Criar vaga';
+    // O abridor da action bar vira "Fechar" (X) enquanto QUALQUER gaveta de vaga
+    // está aberta. O rótulo NATURAL depende do estado: "Criar vaga" antes de
+    // publicar, "Ver vaga" depois (myVagaId setado).
+    const CRIAR_VAGA_HTML  = '<span class="material-symbols-rounded" aria-hidden="true">add</span>Criar vaga';
+    const VER_VAGA_HTML    = '<span class="material-symbols-rounded" aria-hidden="true">visibility</span>Ver vaga';
     const FECHAR_VAGA_HTML = '<span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar';
-    const setCriarVagaClose = (isClose) => {
+    const naturalVagaHTML  = () => (myVagaId ? VER_VAGA_HTML : CRIAR_VAGA_HTML);
+    const setVagaOpenerClose = (isClose) => {
       if (!btnCriarVaga) return;
       btnCriarVaga.classList.toggle('action-close-mode', isClose);
-      btnCriarVaga.innerHTML = isClose ? FECHAR_VAGA_HTML : CRIAR_VAGA_HTML;
+      btnCriarVaga.innerHTML = isClose ? FECHAR_VAGA_HTML : naturalVagaHTML();
     };
 
     const openVagaSheet = () => {
       anchorBelowActionBar(vagaSheet);
       vagaSheet?.classList.add('pedido-sheet--open');
-      setCriarVagaClose(true);
+      setVagaOpenerClose(true);
     };
     const closeVagaSheet = () => {
       vagaSheet?.classList.remove('pedido-sheet--open');
-      // Só restaura para "Criar vaga" se ainda não há vaga publicada; após publicar,
-      // o botão já foi trocado para "Ver vaga" e não deve ser sobrescrito.
-      if (!myVagaId) setCriarVagaClose(false);
-      else btnCriarVaga?.classList.remove('action-close-mode');
+      // Restaura o rótulo natural do abridor (Criar vaga OU Ver vaga, conforme
+      // já exista uma vaga publicada).
+      setVagaOpenerClose(false);
     };
 
-    // Rola a lista de vagas até o card criado e destaca-o brevemente.
-    const scrollToMyVaga = () => {
-      if (!myVagaId) return;
-      const card = document.getElementById(myVagaId);
-      if (!card) return;
-      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      card.classList.remove('vaga-card--highlight');
-      void card.offsetWidth; // reinicia a animação se já aplicada
-      card.classList.add('vaga-card--highlight');
+    // ── Gaveta de DETALHE da vaga (visão do dono: a vaga que ele publicou) ──
+    // Reusa o scaffolding .pedido-sheet* (mesma gaveta clara do Criar vaga).
+    // Mostra o MESMO visual do card (via vagaContentHTML), SEM o card e SEM o
+    // "Me candidatar"; no rodapé, "Analisar candidatos" + a fração de candidatos
+    // inscritos (0..MAX_CANDIDATOS) — o mesmo padrão de fração dos cards de pedido.
+    const vagaDetailSheet = document.getElementById('vaga-detail-sheet');
+    const renderVagaDetail = () => {
+      const vaga = getVagas().find(v => v.id === myVagaId);
+      const host = document.getElementById('vaga-detail-content');
+      if (!vaga || !host) return;
+      const taken = vaga.candidatos?.length || 0;
+      host.innerHTML = `
+        ${vagaContentHTML(vaga)}
+        <div class="vaga-detail__actions">
+          <button type="button" class="btn btn--accent vaga-detail__analyze-btn">
+            <span class="material-symbols-rounded" aria-hidden="true">group_search</span>Analisar candidatos
+          </button>
+          <button type="button" class="vaga-detail__count" aria-label="${taken} de ${MAX_CANDIDATOS} candidatos inscritos, ver candidatos">
+            <span class="vaga-detail__count-value">${taken}/${MAX_CANDIDATOS}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+          </button>
+        </div>`;
+    };
+    const openVagaDetailSheet = () => {
+      renderVagaDetail();
+      anchorBelowActionBar(vagaDetailSheet);
+      vagaDetailSheet?.classList.add('pedido-sheet--open');
+      setVagaOpenerClose(true);
+    };
+    const closeVagaDetailSheet = () => {
+      vagaDetailSheet?.classList.remove('pedido-sheet--open');
+      setVagaOpenerClose(false);
     };
 
-    // Botão da action bar: cria (sem vaga) ou vê a vaga já publicada.
+    // Botão da action bar: sem vaga → abre o formulário de criação; com vaga
+    // publicada → abre a gaveta de detalhe da vaga.
     btnCriarVaga?.addEventListener('click', () => {
-      if (myVagaId) scrollToMyVaga();
+      if (myVagaId) openVagaDetailSheet();
       else openVagaSheet();
     });
 
@@ -1507,6 +1548,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const sibling = document.getElementById('btn-chamar-ajudante');
       if (tapHitsButton(e, sibling)) { closeVagaSheet(); sibling.click(); return; }
       closeVagaSheet();
+    });
+
+    // Gaveta de detalhe: "Analisar candidatos" e a fração são placeholders
+    // (sem backend de candidatura ainda). Tap fora do painel fecha; troca direta
+    // com a irmã Ajudantes segue o mesmo padrão do Criar vaga.
+    vagaDetailSheet?.addEventListener('click', (e) => {
+      if (e.target.closest('.vaga-detail__analyze-btn')) { comingSoon('Analisar candidatos', 'Candidatos', 'group_search'); return; }
+      if (e.target.closest('.vaga-detail__count'))        { comingSoon('Ver candidatos inscritos', 'Candidatos', 'groups'); return; }
+      if (e.target.closest('.pedido-sheet__panel')) return;
+      const sibling = document.getElementById('btn-chamar-ajudante');
+      if (tapHitsButton(e, sibling)) { closeVagaDetailSheet(); sibling.click(); return; }
+      closeVagaDetailSheet();
     });
 
     document.getElementById('btn-add-req')?.addEventListener('click', () =>
@@ -1585,10 +1638,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       renderVagasList();
 
-      // Transforma o botão "Criar vaga" em "Ver vaga"
-      if (btnCriarVaga) {
-        btnCriarVaga.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">visibility</span>Ver vaga';
-      }
+      // Transforma o botão "Criar vaga" em "Ver vaga" (agora abre a gaveta de
+      // detalhe da vaga). myVagaId já está setado → naturalVagaHTML() = "Ver vaga".
+      if (btnCriarVaga) btnCriarVaga.innerHTML = VER_VAGA_HTML;
 
       closeVagaSheet();
       resetVagaForm();

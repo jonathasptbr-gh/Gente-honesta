@@ -254,8 +254,7 @@ por timer).
 Acionado por `#btn-criar-vaga`. Rodapé fixo: "Publicar vaga" fora do `.pedido-sheet__body` (que rola),
 num `.pedido-sheet__actions--footer` (fundo `--bg-white`, edge-to-edge, cantos inferiores
 `--radius-lg`). Reaproveita `.pedido-sheet*`/`.pedido-field*`/`.pedido-chip*`; estilos próprios só p/
-listas dinâmicas (`.vaga-dyn-list`/`.vaga-dyn-row`/`.vaga-dyn-remove`, `.vaga-add-btn`,
-`.vaga-card--highlight`).
+listas dinâmicas (`.vaga-dyn-list`/`.vaga-dyn-row`/`.vaga-dyn-remove`, `.vaga-add-btn`).
 Campos: **CNPJ** (`#inp-vaga-cnpj`, máscara `00.000.000/0000-00`, `formatCnpj`, 14 dígitos; a vaga
 guarda só `cnpj`, com `empresa/endereco` vazios → o card mostra "CNPJ N" + nota "Dados da empresa em
 verificação"); **Cargo** (obrigatório); **Número de vagas** (stepper `.vaga-stepper`, 1–20);
@@ -269,8 +268,25 @@ verso só renderiza se `vaga.exigeCurriculo !== false`).
 Lógica (IIFE após `renderVagasList`): `addDynRow(listEl, placeholder, value, keepLast)` (com
 `keepLast=true` a última linha só LIMPA; o remover faz `e.stopPropagation()` — senão fecharia a
 gaveta), `resetVagaForm()`, `openVagaSheet()`/`closeVagaSheet()`. Publicar valida obrigatórios,
-`mockVagas.unshift(nova)` + `renderVagasList()`, e transforma `#btn-criar-vaga` em "Ver vaga" →
-`scrollToMyVaga()` (`myVagaId`).
+`mockVagas.unshift(nova)` + `renderVagasList()`, e transforma `#btn-criar-vaga` em "Ver vaga"
+(`myVagaId` setado; o abridor passa a abrir a gaveta de detalhe abaixo). O rótulo natural do abridor
+é decidido por `naturalVagaHTML()` (`Criar vaga` antes de publicar, `Ver vaga` depois) via
+`setVagaOpenerClose()`.
+
+## Sheet "Ver vaga" — detalhe da vaga do dono (`#vaga-detail-sheet`)
+
+Gaveta de detalhe da vaga que o usuário publicou (visão do DONO, não candidatura). Acionada pelo
+mesmo `#btn-criar-vaga` em modo "Ver vaga". Reusa `.pedido-sheet*` (gaveta clara). Renderizada por
+`renderVagaDetail()`: o MESMO visual do card via **`vagaContentHTML(vaga, bodyTail)`** (fonte ÚNICA,
+hoistada, compartilhada com a FRENTE do card em `renderVagasList` — faixa da empresa + divulgador +
+corpo com requisitos/detalhes/benefícios), **sem o casco do card e SEM "Me candidatar"**. No rodapé,
+`.vaga-detail__actions`: CTA **"Analisar candidatos"** (`.btn.btn--accent`) + badge de fração
+`.vaga-detail__count` (`taken/MAX_CANDIDATOS`, MAX_CANDIDATOS=20 em config.js), mesmo desenho
+fração+ícone do `.post-card__indicate-info` dos pedidos. Ambos são placeholders (`comingSoon`) —
+sem backend de candidatura. `openVagaDetailSheet()`/`closeVagaDetailSheet()` seguem o padrão dos
+sheets (abridor vira "Fechar" via `setVagaOpenerClose`, tap-outside, troca direta com a irmã
+Ajudantes). CSS em `feed/vagas.css` (a faixa da empresa + divulgador sangram até as bordas do painel;
+o corpo perde o padding lateral do card para alinhar).
 
 ## Sheet "Serviço de ajudantes" (`#ajudante-sheet`)
 
