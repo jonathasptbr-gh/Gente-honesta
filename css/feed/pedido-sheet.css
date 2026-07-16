@@ -284,6 +284,18 @@
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
+/* Fazer pedido: o rodapé fixo "Publicar pedido" (#pedido-publish-footer) só
+   aparece no estado de CRIAÇÃO. Quando visível, o body não repete a safe-area
+   (o rodapé é quem encosta na base e a carrega) e o formulário ganha um respiro
+   antes da faixa branca — mesmo padrão do "Criar vaga". No DETALHE (rodapé
+   u-hidden) o body mantém a safe-area normal. */
+#pedido-sheet .pedido-sheet__panel:has(> #pedido-publish-footer:not(.u-hidden)) .pedido-sheet__body {
+  padding-bottom: 0;
+}
+#pedido-sheet .pedido-sheet__panel:has(> #pedido-publish-footer:not(.u-hidden)) #pedido-form-state {
+  padding-bottom: var(--space-md);
+}
+
 /* Criar vaga: o título vive DENTRO do body (rola com os campos). Para o conteúdo
    rolar rente às bordas (topo do painel e faixa verde do rodapé) sem "margem
    estranha", puxa o body até a borda superior e transforma o respiro do topo em

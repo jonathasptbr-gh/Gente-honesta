@@ -2437,10 +2437,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const pedidoCharCount    = document.getElementById('pedido-char-count');
   const pedidoNeighbors    = document.getElementById('pedido-neighbors');
   const btnPedidoConcluir  = document.getElementById('btn-pedido-concluir');
+  // Rodapé fixo do "Publicar pedido" (só no estado de criação).
+  const pedidoPublishFooter = document.getElementById('pedido-publish-footer');
 
   const closePedidoSheet = () => {
     pedidoSheet?.classList.remove('pedido-sheet--open');
     pedidoSheet?.classList.remove('pedido-sheet--morph');
+    pedidoPublishFooter?.classList.add('u-hidden');
     detailPedidoId = null;
     pedidoDetailMode = null;
     resetConcludeSwap(btnHistorico, btnMyPedido); // limpa transform/opacity da animação de abertura
@@ -2472,6 +2475,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const openPedidoForm = () => {
     pedidoFormState?.classList.remove('u-hidden');
     pedidoDetailsState?.classList.add('u-hidden');
+    pedidoPublishFooter?.classList.remove('u-hidden'); // rodapé fixo do "Publicar pedido"
     detailPedidoId = null;
     pedidoDetailMode = null;   // formulário não é um detalhe
     anchorBelowActionBar(pedidoSheet);
@@ -2492,6 +2496,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pedidoDetailMode = active ? PEDIDO_DETAIL_MODE.ACTIVE : PEDIDO_DETAIL_MODE.OLD;
     pedidoFormState?.classList.add('u-hidden');
     pedidoDetailsState?.classList.remove('u-hidden');
+    pedidoPublishFooter?.classList.add('u-hidden'); // detalhe não tem "Publicar pedido"
     renderPedidoDetails(pedido);
     anchorBelowActionBar(pedidoSheet);
     pedidoSheet?.classList.remove('pedido-sheet--full');

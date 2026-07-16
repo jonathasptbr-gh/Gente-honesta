@@ -138,8 +138,14 @@ Flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas`, texto `
 
 Painel claro com backdrop. Os dois estados são o MESMO dropdown slide-down, alternados por `u-hidden`:
 - `#pedido-form-state` — **criação**: textarea (contador 0/280), chips de urgência (Normal/Urgente),
-  chips de tempo (12/24/36/48h), toggle "cidades vizinhas", botão Publicar (`#btn-pedido-publish`; o
-  fechamento é pelo abridor virando "Fechar" + tap-outside).
+  chips de tempo (12/24/36/48h), toggle "cidades vizinhas". **"Publicar pedido"
+  (`#btn-pedido-publish`) vive num RODAPÉ FIXO** (`#pedido-publish-footer`, `.pedido-sheet__actions--footer`)
+  fora do body que rola — sibling do `.pedido-sheet__body` no painel, como o "Criar vaga" — para
+  ficar sempre visível na base (o teclado encolhe o body, não cobre o botão). O rodapé só aparece na
+  criação: `openPedidoForm` tira o `u-hidden`, `openPedidoDetail`/`closePedidoSheet` recolocam. Quando
+  visível, `#pedido-sheet .pedido-sheet__panel:has(> #pedido-publish-footer:not(.u-hidden))` zera a
+  safe-area do body (o rodapé a carrega) e dá respiro ao form. O fechamento é pelo abridor virando
+  "Fechar" + tap-outside.
 - `#pedido-details-state` — **detalhe unificado** (leitura): card de referência no topo
   (`#pedido-detail-card-container`, via `renderPedidoDetails(pedido)`) + seção "Indicações recebidas"
   (`.pedido-detail-indicated`, fração `#pedido-detail-fraction`, lista `#pedido-detail-indicated-list`).

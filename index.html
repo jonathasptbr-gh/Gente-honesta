@@ -163,7 +163,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v350</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v351</span>
     </div>
 
     <!-- =====================================================================
@@ -860,11 +860,8 @@
                             </span>
                             <span class="pedido-switch" aria-hidden="true"><span class="pedido-switch__knob"></span></span>
                         </button>
-
-                        <div class="pedido-sheet__actions">
-                            <button type="button" id="btn-pedido-publish" class="btn btn--accent">Publicar pedido</button>
-                        </div>
                     </div>
+                    <!-- "Publicar pedido" vive no rodapé FIXO fora do body (abaixo). -->
 
                     <!-- ESTADO: DETALHES (somente leitura) — pedido no topo + indicações abaixo -->
                     <div id="pedido-details-state" class="pedido-sheet__state u-hidden">
@@ -889,6 +886,12 @@
                         </div>
                     </div>
 
+                </div>
+                <!-- Rodapé FIXO (fora do body que rola): "Publicar pedido" sempre visível na
+                     base, como o padrão do "Criar vaga". Só aparece no estado de CRIAÇÃO
+                     (u-hidden no detalhe), alternado por openPedidoForm/openPedidoDetail. -->
+                <div class="pedido-sheet__actions pedido-sheet__actions--footer u-hidden" id="pedido-publish-footer">
+                    <button type="button" id="btn-pedido-publish" class="btn btn--accent">Publicar pedido</button>
                 </div>
             </div>
             </div>
