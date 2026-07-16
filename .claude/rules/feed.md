@@ -57,10 +57,9 @@ MESMA curva/duração do `.feed-panels`. Estados: `#bar-vagas-state` (**Criar va
 no `#feed-action-bar` controlam a posição. Não usar `opacity`/`display:none` p/ alternar linhas — quem
 esconde é o `overflow:hidden` + `translateX`.
 
-> **Estado vagas — ordem/cor dos botões:** ESQUERDA = **Criar vaga** (`#btn-criar-vaga`, DOURADO
-> `--a-gold`, AÇÃO principal); DIREITA = **Serviço de ajudantes** (`#btn-chamar-ajudante`, pílula
-> BRANCA, secundário). A cor é por POSIÇÃO (esq. dourado / dir. branco); as classes função-nomeadas
-> `--criar`/`--ajudante` carregam a cor da posição em que ficam.
+> **Estado vagas — ordem/cor dos botões:** ESQUERDA = **Criar vaga** (`#btn-criar-vaga`); DIREITA =
+> **Serviço de ajudantes** (`#btn-chamar-ajudante`). AMBOS em DOURADO padrão (`--a-gold`, `:active`
+> opacity 0.88) via `--criar`/`--ajudante`.
 
 ## Submenus dropdown (gavetas) + botão-abridor que vira "Fechar"
 
@@ -130,7 +129,7 @@ Flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas`, texto `
 
 ## Action bar de pedidos — DOIS botões sempre visíveis
 
-- `#btn-historico-pedidos` (`btn--white`) — **Histórico**, sempre visível.
+- `#btn-historico-pedidos` (`btn--accent`, dourado) — **Histórico**, sempre visível.
 - `#btn-my-pedido` (`btn--accent`) — via `renderMyPedidoButton()`: **"Fazer pedido"** (`add`) sem
   pedido ativo → abre o formulário; **"Pedido atual"** (`receipt_long`) com pedido ativo → abre o
   detalhe unificado.
