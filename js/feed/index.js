@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const prosPanelHost    = document.querySelector('.feed-panel--pros');       // dono original do #agenda-list
   const searchWrap       = document.querySelector('.agenda-filters__search-wrap'); // busca real (campo + filtro)
   const barSearchState   = document.getElementById('bar-search-state');       // lar original da barra de busca
-  const INDICATE_PROMPT  = 'Quem você quer indicar para este serviço?';
+  const INDICATE_PROMPT  = 'Quem você quer indicar<br>para este serviço?';   // quebra fixa após "indicar"
   const INDICATE_SHEET_EASE = 'cubic-bezier(0.32,0.72,0,1)';   // espelha --sheet-ease
 
   const openIndicatedPopup = (postId) => {
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!btn || card.querySelector('.pedido-item__prompt')) return;
     const prompt = document.createElement('p');
     prompt.className = 'pedido-item__prompt';
-    prompt.textContent = INDICATE_PROMPT;
+    prompt.innerHTML = INDICATE_PROMPT;   // innerHTML: a frase carrega um <br> fixo
     btn.insertAdjacentElement('beforebegin', prompt);   // frase no lugar do botão, antes da contagem
     void prompt.offsetHeight;   // reflow antes de acender as classes → a transição roda
     btn.classList.add('post-card__indicate-btn--morph-out');

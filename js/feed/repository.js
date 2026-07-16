@@ -19,6 +19,18 @@ const mockIndicatedByPost = {
     { name: 'Paula Ramos',    tags: 'Diarista · Cozinheira',    ic: 64, q: 7, a: 7, v: 7, avail: 'full',        pay: { cash: true,  pix: true,  card: 0  }, nf: false, bio: 'Faço limpeza e cozinha do dia a dia. Não atendo aos finais de semana e não cuido de crianças.' },
     { name: 'Fernanda Lima',  tags: 'Costureira · Designer',    ic: 91, q: 9, a: 5, v: 7, avail: 'available',   pay: { cash: false, pix: true,  card: 12 }, nf: true,  bio: 'Costura sob medida e ajustes de roupas. Não trabalha com couro nem com grandes lotes.' },
   ],
+  '2': [
+    { name: 'Sérgio Barros',  tags: 'Encanador · Bombeiro',     ic: 89, q: 8, a: 8, v: 7, avail: 'available',   pay: { cash: true,  pix: true,  card: 3  }, nf: true,  bio: 'Especialista em vazamentos e desentupimento. Atendimento de urgência, inclusive fins de semana.' },
+    { name: 'Luciana Prado',  tags: 'Encanadora',               ic: 74, q: 7, a: 6, v: 8, avail: 'full',        pay: { cash: true,  pix: true,  card: 0  }, nf: false, bio: 'Reparos hidráulicos residenciais e troca de louças. Agenda costuma encher rápido.' },
+  ],
+  '3': [
+    { name: 'Antônio Reis',   tags: 'Pedreiro · Azulejista',    ic: 58, q: 6, a: 5, v: 7, avail: 'available',   pay: { cash: true,  pix: false, card: 0  }, nf: false, bio: 'Pequenas reformas, assentamento de pisos e revestimentos. Orçamento sem compromisso.' },
+  ],
+  '4': [
+    { name: 'Marina Gomes',   tags: 'Jardineira · Paisagista',  ic: 93, q: 9, a: 7, v: 8, avail: 'available',   pay: { cash: true,  pix: true,  card: 6  }, nf: true,  bio: 'Manutenção de jardins, poda e projeto de paisagismo. Trabalho com plantas nativas.' },
+    { name: 'Diego Martins',  tags: 'Jardineiro',               ic: 81, q: 8, a: 8, v: 6, avail: 'available',   pay: { cash: true,  pix: true,  card: 0  }, nf: false, bio: 'Corte de grama, limpeza de terreno e poda de árvores. Levo meu próprio equipamento.' },
+    { name: 'Beatriz Nunes',  tags: 'Paisagista',               ic: 69, q: 7, a: 6, v: 7, avail: 'full',        pay: { cash: false, pix: true,  card: 12 }, nf: true,  bio: 'Projetos de jardim e hortas urbanas. Atendo por agendamento, com lista de espera.' },
+  ],
 };
 
 // Indicações semeadas no PRÓPRIO pedido ao publicar (MOCK — mantém o fluxo
