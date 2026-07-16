@@ -125,7 +125,8 @@ mesmo z-index). O CTA "Criar minicontrato" fica fixo na BASE do painel; lista em
 ## Lista de Pedidos
 
 Flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas`, texto `--t-light`. Avatar
-28px. "Denunciar" como chip-botão. "Indicar alguém" como `btn--accent`.
+28px. **Denunciar** migrou de chip-botão para **pressionar longamente** o card do pedido
+(`attachLongPress` em `#list-feed` → `reportPedido`). "Indicar alguém" como `btn--accent`.
 
 ## Action bar de pedidos — DOIS botões sempre visíveis
 
