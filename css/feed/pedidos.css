@@ -304,7 +304,7 @@
   text-transform: uppercase;
   letter-spacing: 0.01em;
   opacity: 0;
-  transition: opacity 0.24s ease;
+  transition: opacity 0.3s ease;
 }
 
 .pedido-item__prompt--in {
@@ -322,8 +322,8 @@
   opacity: 0;
   overflow: hidden;
   white-space: nowrap;
-  transition: max-width 0.26s var(--sheet-ease), flex-basis 0.26s var(--sheet-ease),
-              padding 0.26s var(--sheet-ease), opacity 0.18s ease;
+  transition: max-width 0.3s var(--sheet-ease), flex-basis 0.3s var(--sheet-ease),
+              padding 0.3s var(--sheet-ease), opacity 0.24s ease;
 }
 
 /* Ao entrar no modo indicação o card deixa de ser translúcido (--card-on-green) e
@@ -331,7 +331,7 @@
    flutuar opaco sobre o blur. */
 .pedido-item--indicate-lift {
   background: var(--p-green);
-  transition: background 0.26s var(--sheet-ease);
+  transition: background 0.3s var(--sheet-ease);
 }
 
 /* Espaçador invisível que guarda o lugar do card na lista enquanto ele é MOVIDO
@@ -373,7 +373,7 @@
   backdrop-filter: blur(var(--blur-sm));
   -webkit-backdrop-filter: blur(var(--blur-sm));
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.45s ease;   /* duração única de fade dos backdrops (padrão) */
 }
 
 .indicate-overlay--open .indicate-overlay__backdrop {

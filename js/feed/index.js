@@ -469,15 +469,16 @@ document.addEventListener('DOMContentLoaded', () => {
       // navegador coalesce os transforms e não há animação).
       void sourceCard.offsetHeight;
 
-      // Estado FINAL (anima): card sobe ao topo, seção sobe de baixo.
-      sourceCard.style.transition = `transform 0.45s ${INDICATE_SHEET_EASE}`;
+      // Estado FINAL (anima): card sobe ao topo, seção sobe de baixo. Durações no
+      // PADRÃO das gavetas: slide 0.5s var(--sheet-ease) + fade 0.45s.
+      sourceCard.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}`;
       sourceCard.style.transform = 'none';
       if (indicateProsBox) {
-        indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}, opacity 0.4s ease`;
+        indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}, opacity 0.45s ease`;
         indicateProsBox.style.transform = 'translateY(0)';
         indicateProsBox.style.opacity = '1';
       }
-    }, 260);   // tempo do morph do botão → frase
+    }, 320);   // tempo do morph do botão → frase (casa com a transição do morph, 0.3s)
   };
 
   const exitIndicateMode = () => {
@@ -497,14 +498,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const pRect = indicatePlaceholder.getBoundingClientRect();
       const dx = pRect.left - cRect.left;
       const dy = pRect.top  - cRect.top;
-      card.style.transition = `transform 0.42s ${INDICATE_SHEET_EASE}`;
+      card.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}`;
       card.style.transform = `translate(${dx}px, ${dy}px)`;
     }
 
-    // Blur some e a seção de profissionais desce junto.
+    // Blur some e a seção de profissionais desce junto (mesmo padrão da entrada).
     indicateOverlay?.classList.remove('indicate-overlay--open');
     if (indicateProsBox) {
-      indicateProsBox.style.transition = `transform 0.42s ${INDICATE_SHEET_EASE}, opacity 0.35s ease`;
+      indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}, opacity 0.45s ease`;
       indicateProsBox.style.transform = 'translateY(100%)';
       indicateProsBox.style.opacity = '0';
     }
@@ -540,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (postRef) postRef.innerHTML = '';
       morphedSourceCard = null;
       feedBottomBar?.classList.remove('u-hidden');
-    }, 460);   // deixa o FLIP reverso (0.42s) terminar
+    }, 520);   // deixa o FLIP reverso (0.5s) terminar
   };
 
   // Fechar o overlay pelo botão de fechar da barra flutuante. (A busca e o filtro
