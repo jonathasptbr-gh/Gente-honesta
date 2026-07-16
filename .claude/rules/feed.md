@@ -244,8 +244,11 @@ filterState {
 
 ## Cards de profissional (flip 3D)
 
-`.pro-card__3d > .pro-card__flipper`: frente = dados (IC, tags, disponibilidade, IC-bar, pin); verso
-= `proBackHTML()` (primeiros `COMMENTS_PAGE`=5 comentários + "ver mais" + botões de ação).
+`.pro-card__3d > .pro-card__flipper`: frente = dados (IC, tags, disponibilidade, IC-bar) + fita de
+"salvo" (`.pro-card__saved-ribbon`, canto sup. esq. sobre a foto, via `.pro-card--pinned`); verso
+= `proBackHTML()` (primeiros `COMMENTS_PAGE`=5 comentários + "ver mais" + botões de ação). **Salvar
+contato = pressionar longamente** o card (`attachLongPress` em `#agenda-list` → `togglePinPro`; não
+há mais botão de fixar).
 **Builder único:** `buildProCard(pro, {showPin, withId})` (function hoistada) é a fonte única do
 scaffolding, usada por `renderFlippableProCards` (popup/detalhe, `showPin:false`) E por
 `renderAgendaList` (`showPin:true, withId:true`). Flip via `proCardFlipToBack/Front` (motor genérico

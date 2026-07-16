@@ -389,38 +389,54 @@
   flex: 1;
 }
 
-/* Coluna direita do cabeçalho: botão fixar (topo) + índice de confiança (base) */
+/* Coluna direita do cabeçalho: só o índice de confiança, ancorado embaixo
+   (a marca de "salvo" agora é a fita sobre a foto). O salvar é por long-press. */
 .pro-card__head-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  justify-content: space-between;
+  justify-content: flex-end;
   flex-shrink: 0;
 }
 
-.pro-card__pin-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  color: var(--p-green);
-  display: flex;
-  align-items: center;
-  line-height: 1;
-  touch-action: manipulation;
+/* FITA DE MARCADOR (contato salvo): faixa diagonal no canto superior esquerdo,
+   recortada à moldura da foto (inset 0 + raio da foto + overflow:hidden) para
+   cruzar a foto e terminar rente às bordas. Só aparece com .pro-card--pinned;
+   passiva (pointer-events:none) — o toggle é o pressionar-longo. */
+.pro-card__saved-ribbon {
+  display: none;
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
 }
 
-.pro-card__pin-btn .material-symbols-rounded {
-  font-size: 2.2rem;
-  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+.pro-card--pinned .pro-card__saved-ribbon {
+  display: block;
 }
 
-.pro-card__pin-btn--pinned {
-  color: var(--p-green);
+/* A faixa em si: banda verde (identidade/salvo) rotacionada -45° cruzando o
+   canto; o overflow:hidden do pai a corta rente à foto. */
+.pro-card__saved-ribbon::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: -15px;
+  width: 48px;
+  height: 13px;
+  background: var(--p-green);
+  transform: rotate(-45deg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
-.pro-card__pin-btn--pinned .material-symbols-rounded {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+/* Feedback do pressionar-longo: ao atingir o limiar, o card "arma" — encolhe
+   levemente + tint verde (identidade/salvar) — sinalizando que soltar salva. */
+.pro-card.long-press-armed .pro-card__front {
+  transform: scale(0.97);
+  background: var(--p-green-light);
+  transition: transform 0.15s var(--ease), background 0.15s var(--ease);
 }
 
 .pro-card__name {

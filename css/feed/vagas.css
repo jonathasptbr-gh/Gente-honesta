@@ -490,15 +490,18 @@
 .vaga-card__poster-ic {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  font-size: var(--fs-2);
-  font-weight: var(--fw-bold);
   flex-shrink: 0;
 }
 
-.vaga-card__poster-ic .material-symbols-rounded {
-  font-size: 0.85rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
+/* Badge-escudo REDUZIDO na linha do divulgador (a linha é bem discreta, então o
+   escudo é menor que o padrão do .ic-bar dos cards). */
+.vaga-card__poster-ic .ic-bar__frame {
+  width: 1.4rem;
+  height: 1.5rem;
+}
+
+.vaga-card__poster-ic .ic-bar__value {
+  font-size: var(--fs-1);
 }
 
 /* O badge-escudo do IC vive dentro de .vaga-card__poster-ic. Sobre a faixa clara do

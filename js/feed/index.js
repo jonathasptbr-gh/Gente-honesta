@@ -538,7 +538,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Toques no card MOVIDO para o overlay (durante a indicação):
   // - botão de contagem (2/3) → abre o popup de indicados (mesma função do original);
-  // - "Denunciar" → sem ação (chip próprio);
   // - qualquer outro ponto do card → FECHA a indicação (simétrico ao "tocar no card
   //   para abrir" na lista de pedidos).
   document.getElementById('indicate-post-ref')?.addEventListener('click', (e) => {
@@ -548,7 +547,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (postId != null) openIndicatedPopup(postId);
       return;
     }
-    if (e.target.closest('.post-card__report')) return;
     exitIndicateMode();
   });
 
@@ -733,16 +731,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // showPin=false omite o botão de fixar (ex: cards de referência na confirmação).
 
   const proCardHTML = (pro, showPin = true) => {
-    const isPinned = pinnedPros.has(pro.id);
-    const pinBtn = showPin
-      ? `<button type="button" class="pro-card__pin-btn${isPinned ? ' pro-card__pin-btn--pinned' : ''}" aria-label="${isPinned ? 'Remover dos salvos' : 'Salvar contato'}" data-pin-id="${pro.id}">
-           <span class="material-symbols-rounded" aria-hidden="true">bookmark</span>
-         </button>`
+    // Indicador PASSIVO de "salvo": FITA DE MARCADOR no canto superior esquerdo,
+    // cruzando por cima da foto do contato. Só visual — o salvar/dessalvar é por
+    // pressionar longamente o card (não há mais botão de fixar). A fita só é
+    // renderizada nos cards da lista principal (showPin) e sua visibilidade é
+    // controlada pela classe .pro-card--pinned no card (toggle sem re-render).
+    const savedRibbon = showPin
+      ? `<span class="pro-card__saved-ribbon" aria-hidden="true"></span>`
       : '';
     return `
       <div class="pro-card__col-left">
         <div class="pro-card__avatar-wrap">
           <img class="pro-card__avatar" src="${avatarSvg}" alt="">
+          ${savedRibbon}
         </div>
         ${qavHTML(pro.q, pro.a, pro.v)}
       </div>
@@ -755,7 +756,6 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="pro-card__head-right">
             ${icBarHTML(pro.ic)}
-            ${pinBtn}
           </div>
         </div>
         <p class="pro-card__bio">${pro.bio}</p>
@@ -773,6 +773,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function buildProCard(pro, { showPin = true, withId = false } = {}) {
     const card = document.createElement('div');
     card.className = 'pro-card';
+    // Marca visual de "salvo" só nos cards da lista principal (showPin).
+    if (showPin && pinnedPros.has(pro.id)) card.classList.add('pro-card--pinned');
     if (withId) card.id = pro.id;
     card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, showPin)}</div>${proBackHTML()}</div></div>`;
     return card;
@@ -829,10 +831,93 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // =========================================================================
+  // TELA - PRINCIPAL (FEED) - PRESSIONAR LONGAMENTE (long-press)
+  // Gesto genérico: salvar profissional (aba Profissionais) e denunciar pedido
+  // (aba Pedidos) migraram de botão dedicado para o pressionar-longo do card.
+  // =========================================================================
+
+  // Flag compartilhada: um long-press dispara no touchend e, logo depois, o
+  // navegador emite o `click` sintético — os handlers de clique dos cards
+  // checam esta flag para NÃO tratar esse clique como toque normal. Ela se
+  // auto-limpa por timer caso nenhum click chegue (evita engolir o próximo).
+  let longPressConsumed = false;
+
+  // Anexa detecção de pressionar-longo a um container (delegação por `selector`).
+  // Dispara no touchend, após o limiar, se o dedo não arrastou — assim o diálogo
+  // só abre com o dedo já solto (não rouba o toque). Ao atingir o limiar, dá
+  // feedback tátil + marca o card (`.long-press-armed`) para o usuário perceber.
+  // function declaration (hoistada).
+  function attachLongPress(container, selector, onLongPress, { duration = 480, moveTol = 12 } = {}) {
+    if (!container) return;
+    let timer = null, startX = 0, startY = 0, target = null, moved = false, armed = false;
+    const disarm = () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+      if (target) target.classList.remove('long-press-armed');
+    };
+    container.addEventListener('touchstart', (e) => {
+      target = e.target.closest(selector);
+      if (!target) return;
+      moved = false; armed = false;
+      startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+      timer = setTimeout(() => {
+        if (moved || !target) return;
+        armed = true;
+        try { navigator.vibrate?.(15); } catch (_) {}
+        target.classList.add('long-press-armed');
+      }, duration);
+    }, { passive: true });
+    container.addEventListener('touchmove', (e) => {
+      if (!target || moved) return;
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      if (dx > moveTol || dy > moveTol) { moved = true; disarm(); }
+    }, { passive: true });
+    container.addEventListener('touchend', () => {
+      const wasArmed = armed, el = target;
+      disarm(); target = null; armed = false;
+      if (wasArmed && !moved && el) {
+        longPressConsumed = true;
+        setTimeout(() => { longPressConsumed = false; }, 450);
+        onLongPress(el);
+      }
+    });
+    container.addEventListener('touchcancel', () => { disarm(); target = null; armed = false; }, { passive: true });
+  }
+
+  // Denúncia de pedido (via long-press). Placeholder sem backend: confirma e
+  // dá o feedback de "recebido" (a moderação real virá com o Firestore).
+  async function reportPedido() {
+    const ok = await customConfirm(
+      'Deseja denunciar este pedido por conteúdo impróprio, golpe ou informação falsa?',
+      'Denunciar pedido', 'flag');
+    if (ok) customAlert('Denúncia enviada. Nossa equipe vai analisar este pedido.', 'Denúncia registrada', 'check_circle');
+  }
+
+  // Salvar/dessalvar profissional (via long-press no card). Reordena com FLIP
+  // (salvos ao topo), sem reconstruir a lista — igual ao antigo botão de fixar.
+  const togglePinPro = (card) => {
+    if (indicateMode) return;                                  // no modo indicação o toque seleciona
+    if (card.classList.contains('pro-card--flipped')) return;  // card aberto: não salva
+    const proId = card.id;
+    if (!proId) return;
+    const pinned = !pinnedPros.has(proId);
+    if (pinned) pinnedPros.add(proId); else pinnedPros.delete(proId);
+    card.classList.toggle('pro-card--pinned', pinned);
+    reorderAgendaListAnimated();
+  };
+
+  attachLongPress(document.getElementById('agenda-list'), '.pro-card', togglePinPro);
+  attachLongPress(document.getElementById('list-feed'), '.pedido-item', () => reportPedido());
+
+
+  // =========================================================================
   // TELA - PRINCIPAL (FEED) - CARDS DE POST - Botões de Indicar
   // =========================================================================
 
   document.getElementById('list-feed')?.addEventListener('click', (e) => {
+    // Se um pressionar-longo acabou de abrir a denúncia, engole o clique que
+    // segue o touchend (senão entraria no modo indicação em cima da denúncia).
+    if (longPressConsumed) { longPressConsumed = false; return; }
     // Badge de contagem → popup de indicados
     const badge = e.target.closest('.post-card__indicate-info');
     if (badge) {
@@ -840,8 +925,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (postId != null) openIndicatedPopup(postId);
       return;
     }
-    // Denúncia é um chip próprio — não entra no modo indicação.
-    if (e.target.closest('.post-card__report')) return;
     // Tocar em QUALQUER outro ponto do card (inclusive o botão "Indicar alguém")
     // entra no modo indicação (overlay SOBRE os pedidos; NÃO troca de painel — o
     // feed de pedidos permanece atrás, borrado).
@@ -857,21 +940,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // TELA - PRINCIPAL (FEED) - LISTA DE CONTATOS - Seleção de profissional (só no modo indicação)
   document.getElementById('agenda-list')?.addEventListener('click', (e) => {
+    // Se um pressionar-longo acabou de salvar/dessalvar o card, engole o clique
+    // que segue o touchend (senão o card flipava logo após salvar).
+    if (longPressConsumed) { longPressConsumed = false; return; }
     if (handleLoadMoreComments(e)) return;
-
-    // Botão Salvar (fixar no topo) — atualiza o botão e reordena com
-    // animação FLIP, sem reconstruir a lista (sem piscada de re-render)
-    if (e.target.closest('.pro-card__pin-btn')) {
-      const btn = e.target.closest('.pro-card__pin-btn');
-      const proId = btn.dataset.pinId;
-      const pinned = !pinnedPros.has(proId);
-      if (pinned) pinnedPros.add(proId);
-      else pinnedPros.delete(proId);
-      btn.classList.toggle('pro-card__pin-btn--pinned', pinned);
-      btn.setAttribute('aria-label', pinned ? 'Remover dos salvos' : 'Salvar contato');
-      reorderAgendaListAnimated();
-      return;
-    }
 
     // Botão Cancelar (modo indicação) → desflipa sem sair do modo.
     // Os botões são controlados pela classe da LISTA, então o card volta à

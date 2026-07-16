@@ -145,8 +145,9 @@ Regra de ouro: **"card" = SUPERFÍCIE (contêiner); "botão" = AÇÃO.** Se o el
    `"family-name"` + `name`), p/ o navegador preencher os dois juntos.
 
 **Ainda bespoke (migrar ao mexer):** `.pedido-chip`, `.vaga-day`, `.vaga-benefit-pill`,
-`.helper-toggle` → candidatos a `.chip`; `.pro-card__pin-btn`, `.pro-card__load-more`,
-`.post-card__report`, `.contract-mini__btn` → candidatos a `.btn`. Bespoke DE PROPÓSITO
+`.helper-toggle` → candidatos a `.chip`; `.pro-card__load-more`, `.contract-mini__btn` →
+candidatos a `.btn`. (Salvar profissional e denunciar pedido deixaram de ser botões — agora são
+pressionar-longo do card, `attachLongPress`.) Bespoke DE PROPÓSITO
 (estruturalmente distintos): `.agenda-filters__vagas-btn` (par de altura fixa 40px),
 `.ajudante-cancel-btn` (pílula danger).
 
