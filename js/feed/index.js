@@ -1320,9 +1320,21 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Clique em qualquer parte da frente do card (exceto link de endereço) → flip
+    // Cabeçalho (faixa da empresa) LEVA AO MAPA, nunca à candidatura → NUNCA flipa.
+    // Se o toque não caiu num link nativo (endereço/ícone de mapa), encaminha ao
+    // link de mapa do próprio cabeçalho (quando a vaga tem endereço oficial).
+    const strip = e.target.closest('.vaga-card__company-strip');
+    if (strip) {
+      if (!e.target.closest('a[href]')) {
+        (strip.querySelector('.vaga-card__company-maps') ||
+         strip.querySelector('.vaga-card__company-address[href]'))?.click();
+      }
+      return;
+    }
+
+    // Clique em qualquer OUTRA parte da frente do card → flip (o cabeçalho já saiu acima)
     const front = e.target.closest('.vaga-card__front');
-    if (front && !e.target.closest('.vaga-card__company-address')) {
+    if (front) {
       const card = front.closest('.vaga-card');
       if (card && !card.classList.contains('vaga-card--flipped')) {
         document.querySelectorAll('#vagas-list .vaga-card--flipped').forEach(other => {
