@@ -394,9 +394,10 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Botões +/- VERDES (par do btn--primary sobre superfície clara): o dourado
-   era herança do painel escuro e virava um segundo CTA competindo com o
-   "Publicar vaga" — amarelo fica só nas AÇÕES principais. */
+/* Botões +/- : glifo AZUL (--info-blue, wght 600) sobre o trilho branco — o
+   padrão único de botão interativo sobre fundo branco (mesmo tom/espessura do
+   ícone de filtro ativo da barra de buscas). Sem preenchimento próprio: o trilho
+   branco já é a superfície; o toque dá o feedback pelo scale. */
 .vaga-stepper__btn {
   width: 38px;
   height: 38px;
@@ -405,8 +406,8 @@
   justify-content: center;
   border: none;
   border-radius: 50%;
-  background: var(--p-green);
-  color: var(--t-light);
+  background: transparent;
+  color: var(--info-blue);
   cursor: pointer;
   transition: var(--transition);
 }
@@ -415,7 +416,7 @@
 .vaga-stepper__btn:disabled { opacity: 0.4; cursor: default; }
 .vaga-stepper__btn .material-symbols-rounded {
   font-size: 1.3rem;
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .vaga-stepper__value {

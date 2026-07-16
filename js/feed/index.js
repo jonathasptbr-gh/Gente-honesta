@@ -52,10 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Revela/oculta a gaveta de contratos pendentes (collapse via grid-rows no
-  // CSS). Estado só visual: aria-expanded + tint azul de ativo no botão-abridor.
+  // CSS). O botão permanece BRANCO com o glifo de seta para baixo constante; o
+  // estado é dito pela bandeja deslizando + aria-expanded.
   function setPendingOpen(open) {
     pendingWrap?.classList.toggle('contracts-pending--open', open);
-    btnTogglePending?.classList.toggle('contracts-pending-toggle--active', open);
     btnTogglePending?.setAttribute('aria-expanded', open ? 'true' : 'false');
   }
 
@@ -425,9 +425,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Ícone da pílula de filtro — decisão ÚNICA a partir dos dois estados:
-  //   sheet de filtros (profissionais OU contratos) aberto → seta p/ CIMA
-  //   (esconder a gaveta, que se recolhe para cima — não é um cancelar);
-  //   filtros ativos → filter_alt; repouso → tune.
+  //   sheet de filtros (profissionais OU contratos) aberto → seta p/ BAIXO
+  //   (mesma linguagem do abridor de pendentes: seta para baixo indica a gaveta
+  //   que desce; toque recolhe); filtros ativos → filter_alt; repouso → tune.
   function syncFilterPillIcon() {
     const pill = document.getElementById('btn-toggle-filters');
     const icon = pill?.querySelector('.material-symbols-rounded');
@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sheetOpen =
       document.getElementById('filters-sheet')?.classList.contains('historico-sheet--open') ||
       document.getElementById('contracts-filters-sheet')?.classList.contains('historico-sheet--open');
-    if (sheetOpen) { icon.textContent = 'keyboard_arrow_up'; return; }
+    if (sheetOpen) { icon.textContent = 'keyboard_arrow_down'; return; }
     icon.textContent = pill.classList.contains('agenda-filters__filter-pill--filtered') ? 'filter_alt' : 'tune';
   }
 
