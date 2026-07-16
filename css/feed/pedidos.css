@@ -325,7 +325,7 @@
   font-size: var(--fs-7);
   font-weight: var(--fw-heavy);
   line-height: 1.2;
-  color: var(--t-main);
+  color: var(--p-green);
   text-transform: uppercase;
   letter-spacing: 0.01em;
   opacity: 0;
