@@ -291,8 +291,8 @@
 
 
 /* Frase que SUBSTITUI o botão "Indicar alguém" DENTRO da linha de ações do card
-   (2 linhas), ao lado do botão de contagem (2/3) que PERMANECE. Entra por fade;
-   o botão colapsa (abaixo). Tanto no card real (morph) quanto no clone que flutua. */
+   (2 linhas), ao lado do botão de contagem (2/3) que PERMANECE. AMARELA (acento de
+   ação sobre o verde) e em CAIXA ALTA. Entra por fade; o botão colapsa (abaixo). */
 .pedido-item__prompt {
   flex: 1;
   min-width: 0;
@@ -300,7 +300,9 @@
   font-size: var(--fs-5);
   font-weight: var(--fw-heavy);
   line-height: 1.2;
-  color: var(--t-light);
+  color: var(--a-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
   opacity: 0;
   transition: opacity 0.24s ease;
 }

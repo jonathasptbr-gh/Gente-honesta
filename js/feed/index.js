@@ -547,6 +547,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // são a barra REAL, movida para o overlay — já têm seus próprios handlers.)
   indicateCloseBtn?.addEventListener('click', exitIndicateMode);
 
+  // Botão de contagem (2/3 indicados) no card MOVIDO para o overlay: mesma função do
+  // card original (abre o popup de profissionais já indicados). Como o card saiu do
+  // #list-feed, seu handler de delegação não pega mais — este cobre o overlay.
+  document.getElementById('indicate-post-ref')?.addEventListener('click', (e) => {
+    const badge = e.target.closest('.post-card__indicate-info');
+    if (!badge) return;
+    const postId = badge.closest('[data-post-id]')?.dataset.postId;
+    if (postId != null) openIndicatedPopup(postId);
+  });
+
 
   // =========================================================================
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Renderização do Bloco de Indicados
