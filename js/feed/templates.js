@@ -10,9 +10,10 @@ import { PEDIDO_STATUS, URGENCY } from '../core/domain.js';
 // versão reduzida do "70" do card de IC do cadastro. Colorido por tier (stroke
 // currentColor + número herdam a cor do container .ic-bar--<tier>). O mesmo
 // formato de escudo usado no app. Fonte única do SVG:
-// fill="none" no markup; o fundo semitransparente da cor do tier vem do CSS
-// (.ic-bar__frame path) — fonte única, aplica igual aos escudos hardcoded.
-export const IC_SHIELD_SVG = `<svg class="ic-bar__frame" viewBox="0 0 24 26" aria-hidden="true"><path d="M12 1.6 L21.4 5.4 V12 C21.4 18.1 17.3 23.3 12 24.7 C6.7 23.3 2.6 18.1 2.6 12 V5.4 Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`;
+// Só o path do escudo; sem stroke/fill no markup — preenchimento sólido (tom
+// claro do tier) e sombra forte de contorno vêm do CSS (.ic-bar__frame[ path]),
+// fonte única que aplica igual aos escudos hardcoded da lista de pedidos.
+export const IC_SHIELD_SVG = `<svg class="ic-bar__frame" viewBox="0 0 24 26" aria-hidden="true"><path d="M12 1.6 L21.4 5.4 V12 C21.4 18.1 17.3 23.3 12 24.7 C6.7 23.3 2.6 18.1 2.6 12 V5.4 Z"/></svg>`;
 
 // `size` opcional escala o badge ao contexto (compartilha a linha com outros
 // elementos): 'sm' (compacto: comentários, divulgador de vaga, ajudante),

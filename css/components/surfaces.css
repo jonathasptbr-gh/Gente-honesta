@@ -80,16 +80,21 @@
   display: block;
   width: 1.8rem;
   height: 1.95rem;
+  /* Sombra FORTE seguindo o contorno do escudo (drop-shadow usa a silhueta do
+     path, não uma caixa). Substitui a linha de borda como definição da forma:
+     uma camada rente (contorno) + uma de profundidade. */
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5))
+          drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
 }
 
-/* Preenchimento SEMITRANSPARENTE da cor do tier (currentColor herdado da
-   .ic-bar--<tier>). Fonte ÚNICA do fundo do escudo — vence o fill="none" do
-   markup (presentation attr), então TODO .ic-bar fica no padrão, inclusive os
-   escudos hardcoded da lista de pedidos. O número (.ic-bar__value) é texto,
-   não é afetado pelo fill-opacity. */
+/* SEM linha de borda (stroke: none vence o stroke do markup). Preenchimento
+   SÓLIDO num tom claro do tier — a mesma aparência do antigo tint translúcido,
+   mas OPACO para a sombra render em força total. Fonte ÚNICA do escudo: vale
+   para TODO .ic-bar, inclusive os hardcoded da lista de pedidos. O número
+   (.ic-bar__value) é texto à parte, com a cor cheia do tier por cima. */
 .ic-bar__frame path {
-  fill: currentColor;
-  fill-opacity: 0.14;
+  fill: color-mix(in srgb, currentColor 16%, #fff);
+  stroke: none;
 }
 
 /* Número DENTRO da moldura; o centro visual do escudo é um pouco acima do centro
