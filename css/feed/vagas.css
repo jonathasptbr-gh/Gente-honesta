@@ -142,11 +142,14 @@
   font-size: 1.1rem;
 }
 
-/* casco/cor/raio vêm de .btn .btn--primary (HTML); aqui só os ajustes do card */
+/* casco/raio vêm de .btn (HTML); AMARELO próprio (--a-gold + --p-green-dark,
+   mesmo do "Me candidatar") — vence o --btn--primary por vir depois na cascata. */
 .vaga-card__btn-submit {
   flex: 1;
   gap: 6px;
   padding: var(--space-sm);
+  background: var(--a-gold);
+  color: var(--p-green-dark);
   touch-action: manipulation;
   transition: opacity 0.15s;
 }
@@ -374,9 +377,11 @@
   display: none;
 }
 
-/* Faixa cinza do topo: nome da empresa em destaque */
+/* Faixa do topo (cabeçalho): nome da empresa em destaque — AZUL FRACO
+   (--info-blue-light) com texto/ícone no azul de seleção --info-blue (par de
+   contraste padrão do app sobre superfície clara). */
 .vaga-card__company-strip {
-  background: var(--surface-company);
+  background: var(--info-blue-light);
   padding: var(--space-sm) var(--space-md);
   display: flex;
   align-items: flex-start;
@@ -385,7 +390,7 @@
 
 .vaga-card__company-icon {
   font-size: 1.6rem;
-  color: var(--on-green-strong);
+  color: var(--info-blue);
   flex-shrink: 0;
   margin-top: 1px;
   font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
@@ -401,7 +406,7 @@
 .vaga-card__company-name {
   font-size: var(--fs-9);
   font-weight: var(--fw-heavy);
-  color: var(--t-light);
+  color: var(--info-blue);
   line-height: 1.15;
 }
 
@@ -410,13 +415,13 @@
   align-items: center;
   gap: 3px;
   font-size: var(--fs-3);
-  color: var(--on-green-strong);
+  color: var(--info-blue);
   text-decoration: none;
   line-height: 1.2;
 }
 
 .vaga-card__company-address:active {
-  color: var(--on-green-med);
+  opacity: 0.6;
 }
 
 .vaga-card__company-address .material-symbols-rounded {
@@ -627,14 +632,15 @@
   border-top: 1px solid var(--border-light);
 }
 
-/* Botão "Me candidatar" — preto/dark, cantos padrão do feed (radius-md) */
-/* casco/raio/peso vêm de .btn (HTML); fundo escuro e fonte compacta próprios */
+/* Botão "Me candidatar" — AMARELO (--a-gold + texto --p-green-dark, mesmo casco
+   do btn--accent), cantos padrão do feed (radius-md) */
+/* casco/raio/peso vêm de .btn (HTML); cor e fonte compacta próprios */
 .vaga-card__btn-apply {
   flex: 1;
   gap: 6px;
   padding: 11px var(--space-md);
-  background: var(--surface-dark);
-  color: var(--t-light);
+  background: var(--a-gold);
+  color: var(--p-green-dark);
   font-size: var(--fs-6);
   touch-action: manipulation;
   transition: opacity 0.15s;
