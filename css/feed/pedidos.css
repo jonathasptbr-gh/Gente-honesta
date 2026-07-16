@@ -68,6 +68,7 @@
   object-fit: cover;
   background: var(--bg-soft);
   border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);   /* mesma elevação da foto nos cards de profissional */
   flex-shrink: 0;
 }
 
@@ -127,11 +128,27 @@
   margin-top: 2px;
 }
 
-.pedido-item__actions .post-card__indicate-btn {
+/* Slot do botão de indicar: a frase é sobreposta (absoluta) e faz CROSSFADE de
+   opacity com o botão — sem animar largura (não clipa) e SIMÉTRICO na abertura e no
+   fechamento. O botão de contagem (2/3) fica fora, à direita. */
+.pedido-item__morph {
   flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex;
+}
+
+.pedido-item__actions .post-card__indicate-btn {
+  width: 100%;
   height: 36px;
   padding: 0 var(--space-sm);
   font-size: var(--fs-5);
+  transition: opacity 0.28s ease;
+}
+
+.post-card__indicate-btn--morph-out {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .pedido-item__actions .post-card__indicate-info {
@@ -296,12 +313,14 @@
 }
 
 
-/* Frase que SUBSTITUI o botão "Indicar alguém" DENTRO da linha de ações do card
-   (2 linhas), ao lado do botão de contagem (2/3) que PERMANECE. PRETA (--t-main) e
-   em CAIXA ALTA. Entra por fade; o botão colapsa (abaixo). */
+/* Frase SOBREPOSTA ao botão (dentro do .pedido-item__morph): mesmo slot, quebra
+   normalmente e entra/sai só por OPACITY (crossfade) — simétrico na abertura e no
+   fechamento, sem clipar. O botão de contagem (2/3) fica à direita, intacto. */
 .pedido-item__prompt {
-  flex: 1;
-  min-width: 0;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
   margin: 0;
   font-size: var(--fs-7);
   font-weight: var(--fw-heavy);
@@ -310,26 +329,12 @@
   text-transform: uppercase;
   letter-spacing: 0.01em;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
 }
 
 .pedido-item__prompt--in {
   opacity: 1;
-}
-
-/* O botão dourado "Indicar alguém" colapsa (largura → 0) enquanto a frase entra —
-   o botão de contagem (2/3) à direita fica no lugar. */
-.post-card__indicate-btn--morph-out {
-  max-width: 0 !important;
-  flex: 0 0 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-  margin-right: calc(-1 * var(--space-xs));   /* come o gap do slot que sumiu */
-  opacity: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  transition: max-width 0.3s var(--sheet-ease), flex-basis 0.3s var(--sheet-ease),
-              padding 0.3s var(--sheet-ease), opacity 0.24s ease;
 }
 
 /* Espaçador invisível que guarda o lugar do card na lista enquanto ele é MOVIDO

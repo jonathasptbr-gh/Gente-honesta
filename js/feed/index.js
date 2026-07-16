@@ -371,22 +371,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const restoreSourceCard = (card) => {
     if (!card) return;
-    // Desfaz o morph de forma ANIMADA quando o card volta ao slot: a frase sai e o
-    // botão "Indicar alguém" reaparece por fade (esconde o "pulo" de largura ao
-    // reexpandir). O fundo é branco o tempo todo — sem transição de cor.
-    card.querySelector('.pedido-item__prompt')?.remove();
+    // Desfaz o morph de forma ANIMADA e SIMÉTRICA à abertura (crossfade): o botão
+    // reexpande (remove --morph-out → max-width 0→400 via a transição base) e a frase
+    // colapsa (remove --in → max-width 400→0 + fade) e só então é removida.
     const btn = card.querySelector('.post-card__indicate-btn');
-    if (btn) {
-      btn.style.transition = 'none';
-      btn.classList.remove('post-card__indicate-btn--morph-out');
-      btn.style.opacity = '0';
-      void btn.offsetHeight;
-      btn.style.transition = 'opacity 0.3s ease';
-      btn.style.opacity = '1';
+    const prompt = card.querySelector('.pedido-item__prompt');
+    btn?.classList.remove('post-card__indicate-btn--morph-out');
+    if (prompt) {
+      prompt.classList.remove('pedido-item__prompt--in');
+      setTimeout(() => prompt.remove(), 340);
     }
-    setTimeout(() => {
-      if (btn) { btn.style.transition = ''; btn.style.opacity = ''; }
-    }, 320);
   };
 
   const enterIndicateMode = (postId) => {
@@ -542,14 +536,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // são a barra REAL, movida para o overlay — já têm seus próprios handlers.)
   indicateCloseBtn?.addEventListener('click', exitIndicateMode);
 
-  // Botão de contagem (2/3 indicados) no card MOVIDO para o overlay: mesma função do
-  // card original (abre o popup de profissionais já indicados). Como o card saiu do
-  // #list-feed, seu handler de delegação não pega mais — este cobre o overlay.
+  // Toques no card MOVIDO para o overlay (durante a indicação):
+  // - botão de contagem (2/3) → abre o popup de indicados (mesma função do original);
+  // - "Denunciar" → sem ação (chip próprio);
+  // - qualquer outro ponto do card → FECHA a indicação (simétrico ao "tocar no card
+  //   para abrir" na lista de pedidos).
   document.getElementById('indicate-post-ref')?.addEventListener('click', (e) => {
     const badge = e.target.closest('.post-card__indicate-info');
-    if (!badge) return;
-    const postId = badge.closest('[data-post-id]')?.dataset.postId;
-    if (postId != null) openIndicatedPopup(postId);
+    if (badge) {
+      const postId = badge.closest('[data-post-id]')?.dataset.postId;
+      if (postId != null) openIndicatedPopup(postId);
+      return;
+    }
+    if (e.target.closest('.post-card__report')) return;
+    exitIndicateMode();
   });
 
 
@@ -1101,7 +1101,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <img class="vaga-card__poster-avatar" src="${avatarSvg}" alt="">
               <span class="vaga-card__poster-name">Divulgado por <strong>${vaga.poster.name}</strong></span>
               <span class="vaga-card__poster-ic ic-bar--${posterTier}">
-                <span class="material-symbols-rounded" aria-hidden="true">${posterShield}</span>${vaga.poster.ic}%
+                <span class="material-symbols-rounded" aria-hidden="true">${posterShield}</span>${vaga.poster.ic}
               </span>
             </div>
             <div class="vaga-card__body">

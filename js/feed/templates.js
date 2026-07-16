@@ -9,7 +9,7 @@ import { PEDIDO_STATUS, URGENCY } from '../core/domain.js';
 export const icBarHTML = (ic, vertical = false) => {
   const tier = icTier(ic);
   const shield = icShieldIcon(ic);
-  return `<div class="ic-bar ic-bar--${tier}${vertical ? ' ic-bar--vertical' : ''}"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">${shield}</span><span class="ic-bar__value">${ic}%</span><span class="ic-bar__label">Confiável</span></div>`;
+  return `<div class="ic-bar ic-bar--${tier}${vertical ? ' ic-bar--vertical' : ''}"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">${shield}</span><span class="ic-bar__value">${ic}</span></div>`;
 };
 
 export const qavHTML = (q, a, v) => `
@@ -31,7 +31,7 @@ export const buildCommentHTML = (c) => {
   const tier = icTier(c.ic);
   const shield = icShieldIcon(c.ic);
   const text = c.text.length > MAX ? c.text.slice(0, MAX).trimEnd() + '...' : c.text;
-  return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}%</span></p></div>`;
+  return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}</span></p></div>`;
 };
 
 let _proBackHTML = null;
