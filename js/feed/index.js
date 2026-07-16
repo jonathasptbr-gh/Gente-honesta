@@ -52,11 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Revela/oculta a gaveta de contratos pendentes (collapse via grid-rows no
-  // CSS). O botão permanece BRANCO com o glifo de seta para baixo constante; o
-  // estado é dito pela bandeja deslizando + aria-expanded.
+  // CSS). INATIVO: card branco + glifo "contratos com timer" (pending_actions)
+  // preto. EM USO (aberto): tint azul (--active) + glifo seta para baixo.
   function setPendingOpen(open) {
     pendingWrap?.classList.toggle('contracts-pending--open', open);
+    btnTogglePending?.classList.toggle('contracts-pending-toggle--active', open);
     btnTogglePending?.setAttribute('aria-expanded', open ? 'true' : 'false');
+    const icon = btnTogglePending?.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = open ? 'keyboard_arrow_down' : 'pending_actions';
   }
 
   function applyContractsFilters() {

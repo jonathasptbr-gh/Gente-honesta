@@ -421,18 +421,14 @@
 
 /* Botão de contratos (antigo botão de filtros): compõe .btn .btn--icon (HTML);
    aqui só o tamanho de 40px da action bar (o padrão .btn--icon é 44px) e as cores
-   sobre o verde. Ícone AZUL (--info-blue, wght 600) = padrão de botão interativo
-   sobre branco (mesmo tom/espessura do ícone de filtro ativo). */
+   sobre o verde. Ícone PRETO normal (--t-main) em repouso; abridor não tem estado
+   "em uso" azul (ao abrir a gaveta vira "Fechar" via --active, verde+X claro). */
 .agenda-filters__icon-btn {
   width: 40px;
   height: 40px;
   background: var(--bg-white);
-  color: var(--info-blue);
+  color: var(--t-main);
   position: relative;
-}
-
-.agenda-filters__icon-btn .material-symbols-rounded {
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 /* Notificação de contratos: o FUNDO do botão pisca entre branco e AMARELO
@@ -480,11 +476,11 @@
   background: var(--border-light);
 }
 
-/* ── Botão de FILTRO: pílula branca DENTRO da busca, à direita. Ícone AZUL
-   (--info-blue, wght 600) = padrão de botão interativo sobre branco. Com filtros
-   ativos, a PRÓPRIA pílula vira o indicador (tint azul de seleção + contagem —
-   modificador --filtered); tocar sempre abre a gaveta de filtros (o "limpar"
-   vive no botão dentro da gaveta). ── */
+/* ── Botão de FILTRO: pílula branca DENTRO da busca, à direita. Ícone PRETO
+   normal (--t-main) em repouso. "Em uso" (filtros ativos OU gaveta aberta) → tint
+   AZUL sobre azul fraco (--info-blue-light + --info-blue), o padrão de "ativo"
+   sobre branco. Tocar sempre abre a gaveta de filtros (o "limpar" vive no botão
+   dentro da gaveta). ── */
 .agenda-filters__filter-pill {
   position: absolute;
   right: 5px;
@@ -498,7 +494,7 @@
   padding: 0 12px;
   border-radius: var(--radius-pill);
   background: var(--bg-white);
-  color: var(--info-blue);
+  color: var(--t-main);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
   z-index: 1;   /* acima do input */
@@ -514,18 +510,15 @@
   background: var(--info-blue-light);
   color: var(--info-blue);
 }
-/* Estado "sheet de filtros aberto": tint VERDE claro padrão + seta para BAIXO
-   (keyboard_arrow_down, via syncFilterPillIcon) — mesma linguagem do abridor de
-   pendentes (a seta para baixo aponta a gaveta que desce); toque recolhe. Não
-   usa o X (não é um cancelar). */
+/* Estado "sheet de filtros aberto" = "em uso": MESMO tint AZUL sobre azul fraco
+   do --filtered (era verde, destoava do padrão de ativo) + seta para BAIXO
+   (keyboard_arrow_down, via syncFilterPillIcon) — a seta aponta a gaveta que
+   desce; toque recolhe. Não usa o X (não é um cancelar). */
 .agenda-filters__filter-pill--active {
-  background: var(--p-green-light);
-  color: var(--p-green);
+  background: var(--info-blue-light);
+  color: var(--info-blue);
 }
-.agenda-filters__filter-pill .material-symbols-rounded {
-  font-size: 1.2rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
-}
+.agenda-filters__filter-pill .material-symbols-rounded { font-size: 1.2rem; }
 
 /* Contagem de filtros ativos dentro da pílula (some com u-hidden quando 0) */
 .agenda-filters__filter-count {

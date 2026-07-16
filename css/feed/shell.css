@@ -67,17 +67,22 @@
   font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
 }
 
-/* Botão só-ícone que revela a gaveta de pendentes. Card BRANCO (aberto ou
-   fechado); altura estica p/ casar com o CTA (o .btn--icon fixa 44×44 — aqui só
-   a largura importa). Glifo = seta para baixo (keyboard_arrow_down), constante:
-   o estado aberto é dito pela bandeja deslizando + aria-expanded. Ícone no AZUL
-   padrão de botão interativo sobre branco (--info-blue, wght 600) — mesmo tom/
-   espessura do ícone de filtro ativo da barra. */
+/* Botão só-ícone que revela a gaveta de pendentes. Altura estica p/ casar com o
+   CTA (o .btn--icon fixa 44×44 — aqui só a largura importa).
+   INATIVO (fechado): card BRANCO + ícone PRETO normal (--t-main) = o glifo de
+   "contratos com timer" (pending_actions).
+   EM USO (aberto, .--active via JS): tint AZUL sobre azul fraco (--info-blue-light
+   + --info-blue) + o glifo vira seta para baixo (keyboard_arrow_down). */
 .contracts-pending-toggle {
   height: auto;
   background: var(--bg-white);
-  color: var(--info-blue);
+  color: var(--t-main);
   box-shadow: var(--shadow-sm);
+}
+
+.contracts-pending-toggle--active {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
 }
 
 .contracts-pending-toggle .material-symbols-rounded {
