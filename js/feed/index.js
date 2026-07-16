@@ -474,10 +474,28 @@ document.addEventListener('DOMContentLoaded', () => {
     closeFiltersSheet();   // fecha a gaveta de filtros, se aberta no overlay
     if (agendaSearchInput) { agendaSearchInput.value = ''; syncSearchClearIcon(); }
 
-    // Fecha o overlay (fade do blur + a seção desce).
+    // FLIP REVERSO do card: volta flutuando do topo até a posição ORIGINAL na lista.
+    // Mede o clone (topo) e o card real (posição na lista) ANTES de restaurar; então
+    // restaura o card real (fica normal, atrás do blur) e faz o clone cair sobre ele
+    // e sumir — o card original restaurado aparece no lugar (handoff sem "pulo").
+    const cloned = document.querySelector('#indicate-post-ref .pedido-item');
+    if (cloned && morphedSourceCard) {
+      const cRect = cloned.getBoundingClientRect();
+      const dRect = morphedSourceCard.getBoundingClientRect();
+      const dx = dRect.left - cRect.left;
+      const dy = dRect.top  - cRect.top;
+      restoreSourceCard(morphedSourceCard);
+      cloned.style.transition = `transform 0.42s ${INDICATE_SHEET_EASE}, opacity 0.34s ease 0.12s`;
+      cloned.style.transform = `translate(${dx}px, ${dy}px)`;
+      cloned.style.opacity = '0';
+    } else {
+      restoreSourceCard(morphedSourceCard);
+    }
+
+    // Blur some e a seção de profissionais desce junto.
     indicateOverlay?.classList.remove('indicate-overlay--open');
     if (indicateProsBox) {
-      indicateProsBox.style.transition = `transform 0.4s ${INDICATE_SHEET_EASE}, opacity 0.35s ease`;
+      indicateProsBox.style.transition = `transform 0.42s ${INDICATE_SHEET_EASE}, opacity 0.35s ease`;
       indicateProsBox.style.transform = 'translateY(100%)';
       indicateProsBox.style.opacity = '0';
     }
@@ -486,8 +504,8 @@ document.addEventListener('DOMContentLoaded', () => {
       proCardForceReset(el);
     });
 
-    // Ao fim do fade, esconde o overlay, DEVOLVE a barra de busca e a lista aos seus
-    // lugares originais, limpa o clone e restaura o card real. Restaura a bottom bar.
+    // Ao fim, esconde o overlay, DEVOLVE a barra de busca e a lista aos seus lugares
+    // originais e limpa o clone. Restaura a bottom bar. (O card real já foi restaurado.)
     setTimeout(() => {
       const agendaList = document.getElementById('agenda-list');
       agendaList?.classList.remove('agenda-list--indicate-mode');
@@ -500,10 +518,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (indicateProsBox) { indicateProsBox.style.transition = ''; indicateProsBox.style.transform = ''; indicateProsBox.style.opacity = ''; }
       const postRef = document.getElementById('indicate-post-ref');
       if (postRef) postRef.innerHTML = '';
-      restoreSourceCard(morphedSourceCard);
       morphedSourceCard = null;
       feedBottomBar?.classList.remove('u-hidden');
-    }, 400);   // casa com a duração do fade do backdrop
+    }, 460);   // deixa o FLIP reverso (0.42s) + fade terminarem
   };
 
   // Fechar o overlay pelo botão de fechar da barra flutuante. (A busca e o filtro
@@ -2403,6 +2420,11 @@ document.addEventListener('DOMContentLoaded', () => {
       pulling = false;
     }, { passive: true });
     el.addEventListener('touchmove', (e) => {
+      // Guarda: só age se o elemento é DE FATO o scroller (conteúdo transborda).
+      // No modo indicação #agenda-list vira overflow:visible (quem rola é o wrapper)
+      // e seu scrollTop fica sempre 0 — sem esta guarda, o handler achava que estava
+      // "no topo" e dava preventDefault em QUALQUER arrasto p/ cima, travando a lista.
+      if (el.scrollHeight <= el.clientHeight) return;
       const dy = e.touches[0].clientY - startY;
       if (el.scrollTop <= 0 && dy > 0) {
         pulling = true;
@@ -2429,6 +2451,7 @@ document.addEventListener('DOMContentLoaded', () => {
   attachTopOverscroll(agendaListEl);
   attachTopOverscroll(pedidosScrollEl);
   attachTopOverscroll(vagasScrollEl);
+  attachTopOverscroll(indicateScroll);   // wrapper de scroll da seção de profissionais no overlay
 
   // Elevação da action bar: sombra na fronteira SÓ quando o feed ativo está
   // rolado — barra "flat" = usuário está no TOPO da lista (indicador de topo).

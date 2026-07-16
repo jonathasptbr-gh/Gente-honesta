@@ -5,7 +5,11 @@
 .pedidos-list {
   display: flex;
   flex-direction: column;
-  padding: var(--space-sm) 16px;
+  /* O respiro lateral vem do padding da .scroll-area (--space-md), como no feed de
+     profissionais/vagas — aqui SEM padding horizontal (senão dobrava: os cards
+     ficavam mais estreitos que os de pro/vaga). Vertical zerado: o topo/base já
+     vêm da .scroll-area. */
+  padding: 0;
   gap: var(--space-sm);
 }
 
@@ -418,6 +422,8 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;     /* momentum no iOS/webview */
+  overscroll-behavior-y: contain;        /* não encadeia p/ o body (pull-to-refresh) */
   scrollbar-width: none;                 /* barra escondida como nos 3 feeds */
   --shade-bleed: 0px;
 }
