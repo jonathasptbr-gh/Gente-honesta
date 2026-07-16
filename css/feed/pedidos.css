@@ -69,10 +69,6 @@
   gap: var(--space-xs);
 }
 
-/* IC ANTES do nome (depois do avatar): avatar · IC · nome. */
-.pedido-item__meta .ic-bar { order: 1; }
-.pedido-item__name        { order: 2; }
-
 .pedido-item__avatar {
   width: 28px;
   height: 28px;

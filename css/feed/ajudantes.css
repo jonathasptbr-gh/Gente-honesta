@@ -231,12 +231,6 @@
   align-items: flex-start;
 }
 
-/* Cabeçalho do card de ajudante: IC ANTES do nome, na mesma linha à esquerda. */
-.pro-card__head--helper {
-  align-items: center;
-  justify-content: flex-start;
-}
-
 .pro-card__front--helper .helper-wa {
   width: 100%;
   text-decoration: none;

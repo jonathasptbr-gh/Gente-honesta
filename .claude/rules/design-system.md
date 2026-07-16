@@ -209,8 +209,8 @@ card de profissional (canto superior direito). Ao criar um novo uso, escolha o `
 dos vizinhos — não deixe o padrão em linha compacta. O **fundo semitransparente** do escudo (cor do
 tier a 14%) vem do CSS (`.ic-bar__frame path { fill: currentColor; fill-opacity: 0.14 }`) — fonte
 única que vence o `fill="none"` do markup, então todo `.ic-bar` (inclusive os escudos hardcoded da
-lista de pedidos) fica no padrão. Nas linhas com avatar+nome (pedido, vaga, ajudante) e na
-assinatura de comentário, o **IC vem ANTES do nome**.
+lista de pedidos) fica no padrão. Na assinatura de comentário o **IC vem ANTES do nome** (à
+esquerda); nos demais contextos (pedido, vaga, ajudante) o IC segue DEPOIS do nome.
 
 > O **card do IC** no cadastro (`.ic-card`) tem detalhamento próprio em
 > `.claude/rules/onboarding.md`.
