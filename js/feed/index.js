@@ -1,5 +1,5 @@
 "use strict";
-import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, getPublishSeedIndicated, addVaga } from './repository.js';
+import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, getPublishSeedIndicated, addVaga, removeVaga } from './repository.js';
 import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, MAX_CANDIDATOS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
 import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './utils.js';
 import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './templates.js';
@@ -1520,15 +1520,44 @@ document.addEventListener('DOMContentLoaded', () => {
           </button>
         </div>`;
     };
+    // Enquanto o detalhe está aberto, o botão IRMÃO (Serviço de ajudantes, à
+    // direita) vira "Concluir vaga" — mesmo sistema dos pedidos (o outro lado
+    // vira "Fechar"). É o mesmo botão que a barra usa para o Serviço de ajudantes,
+    // manipulado aqui direto por ID (o setter próprio dele vive no bloco de
+    // ajudantes; o rótulo natural "Serviço de ajudantes" é o mesmo dos dois lados).
+    const btnAjudanteBar = document.getElementById('btn-chamar-ajudante');
+    const AJUDANTE_NATURAL_HTML = 'Serviço de ajudantes';
+    const CONCLUIR_VAGA_HTML = '<span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluir vaga';
+    const setAjudanteConcludeVaga = (isConclude) => {
+      if (!btnAjudanteBar) return;
+      btnAjudanteBar.classList.toggle('action-conclude-mode', isConclude);
+      btnAjudanteBar.innerHTML = isConclude ? CONCLUIR_VAGA_HTML : AJUDANTE_NATURAL_HTML;
+    };
+
     const openVagaDetailSheet = () => {
       renderVagaDetail();
       anchorBelowActionBar(vagaDetailSheet);
       vagaDetailSheet?.classList.add('pedido-sheet--open');
-      setVagaOpenerClose(true);
+      setVagaOpenerClose(true);       // opener (Ver vaga, à esquerda) → "Fechar"
+      setAjudanteConcludeVaga(true);  // irmão (Ajudantes, à direita) → "Concluir vaga"
     };
     const closeVagaDetailSheet = () => {
       vagaDetailSheet?.classList.remove('pedido-sheet--open');
       setVagaOpenerClose(false);
+      setAjudanteConcludeVaga(false); // restaura o botão de ajudantes
+    };
+
+    // Conclui a vaga do dono: sai do ar do feed (sem histórico de vagas). Mesmo
+    // fluxo de confirmação do "Concluir pedido".
+    const concluirVaga = async () => {
+      if (!myVagaId) return;
+      const ok = await customConfirm('Ao concluir, sua vaga sairá do ar e não receberá novas candidaturas. Deseja continuar?', 'Concluir vaga', 'check_circle');
+      if (!ok) return;
+      removeVaga(myVagaId);
+      myVagaId = null;                // opener volta a "Criar vaga"
+      renderVagasList();
+      closeVagaDetailSheet();
+      await customAlert('Sua vaga foi concluída e saiu do ar.', 'Vaga concluída', 'check_circle');
     };
 
     // Botão da action bar: sem vaga → abre o formulário de criação; com vaga
@@ -1551,14 +1580,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Gaveta de detalhe: "Analisar candidatos" e a fração são placeholders
-    // (sem backend de candidatura ainda). Tap fora do painel fecha; troca direta
-    // com a irmã Ajudantes segue o mesmo padrão do Criar vaga.
+    // (sem backend de candidatura ainda). O botão IRMÃO (à direita) está em
+    // "Concluir vaga" → tocar nele conclui (o container z-300 cobre a barra, então
+    // o toque cai aqui e não no listener natural do botão). Qualquer outro toque
+    // fora do painel fecha.
     vagaDetailSheet?.addEventListener('click', (e) => {
       if (e.target.closest('.vaga-detail__analyze-btn')) { comingSoon('Analisar candidatos', 'Candidatos', 'group_search'); return; }
       if (e.target.closest('.vaga-detail__count'))        { comingSoon('Ver candidatos inscritos', 'Candidatos', 'groups'); return; }
       if (e.target.closest('.pedido-sheet__panel')) return;
-      const sibling = document.getElementById('btn-chamar-ajudante');
-      if (tapHitsButton(e, sibling)) { closeVagaDetailSheet(); sibling.click(); return; }
+      if (tapHitsButton(e, btnAjudanteBar)) { concluirVaga(); return; }
       closeVagaDetailSheet();
     });
 

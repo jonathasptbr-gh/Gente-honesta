@@ -72,24 +72,25 @@
   overflow: hidden;
 }
 
+/* "Criar vaga" — AÇÃO principal da aba, à ESQUERDA: dourado (AMARELO = AÇÃO). */
 .agenda-filters__vagas-btn--criar {
-  background: var(--bg-white);
-  color: var(--p-green-dark);
-}
-
-.agenda-filters__vagas-btn--criar:active {
-  background: var(--bg-soft);
-}
-
-/* "Chamar ajudante do dia" — ocupa o espaço restante */
-.agenda-filters__vagas-btn--ajudante {
-  flex: 1;
   background: var(--a-gold);
   color: var(--p-green-dark);
 }
 
-.agenda-filters__vagas-btn--ajudante:active {
+.agenda-filters__vagas-btn--criar:active {
   opacity: 0.88;
+}
+
+/* "Serviço de ajudantes" — ação secundária, à DIREITA: pílula branca. */
+.agenda-filters__vagas-btn--ajudante {
+  flex: 1;
+  background: var(--bg-white);
+  color: var(--p-green-dark);
+}
+
+.agenda-filters__vagas-btn--ajudante:active {
+  background: var(--bg-soft);
 }
 
 .agenda-filters__vagas-btn .material-symbols-rounded {

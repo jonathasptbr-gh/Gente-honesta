@@ -51,11 +51,16 @@ action bar.
 `#feed-action-bar` (`.agenda-filters`) fica abaixo da top; muda de estado conforme a aba. As 3
 linhas ficam LADO A LADO num trilho `.agenda-filters__track` (width 300%, cada `flex: 0 0 33.3333%`),
 recortado por `.agenda-filters__action-row` (`overflow:hidden`), e deslizam por `translateX` com a
-MESMA curva/duração do `.feed-panels`. Estados: `#bar-vagas-state` (Ajudantes + Criar vaga),
-`#bar-search-state` (busca + filtros, default centro), `#bar-pedidos-state` (Histórico + Fazer
-pedido/Pedido atual). Classes `.agenda-filters--vagas`/`--pedidos` no `#feed-action-bar` controlam a
-posição. Não usar `opacity`/`display:none` p/ alternar linhas — quem esconde é o `overflow:hidden` +
-`translateX`.
+MESMA curva/duração do `.feed-panels`. Estados: `#bar-vagas-state` (**Criar vaga** à esquerda +
+**Serviço de ajudantes** à direita), `#bar-search-state` (busca + filtros, default centro),
+`#bar-pedidos-state` (Histórico + Fazer pedido/Pedido atual). Classes `.agenda-filters--vagas`/`--pedidos`
+no `#feed-action-bar` controlam a posição. Não usar `opacity`/`display:none` p/ alternar linhas — quem
+esconde é o `overflow:hidden` + `translateX`.
+
+> **Estado vagas — ordem/cor dos botões:** ESQUERDA = **Criar vaga** (`#btn-criar-vaga`, DOURADO
+> `--a-gold`, AÇÃO principal); DIREITA = **Serviço de ajudantes** (`#btn-chamar-ajudante`, pílula
+> BRANCA, secundário). A cor é por POSIÇÃO (esq. dourado / dir. branco); as classes função-nomeadas
+> `--criar`/`--ajudante` carregam a cor da posição em que ficam.
 
 ## Submenus dropdown (gavetas) + botão-abridor que vira "Fechar"
 
@@ -284,9 +289,16 @@ corpo com requisitos/detalhes/benefícios), **sem o casco do card e SEM "Me cand
 `.vaga-detail__count` (`taken/MAX_CANDIDATOS`, MAX_CANDIDATOS=20 em config.js), mesmo desenho
 fração+ícone do `.post-card__indicate-info` dos pedidos. Ambos são placeholders (`comingSoon`) —
 sem backend de candidatura. `openVagaDetailSheet()`/`closeVagaDetailSheet()` seguem o padrão dos
-sheets (abridor vira "Fechar" via `setVagaOpenerClose`, tap-outside, troca direta com a irmã
-Ajudantes). CSS em `feed/vagas.css` (a faixa da empresa + divulgador sangram até as bordas do painel;
-o corpo perde o padding lateral do card para alinhar).
+sheets (abridor "Ver vaga" à esquerda vira "Fechar" via `setVagaOpenerClose`, tap-outside). CSS em
+`feed/vagas.css` (a faixa da empresa + divulgador sangram até as bordas do painel; o corpo perde o
+padding lateral do card para alinhar).
+
+**Concluir vaga (mesmo sistema dos pedidos):** enquanto o detalhe está aberto, o botão IRMÃO à
+direita (Serviço de ajudantes) vira **"Concluir vaga"** (`setAjudanteConcludeVaga` → `.action-conclude-mode`
+dourado + ícone `check_circle`), espelhando "Concluir pedido" no lado "Pedido atual". Como o container
+(z-300) cobre a barra, tocar nele cai no handler da gaveta → `concluirVaga()` (confirma via
+`customConfirm`, `removeVaga(myVagaId)`, `myVagaId=null`, re-render, fecha e restaura os dois botões —
+abridor volta a "Criar vaga"). Não há histórico de vagas: concluir REMOVE a vaga do feed.
 
 ## Sheet "Serviço de ajudantes" (`#ajudante-sheet`)
 

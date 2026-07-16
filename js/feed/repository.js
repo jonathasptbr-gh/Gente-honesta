@@ -163,3 +163,8 @@ export const getIndicatedByPost = (postId) => mockIndicatedByPost[postId] || [];
 export const getPublishSeedIndicated = () => mockPublishIndicated.map(p => ({ ...p }));
 // Única escrita hoje: publica uma vaga nova no topo da lista.
 export const addVaga = (vaga) => { mockVagas.unshift(vaga); };
+// Remove uma vaga (o dono concluiu/encerrou — sai do ar do feed).
+export const removeVaga = (id) => {
+  const i = mockVagas.findIndex(v => v.id === id);
+  if (i !== -1) mockVagas.splice(i, 1);
+};
