@@ -39,7 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // runtime. Helper ÚNICO (function hoistada): usado por TODAS as gavetas —
   // contratos, criar vaga, ajudante, filtros, pedido e histórico.
   function anchorBelowActionBar(el) {
-    const bar = document.getElementById('feed-action-bar');
+    // No modo indicação a barra de busca vive na barra do OVERLAY — a gaveta de
+    // filtros deve descer a partir dela (e não da action bar, atrás do blur).
+    const overlayOn = indicateMode && indicateOverlay && !indicateOverlay.classList.contains('u-hidden');
+    const bar = overlayOn ? document.getElementById('indicate-bar') : document.getElementById('feed-action-bar');
     if (bar && el) el.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
   }
 
@@ -321,8 +324,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const feedBottomBar    = document.querySelector('#feed-bottom-bar');
   const indicateOverlay  = document.getElementById('indicate-overlay');
   const indicateProsBox  = document.getElementById('indicate-pros');
-  const indicateSearchInput = document.getElementById('indicate-search');
-  const prosPanelHost    = document.querySelector('.feed-panel--pros');   // dono original do #agenda-list
+  const indicateBar      = document.getElementById('indicate-bar');
+  const indicateScroll   = document.getElementById('indicate-scroll');
+  const indicateCloseBtn = document.getElementById('btn-indicate-close');
+  const prosPanelHost    = document.querySelector('.feed-panel--pros');       // dono original do #agenda-list
+  const searchWrap       = document.querySelector('.agenda-filters__search-wrap'); // busca real (campo + filtro)
+  const barSearchState   = document.getElementById('bar-search-state');       // lar original da barra de busca
   const INDICATE_PROMPT  = 'Quem você quer indicar para este serviço?';
   const INDICATE_SHEET_EASE = 'cubic-bezier(0.32,0.72,0,1)';   // espelha --sheet-ease
 
@@ -360,19 +367,23 @@ document.addEventListener('DOMContentLoaded', () => {
     void prompt.offsetHeight;   // reflow antes de acender as classes → a transição roda
     btn.classList.add('post-card__indicate-btn--morph-out');
     prompt.classList.add('pedido-item__prompt--in');
+    // O card deixa o fundo translúcido e vira o verde do cabeçalho (animado). O
+    // clone (cloneNode) herda a classe → já nasce verde ao flutuar sobre o blur.
+    card.classList.add('pedido-item--indicate-lift');
   };
 
   const restoreSourceCard = (card) => {
     if (!card) return;
-    // Restaura o botão INSTANTANEAMENTE (sem a transição do morph) — o card real
-    // reaparece pronto quando o overlay fecha, sem o botão "crescendo".
+    // Restaura o card INSTANTANEAMENTE (sem as transições do morph/verde) — reaparece
+    // pronto quando o overlay fecha, sem o botão "crescendo" nem o verde "voltando".
     const btn = card.querySelector('.post-card__indicate-btn');
-    if (btn) {
-      btn.style.transition = 'none';
-      btn.classList.remove('post-card__indicate-btn--morph-out');
-      void btn.offsetHeight;
-      btn.style.transition = '';
-    }
+    card.style.transition = 'none';
+    if (btn) btn.style.transition = 'none';
+    card.classList.remove('pedido-item--indicate-lift');
+    btn?.classList.remove('post-card__indicate-btn--morph-out');
+    void card.offsetHeight;
+    card.style.transition = '';
+    if (btn) btn.style.transition = '';
     card.querySelector('.pedido-item__prompt')?.remove();
   };
 
@@ -392,10 +403,24 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!indicateMode) return;   // saiu antes do timer (defensivo)
       const srcRect = sourceCard.getBoundingClientRect();
 
-      // Move a LISTA REAL de profissionais para dentro do overlay (reusa render/
-      // seleção/flip/pin) e clona o card morphado para o topo do overlay.
+      // Move a BARRA DE BUSCA real (campo + pílula de filtro com suas funções) para
+      // a barra verde do overlay, e a LISTA REAL de profissionais para o wrapper de
+      // scroll (reusa render/seleção/flip/pin + as sombras de corte do wrapper).
+      if (searchWrap && indicateBar) indicateBar.appendChild(searchWrap);
+      if (agendaSearchInput) {
+        agendaSearchInput.value = '';
+        agendaSearchInput.placeholder = SEARCH_PLACEHOLDER_PROS;
+        syncSearchClearIcon();
+      }
       const agendaList = document.getElementById('agenda-list');
-      if (agendaList && indicateProsBox) indicateProsBox.appendChild(agendaList);
+      if (agendaList && indicateScroll) {
+        const bottomShade = indicateScroll.querySelector('.scroll-shade--bottom');
+        if (bottomShade) indicateScroll.insertBefore(agendaList, bottomShade);
+        else indicateScroll.appendChild(agendaList);
+        // Sombras de corte no topo/base do scroll (idempotente: no-op se já observado
+        // pelo auto-watch de load). Reposiciona o has-scroll-* ao conteúdo atual.
+        window.watchScrollShadows?.(indicateScroll);
+      }
       agendaList?.classList.add('agenda-list--indicate-mode');
       resetAgendaList();
 
@@ -446,7 +471,8 @@ document.addEventListener('DOMContentLoaded', () => {
     indicateMode = false;
     activePostId = null;
     selectedProId = null;
-    if (indicateSearchInput) indicateSearchInput.value = '';
+    closeFiltersSheet();   // fecha a gaveta de filtros, se aberta no overlay
+    if (agendaSearchInput) { agendaSearchInput.value = ''; syncSearchClearIcon(); }
 
     // Fecha o overlay (fade do blur + a seção desce).
     indicateOverlay?.classList.remove('indicate-overlay--open');
@@ -460,12 +486,14 @@ document.addEventListener('DOMContentLoaded', () => {
       proCardForceReset(el);
     });
 
-    // Ao fim do fade, esconde o overlay, DEVOLVE a lista ao painel de profissionais,
-    // limpa o clone e restaura o card real (morph). Também restaura a bottom bar.
+    // Ao fim do fade, esconde o overlay, DEVOLVE a barra de busca e a lista aos seus
+    // lugares originais, limpa o clone e restaura o card real. Restaura a bottom bar.
     setTimeout(() => {
       const agendaList = document.getElementById('agenda-list');
       agendaList?.classList.remove('agenda-list--indicate-mode');
       if (agendaList && prosPanelHost) prosPanelHost.appendChild(agendaList);
+      // Barra de busca volta para a linha de busca da action bar, antes do contratos.
+      if (searchWrap && barSearchState) barSearchState.insertBefore(searchWrap, btnOpenContracts);
       resetAgendaList();
 
       indicateOverlay?.classList.add('u-hidden');
@@ -478,13 +506,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 400);   // casa com a duração do fade do backdrop
   };
 
-  // Fechar o overlay (botão de fechar da barra flutuante) + busca dentro do overlay.
-  document.getElementById('btn-indicate-close')?.addEventListener('click', exitIndicateMode);
-  indicateSearchInput?.addEventListener('input', () => {
-    // Reaproveita o filtro real: espelha no input da barra e re-renderiza a lista.
-    if (agendaSearchInput) agendaSearchInput.value = indicateSearchInput.value;
-    renderAgendaList();
-  });
+  // Fechar o overlay pelo botão de fechar da barra flutuante. (A busca e o filtro
+  // são a barra REAL, movida para o overlay — já têm seus próprios handlers.)
+  indicateCloseBtn?.addEventListener('click', exitIndicateMode);
 
 
   // =========================================================================

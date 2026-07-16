@@ -320,6 +320,14 @@
               padding 0.26s var(--sheet-ease), opacity 0.18s ease;
 }
 
+/* Ao entrar no modo indicação o card deixa de ser translúcido (--card-on-green) e
+   vira o MESMO verde do cabeçalho da seção pedidos (--p-green) — animado — para
+   flutuar opaco sobre o blur. O clone (cloneNode) herda a classe → já nasce verde. */
+.pedido-item--indicate-lift {
+  background: var(--p-green);
+  transition: background 0.26s var(--sheet-ease);
+}
+
 /* Botão "Fechar" do popup de indicados — compõe .btn .btn--close (HTML); aqui só a
    cor sobre o verde do sheet. */
 .agenda-indicated__cancel {
@@ -379,48 +387,23 @@
   flex-direction: column;
 }
 
-/* Barra de busca flutuante (verde), com botão de fechar à direita. */
+/* Barra de busca flutuante — MESMO verde da barra real (--p-green). A
+   .agenda-filters__search-wrap REAL (campo + pílula de filtro) é movida para cá,
+   com o botão de fechar à direita (ordem: [busca][fechar]). A ordem no flex é
+   controlada pelo `order` (o fechar nasce 1º no DOM, mas vai para a direita). */
 .indicate-overlay__bar {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: var(--space-xs);
   padding: var(--space-sm) var(--space-md);
+  background: var(--p-green);
 }
 
-.indicate-overlay__search-wrap {
-  flex: 1;
-  position: relative;
-  min-width: 0;
-}
+.indicate-overlay__bar .agenda-filters__search-wrap { order: 0; }
+.indicate-overlay__close { order: 1; }
 
-.indicate-overlay__search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--t-sub);
-  font-size: 1.1rem;
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
-  pointer-events: none;
-}
-
-.indicate-overlay__search {
-  width: 100%;
-  height: 40px;
-  padding: 0 16px 0 36px;
-  border-radius: var(--radius-pill);
-  background: var(--bg-white);
-  font-size: var(--fs-6);
-  color: var(--t-main);
-  outline: none;
-}
-
-.indicate-overlay__search:focus {
-  background: var(--p-green-light);
-}
-
-/* Fechar: pílula branca 40px (mesma métrica do botão de contratos da barra real). */
+/* Fechar: pílula translúcida 40px (mesma métrica do botão de contratos da barra). */
 .indicate-overlay__close {
   width: 40px;
   height: 40px;
@@ -429,11 +412,23 @@
   color: var(--t-light);
 }
 
-/* A lista real (#agenda-list) é movida para cá: fundo transparente (o blur é o
-   fundo desta sessão) e espaço no fim para o último card não colar na base. */
-.indicate-overlay__pros #agenda-list,
-#view-feed .indicate-overlay__pros .agenda-list {
+/* Wrapper de scroll da seção: rola AQUI (as sombras de corte .js-scroll-shadows
+   vivem neste wrapper e sobrevivem ao re-render do #agenda-list). */
+.indicate-overlay__scroll {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;                 /* barra escondida como nos 3 feeds */
+  --shade-bleed: 0px;
+}
+.indicate-overlay__scroll::-webkit-scrollbar { display: none; }
+
+/* A lista real (#agenda-list) é movida para cá: NÃO rola (o wrapper rola), fundo
+   transparente (o blur é o fundo) e respiro no fim p/ o último card não colar. */
+.indicate-overlay__scroll .agenda-list {
+  overflow: visible;
+  height: auto;
+  flex: none;
   background: transparent;
   padding-bottom: calc(var(--space-xl) + env(safe-area-inset-bottom, 0px));
 }

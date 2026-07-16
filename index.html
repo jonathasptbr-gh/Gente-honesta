@@ -163,7 +163,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v353</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v354</span>
     </div>
 
     <!-- =====================================================================
@@ -696,16 +696,17 @@
             <div id="indicate-post-ref" class="indicate-post-ref"></div>
             <!-- Seção de profissionais flutuante (sobe de baixo) -->
             <div id="indicate-pros" class="indicate-overlay__pros">
-                <div class="indicate-overlay__bar">
-                    <div class="indicate-overlay__search-wrap">
-                        <span class="material-symbols-rounded indicate-overlay__search-icon" aria-hidden="true">search</span>
-                        <input type="text" id="indicate-search" class="indicate-overlay__search" placeholder="Buscar no Gente Honesta...">
-                    </div>
+                <!-- Barra de busca (verde): a .agenda-filters__search-wrap REAL (campo +
+                     pílula de filtro com suas funções) é movida para cá em runtime,
+                     antes do botão de fechar. -->
+                <div id="indicate-bar" class="indicate-overlay__bar">
                     <button type="button" id="btn-indicate-close" class="btn btn--icon indicate-overlay__close" aria-label="Fechar indicação">
                         <span class="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>
-                <!-- #agenda-list é movido para cá em runtime -->
+                <!-- Wrapper de scroll (as sombras de corte vivem AQUI, sobrevivem ao
+                     re-render de #agenda-list). O #agenda-list é movido para dentro. -->
+                <div id="indicate-scroll" class="indicate-overlay__scroll js-scroll-shadows"></div>
             </div>
         </div>
 
