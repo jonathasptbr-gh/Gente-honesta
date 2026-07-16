@@ -82,9 +82,10 @@ Preset médio (blocos Pro/pílulas): `'wght' 600, 'opsz' 24`.
 ## Semântica de cores — AMARELO = AÇÃO; AZUL = SELEÇÃO
 
 - **AMARELO (`--a-gold`) é EXCLUSIVO de AÇÕES:** CTAs (`btn--accent`, primários sobre verde),
-  links/botões de texto sobre verde, `.action-conclude-mode`, `.vaga-add-btn` (em
-  `--a-gold-text`) — além dos acentos de marca (IC card, tutorial, ícones de seção) e da faixa
-  50–74 do IC (cor de tier, não seleção). **Exceção deliberada:** o slider da bottom bar
+  links/botões de texto sobre verde, `.action-conclude-mode` — além dos acentos de marca (IC card,
+  tutorial, ícones de seção) e da faixa 50–74 do IC (cor de tier, não seleção). **Exceção
+  deliberada** (texto AZUL `--info-blue`, não dourado): `.vaga-add-btn` ("Adicionar requisito/
+  benefício"), para casar com o azul de seleção da própria gaveta. **Exceção deliberada:** o slider da bottom bar
   (`.feed-tabs-pill__slider`) é dourado — é navegação/ação principal, não seletor. Os steppers
   +/- do Criar vaga são VERDES (`--p-green` + glifo branco), para não competir com o CTA
   "Publicar vaga".

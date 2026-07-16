@@ -348,9 +348,9 @@
 .vaga-dyn-remove:active { transform: scale(var(--press-scale)); }
 .vaga-dyn-remove .material-symbols-rounded { font-size: 1.2rem; }
 
-/* Botão "Adicionar requisito / benefício" — texto dourado (ação) sobre pílula
-   branca, SEM borda (design sem contorno). --a-gold-text: o ocre de TEXTO
-   dourado sobre fundo claro. */
+/* Botão "Adicionar requisito / benefício" — texto AZUL padrão (--info-blue,
+   o mesmo azul de seleção da gaveta: dias/benefícios ativos) sobre pílula
+   branca, SEM borda (design sem contorno). */
 .vaga-add-btn {
   display: inline-flex;
   align-items: center;
@@ -360,7 +360,7 @@
   padding: 8px 14px;
   border-radius: var(--radius-pill);
   background: var(--bg-white);
-  color: var(--a-gold-text);
+  color: var(--info-blue);
   box-shadow: var(--shadow-sm);
   font-size: var(--fs-5);
   font-weight: var(--fw-bold);
