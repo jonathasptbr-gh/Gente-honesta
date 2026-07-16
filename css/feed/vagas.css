@@ -429,6 +429,32 @@
   font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20;
 }
 
+/* Afordância "ver no mapa" à direita do cabeçalho: ícone de mapa + seta,
+   centrada verticalmente, no mesmo azul do cabeçalho (--info-blue). É o link
+   para o Google Maps (só aparece quando há endereço oficial). */
+.vaga-card__company-maps {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  flex-shrink: 0;
+  align-self: center;
+  color: var(--info-blue);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.vaga-card__company-maps:active { opacity: 0.6; }
+
+.vaga-card__company-maps .material-symbols-rounded {
+  font-size: 1.35rem;
+  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+}
+
+/* A seta é um pouco menor que o ícone de mapa (afordância "seguir para") */
+.vaga-card__company-maps-arrow {
+  font-size: 1.05rem !important;
+}
+
 /* Linha do divulgador — bem discreta, fundo levemente off-white */
 .vaga-card__poster {
   display: flex;

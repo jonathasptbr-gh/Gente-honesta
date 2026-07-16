@@ -910,6 +910,15 @@ document.addEventListener('DOMContentLoaded', () => {
                   Dados da empresa em verificação
                 </span>`;
 
+    // Afordância "ver no mapa" à direita do cabeçalho (ícone de mapa + seta) —
+    // só quando há endereço oficial (vaga por CNPJ pendente não tem mapa ainda).
+    const mapsAffordanceHTML = vaga.endereco
+      ? `<a class="vaga-card__company-maps" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver endereço no mapa">
+                  <span class="material-symbols-rounded" aria-hidden="true">map</span>
+                  <span class="material-symbols-rounded vaga-card__company-maps-arrow" aria-hidden="true">chevron_right</span>
+                </a>`
+      : '';
+
     return `
             <div class="vaga-card__company-strip">
               <span class="material-symbols-rounded vaga-card__company-icon" aria-hidden="true">domain</span>
@@ -917,6 +926,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="vaga-card__company-name">${companyName}</span>
                 ${addressHTML}
               </div>
+              ${mapsAffordanceHTML}
             </div>
             <div class="vaga-card__poster">
               <img class="vaga-card__poster-avatar" src="${avatarSvg}" alt="">
