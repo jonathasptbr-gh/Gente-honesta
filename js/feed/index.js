@@ -422,8 +422,10 @@ document.addEventListener('DOMContentLoaded', () => {
       cnt.classList.toggle('u-hidden', n === 0);
     }
     pill?.classList.toggle('agenda-filters__filter-pill--filtered', n > 0);
-    // Flutuante "Limpar Filtros" na base do feed: só para filtros de PROFISSIONAIS
+    // Flutuante "Limpar Filtros" no TOPO: profissionais no feed, contratos na
+    // gaveta — cada um aparece só no seu modo com filtro ativo.
     document.getElementById('btn-clear-filters')?.classList.toggle('u-hidden', contractsMode || activeFilterCount() === 0);
+    document.getElementById('btn-clear-contracts-filters')?.classList.toggle('u-hidden', !contractsMode || contractsActiveFilterCount() === 0);
     syncFilterPillIcon();
   }
 
@@ -2052,6 +2054,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('#panel-agenda-filters [data-filter-ic], #panel-agenda-filters [data-filter-avail], #panel-agenda-filters [data-filter-pay], #panel-agenda-filters [data-filter-saved]')
       .forEach(c => { c.classList.remove('chip--active'); c.setAttribute('aria-pressed', 'false'); });
     renderAgendaList();
+  });
+
+  // "Limpar Filtros" dos CONTRATOS (mesmo flutuante, dentro da gaveta): volta o
+  // status a "Todos", zera valor/mês e re-aplica. A busca (texto) fica — só os
+  // filtros são limpos, como no feed de profissionais.
+  document.getElementById('btn-clear-contracts-filters')?.addEventListener('click', () => {
+    contractsFilter.status = 'all';
+    document.querySelectorAll('[data-filter-status]').forEach((c) => {
+      const isAll = c.dataset.filterStatus === 'all';
+      c.classList.toggle('chip--active', isAll);
+      c.setAttribute('aria-pressed', isAll ? 'true' : 'false');
+    });
+    ['inp-contracts-min', 'inp-contracts-max', 'inp-contracts-date'].forEach((id) => {
+      const el = document.getElementById(id); if (el) el.value = '';
+    });
+    applyContractsFilters();
   });
 
   // Ordenação (dentro do painel) e filtros: um único handler delegado.

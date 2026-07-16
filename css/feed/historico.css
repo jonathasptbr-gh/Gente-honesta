@@ -578,18 +578,20 @@
   margin-top: var(--space-sm);
 }
 
-/* Botão FLUTUANTE "Limpar filtros" (#btn-clear-filters) — pílula de vidro
-   escuro semi-transparente (--overlay + blur) centrada acima da bottom bar,
-   dentro do painel de profissionais (desliza junto na troca de aba); aparece
-   só com filtro ativo (u-hidden via updateFilterIndicator). */
+/* Botão FLUTUANTE "Limpar filtros" — pílula de vidro escuro semi-transparente
+   (--overlay + blur) centrada no TOPO da área de scroll (flutua sobre a lista,
+   logo abaixo da action bar), aparece só com filtro ativo (u-hidden via
+   updateFilterIndicator). Reutilizada em DOIS lugares: profissionais
+   (#btn-clear-filters, ancorada em .feed-panel--pros) e contratos
+   (#btn-clear-contracts-filters, ancorada no .historico-sheet__panel da gaveta). */
 .feed-panel--pros { position: relative; }   /* âncora do flutuante */
 
 .agenda-clear-fab {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: calc(90px + env(safe-area-inset-bottom, 0px));
-  z-index: 20;   /* acima da lista; abaixo da bottom bar (z25) */
+  top: var(--space-md);
+  z-index: 20;   /* acima da lista/shades (z5) */
   gap: 6px;
   padding: 10px 18px;
   border-radius: var(--radius-pill);
