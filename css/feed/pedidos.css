@@ -326,10 +326,16 @@
 
 /* Ao entrar no modo indicação o card deixa de ser translúcido (--card-on-green) e
    vira o MESMO verde do cabeçalho da seção pedidos (--p-green) — animado — para
-   flutuar opaco sobre o blur. O clone (cloneNode) herda a classe → já nasce verde. */
+   flutuar opaco sobre o blur. */
 .pedido-item--indicate-lift {
   background: var(--p-green);
   transition: background 0.26s var(--sheet-ease);
+}
+
+/* Espaçador invisível que guarda o lugar do card na lista enquanto ele é MOVIDO
+   para o overlay (altura definida em JS = altura do card no momento). */
+.indicate-card-placeholder {
+  flex-shrink: 0;
 }
 
 /* Botão "Fechar" do popup de indicados — compõe .btn .btn--close (HTML); aqui só a

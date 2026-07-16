@@ -351,12 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let indicateMode = false;
   let activePostId = null;
   let selectedProId = null;
-  let morphedSourceCard = null;   // card real que teve o botão trocado pela frase (restaurar na saída)
+  let morphedSourceCard = null;   // card REAL que é movido para o overlay (restaurar na saída)
+  let indicatePlaceholder = null; // espaçador que guarda o lugar do card na lista
 
   // Substitui (animado) SÓ o botão "Indicar alguém" pela frase de 2 linhas, DENTRO
-  // da linha de ações — o botão de contagem (2/3) permanece à direita. O card já
-  // morphado é o que vira clone: o FLIP começa idêntico à origem (cloneNode captura
-  // o estado final das classes).
+  // da linha de ações — o botão de contagem (2/3) permanece à direita. Roda no card
+  // REAL (que depois é movido para o overlay, não clonado).
   const morphSourceToPrompt = (card) => {
     const btn = card.querySelector('.post-card__indicate-btn');
     if (!btn || card.querySelector('.pedido-item__prompt')) return;
@@ -374,17 +374,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const restoreSourceCard = (card) => {
     if (!card) return;
-    // Restaura o card INSTANTANEAMENTE (sem as transições do morph/verde) — reaparece
-    // pronto quando o overlay fecha, sem o botão "crescendo" nem o verde "voltando".
-    const btn = card.querySelector('.post-card__indicate-btn');
-    card.style.transition = 'none';
-    if (btn) btn.style.transition = 'none';
-    card.classList.remove('pedido-item--indicate-lift');
-    btn?.classList.remove('post-card__indicate-btn--morph-out');
-    void card.offsetHeight;
-    card.style.transition = '';
-    if (btn) btn.style.transition = '';
+    // Desfaz o morph de forma ANIMADA quando o card volta ao slot: a frase sai, o
+    // verde volta a translúcido (transição) e o botão "Indicar alguém" reaparece por
+    // fade (esconde o "pulo" de largura ao reexpandir).
     card.querySelector('.pedido-item__prompt')?.remove();
+    const btn = card.querySelector('.post-card__indicate-btn');
+    card.style.transition = 'background-color 0.3s var(--sheet-ease)';
+    card.classList.remove('pedido-item--indicate-lift');
+    if (btn) {
+      btn.style.transition = 'none';
+      btn.classList.remove('post-card__indicate-btn--morph-out');
+      btn.style.opacity = '0';
+      void btn.offsetHeight;
+      btn.style.transition = 'opacity 0.3s ease';
+      btn.style.opacity = '1';
+    }
+    setTimeout(() => {
+      card.style.transition = '';
+      if (btn) { btn.style.transition = ''; btn.style.opacity = ''; }
+    }, 320);
   };
 
   const enterIndicateMode = (postId) => {
@@ -397,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1) Morph do botão → frase, no card REAL da lista de pedidos (visível, nítido).
     morphSourceToPrompt(sourceCard);
 
-    // 2) "Depois": overlay acende o blur, o card (clone nítido) flutua ao topo e a
+    // 2) "Depois": overlay acende o blur, o card REAL é MOVIDO e flutua ao topo, e a
     //    seção de profissionais (busca + cards) sobe deslizando de baixo.
     setTimeout(() => {
       if (!indicateMode) return;   // saiu antes do timer (defensivo)
@@ -424,11 +432,17 @@ document.addEventListener('DOMContentLoaded', () => {
       agendaList?.classList.add('agenda-list--indicate-mode');
       resetAgendaList();
 
+      // MOVE o card REAL (não clona): deixa um placeholder da MESMA altura no lugar
+      // dele na lista (guarda o layout + a posição exata p/ voltar) e reparenta o
+      // card para o topo do overlay.
+      const ph = document.createElement('div');
+      ph.className = 'indicate-card-placeholder';
+      ph.style.height = `${srcRect.height}px`;
+      sourceCard.insertAdjacentElement('beforebegin', ph);
+      indicatePlaceholder = ph;
       const refContainer = document.getElementById('indicate-post-ref');
-      const cloned = sourceCard.cloneNode(true);
-      cloned.removeAttribute('id');
       refContainer.innerHTML = '';
-      refContainer.appendChild(cloned);
+      refContainer.appendChild(sourceCard);
 
       // Mostra o overlay + acende o blur; esconde a bottom bar (o overlay cobre tudo).
       feedBottomBar?.classList.add('u-hidden');
@@ -437,12 +451,12 @@ document.addEventListener('DOMContentLoaded', () => {
       indicateOverlay?.classList.add('indicate-overlay--open');
 
       // FLIP do card: da posição na lista (origem) até o topo do overlay.
-      const finalRect = cloned.getBoundingClientRect();
+      const finalRect = sourceCard.getBoundingClientRect();
       const dx = srcRect.left - finalRect.left;
       const dy = srcRect.top  - finalRect.top;
-      cloned.style.transformOrigin = 'top left';
-      cloned.style.transition = 'none';
-      cloned.style.transform = `translate(${dx}px, ${dy}px)`;
+      sourceCard.style.transformOrigin = 'top left';
+      sourceCard.style.transition = 'none';
+      sourceCard.style.transform = `translate(${dx}px, ${dy}px)`;
 
       // Seção de profissionais começa abaixo (fora da tela) e sobe.
       if (indicateProsBox) {
@@ -453,11 +467,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Reflow: comita o estado inicial ANTES de aplicar o final (senão o
       // navegador coalesce os transforms e não há animação).
-      void cloned.offsetHeight;
+      void sourceCard.offsetHeight;
 
       // Estado FINAL (anima): card sobe ao topo, seção sobe de baixo.
-      cloned.style.transition = `transform 0.45s ${INDICATE_SHEET_EASE}`;
-      cloned.style.transform = 'none';
+      sourceCard.style.transition = `transform 0.45s ${INDICATE_SHEET_EASE}`;
+      sourceCard.style.transform = 'none';
       if (indicateProsBox) {
         indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}, opacity 0.4s ease`;
         indicateProsBox.style.transform = 'translateY(0)';
@@ -474,22 +488,17 @@ document.addEventListener('DOMContentLoaded', () => {
     closeFiltersSheet();   // fecha a gaveta de filtros, se aberta no overlay
     if (agendaSearchInput) { agendaSearchInput.value = ''; syncSearchClearIcon(); }
 
-    // FLIP REVERSO do card: volta flutuando do topo até a posição ORIGINAL na lista.
-    // Mede o clone (topo) e o card real (posição na lista) ANTES de restaurar; então
-    // restaura o card real (fica normal, atrás do blur) e faz o clone cair sobre ele
-    // e sumir — o card original restaurado aparece no lugar (handoff sem "pulo").
-    const cloned = document.querySelector('#indicate-post-ref .pedido-item');
-    if (cloned && morphedSourceCard) {
-      const cRect = cloned.getBoundingClientRect();
-      const dRect = morphedSourceCard.getBoundingClientRect();
-      const dx = dRect.left - cRect.left;
-      const dy = dRect.top  - cRect.top;
-      restoreSourceCard(morphedSourceCard);
-      cloned.style.transition = `transform 0.42s ${INDICATE_SHEET_EASE}, opacity 0.34s ease 0.12s`;
-      cloned.style.transform = `translate(${dx}px, ${dy}px)`;
-      cloned.style.opacity = '0';
-    } else {
-      restoreSourceCard(morphedSourceCard);
+    // FLIP REVERSO do card REAL: volta flutuando do topo até a posição do placeholder
+    // (o lugar original na lista). Mede a posição atual (topo) e a do placeholder e
+    // translada até lá.
+    const card = morphedSourceCard;
+    if (card && indicatePlaceholder) {
+      const cRect = card.getBoundingClientRect();
+      const pRect = indicatePlaceholder.getBoundingClientRect();
+      const dx = pRect.left - cRect.left;
+      const dy = pRect.top  - cRect.top;
+      card.style.transition = `transform 0.42s ${INDICATE_SHEET_EASE}`;
+      card.style.transform = `translate(${dx}px, ${dy}px)`;
     }
 
     // Blur some e a seção de profissionais desce junto.
@@ -504,9 +513,20 @@ document.addEventListener('DOMContentLoaded', () => {
       proCardForceReset(el);
     });
 
-    // Ao fim, esconde o overlay, DEVOLVE a barra de busca e a lista aos seus lugares
-    // originais e limpa o clone. Restaura a bottom bar. (O card real já foi restaurado.)
+    // Ao fim: DEVOLVE o card real ao lugar do placeholder (some o transform → cai
+    // exatamente no slot), desfaz o morph, devolve a barra de busca e a lista, e
+    // esconde o overlay. Restaura a bottom bar.
     setTimeout(() => {
+      if (card && indicatePlaceholder) {
+        card.style.transition = 'none';
+        card.style.transform = '';
+        card.style.transformOrigin = '';
+        indicatePlaceholder.replaceWith(card);   // card real de volta ao slot exato
+        void card.offsetHeight;                  // comita o slot antes das transições do un-morph
+        restoreSourceCard(card);                 // desfaz o morph ANIMADO (frase → botão, verde → normal)
+      }
+      indicatePlaceholder = null;
+
       const agendaList = document.getElementById('agenda-list');
       agendaList?.classList.remove('agenda-list--indicate-mode');
       if (agendaList && prosPanelHost) prosPanelHost.appendChild(agendaList);
@@ -520,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (postRef) postRef.innerHTML = '';
       morphedSourceCard = null;
       feedBottomBar?.classList.remove('u-hidden');
-    }, 460);   // deixa o FLIP reverso (0.42s) + fade terminarem
+    }, 460);   // deixa o FLIP reverso (0.42s) terminar
   };
 
   // Fechar o overlay pelo botão de fechar da barra flutuante. (A busca e o filtro
