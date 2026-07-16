@@ -367,20 +367,15 @@ document.addEventListener('DOMContentLoaded', () => {
     void prompt.offsetHeight;   // reflow antes de acender as classes → a transição roda
     btn.classList.add('post-card__indicate-btn--morph-out');
     prompt.classList.add('pedido-item__prompt--in');
-    // O card deixa o fundo translúcido e vira o verde do cabeçalho (animado). O
-    // clone (cloneNode) herda a classe → já nasce verde ao flutuar sobre o blur.
-    card.classList.add('pedido-item--indicate-lift');
   };
 
   const restoreSourceCard = (card) => {
     if (!card) return;
-    // Desfaz o morph de forma ANIMADA quando o card volta ao slot: a frase sai, o
-    // verde volta a translúcido (transição) e o botão "Indicar alguém" reaparece por
-    // fade (esconde o "pulo" de largura ao reexpandir).
+    // Desfaz o morph de forma ANIMADA quando o card volta ao slot: a frase sai e o
+    // botão "Indicar alguém" reaparece por fade (esconde o "pulo" de largura ao
+    // reexpandir). O fundo é branco o tempo todo — sem transição de cor.
     card.querySelector('.pedido-item__prompt')?.remove();
     const btn = card.querySelector('.post-card__indicate-btn');
-    card.style.transition = 'background-color 0.3s var(--sheet-ease)';
-    card.classList.remove('pedido-item--indicate-lift');
     if (btn) {
       btn.style.transition = 'none';
       btn.classList.remove('post-card__indicate-btn--morph-out');
@@ -390,7 +385,6 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.style.opacity = '1';
     }
     setTimeout(() => {
-      card.style.transition = '';
       if (btn) { btn.style.transition = ''; btn.style.opacity = ''; }
     }, 320);
   };
