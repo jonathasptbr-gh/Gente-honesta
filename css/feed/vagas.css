@@ -501,10 +501,10 @@
   font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
 }
 
-.vaga-card__poster-ic.ic-bar--ok    { color: var(--success-fill); }
-.vaga-card__poster-ic.ic-bar--warn  { color: var(--a-gold-text);  }
-.vaga-card__poster-ic.ic-bar--alert { color: var(--danger);       }
-.vaga-card__poster-ic.ic-bar--bad   { color: var(--t-sub);        }
+/* O badge-escudo do IC vive dentro de .vaga-card__poster-ic. Sobre a faixa clara do
+   divulgador, o tier "warn" usa o ocre (--a-gold-text) em vez do gold puro (baixo
+   contraste no claro); os demais tiers seguem o padrão do .ic-bar. */
+.vaga-card__poster .ic-bar--warn { color: var(--a-gold-text); }
 
 /* Corpo do card: informações da vaga */
 .vaga-card__body {

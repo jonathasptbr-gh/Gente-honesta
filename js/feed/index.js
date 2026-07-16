@@ -1042,9 +1042,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // `bodyTailHTML` é injetado ao FIM do corpo (no card = as ações apply/share).
   // Hoistada (function) para ficar disponível antes de suas chamadas.
   function vagaContentHTML(vaga, bodyTailHTML = '') {
-    const posterTier   = icTier(vaga.poster.ic);
-    const posterShield = icShieldIcon(vaga.poster.ic);
-
     const reqHTML = vaga.requisitos.map(r =>
       `<li class="vaga-card__req"><span class="material-symbols-rounded" aria-hidden="true">check_small</span>${r}</li>`
     ).join('');
@@ -1100,9 +1097,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="vaga-card__poster">
               <img class="vaga-card__poster-avatar" src="${avatarSvg}" alt="">
               <span class="vaga-card__poster-name">Divulgado por <strong>${vaga.poster.name}</strong></span>
-              <span class="vaga-card__poster-ic ic-bar--${posterTier}">
-                <span class="material-symbols-rounded" aria-hidden="true">${posterShield}</span>${vaga.poster.ic}
-              </span>
+              <span class="vaga-card__poster-ic">${icBarHTML(vaga.poster.ic)}</span>
             </div>
             <div class="vaga-card__body">
               <div class="vaga-card__role-row">

@@ -1,15 +1,20 @@
 // =========================================================================
 // TEMPLATES de HTML do feed — funções puras de string (sem estado mutável).
 // =========================================================================
-import { icTier, icShieldIcon, formatPedidoDate, pedidoHoursLeft } from './utils.js';
+import { icTier, formatPedidoDate, pedidoHoursLeft } from './utils.js';
 import { availabilityMeta, COMMENTS_PAGE } from './config.js';
 import { getComments } from './repository.js';
 import { PEDIDO_STATUS, URGENCY } from '../core/domain.js';
 
-export const icBarHTML = (ic, vertical = false) => {
+// Índice de Confiança = MOLDURA-ESCUDO (só contorno, SVG) com o número DENTRO —
+// versão reduzida do "70" do card de IC do cadastro. Colorido por tier (stroke
+// currentColor + número herdam a cor do container .ic-bar--<tier>). O mesmo
+// formato de escudo usado no app. Fonte única do SVG:
+export const IC_SHIELD_SVG = `<svg class="ic-bar__frame" viewBox="0 0 24 26" aria-hidden="true"><path d="M12 1.6 L21.4 5.4 V12 C21.4 18.1 17.3 23.3 12 24.7 C6.7 23.3 2.6 18.1 2.6 12 V5.4 Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`;
+
+export const icBarHTML = (ic) => {
   const tier = icTier(ic);
-  const shield = icShieldIcon(ic);
-  return `<div class="ic-bar ic-bar--${tier}${vertical ? ' ic-bar--vertical' : ''}"><span class="material-symbols-rounded ic-bar__shield" aria-hidden="true">${shield}</span><span class="ic-bar__value">${ic}</span></div>`;
+  return `<span class="ic-bar ic-bar--${tier}" role="img" aria-label="Índice de confiança ${ic}">${IC_SHIELD_SVG}<span class="ic-bar__value">${ic}</span></span>`;
 };
 
 export const qavHTML = (q, a, v) => `
@@ -28,10 +33,8 @@ export const availHTML = (state) => {
 /** @param {import('../core/models.js').Comment} c */
 export const buildCommentHTML = (c) => {
   const MAX = 150;
-  const tier = icTier(c.ic);
-  const shield = icShieldIcon(c.ic);
   const text = c.text.length > MAX ? c.text.slice(0, MAX).trimEnd() + '...' : c.text;
-  return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> <span class="comment__ic ic-bar--${tier}"><span class="material-symbols-rounded" aria-hidden="true">${shield}</span>${c.ic}</span></p></div>`;
+  return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> ${icBarHTML(c.ic)}</p></div>`;
 };
 
 let _proBackHTML = null;

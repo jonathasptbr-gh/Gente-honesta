@@ -62,61 +62,42 @@
    ÍNDICE DE CONFIANÇA — Componente ic-bar
    Reutilizado em cards do feed e na agenda
    ======================================== */
+/* MOLDURA-ESCUDO (contorno) com o NÚMERO dentro — versão reduzida do "70" do card
+   de IC do cadastro (ic-hero). Substitui o antigo "escudo-glifo + número". A cor do
+   tier vai no CONTAINER: o stroke do SVG usa currentColor e o número herda. */
 .ic-bar {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-}
-
-/* Padrão fixo do display compacto de confiança: (escudo) ##% Confiável */
-.ic-bar__shield {
-  font-size: 1.2rem;
-  font-variation-settings: 'FILL' 1;
+  justify-content: center;
   flex-shrink: 0;
+  line-height: 0;
+  vertical-align: middle;   /* alinha o badge ao texto quando inline (ex.: comentários) */
 }
 
+/* Moldura em forma de escudo: SVG só de contorno (mesma do ic-hero, reduzida). */
+.ic-bar__frame {
+  display: block;
+  width: 1.8rem;
+  height: 1.95rem;
+}
+
+/* Número DENTRO da moldura; o centro visual do escudo é um pouco acima do centro
+   da caixa (o desenho afunila para baixo), daí o -54% (como no ic-hero). */
 .ic-bar__value {
-  font-size: var(--fs-4);
-  font-weight: var(--fw-bold);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -54%);
+  font-size: var(--fs-3);
+  font-weight: var(--fw-heavy);
+  line-height: 1;
 }
 
-.ic-bar__label {
-  font-size: var(--fs-4);
-  font-weight: var(--fw-bold);
-}
-
-/* Variante vertical: escudo em cima, % no meio, "Confiável" embaixo */
-.ic-bar--vertical {
-  flex-direction: column;
-  gap: 0;
-  align-items: center;
-  text-align: center;
-  line-height: 1.15;
-}
-
-.ic-bar--vertical .ic-bar__shield {
-  font-size: 1.5rem;
-}
-
-/* Cor do escudo, porcentagem E palavra variam pela faixa do índice (100→0 em 4 partes) */
-/* 75–100: verde médio — verificado (gpp_good); --success-fill é mais legível que --p-green em tamanhos pequenos */
-.ic-bar--ok .ic-bar__shield,
-.ic-bar--ok .ic-bar__value,
-.ic-bar--ok .ic-bar__label { color: var(--success-fill); }
-
-/* 50–74: amarelo principal do tema */
-.ic-bar--warn .ic-bar__shield,
-.ic-bar--warn .ic-bar__value,
-.ic-bar--warn .ic-bar__label { color: var(--a-gold); }
-
-/* 25–49: vermelho — alerta (gpp_maybe) */
-.ic-bar--alert .ic-bar__shield,
-.ic-bar--alert .ic-bar__value,
-.ic-bar--alert .ic-bar__label { color: var(--danger); }
-
-/* 0–24: cinza-petróleo escuro — condenado (gpp_bad) */
-.ic-bar--bad .ic-bar__shield,
-.ic-bar--bad .ic-bar__value,
-.ic-bar--bad .ic-bar__label { color: var(--t-main); }
+/* Cor do escudo + número variam pela faixa do índice (100→0 em 4 partes). */
+.ic-bar--ok   { color: var(--success-fill); }  /* 75–100: verde médio (gpp_good) */
+.ic-bar--warn { color: var(--a-gold); }        /* 50–74: amarelo do tema */
+.ic-bar--alert{ color: var(--danger); }        /* 25–49: vermelho (gpp_maybe) */
+.ic-bar--bad  { color: var(--t-main); }        /* 0–24: cinza-petróleo escuro */
 
 
