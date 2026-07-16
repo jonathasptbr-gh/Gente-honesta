@@ -505,31 +505,3 @@
 
 .feed-panel--pedidos .scroll-area::-webkit-scrollbar { display: none; }
 
-
-/* ===========================================
-   MODO INDICAÇÃO (v351) — coreografia vertical + blur
-   O card do pedido sobe ao topo (porta-card fixo #agenda-indicated-block) e a
-   seção do feed (barra de busca + lista) entra deslizando de baixo. O fundo verde
-   escuro dá lugar ao blur escuro (#indicate-backdrop, z-1): o card fixo e o
-   feed-body sobem no empilhamento (z-3) para ficarem NÍTIDOS acima do blur, e os
-   fundos dos painéis ficam transparentes p/ o blur aparecer atrás dos cards.
-   ======================================== */
-.view-feed--indicate #agenda-indicated-block,
-.view-feed--indicate .feed-body {
-  position: relative;
-  z-index: 3;
-}
-
-/* Fundos transparentes: o blur escuro passa a ser o fundo desta sessão. */
-.view-feed--indicate .feed-panels,
-.view-feed--indicate .feed-panel--pros,
-.view-feed--indicate #agenda-list {
-  background: transparent;
-}
-
-/* A barra de busca segue verde/opaca, mas o safe-area do topo já é carregado pelo
-   card fixo acima — evita padding duplo. */
-.view-feed--indicate .agenda-filters {
-  padding-top: var(--space-sm);
-}
-

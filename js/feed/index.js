@@ -150,8 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   btnOpenContracts?.addEventListener('click', () => {
-    // Durante o modo indicação este botão vira "Fechar": sai do modo e volta aos pedidos.
-    if (indicateMode) { exitIndicateMode(); openPedidosSheet(); return; }
     if (isContractsSheetOpen()) closeContractsSheet(); else openContractsSheet();
   });
 
@@ -276,7 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const feedPanels     = document.getElementById('feed-panels');
   const feedActionBar  = document.getElementById('feed-action-bar');
-  const indicatedBlock = document.getElementById('agenda-indicated-block');
   const confirmBlock   = document.getElementById('agenda-indicate-confirm');
 
   // TELA - PRINCIPAL (FEED) - PAINÉIS DESLIZANTES
@@ -312,19 +309,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const openPedidosSheet  = showPedidosPanel;
   const closePedidosSheet = showProsPanel;
 
-  // TELA - PRINCIPAL (FEED) - MODO INDICAÇÃO (roda na tela principal de contatos)
-  // Coreografia VERTICAL (v351): ao tocar "Indicar alguém" num pedido, o botão do
-  // card é substituído — animado — pela frase "Quem você quer indicar...", e então
-  // o card SOBE (FLIP) até um porta-card fixo no topo enquanto a tela ganha um blur
-  // escuro (#indicate-backdrop) e a seção do feed de profissionais (busca + lista)
-  // ENTRA deslizando de baixo. Durante o modo: contratos vira "Fechar", o perfil
-  // some e o fundo do feed fica transparente (só o blur), mantendo a barra de busca
-  // verde. A barra de status segue verde (global em app.js) — não mexe no theme-color.
+  // TELA - PRINCIPAL (FEED) - MODO INDICAÇÃO (OVERLAY sobre o feed de pedidos)
+  // Coreografia (v352): ao tocar "Indicar alguém" num pedido, o BOTÃO do card é
+  // trocado — animado — pela frase "Quem você quer indicar..." (2 linhas), MANTENDO
+  // o botão de contagem (2/3) ao lado. Então um overlay flutua SOBRE o feed de
+  // pedidos: a tela inteira recebe o blur escuro (o mesmo das gavetas), o card do
+  // pedido (clone NÍTIDO) flutua até o topo (sobre a região histórico/fazer pedido)
+  // e a seção de profissionais (barra de busca + cards) SOBE deslizando de baixo.
+  // NÃO troca de painel — o feed de pedidos permanece atrás (borrado). A lista real
+  // #agenda-list é MOVIDA para o overlay (reparent) p/ reusar seleção/flip/pin.
   const feedBottomBar    = document.querySelector('#feed-bottom-bar');
-  const feedBodyEl       = document.querySelector('#view-feed .feed-body');
-  const indicateBackdrop = document.getElementById('indicate-backdrop');
-  const indicateProfileBtn = document.getElementById('btn-open-profile');
-  const viewFeedEl       = document.getElementById('view-feed');
+  const indicateOverlay  = document.getElementById('indicate-overlay');
+  const indicateProsBox  = document.getElementById('indicate-pros');
+  const indicateSearchInput = document.getElementById('indicate-search');
+  const prosPanelHost    = document.querySelector('.feed-panel--pros');   // dono original do #agenda-list
   const INDICATE_PROMPT  = 'Quem você quer indicar para este serviço?';
   const INDICATE_SHEET_EASE = 'cubic-bezier(0.32,0.72,0,1)';   // espelha --sheet-ease
 
@@ -347,26 +345,34 @@ document.addEventListener('DOMContentLoaded', () => {
   let activePostId = null;
   let selectedProId = null;
   let morphedSourceCard = null;   // card real que teve o botão trocado pela frase (restaurar na saída)
-  let indicateHadContractsNotify = false;   // guarda o "piscar" de contratos p/ restaurar na saída
 
-  // Substitui (animado) o botão "Indicar alguém" do card real pela frase de 2 linhas.
-  // O card já morphado é o que será clonado para o topo — assim o FLIP começa
-  // visualmente idêntico à origem. cloneNode captura o estado final das classes.
+  // Substitui (animado) SÓ o botão "Indicar alguém" pela frase de 2 linhas, DENTRO
+  // da linha de ações — o botão de contagem (2/3) permanece à direita. O card já
+  // morphado é o que vira clone: o FLIP começa idêntico à origem (cloneNode captura
+  // o estado final das classes).
   const morphSourceToPrompt = (card) => {
-    const actions = card.querySelector('.pedido-item__actions');
-    if (!actions || card.querySelector('.pedido-item__prompt')) return;
+    const btn = card.querySelector('.post-card__indicate-btn');
+    if (!btn || card.querySelector('.pedido-item__prompt')) return;
     const prompt = document.createElement('p');
     prompt.className = 'pedido-item__prompt';
     prompt.textContent = INDICATE_PROMPT;
-    actions.insertAdjacentElement('afterend', prompt);
+    btn.insertAdjacentElement('beforebegin', prompt);   // frase no lugar do botão, antes da contagem
     void prompt.offsetHeight;   // reflow antes de acender as classes → a transição roda
-    actions.classList.add('pedido-item__actions--morph-out');
+    btn.classList.add('post-card__indicate-btn--morph-out');
     prompt.classList.add('pedido-item__prompt--in');
   };
 
   const restoreSourceCard = (card) => {
     if (!card) return;
-    card.querySelector('.pedido-item__actions')?.classList.remove('pedido-item__actions--morph-out');
+    // Restaura o botão INSTANTANEAMENTE (sem a transição do morph) — o card real
+    // reaparece pronto quando o overlay fecha, sem o botão "crescendo".
+    const btn = card.querySelector('.post-card__indicate-btn');
+    if (btn) {
+      btn.style.transition = 'none';
+      btn.classList.remove('post-card__indicate-btn--morph-out');
+      void btn.offsetHeight;
+      btn.style.transition = '';
+    }
     card.querySelector('.pedido-item__prompt')?.remove();
   };
 
@@ -377,72 +383,60 @@ document.addEventListener('DOMContentLoaded', () => {
     activePostId = postId;
     morphedSourceCard = sourceCard;
 
-    // 1) Morph do botão → frase, no card REAL da lista de pedidos (visível).
+    // 1) Morph do botão → frase, no card REAL da lista de pedidos (visível, nítido).
     morphSourceToPrompt(sourceCard);
 
-    // 2) "Depois": mede o card, liga o modo e faz o card subir (FLIP) enquanto o
-    //    blur acende e a seção do feed entra deslizando de baixo.
+    // 2) "Depois": overlay acende o blur, o card (clone nítido) flutua ao topo e a
+    //    seção de profissionais (busca + cards) sobe deslizando de baixo.
     setTimeout(() => {
       if (!indicateMode) return;   // saiu antes do timer (defensivo)
       const srcRect = sourceCard.getBoundingClientRect();
 
-      // Clona o card já morphado (frase no lugar do botão) para o porta-card fixo.
+      // Move a LISTA REAL de profissionais para dentro do overlay (reusa render/
+      // seleção/flip/pin) e clona o card morphado para o topo do overlay.
+      const agendaList = document.getElementById('agenda-list');
+      if (agendaList && indicateProsBox) indicateProsBox.appendChild(agendaList);
+      agendaList?.classList.add('agenda-list--indicate-mode');
+      resetAgendaList();
+
       const refContainer = document.getElementById('indicate-post-ref');
       const cloned = sourceCard.cloneNode(true);
       cloned.removeAttribute('id');
       refContainer.innerHTML = '';
       refContainer.appendChild(cloned);
 
-      // Liga o modo (classes de visual: fundo transparente, z-index, contratos→fechar,
-      // perfil oculto). Mantém a busca (search state) via showProsPanel.
-      viewFeedEl?.classList.add('view-feed--indicate');
-      resetAgendaList();
-      document.getElementById('agenda-list')?.classList.add('agenda-list--indicate-mode');
-      // Troca para o painel de Profissionais SEM o slide horizontal do carrossel
-      // (a entrada é vertical): desliga a transição, troca, força reflow, religa.
-      const track = feedActionBar?.querySelector('.agenda-filters__track');
-      const prevPanelsTr = feedPanels ? feedPanels.style.transition : '';
-      const prevTrackTr  = track ? track.style.transition : '';
-      if (feedPanels) feedPanels.style.transition = 'none';
-      if (track) track.style.transition = 'none';
-      showProsPanel();
-      if (feedPanels) void feedPanels.offsetHeight;   // reflow com a transição desligada
-      if (feedPanels) feedPanels.style.transition = prevPanelsTr;
-      if (track) track.style.transition = prevTrackTr;
-      indicatedBlock?.classList.remove('u-hidden');
+      // Mostra o overlay + acende o blur; esconde a bottom bar (o overlay cobre tudo).
       feedBottomBar?.classList.add('u-hidden');
-      indicateProfileBtn?.classList.add('u-hidden');
-      // Contratos vira "Fechar": para de piscar (o --notify sobrepõe o fundo de fechar).
-      indicateHadContractsNotify = btnOpenContracts?.classList.contains('agenda-filters__icon-btn--notify') || false;
-      btnOpenContracts?.classList.remove('agenda-filters__icon-btn--notify');
-      setContractsButtonClose(true);
-      indicateBackdrop?.classList.add('indicate-backdrop--active');
+      indicateOverlay?.classList.remove('u-hidden');
+      void indicateOverlay?.offsetHeight;
+      indicateOverlay?.classList.add('indicate-overlay--open');
 
-      // FLIP do card clonado: da posição de origem (na lista) até o topo fixo.
-      // Estado INICIAL (invertido para a origem) + feed começando abaixo:
+      // FLIP do card: da posição na lista (origem) até o topo do overlay.
       const finalRect = cloned.getBoundingClientRect();
       const dx = srcRect.left - finalRect.left;
       const dy = srcRect.top  - finalRect.top;
       cloned.style.transformOrigin = 'top left';
       cloned.style.transition = 'none';
       cloned.style.transform = `translate(${dx}px, ${dy}px)`;
-      if (feedBodyEl) {
-        feedBodyEl.style.transition = 'none';
-        feedBodyEl.style.transform = 'translateY(45%)';
-        feedBodyEl.style.opacity = '0';
+
+      // Seção de profissionais começa abaixo (fora da tela) e sobe.
+      if (indicateProsBox) {
+        indicateProsBox.style.transition = 'none';
+        indicateProsBox.style.transform = 'translateY(100%)';
+        indicateProsBox.style.opacity = '0';
       }
 
       // Reflow: comita o estado inicial ANTES de aplicar o final (senão o
-      // navegador coalesce os dois transforms e não há animação).
+      // navegador coalesce os transforms e não há animação).
       void cloned.offsetHeight;
 
-      // Estado FINAL (anima): card sobe ao topo, feed sobe de baixo.
+      // Estado FINAL (anima): card sobe ao topo, seção sobe de baixo.
       cloned.style.transition = `transform 0.45s ${INDICATE_SHEET_EASE}`;
       cloned.style.transform = 'none';
-      if (feedBodyEl) {
-        feedBodyEl.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}, opacity 0.4s ease`;
-        feedBodyEl.style.transform = 'translateY(0)';
-        feedBodyEl.style.opacity = '1';
+      if (indicateProsBox) {
+        indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}, opacity 0.4s ease`;
+        indicateProsBox.style.transform = 'translateY(0)';
+        indicateProsBox.style.opacity = '1';
       }
     }, 260);   // tempo do morph do botão → frase
   };
@@ -452,31 +446,45 @@ document.addEventListener('DOMContentLoaded', () => {
     indicateMode = false;
     activePostId = null;
     selectedProId = null;
+    if (indicateSearchInput) indicateSearchInput.value = '';
 
-    // Fade-out do blur + restaura os botões da barra imediatamente.
-    indicateBackdrop?.classList.remove('indicate-backdrop--active');
-    feedBottomBar?.classList.remove('u-hidden');
-    indicateProfileBtn?.classList.remove('u-hidden');
-    setContractsButtonClose(false);
-    if (indicateHadContractsNotify) btnOpenContracts?.classList.add('agenda-filters__icon-btn--notify');
-    indicateHadContractsNotify = false;
-    document.getElementById('agenda-list')?.classList.remove('agenda-list--indicate-mode');
+    // Fecha o overlay (fade do blur + a seção desce).
+    indicateOverlay?.classList.remove('indicate-overlay--open');
+    if (indicateProsBox) {
+      indicateProsBox.style.transition = `transform 0.4s ${INDICATE_SHEET_EASE}, opacity 0.35s ease`;
+      indicateProsBox.style.transform = 'translateY(100%)';
+      indicateProsBox.style.opacity = '0';
+    }
+
     document.querySelectorAll('.pro-card--selected, .pro-card--flipped, .pro-card--expanded').forEach(el => {
       proCardForceReset(el);
     });
 
-    // Ao fim do fade do blur, desliga o modo (fundo volta) e limpa o clone + o
-    // morph do card real. Sem animar o feed na saída (evita flash ao voltar).
+    // Ao fim do fade, esconde o overlay, DEVOLVE a lista ao painel de profissionais,
+    // limpa o clone e restaura o card real (morph). Também restaura a bottom bar.
     setTimeout(() => {
-      viewFeedEl?.classList.remove('view-feed--indicate');
-      indicatedBlock?.classList.add('u-hidden');
+      const agendaList = document.getElementById('agenda-list');
+      agendaList?.classList.remove('agenda-list--indicate-mode');
+      if (agendaList && prosPanelHost) prosPanelHost.appendChild(agendaList);
+      resetAgendaList();
+
+      indicateOverlay?.classList.add('u-hidden');
+      if (indicateProsBox) { indicateProsBox.style.transition = ''; indicateProsBox.style.transform = ''; indicateProsBox.style.opacity = ''; }
       const postRef = document.getElementById('indicate-post-ref');
       if (postRef) postRef.innerHTML = '';
       restoreSourceCard(morphedSourceCard);
       morphedSourceCard = null;
-      if (feedBodyEl) { feedBodyEl.style.transition = ''; feedBodyEl.style.transform = ''; feedBodyEl.style.opacity = ''; }
+      feedBottomBar?.classList.remove('u-hidden');
     }, 400);   // casa com a duração do fade do backdrop
   };
+
+  // Fechar o overlay (botão de fechar da barra flutuante) + busca dentro do overlay.
+  document.getElementById('btn-indicate-close')?.addEventListener('click', exitIndicateMode);
+  indicateSearchInput?.addEventListener('input', () => {
+    // Reaproveita o filtro real: espelha no input da barra e re-renderiza a lista.
+    if (agendaSearchInput) agendaSearchInput.value = indicateSearchInput.value;
+    renderAgendaList();
+  });
 
 
   // =========================================================================
@@ -766,10 +774,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (postId != null) openIndicatedPopup(postId);
       return;
     }
-    // Botão "Indicar alguém" → entra no modo indicação
+    // Botão "Indicar alguém" → entra no modo indicação (overlay SOBRE os pedidos;
+    // NÃO troca de painel — o feed de pedidos permanece atrás, borrado).
     const btn = e.target.closest('.post-card__indicate-btn');
     if (!btn) return;
-    closePedidosSheet();
     enterIndicateMode(btn.dataset.postId);
   });
 

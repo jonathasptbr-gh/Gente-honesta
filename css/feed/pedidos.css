@@ -115,7 +115,6 @@
   align-items: center;
   gap: var(--space-xs);
   margin-top: 2px;
-  max-height: 44px;   /* base p/ o colapso animado no morph → frase (v351) */
 }
 
 .pedido-item__actions .post-card__indicate-btn {
@@ -287,44 +286,38 @@
 }
 
 
-/* Porta-card FIXO do modo indicação (v351): o card do pedido sobe (FLIP) até aqui.
-   Fundo transparente — atrás dele fica o blur escuro (#indicate-backdrop). Carrega
-   o safe-area do topo (o card fica logo abaixo do notch). */
-.agenda-indicated {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  background: transparent;
-  padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
-}
-
-/* Frase que SUBSTITUI o botão "Indicar alguém" dentro do card (2 linhas), tanto no
-   card real (morph) quanto no clone fixo. Colapsada por padrão; abre animada. */
+/* Frase que SUBSTITUI o botão "Indicar alguém" DENTRO da linha de ações do card
+   (2 linhas), ao lado do botão de contagem (2/3) que PERMANECE. Entra por fade;
+   o botão colapsa (abaixo). Tanto no card real (morph) quanto no clone que flutua. */
 .pedido-item__prompt {
+  flex: 1;
+  min-width: 0;
   margin: 0;
-  font-size: var(--fs-6);
+  font-size: var(--fs-5);
   font-weight: var(--fw-heavy);
-  line-height: 1.35;
+  line-height: 1.2;
   color: var(--t-light);
-  max-height: 0;
   opacity: 0;
-  overflow: hidden;
-  transition: max-height 0.26s var(--sheet-ease), opacity 0.22s ease, margin-top 0.26s var(--sheet-ease);
+  transition: opacity 0.24s ease;
 }
 
 .pedido-item__prompt--in {
-  max-height: 4em;
   opacity: 1;
-  margin-top: 2px;
 }
 
-/* Botão/contagem do card recolhem enquanto a frase entra (crossfade + colapso). */
-.pedido-item__actions--morph-out {
-  max-height: 0 !important;
+/* O botão dourado "Indicar alguém" colapsa (largura → 0) enquanto a frase entra —
+   o botão de contagem (2/3) à direita fica no lugar. */
+.post-card__indicate-btn--morph-out {
+  max-width: 0 !important;
+  flex: 0 0 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-right: calc(-1 * var(--space-xs));   /* come o gap do slot que sumiu */
   opacity: 0;
-  margin-top: 0;
   overflow: hidden;
-  transition: max-height 0.24s var(--sheet-ease), opacity 0.18s ease;
+  white-space: nowrap;
+  transition: max-width 0.26s var(--sheet-ease), flex-basis 0.26s var(--sheet-ease),
+              padding 0.26s var(--sheet-ease), opacity 0.18s ease;
 }
 
 /* Botão "Fechar" do popup de indicados — compõe .btn .btn--close (HTML); aqui só a
@@ -337,23 +330,112 @@
   flex-shrink: 0;
 }
 
-/* Blur escuro de fundo do modo indicação — substitui a antiga borda dourada.
-   Fica atrás do card fixo e do feed (que ganham z-index em .view-feed--indicate)
-   e desfoca o fundo da tela. */
-.indicate-backdrop {
+/* =========================================================================
+   OVERLAY DO MODO INDICAÇÃO (v352) — flutua SOBRE o feed de pedidos
+   O feed de pedidos fica atrás, coberto pelo blur escuro (mesmo das gavetas).
+   Sobre o blur: o card (clone nítido) flutua ao topo e a seção de profissionais
+   (busca + cards) sobe deslizando de baixo.
+   ========================================================================= */
+.indicate-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Blur escuro — MESMA receita das gavetas (--overlay + blur-sm). */
+.indicate-overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   background: var(--overlay);
   backdrop-filter: blur(var(--blur-sm));
   -webkit-backdrop-filter: blur(var(--blur-sm));
   opacity: 0;
-  pointer-events: none;
   transition: opacity 0.4s ease;
 }
 
-.indicate-backdrop--active {
+.indicate-overlay--open .indicate-overlay__backdrop {
   opacity: 1;
+}
+
+/* Card nítido que flutua ao topo (sobre a região da action bar). O FLIP é por
+   transform inline (JS). Carrega o safe-area do topo. */
+.indicate-overlay .indicate-post-ref {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
+}
+
+/* Seção de profissionais flutuante — sobe deslizando de baixo. */
+.indicate-overlay__pros {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Barra de busca flutuante (verde), com botão de fechar à direita. */
+.indicate-overlay__bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.indicate-overlay__search-wrap {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+}
+
+.indicate-overlay__search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--t-sub);
+  font-size: 1.1rem;
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
+  pointer-events: none;
+}
+
+.indicate-overlay__search {
+  width: 100%;
+  height: 40px;
+  padding: 0 16px 0 36px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-white);
+  font-size: var(--fs-6);
+  color: var(--t-main);
+  outline: none;
+}
+
+.indicate-overlay__search:focus {
+  background: var(--p-green-light);
+}
+
+/* Fechar: pílula branca 40px (mesma métrica do botão de contratos da barra real). */
+.indicate-overlay__close {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  background: var(--on-green-soft);
+  color: var(--t-light);
+}
+
+/* A lista real (#agenda-list) é movida para cá: fundo transparente (o blur é o
+   fundo desta sessão) e espaço no fim para o último card não colar na base. */
+.indicate-overlay__pros #agenda-list,
+#view-feed .indicate-overlay__pros .agenda-list {
+  flex: 1;
+  background: transparent;
+  padding-bottom: calc(var(--space-xl) + env(safe-area-inset-bottom, 0px));
 }
 
 /* Popup de profissionais já indicados */

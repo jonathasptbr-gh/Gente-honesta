@@ -163,7 +163,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v352</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v353</span>
     </div>
 
     <!-- =====================================================================
@@ -683,17 +683,31 @@
         <!-- Top bar removida (v287): perfil, contratos e busca foram consolidados na
              linha de busca da action bar (aba Profissionais). -->
 
-        <!-- ── Backdrop de blur escuro do modo indicação (fundo desta sessão) ──
-             Substitui a antiga borda dourada. Fica atrás do card fixo e do feed
-             (que ganham z-index acima em .view-feed--indicate) e desfoca o fundo. -->
-        <div id="indicate-backdrop" class="indicate-backdrop" aria-hidden="true"></div>
-
-        <!-- ── Porta-card fixo do modo indicação (o card do pedido sobe até aqui) ──
-             O card do pedido selecionado é clonado (com a frase no lugar do botão)
-             e faz FLIP da posição na lista até este topo. -->
-        <header id="agenda-indicated-block" class="agenda-indicated u-hidden">
+        <!-- ── Overlay do modo indicação (flutua SOBRE o feed de pedidos) ──
+             O feed de pedidos permanece atrás, coberto pelo blur escuro (o mesmo
+             das gavetas). Sobre o blur: o card do pedido (clone NÍTIDO) flutua até o
+             topo (sobre a região histórico/fazer pedido) e a seção de profissionais
+             (barra de busca + cards) sobe deslizando de baixo. O #agenda-list REAL é
+             movido para dentro de .indicate-overlay__pros em runtime (reparent) —
+             assim a seleção/flip/pin continuam funcionando. -->
+        <div id="indicate-overlay" class="indicate-overlay u-hidden" aria-hidden="true">
+            <div class="indicate-overlay__backdrop"></div>
+            <!-- Card do pedido (clone nítido) que sobe ao topo -->
             <div id="indicate-post-ref" class="indicate-post-ref"></div>
-        </header>
+            <!-- Seção de profissionais flutuante (sobe de baixo) -->
+            <div id="indicate-pros" class="indicate-overlay__pros">
+                <div class="indicate-overlay__bar">
+                    <div class="indicate-overlay__search-wrap">
+                        <span class="material-symbols-rounded indicate-overlay__search-icon" aria-hidden="true">search</span>
+                        <input type="text" id="indicate-search" class="indicate-overlay__search" placeholder="Buscar no Gente Honesta...">
+                    </div>
+                    <button type="button" id="btn-indicate-close" class="btn btn--icon indicate-overlay__close" aria-label="Fechar indicação">
+                        <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                    </button>
+                </div>
+                <!-- #agenda-list é movido para cá em runtime -->
+            </div>
+        </div>
 
         <!-- ── Popup: profissionais já indicados ── -->
         <div id="indicated-popup" class="indicated-popup" role="dialog" aria-modal="true">
