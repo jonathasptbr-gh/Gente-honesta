@@ -200,6 +200,14 @@ pressionar-longo do card, `attachLongPress`.) Bespoke DE PROPÓSITO
 | 25–49 | `ic--alert` (vermelho) | `gpp_maybe` |
 | 0–24 | `ic--bad` (cinza) | `gpp_bad` |
 
+O badge de IC do feed é o **escudo com o número dentro** (`icBarHTML(ic, size)` em
+`feed/templates.js`, `.ic-bar` em `components/surfaces.css`). O `size` escala ao contexto (o badge
+deve ficar condizente com os vizinhos da linha): **padrão** (sem modificador) p/ cards com avatar
+grande (lista de pedidos, popup de indicados); **`--sm`** (1.3rem) p/ linhas compactas (comentários,
+divulgador de vaga, card de ajudante); **`--lg`** (2.15rem, nº um degrau maior) só no cabeçalho do
+card de profissional (canto superior direito). Ao criar um novo uso, escolha o `size` pelo tamanho
+dos vizinhos — não deixe o padrão em linha compacta.
+
 > O **card do IC** no cadastro (`.ic-card`) tem detalhamento próprio em
 > `.claude/rules/onboarding.md`.
 

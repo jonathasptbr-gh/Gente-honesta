@@ -100,4 +100,17 @@
 .ic-bar--alert{ color: var(--danger); }        /* 25–49: vermelho (gpp_maybe) */
 .ic-bar--bad  { color: var(--t-main); }        /* 0–24: cinza-petróleo escuro */
 
+/* ESCALAS por contexto (o badge deve ficar condizente com os vizinhos da linha):
+   - padrão (sem modificador): cards com avatar grande (lista de pedidos, popup
+     de indicados) — casa com o avatar de 28px+;
+   - --sm: linhas compactas onde o badge divide espaço com texto/avatar pequenos
+     (comentários, divulgador de vaga, card de ajudante);
+   - --lg: cabeçalho do card de profissional (3 linhas de texto → mais respiro),
+     com número um degrau maior para leitura destacada. */
+.ic-bar--sm .ic-bar__frame { width: 1.3rem; height: 1.4rem; }
+.ic-bar--sm .ic-bar__value { font-size: var(--fs-1); }
+
+.ic-bar--lg .ic-bar__frame { width: 2.15rem; height: 2.3rem; }
+.ic-bar--lg .ic-bar__value { font-size: var(--fs-5); }
+
 

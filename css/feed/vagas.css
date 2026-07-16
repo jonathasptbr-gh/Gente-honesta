@@ -486,22 +486,11 @@
   color: var(--t-main);
 }
 
-/* IC compacto do divulgador */
+/* IC compacto do divulgador (tamanho vem do modificador --sm do .ic-bar). */
 .vaga-card__poster-ic {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-}
-
-/* Badge-escudo REDUZIDO na linha do divulgador (a linha é bem discreta, então o
-   escudo é menor que o padrão do .ic-bar dos cards). */
-.vaga-card__poster-ic .ic-bar__frame {
-  width: 1.4rem;
-  height: 1.5rem;
-}
-
-.vaga-card__poster-ic .ic-bar__value {
-  font-size: var(--fs-1);
 }
 
 /* O badge-escudo do IC vive dentro de .vaga-card__poster-ic. Sobre a faixa clara do

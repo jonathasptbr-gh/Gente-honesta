@@ -12,9 +12,14 @@ import { PEDIDO_STATUS, URGENCY } from '../core/domain.js';
 // formato de escudo usado no app. Fonte única do SVG:
 export const IC_SHIELD_SVG = `<svg class="ic-bar__frame" viewBox="0 0 24 26" aria-hidden="true"><path d="M12 1.6 L21.4 5.4 V12 C21.4 18.1 17.3 23.3 12 24.7 C6.7 23.3 2.6 18.1 2.6 12 V5.4 Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`;
 
-export const icBarHTML = (ic) => {
+// `size` opcional escala o badge ao contexto (compartilha a linha com outros
+// elementos): 'sm' (compacto: comentários, divulgador de vaga, ajudante),
+// 'lg' (destaque: cabeçalho do card de profissional). Sem size = padrão (cards
+// com avatar grande: lista de pedidos, popup de indicados).
+export const icBarHTML = (ic, size) => {
   const tier = icTier(ic);
-  return `<span class="ic-bar ic-bar--${tier}" role="img" aria-label="Índice de confiança ${ic}">${IC_SHIELD_SVG}<span class="ic-bar__value">${ic}</span></span>`;
+  const sizeCls = size ? ` ic-bar--${size}` : '';
+  return `<span class="ic-bar ic-bar--${tier}${sizeCls}" role="img" aria-label="Índice de confiança ${ic}">${IC_SHIELD_SVG}<span class="ic-bar__value">${ic}</span></span>`;
 };
 
 export const qavHTML = (q, a, v) => `
@@ -34,7 +39,9 @@ export const availHTML = (state) => {
 export const buildCommentHTML = (c) => {
   const MAX = 150;
   const text = c.text.length > MAX ? c.text.slice(0, MAX).trimEnd() + '...' : c.text;
-  return `<div class="comment"><p class="comment__text">"${text}" <span class="comment__author">${c.author}</span> ${icBarHTML(c.ic)}</p></div>`;
+  // Autor + IC SEMPRE numa linha nova, DEPOIS do comentário (assinatura da
+  // citação). O IC compacto ('sm') casa com o tamanho do nome do autor.
+  return `<div class="comment"><p class="comment__text">"${text}"</p><div class="comment__byline"><span class="comment__author">${c.author}</span>${icBarHTML(c.ic, 'sm')}</div></div>`;
 };
 
 let _proBackHTML = null;

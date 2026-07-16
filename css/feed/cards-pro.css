@@ -155,29 +155,22 @@
   margin: 0;
 }
 
+/* Assinatura: nome do autor + IC SEMPRE numa linha nova, depois do comentário.
+   Alinhada à direita (fecho de citação), com o badge compacto (--sm). */
+.comment__byline {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 3px;
+}
+
 .comment__author {
   font-weight: var(--fw-bold);
+  font-size: var(--fs-3);
+  color: var(--t-main);
   white-space: nowrap;
 }
-
-.comment__ic {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  font-size: var(--fs-2);
-  font-weight: var(--fw-bold);
-  vertical-align: middle;
-}
-
-.comment__ic .material-symbols-rounded {
-  font-size: 0.9rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
-}
-
-.comment__ic.ic-bar--ok    { color: var(--success-fill); }
-.comment__ic.ic-bar--warn  { color: var(--a-gold); }
-.comment__ic.ic-bar--alert { color: var(--danger); }
-.comment__ic.ic-bar--bad   { color: var(--t-main); }
 
 /* Barra de ações no verso */
 .pro-card__back-actions {
@@ -389,13 +382,14 @@
   flex: 1;
 }
 
-/* Coluna direita do cabeçalho: só o índice de confiança, ancorado embaixo
-   (a marca de "salvo" agora é a fita sobre a foto). O salvar é por long-press. */
+/* Coluna direita do cabeçalho: só o índice de confiança, ancorado no CANTO
+   SUPERIOR DIREITO (flex-start, não centralizado no vão vertical). A marca de
+   "salvo" agora é a fita sobre a foto; o salvar é por long-press. */
 .pro-card__head-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  justify-content: flex-end;
+  justify-content: flex-start;
   flex-shrink: 0;
 }
 

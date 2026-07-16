@@ -755,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${availHTML(pro.avail)}
           </div>
           <div class="pro-card__head-right">
-            ${icBarHTML(pro.ic)}
+            ${icBarHTML(pro.ic, 'lg')}
           </div>
         </div>
         <p class="pro-card__bio">${pro.bio}</p>
@@ -1169,7 +1169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="vaga-card__poster">
               <img class="vaga-card__poster-avatar" src="${avatarSvg}" alt="">
               <span class="vaga-card__poster-name">Divulgado por <strong>${vaga.poster.name}</strong></span>
-              <span class="vaga-card__poster-ic">${icBarHTML(vaga.poster.ic)}</span>
+              <span class="vaga-card__poster-ic">${icBarHTML(vaga.poster.ic, 'sm')}</span>
             </div>
             <div class="vaga-card__body">
               <div class="vaga-card__role-row">
@@ -2118,7 +2118,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="pro-card__name">${h.first} ${h.last}</div>
             </div>
             <div class="pro-card__head-right">
-              ${icBarHTML(h.ic)}
+              ${icBarHTML(h.ic, 'sm')}
             </div>
           </div>
           <a class="btn pro-card__back-btn pro-card__back-btn--whatsapp helper-wa"
