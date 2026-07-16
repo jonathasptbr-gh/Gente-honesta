@@ -214,6 +214,43 @@ document.addEventListener('DOMContentLoaded', () => {
     return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
   }
 
+  // Animação de abertura do detalhe (pedido/vaga): o botão DOURADO parece "deslizar"
+  // do lugar do abridor para a posição do vizinho, virando "Concluir", enquanto o
+  // "Fechar" surge no lugar original. Implementação: o botão que VIRA Concluir (o
+  // vizinho) entra deslizando a partir da posição do abridor (translateX medido por
+  // rect), e o abridor (agora "Fechar", sob o dourado) faz fade-in ao ser revelado.
+  // Chamar DEPOIS de aplicar os rótulos/estados finais dos dois botões.
+  function animateConcludeSwap(concludeBtn, closeBtn) {
+    if (!concludeBtn || !closeBtn) return;
+    clearTimeout(concludeBtn._swapT);
+    const dx = Math.round(closeBtn.getBoundingClientRect().left - concludeBtn.getBoundingClientRect().left);
+    if (!dx) return; // barra não medida (aba não visível) → sem animação, estado final direto
+    concludeBtn.style.transition = 'none';
+    concludeBtn.style.transform  = `translateX(${dx}px)`;
+    concludeBtn.style.zIndex     = '3';
+    closeBtn.style.transition = 'none';
+    closeBtn.style.opacity    = '0';
+    void concludeBtn.offsetWidth; // reflow: fixa o estado inicial
+    concludeBtn.style.transition = 'transform 0.42s var(--sheet-ease, cubic-bezier(0.32,0.72,0,1))';
+    concludeBtn.style.transform  = 'translateX(0)';
+    closeBtn.style.transition = 'opacity 0.3s ease 0.12s';
+    closeBtn.style.opacity    = '1';
+    concludeBtn._swapT = setTimeout(() => {
+      concludeBtn.style.transition = ''; concludeBtn.style.transform = ''; concludeBtn.style.zIndex = '';
+      closeBtn.style.transition = ''; closeBtn.style.opacity = '';
+    }, 470);
+  }
+
+  // Limpa qualquer estado inline deixado pela animação acima (ao fechar o detalhe,
+  // os botões voltam ao natural instantaneamente — sem transform/opacity residual).
+  function resetConcludeSwap(...btns) {
+    btns.forEach(b => {
+      if (!b) return;
+      clearTimeout(b._swapT);
+      b.style.transition = ''; b.style.transform = ''; b.style.opacity = ''; b.style.zIndex = '';
+    });
+  }
+
   // --- Chips de status dos contratos (Todos / Ativo / Concluído / Cancelado):
   // seleção única no #contracts-filters-sheet + aplica o filtro na lista.
   const statusChips = document.querySelectorAll('[data-filter-status]');
@@ -1555,9 +1592,13 @@ document.addEventListener('DOMContentLoaded', () => {
       vagaDetailSheet?.classList.add('pedido-sheet--open');
       setVagaOpenerClose(true);       // opener (Ver vaga, à esquerda) → "Fechar"
       setAjudanteConcludeVaga(true);  // irmão (Ajudantes, à direita) → "Concluir vaga"
+      // O dourado "desliza" do abridor (Ver vaga) para o vizinho (Ajudantes),
+      // virando "Concluir vaga"; "Fechar" surge no lugar do abridor.
+      animateConcludeSwap(btnAjudanteBar, btnCriarVaga);
     };
     const closeVagaDetailSheet = () => {
       vagaDetailSheet?.classList.remove('pedido-sheet--open');
+      resetConcludeSwap(btnAjudanteBar, btnCriarVaga); // limpa a animação de abertura
       setVagaOpenerClose(false);
       setAjudanteConcludeVaga(false); // restaura o botão de ajudantes
     };
@@ -2346,6 +2387,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pedidoSheet?.classList.remove('pedido-sheet--morph');
     detailPedidoId = null;
     pedidoDetailMode = null;
+    resetConcludeSwap(btnHistorico, btnMyPedido); // limpa transform/opacity da animação de abertura
     setMyPedidoButton('natural');
     // Restaura o botão Histórico e o título da top bar: se o histórico continua
     // aberto atrás, volta a "Fechar" + "Histórico de pedidos"; senão, ao natural.
@@ -2404,6 +2446,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (active) {
       setHistoricoButton('conclude');
       setMyPedidoButton('close');
+      // O dourado "desliza" do abridor (Pedido atual) para o vizinho (Histórico),
+      // virando "Concluir pedido"; "Fechar" surge no lugar do Pedido atual.
+      animateConcludeSwap(btnHistorico, btnMyPedido);
     } else {
       setHistoricoButton('close');
       setMyPedidoButton('natural');

@@ -159,6 +159,14 @@ Histórico "Concluir pedido" (`.action-conclude-mode`) + Pedido atual "Fechar". 
 `concluirDetailPedido` (Pedido atual "Fechar" cai no fechar padrão); antigo+PedidoAtual →
 `myPedidoNavigate`; resto → `closePedidoSheet`.
 
+**Animação de abertura (dourado "desliza"):** `animateConcludeSwap(concludeBtn, closeBtn)` (helper
+único, também usado pela vaga). Ao abrir o detalhe ATIVO, o botão dourado parece deslizar do lugar do
+ABRIDOR para a posição do VIZINHO virando "Concluir", enquanto o "Fechar" surge no lugar original: o
+botão que vira Concluir (o vizinho) entra por `translateX` medido por rect a partir da posição do
+abridor, e o abridor (agora "Fechar", sob o dourado) faz fade-in. `resetConcludeSwap(...)` limpa os
+estilos inline no fechar (o detalhe volta ao natural instantâneo). Pedido: `animateConcludeSwap(btnHistorico,
+btnMyPedido)`; vaga: `animateConcludeSwap(btnAjudanteBar, btnCriarVaga)`.
+
 ## Histórico de pedidos (`#historico-sheet`)
 
 Dropdown (`#btn-historico-pedidos`) com o mesmo slide-down. Lista `#historico-list` com TODOS os
