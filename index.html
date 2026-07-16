@@ -101,21 +101,6 @@
 </head>
 <body class="app-body">
 
-    <!-- Filtro SVG compartilhado: sombra do escudo do IC PARA DENTRO (inset).
-         box-shadow inset não segue a silhueta do escudo; este filtro cria a
-         sombra rente à borda interna. Referenciado por CSS (.ic-bar__frame path).
-         primitiveUnits em userSpaceOnUse → o blur escala com o viewBox (24x26),
-         então a sombra fica proporcional em qualquer tamanho de escudo. -->
-    <svg width="0" height="0" aria-hidden="true" style="position:absolute">
-      <filter id="ic-inset-shadow" x="-20%" y="-20%" width="140%" height="140%">
-        <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="blur"/>
-        <feComposite operator="out" in="SourceGraphic" in2="blur" result="inverse"/>
-        <feFlood flood-color="#000" flood-opacity="0.75" result="color"/>
-        <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
-        <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
-      </filter>
-    </svg>
-
     <!-- =====================================================================
          CAMADA GLOBAL — Bloqueio de acesso via Desktop
          Visível APENAS quando html.is-desktop (definido pelo script do head).
@@ -178,7 +163,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v377</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v378</span>
     </div>
 
     <!-- =====================================================================
