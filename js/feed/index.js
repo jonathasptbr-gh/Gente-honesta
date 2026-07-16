@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const prosPanelHost    = document.querySelector('.feed-panel--pros');       // dono original do #agenda-list
   const searchWrap       = document.querySelector('.agenda-filters__search-wrap'); // busca real (campo + filtro)
   const barSearchState   = document.getElementById('bar-search-state');       // lar original da barra de busca
-  const INDICATE_PROMPT  = 'Quem você quer indicar para este serviço?';
+  const INDICATE_PROMPT  = 'Quem você quer indicar?';
   const INDICATE_SHEET_EASE = 'cubic-bezier(0.32,0.72,0,1)';   // espelha --sheet-ease
 
   const openIndicatedPopup = (postId) => {

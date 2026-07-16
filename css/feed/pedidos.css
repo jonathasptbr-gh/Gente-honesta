@@ -297,7 +297,7 @@
   flex: 1;
   min-width: 0;
   margin: 0;
-  font-size: var(--fs-5);
+  font-size: var(--fs-7);
   font-weight: var(--fw-heavy);
   line-height: 1.2;
   color: var(--a-gold);
