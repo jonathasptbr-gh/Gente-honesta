@@ -300,14 +300,14 @@ gaveta), `resetVagaForm()`, `openVagaSheet()`/`closeVagaSheet()`. Publicar valid
 Gaveta de detalhe da vaga que o usuário publicou (visão do DONO, não candidatura). Acionada pelo
 mesmo `#btn-criar-vaga` em modo "Ver vaga". Reusa `.pedido-sheet*` (gaveta clara). Renderizada por
 `renderVagaDetail()`: o MESMO visual do card via **`vagaContentHTML(vaga, bodyTail)`** (fonte ÚNICA,
-hoistada, compartilhada com a FRENTE do card em `renderVagasList` — faixa da empresa + divulgador +
+hoistada, compartilhada com a FRENTE do card em `renderVagasList` — faixa da empresa +
 corpo com requisitos/detalhes/benefícios), **sem o casco do card e SEM "Me candidatar"**. No rodapé,
 `.vaga-detail__actions`: CTA **"Analisar candidatos"** (`.btn.btn--accent`) + badge de fração
 `.vaga-detail__count` (`taken/MAX_CANDIDATOS`, MAX_CANDIDATOS=20 em config.js), mesmo desenho
 fração+ícone do `.post-card__indicate-info` dos pedidos. Ambos são placeholders (`comingSoon`) —
 sem backend de candidatura. `openVagaDetailSheet()`/`closeVagaDetailSheet()` seguem o padrão dos
 sheets (abridor "Ver vaga" à esquerda vira "Fechar" via `setVagaOpenerClose`, tap-outside). CSS em
-`feed/vagas.css` (a faixa da empresa + divulgador sangram até as bordas do painel; o corpo perde o
+`feed/vagas.css` (a faixa da empresa sangra até as bordas do painel; o corpo perde o
 padding lateral do card para alinhar).
 
 **Concluir vaga (mesmo sistema dos pedidos):** enquanto o detalhe está aberto, o botão IRMÃO à

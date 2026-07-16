@@ -455,49 +455,6 @@
   font-size: 1.05rem !important;
 }
 
-/* Linha do divulgador — bem discreta, fundo levemente off-white */
-.vaga-card__poster {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px var(--space-md);
-  background: rgba(0, 0, 0, 0.03);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.vaga-card__poster-avatar {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: var(--border-light);
-  flex-shrink: 0;
-  opacity: 0.65;
-}
-
-.vaga-card__poster-name {
-  font-size: var(--fs-3);
-  color: var(--t-sub);
-  flex: 1;
-}
-
-.vaga-card__poster-name strong {
-  font-weight: var(--fw-bold);
-  color: var(--t-main);
-}
-
-/* IC compacto do divulgador (tamanho vem do modificador --sm do .ic-bar). */
-.vaga-card__poster-ic {
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-/* O badge-escudo do IC vive dentro de .vaga-card__poster-ic. Sobre a faixa clara do
-   divulgador, o tier "warn" usa o ocre (--a-gold-text) em vez do gold puro (baixo
-   contraste no claro); os demais tiers seguem o padrão do .ic-bar. */
-.vaga-card__poster .ic-bar--warn { color: var(--a-gold-text); }
-
 /* Corpo do card: informações da vaga */
 .vaga-card__body {
   padding: var(--space-md);
@@ -711,16 +668,15 @@
   flex-direction: column;
 }
 
-/* Faixa da empresa + divulgador: edge-to-edge no painel (anula o padding lateral
-   da gaveta; o padding interno próprio de cada um devolve o alinhamento). */
-#vaga-detail-content .vaga-card__company-strip,
-#vaga-detail-content .vaga-card__poster {
+/* Faixa da empresa: edge-to-edge no painel (anula o padding lateral da gaveta;
+   o padding interno próprio devolve o alinhamento). */
+#vaga-detail-content .vaga-card__company-strip {
   margin-left: calc(-1 * var(--space-md));
   margin-right: calc(-1 * var(--space-md));
 }
 
 /* Corpo: sem o padding lateral do card (a gaveta já dá o respiro) — as seções
-   alinham com o texto da faixa/divulgador. Mantém o respiro vertical. */
+   alinham com o texto da faixa. Mantém o respiro vertical. */
 #vaga-detail-content .vaga-card__body {
   padding-left: 0;
   padding-right: 0;
