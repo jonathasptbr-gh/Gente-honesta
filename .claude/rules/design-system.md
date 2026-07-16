@@ -206,7 +206,11 @@ deve ficar condizente com os vizinhos da linha): **padrão** (sem modificador) p
 grande (lista de pedidos, popup de indicados); **`--sm`** (1.3rem) p/ linhas compactas (comentários,
 divulgador de vaga, card de ajudante); **`--lg`** (2.15rem, nº um degrau maior) só no cabeçalho do
 card de profissional (canto superior direito). Ao criar um novo uso, escolha o `size` pelo tamanho
-dos vizinhos — não deixe o padrão em linha compacta.
+dos vizinhos — não deixe o padrão em linha compacta. O **fundo semitransparente** do escudo (cor do
+tier a 14%) vem do CSS (`.ic-bar__frame path { fill: currentColor; fill-opacity: 0.14 }`) — fonte
+única que vence o `fill="none"` do markup, então todo `.ic-bar` (inclusive os escudos hardcoded da
+lista de pedidos) fica no padrão. Nas linhas com avatar+nome (pedido, vaga, ajudante) e na
+assinatura de comentário, o **IC vem ANTES do nome**.
 
 > O **card do IC** no cadastro (`.ic-card`) tem detalhamento próprio em
 > `.claude/rules/onboarding.md`.

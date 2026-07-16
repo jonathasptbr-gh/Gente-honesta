@@ -25,7 +25,7 @@ Repositório: jonathasptbr-gh/gente-honesta
   para `main`; **sem build step** — os arquivos são estáticos, o deploy publica o repo direto).
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v370**.
+  bump.) Versão atual: **v371**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**

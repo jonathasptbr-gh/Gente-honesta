@@ -329,7 +329,8 @@ Reusa `.pedido-sheet*`. Duas funções sempre visíveis (`.ajudante-divider`). E
   mostra o form OU os contatos + Cancelar (`#btn-cancel-helper`, libera na hora). Reset à meia-noite
   (`scheduleHelperMidnightReset`) + `visibilitychange`.
 - **Card de contato** (`helperPersonHTML`, reusa `.pro-card__*`): foto à esquerda, à direita uma linha
-  nome + `icBarHTML`, e abaixo o botão "Conversar no WhatsApp" (`a.helper-wa`). `mockHelpers` =
+  `icBarHTML` + nome (IC ANTES do nome, `.pro-card__head--helper`), e abaixo o botão "Conversar no
+  WhatsApp" (`a.helper-wa`). `mockHelpers` =
   `{id, first, last, ic, phone, type}`.
 Abridor vira "Fechar" (`setAjudanteClose`); fecha por tap-outside.
 
