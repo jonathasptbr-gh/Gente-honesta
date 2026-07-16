@@ -840,11 +840,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (postId != null) openIndicatedPopup(postId);
       return;
     }
-    // Botão "Indicar alguém" → entra no modo indicação (overlay SOBRE os pedidos;
-    // NÃO troca de painel — o feed de pedidos permanece atrás, borrado).
-    const btn = e.target.closest('.post-card__indicate-btn');
-    if (!btn) return;
-    enterIndicateMode(btn.dataset.postId);
+    // Denúncia é um chip próprio — não entra no modo indicação.
+    if (e.target.closest('.post-card__report')) return;
+    // Tocar em QUALQUER outro ponto do card (inclusive o botão "Indicar alguém")
+    // entra no modo indicação (overlay SOBRE os pedidos; NÃO troca de painel — o
+    // feed de pedidos permanece atrás, borrado).
+    const card = e.target.closest('.pedido-item');
+    if (!card) return;
+    enterIndicateMode(card.dataset.postId);
   });
 
 

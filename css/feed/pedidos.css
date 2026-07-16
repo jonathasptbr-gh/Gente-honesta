@@ -24,6 +24,13 @@
   flex-direction: column;
   gap: 10px;
   position: relative;
+  /* O card inteiro é tocável (abre a indicação) — feedback de alvo grande. */
+  cursor: pointer;
+  transition: transform 0.12s var(--ease);
+}
+
+.pedido-item:active {
+  transform: scale(var(--press-scale-subtle));
 }
 
 /* Símbolo "Urgente" embutido antes do texto */
