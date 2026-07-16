@@ -345,28 +345,14 @@
   display: block;
 }
 
-/* Card de referência do pedido no topo da top-bar de indicação (sem os botões). */
+/* Porta-card fixo do modo indicação: recebe o CLONE do card do pedido (um
+   .pedido-item, que se estiliza sozinho). O FLIP é feito por transform inline (JS). */
 .indicate-post-ref {
   flex-shrink: 0;
 }
 
-.indicate-post-ref .post-card {
-  margin-bottom: 0;
-}
-
-/* Reduz o espaçamento interno do card de referência — é uma referência, não o card principal */
-.indicate-post-ref .post-card__header {
-  padding: 8px var(--space-sm);
-}
-
-.indicate-post-ref .post-card__body {
-  padding: 4px var(--space-sm) 10px;   /* top mínimo, bottom com respiro */
-}
-
-.indicate-post-ref .post-card__text {
-  font-size: var(--fs-6);
-  line-height: 1.4;
-  /* Sem line-clamp: todo o texto do pedido é visível */
+.indicate-post-ref .pedido-item {
+  will-change: transform;
 }
 
 /* Coluna esquerda: foto e, abaixo dela, os índices Q/A/V */

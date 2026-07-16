@@ -163,7 +163,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v351</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v352</span>
     </div>
 
     <!-- =====================================================================
@@ -683,20 +683,15 @@
         <!-- Top bar removida (v287): perfil, contratos e busca foram consolidados na
              linha de busca da action bar (aba Profissionais). -->
 
-        <!-- ── Top-bar PROVISÓRIA do modo indicação (substitui a top-bar acima) ── -->
+        <!-- ── Backdrop de blur escuro do modo indicação (fundo desta sessão) ──
+             Substitui a antiga borda dourada. Fica atrás do card fixo e do feed
+             (que ganham z-index acima em .view-feed--indicate) e desfoca o fundo. -->
+        <div id="indicate-backdrop" class="indicate-backdrop" aria-hidden="true"></div>
+
+        <!-- ── Porta-card fixo do modo indicação (o card do pedido sobe até aqui) ──
+             O card do pedido selecionado é clonado (com a frase no lugar do botão)
+             e faz FLIP da posição na lista até este topo. -->
         <header id="agenda-indicated-block" class="agenda-indicated u-hidden">
-            <div class="agenda-indicated__header">
-                <div id="indicate-count-badge" class="indicate-count-badge">
-                    <span id="indicate-count-value">0/3</span>
-                    <span class="material-symbols-rounded" aria-hidden="true">groups</span>
-                </div>
-                <p class="agenda-indicated__title">Quem você quer indicar para este serviço?</p>
-                <button type="button" id="btn-cancel-indicate-mode" class="btn btn--close agenda-indicated__cancel" aria-label="Cancelar indicação">
-                    <span class="material-symbols-rounded" aria-hidden="true">close</span>
-                    Fechar
-                </button>
-            </div>
-            <!-- Card do pedido que está sendo indicado (sem botões) — injetado via JS -->
             <div id="indicate-post-ref" class="indicate-post-ref"></div>
         </header>
 
@@ -1142,9 +1137,6 @@
             </div>
             </div>
         </div>
-
-        <!-- ── Borda azul de tela durante modo indicação ── -->
-        <div id="indicate-screen-border" class="indicate-screen-border" aria-hidden="true"></div>
 
         <!-- ── Gaveta de Contratos (dropdown abaixo da action bar, padrão claro) ──
              Reusa o scaffolding .historico-sheet* + a variante --bar-clear (o

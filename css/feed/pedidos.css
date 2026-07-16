@@ -115,6 +115,7 @@
   align-items: center;
   gap: var(--space-xs);
   margin-top: 2px;
+  max-height: 44px;   /* base p/ o colapso animado no morph → frase (v351) */
 }
 
 .pedido-item__actions .post-card__indicate-btn {
@@ -286,60 +287,73 @@
 }
 
 
-/* Top-bar PROVISÓRIA do modo indicação — substitui a top-bar verde. */
+/* Porta-card FIXO do modo indicação (v351): o card do pedido sobe (FLIP) até aqui.
+   Fundo transparente — atrás dele fica o blur escuro (#indicate-backdrop). Carrega
+   o safe-area do topo (o card fica logo abaixo do notch). */
 .agenda-indicated {
   flex-shrink: 0;
-  z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  overflow: hidden;
-  background: var(--p-green);
-  padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) 0;
+  background: transparent;
+  padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
 }
 
-.agenda-indicated__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  min-height: 40px;
-}
-
-.agenda-indicated__title {
+/* Frase que SUBSTITUI o botão "Indicar alguém" dentro do card (2 linhas), tanto no
+   card real (morph) quanto no clone fixo. Colapsada por padrão; abre animada. */
+.pedido-item__prompt {
+  margin: 0;
   font-size: var(--fs-6);
   font-weight: var(--fw-heavy);
+  line-height: 1.35;
   color: var(--t-light);
-  margin: 0;
-  flex: 1;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.26s var(--sheet-ease), opacity 0.22s ease, margin-top 0.26s var(--sheet-ease);
 }
 
-/* Badge de contagem de indicados no header */
-.indicate-count-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--on-green-faint);
-  border-radius: var(--radius-md);
-  padding: 9px 12px;
-  font-size: var(--fs-6);
-  font-weight: var(--fw-bold);
-  color: var(--t-light);
-  flex-shrink: 0;
+.pedido-item__prompt--in {
+  max-height: 4em;
+  opacity: 1;
+  margin-top: 2px;
 }
 
-.indicate-count-badge .material-symbols-rounded {
-  font-size: 1.1rem;
+/* Botão/contagem do card recolhem enquanto a frase entra (crossfade + colapso). */
+.pedido-item__actions--morph-out {
+  max-height: 0 !important;
+  opacity: 0;
+  margin-top: 0;
+  overflow: hidden;
+  transition: max-height 0.24s var(--sheet-ease), opacity 0.18s ease;
 }
 
-/* Botão "Fechar" no modo indicação e no popup — compõe .btn .btn--close (HTML);
-   aqui só a cor sobre o verde e a altura casada com o badge de contagem ao lado. */
+/* Botão "Fechar" do popup de indicados — compõe .btn .btn--close (HTML); aqui só a
+   cor sobre o verde do sheet. */
 .agenda-indicated__cancel {
   background: var(--on-green-faint);
   color: var(--t-light);
   font-size: var(--fs-5);
   padding: 9px var(--space-sm);
   flex-shrink: 0;
+}
+
+/* Blur escuro de fundo do modo indicação — substitui a antiga borda dourada.
+   Fica atrás do card fixo e do feed (que ganham z-index em .view-feed--indicate)
+   e desfoca o fundo da tela. */
+.indicate-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: var(--overlay);
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.indicate-backdrop--active {
+  opacity: 1;
 }
 
 /* Popup de profissionais já indicados */
