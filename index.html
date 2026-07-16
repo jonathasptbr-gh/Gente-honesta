@@ -163,7 +163,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v349</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v350</span>
     </div>
 
     <!-- =====================================================================
@@ -1154,13 +1154,6 @@
             <div class="historico-sheet__backdrop"></div>
             <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
-                <!-- Limpar filtros de contratos: MESMO flutuante do feed de
-                     profissionais (.agenda-clear-fab), no TOPO da área de scroll;
-                     visível só com filtro de contrato ativo (updateFilterIndicator). -->
-                <button type="button" id="btn-clear-contracts-filters" class="btn agenda-clear-fab u-hidden">
-                    <span class="material-symbols-rounded" aria-hidden="true">filter_alt_off</span>
-                    Limpar Filtros
-                </button>
                 <div class="historico-sheet__scroll js-scroll-shadows">
                 <div id="contracts-list" class="contracts-list">
 
@@ -1416,12 +1409,14 @@
                         <button type="button" id="btn-search-clear" class="material-symbols-rounded agenda-filters__search-icon" aria-label="Limpar busca" tabindex="-1">search</button>
                         <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar no Gente Honesta...">
                         <!-- Botão de filtro: pílula branca DENTRO da busca, à direita.
-                             Com filtros ativos ele mesmo vira o indicador (tint azul +
-                             contagem — pílula unificada); tocar SEMPRE abre a gaveta de
-                             filtros (limpar fica no botão dentro da gaveta). -->
+                             Estados (syncFilterPillIcon): repouso = tune → abre a gaveta;
+                             gaveta aberta = seta p/ baixo → fecha; COM FILTRO ATIVO e a
+                             gaveta FECHADA = filter_alt + contagem + X (tint azul) e tocar
+                             LIMPA todos os filtros (volta ao tune). -->
                         <button type="button" id="btn-toggle-filters" class="agenda-filters__filter-pill" aria-label="Filtrar" aria-expanded="false">
                             <span class="material-symbols-rounded" aria-hidden="true">tune</span>
                             <span id="filter-count" class="agenda-filters__filter-count u-hidden">0</span>
+                            <span class="material-symbols-rounded agenda-filters__filter-clear-x u-hidden" aria-hidden="true">close</span>
                         </button>
                     </div>
 
@@ -1465,14 +1460,6 @@
                     <div id="agenda-list" class="agenda-list">
                         <!-- Cards inseridos dinamicamente -->
                     </div>
-                    <!-- Limpar filtros: FLUTUANTE semi-transparente no TOPO do feed,
-                         visível só com filtro ativo (updateFilterIndicator). Vive
-                         DENTRO do painel de profissionais: desliza junto na troca
-                         de aba. Zera os 4 grupos (mantém ordenação e pins). -->
-                    <button type="button" id="btn-clear-filters" class="btn agenda-clear-fab u-hidden">
-                        <span class="material-symbols-rounded" aria-hidden="true">filter_alt_off</span>
-                        Limpar Filtros
-                    </button>
                 </div>
 
                 <!-- Painel 2 — pedidos de indicação -->

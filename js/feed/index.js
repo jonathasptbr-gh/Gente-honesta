@@ -422,10 +422,8 @@ document.addEventListener('DOMContentLoaded', () => {
       cnt.classList.toggle('u-hidden', n === 0);
     }
     pill?.classList.toggle('agenda-filters__filter-pill--filtered', n > 0);
-    // Flutuante "Limpar Filtros" no TOPO: profissionais no feed, contratos na
-    // gaveta — cada um aparece só no seu modo com filtro ativo.
-    document.getElementById('btn-clear-filters')?.classList.toggle('u-hidden', contractsMode || activeFilterCount() === 0);
-    document.getElementById('btn-clear-contracts-filters')?.classList.toggle('u-hidden', !contractsMode || contractsActiveFilterCount() === 0);
+    // syncFilterPillIcon decide o glifo (tune/filter_alt/seta) e a visibilidade
+    // do X de limpar conforme filtro ativo + gaveta aberta/fechada.
     syncFilterPillIcon();
   }
 
@@ -435,13 +433,24 @@ document.addEventListener('DOMContentLoaded', () => {
   //   que desce; toque recolhe); filtros ativos → filter_alt; repouso → tune.
   function syncFilterPillIcon() {
     const pill = document.getElementById('btn-toggle-filters');
-    const icon = pill?.querySelector('.material-symbols-rounded');
+    const icon = pill?.querySelector('.material-symbols-rounded');   // 1º glifo = principal
     if (!icon) return;
+    const clearX = pill.querySelector('.agenda-filters__filter-clear-x');
     const sheetOpen =
       document.getElementById('filters-sheet')?.classList.contains('historico-sheet--open') ||
       document.getElementById('contracts-filters-sheet')?.classList.contains('historico-sheet--open');
-    if (sheetOpen) { icon.textContent = 'keyboard_arrow_down'; return; }
-    icon.textContent = pill.classList.contains('agenda-filters__filter-pill--filtered') ? 'filter_alt' : 'tune';
+    if (sheetOpen) {
+      icon.textContent = 'keyboard_arrow_down';
+      clearX?.classList.add('u-hidden');
+      pill.setAttribute('aria-label', 'Fechar filtros');
+      return;
+    }
+    // Gaveta fechada: com filtro ativo, a pílula vira "Limpar" (filter_alt + X);
+    // sem filtro, é o abridor (tune).
+    const filtered = pill.classList.contains('agenda-filters__filter-pill--filtered');
+    icon.textContent = filtered ? 'filter_alt' : 'tune';
+    clearX?.classList.toggle('u-hidden', !filtered);
+    pill.setAttribute('aria-label', filtered ? 'Limpar filtros' : 'Filtrar');
   }
 
   // Reseta lista de profissionais: desvira cards, limpa filtros, vai ao topo
@@ -2049,26 +2058,30 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.getElementById('btn-toggle-filters')?.addEventListener('click', () => {
-    // Com a gaveta de CONTRATOS aberta, o mesmo botão alterna o sheet de
-    // filtros de CONTRATOS (a barra segue viva sob a variante --bar-clear).
+    // 3 comportamentos por estado: gaveta aberta → fecha; filtro ativo + gaveta
+    // fechada → LIMPA (a pílula está em modo X); repouso → abre.
+    // Com a gaveta de CONTRATOS aberta, tudo opera sobre os filtros de CONTRATOS
+    // (a barra segue viva sob a variante --bar-clear).
     if (isContractsSheetOpen()) {
-      const openC = contractsFiltersSheet?.classList.contains('historico-sheet--open');
-      if (openC) closeContractsFiltersSheet(); else openContractsFiltersSheet();
+      if (contractsFiltersSheet?.classList.contains('historico-sheet--open')) { closeContractsFiltersSheet(); return; }
+      if (contractsActiveFilterCount() > 0) { clearContractsFilters(); return; }
+      openContractsFiltersSheet();
       return;
     }
-    const open = document.getElementById('filters-sheet')?.classList.contains('historico-sheet--open');
-    if (open) closeFiltersSheet(); else openFiltersSheet();
+    if (document.getElementById('filters-sheet')?.classList.contains('historico-sheet--open')) { closeFiltersSheet(); return; }
+    if (activeFilterCount() > 0) { clearProsFilters(); return; }
+    openFiltersSheet();
   });
   // Fecha ao tocar fora do painel (inclui tocar no próprio botão, que agora é "X")
   document.getElementById('filters-sheet')?.addEventListener('click', (e) => {
     if (!e.target.closest('.historico-sheet__panel')) closeFiltersSheet();
   });
 
-  // Botão FLUTUANTE "Limpar filtros" (base do feed de profissionais): zera os
-  // 4 grupos de filtro (mantém a ordenação e os pins), des-seleciona os chips do
-  // painel e re-renderiza. Ele e o indicador da pílula somem sozinhos (contagem
-  // 0) via renderAgendaList → updateFilterIndicator.
-  document.getElementById('btn-clear-filters')?.addEventListener('click', () => {
+  // "Limpar filtros" dos PROFISSIONAIS (acionado pela própria pílula de filtro
+  // em modo X): zera os 4 grupos (mantém ordenação e pins), des-seleciona os
+  // chips e re-renderiza. A pílula volta a "tune" sozinha (contagem 0) via
+  // renderAgendaList → updateFilterIndicator. (function hoistada.)
+  function clearProsFilters() {
     filterState.includeIc.clear();
     filterState.includeAvail.clear();
     filterState.includePay.clear();
@@ -2076,12 +2089,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('#panel-agenda-filters [data-filter-ic], #panel-agenda-filters [data-filter-avail], #panel-agenda-filters [data-filter-pay], #panel-agenda-filters [data-filter-saved]')
       .forEach(c => { c.classList.remove('chip--active'); c.setAttribute('aria-pressed', 'false'); });
     renderAgendaList();
-  });
+  }
 
-  // "Limpar Filtros" dos CONTRATOS (mesmo flutuante, dentro da gaveta): volta o
-  // status a "Todos", zera valor/mês e re-aplica. A busca (texto) fica — só os
-  // filtros são limpos, como no feed de profissionais.
-  document.getElementById('btn-clear-contracts-filters')?.addEventListener('click', () => {
+  // "Limpar filtros" dos CONTRATOS (pílula de filtro em modo X, gaveta de
+  // contratos aberta): volta o status a "Todos", zera valor/mês e re-aplica. A
+  // busca (texto) fica — só os filtros são limpos. (function hoistada.)
+  function clearContractsFilters() {
     contractsFilter.status = 'all';
     document.querySelectorAll('[data-filter-status]').forEach((c) => {
       const isAll = c.dataset.filterStatus === 'all';
@@ -2092,7 +2105,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const el = document.getElementById(id); if (el) el.value = '';
     });
     applyContractsFilters();
-  });
+  }
 
   // Ordenação (dentro do painel) e filtros: um único handler delegado.
   document.getElementById('panel-agenda-filters')?.addEventListener('click', e => {
