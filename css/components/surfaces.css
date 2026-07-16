@@ -88,17 +88,23 @@
 }
 
 /* SEM linha de borda (stroke: none vence o stroke do markup). Preenchimento
-   SÓLIDO num tom claro do tier — a mesma aparência do antigo tint translúcido,
-   mas OPACO para a sombra render em força total. Fonte ÚNICA do escudo: vale
-   para TODO .ic-bar, inclusive os hardcoded da lista de pedidos. O número
-   (.ic-bar__value) é texto à parte, com a cor cheia do tier por cima. */
+   SÓLIDO e FORTE na cor cheia do tier (currentColor). Fonte ÚNICA do escudo:
+   vale para TODO .ic-bar, inclusive os hardcoded da lista de pedidos. O número
+   (.ic-bar__value) é texto claro por cima. */
 .ic-bar__frame path {
-  fill: color-mix(in srgb, currentColor 16%, #fff);
+  fill: currentColor;
   stroke: none;
 }
 
+/* Faixa "warn": o ouro puro (--a-gold) é claro demais p/ número claro em cima;
+   usa o ocre mais escuro (--a-gold-text) como fundo p/ manter a leitura. */
+.ic-bar--warn .ic-bar__frame path {
+  fill: var(--a-gold-text);
+}
+
 /* Número DENTRO da moldura; o centro visual do escudo é um pouco acima do centro
-   da caixa (o desenho afunila para baixo), daí o -54% (como no ic-hero). */
+   da caixa (o desenho afunila para baixo), daí o -54% (como no ic-hero). Cor
+   CLARA sobre o fundo forte do tier. */
 .ic-bar__value {
   position: absolute;
   left: 50%;
@@ -107,6 +113,7 @@
   font-size: var(--fs-3);
   font-weight: var(--fw-heavy);
   line-height: 1;
+  color: var(--t-light);
 }
 
 /* Cor do escudo + número variam pela faixa do índice (100→0 em 4 partes). */
