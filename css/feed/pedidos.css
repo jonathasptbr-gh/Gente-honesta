@@ -344,19 +344,31 @@
   opacity: 1;
 }
 
+/* Barra de abas REAL: durante a indicação é MOVIDA para dentro do overlay (JS) e
+   empilha ENTRE o card do pedido (z-index:1, atrás) e a seção de profissionais
+   (z-index:3, na frente) — o card sobe/desce ATRÁS dela, sem "pular" para frente.
+   O backdrop-filter dá o "blur só sobre a barra" (dimma o card que passa por trás,
+   igual ao resto da tela). */
+.indicate-overlay .bottom-bar {
+  z-index: 2;
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+}
+
 /* Card nítido que flutua ao topo (sobre a região da action bar). O FLIP é por
    transform inline (JS). Carrega o safe-area do topo. */
 .indicate-overlay .indicate-post-ref {
   position: relative;
-  z-index: 2;
+  z-index: 1;   /* ATRÁS da barra de abas (que é movida p/ dentro do overlay em z-index:2) */
   flex-shrink: 0;
   padding: max(var(--space-sm), env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
 }
 
-/* Seção de profissionais flutuante — sobe deslizando de baixo. */
+/* Seção de profissionais flutuante — sobe deslizando de baixo. NA FRENTE da barra
+   de abas (z-index:2), então desliza por cima dela. */
 .indicate-overlay__pros {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   flex: 1;
   min-height: 0;
   display: flex;

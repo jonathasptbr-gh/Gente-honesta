@@ -333,6 +333,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // NÃO troca de painel — o feed de pedidos permanece atrás (borrado). A lista real
   // #agenda-list é MOVIDA para o overlay (reparent) p/ reusar seleção/flip/pin.
   const feedBottomBar    = document.querySelector('#feed-bottom-bar');
+  // Casa da bottom bar: ela é MOVIDA para dentro do overlay durante a indicação
+  // (fica entre o card e a seção de profissionais no empilhamento) e volta aqui.
+  const barHomeParent    = feedBottomBar?.parentElement || null;
+  const barHomeNext      = feedBottomBar?.nextElementSibling || null;
   const indicateOverlay  = document.getElementById('indicate-overlay');
   const indicateProsBox  = document.getElementById('indicate-pros');
   const indicateBar      = document.getElementById('indicate-bar');
@@ -458,9 +462,11 @@ document.addEventListener('DOMContentLoaded', () => {
       refContainer.innerHTML = '';
       refContainer.appendChild(sourceCard);
 
-      // Mostra o overlay + acende o blur. A bottom bar das abas CONTINUA visível: o
-      // overlay (z-index maior) a cobre com o blur igual ao resto da tela — não some.
+      // Mostra o overlay + acende o blur. A bottom bar das abas é MOVIDA para DENTRO
+      // do overlay: assim empilha ENTRE o card do pedido (atrás) e a seção de
+      // profissionais (na frente) — o card sobe/desce atrás dela, sem sumir nem pular.
       indicateOverlay?.classList.remove('u-hidden');
+      if (feedBottomBar && indicateOverlay) indicateOverlay.appendChild(feedBottomBar);
       void indicateOverlay?.offsetHeight;
       indicateOverlay?.classList.add('indicate-overlay--open');
 
@@ -581,6 +587,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Barra de busca volta para a linha de busca da action bar, antes do contratos.
         if (searchWrap && barSearchState) barSearchState.insertBefore(searchWrap, btnOpenContracts);
         resetAgendaList();
+
+        // Devolve a bottom bar para a casa ANTES de esconder o overlay (senão sumiria
+        // junto, por estar dentro dele).
+        if (feedBottomBar && barHomeParent) {
+          if (barHomeNext && barHomeNext.parentElement === barHomeParent) barHomeParent.insertBefore(feedBottomBar, barHomeNext);
+          else barHomeParent.appendChild(feedBottomBar);
+        }
 
         indicateOverlay?.classList.add('u-hidden');
         if (indicateProsBox) { indicateProsBox.style.transition = ''; indicateProsBox.style.transform = ''; indicateProsBox.style.opacity = ''; }
