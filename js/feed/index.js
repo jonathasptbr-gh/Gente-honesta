@@ -1018,6 +1018,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Renderiza lista de contatos
   // Salvos e comuns são ordenados separadamente; filtros e ordem são lidos de filterState.
+  // CTA de fim/vazio da lista de profissionais: em vez de uma simples mensagem
+  // de "fim da lista", convida a abrir um pedido público por indicações. O botão
+  // (#btn-agenda-cta-pedido) é tratado por delegação em #agenda-list (dois tempos:
+  // desliza p/ a aba de pedidos → abre a gaveta de fazer pedido).
+  const AGENDA_CTA_PEDIDO_HTML = `
+    <div class="agenda-cta-pedido">
+      <span class="material-symbols-rounded agenda-cta-pedido__icon" aria-hidden="true">person_search</span>
+      <p class="agenda-cta-pedido__text">Não está conseguindo achar o profissional que procura? Faça um pedido público por indicações.</p>
+      <button type="button" class="btn btn--accent agenda-cta-pedido__btn" id="btn-agenda-cta-pedido">
+        <span class="material-symbols-rounded" aria-hidden="true">add</span>Fazer pedido
+      </button>
+    </div>`;
+
   const renderAgendaList = () => {
     const list = document.getElementById('agenda-list');
     if (!list) return;
@@ -1036,18 +1049,15 @@ document.addEventListener('DOMContentLoaded', () => {
     list.innerHTML = '';
 
     if (final.length === 0) {
-      const empty = document.createElement('p');
-      empty.className = 'list-empty-hint list-empty-hint--block';
-      empty.textContent = 'Nenhum profissional encontrado.';
-      list.appendChild(empty);
+      // Lista vazia (busca sem resultado ou filtros): mostra o mesmo CTA.
+      list.insertAdjacentHTML('beforeend', AGENDA_CTA_PEDIDO_HTML);
       return;
     }
 
     final.forEach(pro => list.appendChild(buildProCard(pro, { showPin: true, withId: true })));
 
-    // Fim do feed: linha-aviso de que a lista da região terminou
-    list.insertAdjacentHTML('beforeend',
-      '<div class="feed-end-cap"><span class="feed-end-cap__text">Você viu todos os profissionais disponíveis na sua região no momento</span></div>');
+    // Fim do feed: CTA de "fazer pedido" (mesmo bloco do estado vazio).
+    list.insertAdjacentHTML('beforeend', AGENDA_CTA_PEDIDO_HTML);
   };
 
   // Reordena os cards já existentes com animação FLIP:
@@ -1075,10 +1085,10 @@ document.addEventListener('DOMContentLoaded', () => {
       c.style.animation = 'none'; // evita repetir cardExpand ao reinserir o nó
       list.appendChild(c);
     });
-    // Devolve a linha de fim-de-feed ao FIM (os appendChild acima moveram os
-    // cards para depois dela)
-    const endCap = list.querySelector('.feed-end-cap');
-    if (endCap) list.appendChild(endCap);
+    // Devolve o CTA de fim-de-feed ao FIM (os appendChild acima moveram os
+    // cards para depois dele)
+    const endCta = list.querySelector('.agenda-cta-pedido');
+    if (endCta) list.appendChild(endCta);
 
     cards.forEach(c => {
       const delta = oldTops.get(c) - c.getBoundingClientRect().top;
@@ -1100,6 +1110,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('inp-agenda-search')?.addEventListener('input', renderAgendaList);
   renderAgendaList();
+
+  // CTA "Fazer pedido" do fim/vazio da lista de profissionais → leva à aba de
+  // pedidos e abre a gaveta de fazer pedido, em DOIS TEMPOS (calmo): (1) desliza
+  // o carrossel para a aba de Pedidos; (2) só quando o slide termina, com um
+  // respiro, abre a gaveta. Delegação porque o botão é recriado a cada render.
+  document.getElementById('agenda-list')?.addEventListener('click', (e) => {
+    if (!e.target.closest('#btn-agenda-cta-pedido')) return;
+    // Tempo 1 — desliza para a aba de Pedidos (mesma curva/duração do carrossel).
+    switchToTab(TAB.PEDIDOS);
+    // Tempo 2 — abre a gaveta quando o slide do painel terminar, com um respiro.
+    let opened = false;
+    const openDrawer = () => {
+      if (opened) return;
+      opened = true;
+      feedPanels?.removeEventListener('transitionend', onSlideEnd);
+      setTimeout(() => myPedidoNavigate(), 180);   // respiro entre os dois tempos
+    };
+    const onSlideEnd = (ev) => {
+      if (ev.target === feedPanels && ev.propertyName === 'transform') openDrawer();
+    };
+    feedPanels?.addEventListener('transitionend', onSlideEnd);
+    setTimeout(openDrawer, 650);   // fallback caso o transitionend não dispare
+  });
 
 
   // =========================================================================

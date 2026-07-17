@@ -243,6 +243,18 @@ filterState {
   (`.agenda-clear-fab`, pílula de vidro flutuante dentro do `.feed-panel--pros`): zera os 4 grupos
   (mantém ordenação e pins). `updateFilterIndicator()` roda dentro de `renderAgendaList`.
 
+## Fim/vazio da lista de profissionais — CTA "Fazer pedido" (`.agenda-cta-pedido`)
+
+`renderAgendaList` NÃO usa mais a linha `.feed-end-cap` (essa segue só em Pedidos/Vagas): tanto ao
+chegar ao fim da lista quanto com a lista vazia (busca sem resultado, filtros) insere o card
+`.agenda-cta-pedido` (`AGENDA_CTA_PEDIDO_HTML`) — "Não está conseguindo achar o profissional que
+procura? Faça um pedido público por indicações" + botão `#btn-agenda-cta-pedido` (`btn--accent`).
+Delegação em `#agenda-list` (o botão é recriado a cada render). O clique roda em **DOIS TEMPOS**:
+(1) `switchToTab(TAB.PEDIDOS)` desliza o carrossel; (2) no `transitionend` de `transform` do
+`#feed-panels` (fallback por timer 650ms), com um respiro de 180ms, `myPedidoNavigate()` abre a
+gaveta de fazer pedido. `reorderAgendaListAnimated` move `.agenda-cta-pedido` (não mais `.feed-end-cap`)
+para o fim.
+
 ## Cards de profissional (flip 3D)
 
 `.pro-card__3d > .pro-card__flipper`: frente = dados (IC, tags, disponibilidade, IC-bar) + fita de

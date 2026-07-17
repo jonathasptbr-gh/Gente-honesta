@@ -1,4 +1,40 @@
 /* ===========================================
+   CTA DE FIM/VAZIO DA LISTA DE PROFISSIONAIS
+   Card branco convidando a abrir um pedido público por indicações. Substitui a
+   antiga linha "fim da lista"; aparece tanto ao rolar até o fim quanto quando a
+   busca/filtros zeram a lista. Fica sobre o fundo verde do feed.
+   ======================================== */
+.agenda-cta-pedido {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  text-align: center;
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-lg) var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.agenda-cta-pedido__icon {
+  font-size: 2.6rem;
+  color: var(--p-green);
+}
+
+.agenda-cta-pedido__text {
+  margin: 0;
+  max-width: 30ch;
+  font-size: var(--fs-6);
+  line-height: 1.4;
+  color: var(--t-main);
+}
+
+.agenda-cta-pedido__btn {
+  align-self: stretch;
+}
+
+/* ===========================================
    FLIP DO CARD
    Ao clicar, o card gira 180° e expande para
    mostrar todo o conteúdo do verso.

@@ -653,6 +653,8 @@
 
 /* ── Fim de feed: linha-aviso "você viu tudo" nos 3 feeds (profissionais,
    vagas e pedidos) — texto discreto entre dois traços, sobre o --bg-canvas. */
+/* Linha de "fim do feed" (ainda usada pelas listas de PEDIDOS e VAGAS; a lista
+   de PROFISSIONAIS trocou por .agenda-cta-pedido). */
 .feed-end-cap {
   display: flex;
   align-items: center;
