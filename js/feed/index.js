@@ -338,6 +338,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const INDICATE_PROMPT  = 'Quem você quer indicar?';
   const INDICATE_SHEET_EASE = 'cubic-bezier(0.32,0.72,0,1)';   // espelha --sheet-ease
 
+  // Duração do "voo" do card (subida na ENTRADA / descida na SAÍDA) PROPORCIONAL à
+  // distância percorrida → velocidade LINEAR constante. Um card que estava lá embaixo
+  // (mais longe do topo) leva MAIS tempo, em vez de "disparar" na mesma meia-segundo
+  // de um card que já estava perto do topo; assim a percepção de velocidade é a mesma
+  // para qualquer posição de origem. Limitada a [MIN, MAX] p/ não ficar instantânea
+  // (cards muito próximos) nem arrastada (extremos), e a curva --sheet-ease é mantida.
+  const INDICATE_CARD_SPEED  = 0.85;   // px por ms (~850 px/s)
+  const INDICATE_CARD_MIN_MS = 340;
+  const INDICATE_CARD_MAX_MS = 900;
+  const indicateCardFlightMs = (distancePx) => Math.round(Math.min(
+    INDICATE_CARD_MAX_MS, Math.max(INDICATE_CARD_MIN_MS, Math.abs(distancePx) / INDICATE_CARD_SPEED)));
+
   const openIndicatedPopup = (postId) => {
     // Título padrão para pedidos de terceiros; para o pedido próprio o chamador
     // já atualizou para "Indicações para você" antes de chamar esta função.
@@ -464,9 +476,11 @@ document.addEventListener('DOMContentLoaded', () => {
       // navegador coalesce os transforms e não há animação).
       void sourceCard.offsetHeight;
 
-      // Estado FINAL (anima): card sobe ao topo, seção sobe de baixo. Durações no
-      // PADRÃO das gavetas: slide 0.5s var(--sheet-ease) + fade 0.45s.
-      sourceCard.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}`;
+      // Estado FINAL (anima): card sobe ao topo, seção sobe de baixo. A subida do card
+      // dura conforme a DISTÂNCIA (velocidade constante — ver indicateCardFlightMs); a
+      // seção mantém o slide padrão das gavetas (0.5s) + fade 0.45s.
+      const riseMs = indicateCardFlightMs(Math.hypot(dx, dy));
+      sourceCard.style.transition = `transform ${riseMs}ms ${INDICATE_SHEET_EASE}`;
       sourceCard.style.transform = 'none';
       if (indicateProsBox) {
         indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}`;
@@ -488,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
       sourceCard.addEventListener('transitionend', onRiseEnd);
-      setTimeout(() => { sourceCard.removeEventListener('transitionend', onRiseEnd); morphAtTop(); }, 640); // fallback (transição 0.5s + folga)
+      setTimeout(() => { sourceCard.removeEventListener('transitionend', onRiseEnd); morphAtTop(); }, riseMs + 160); // fallback (fim da subida + folga)
     }, 30);   // delay curto só p/ o feedback do toque (não espera mais o morph)
   };
 
@@ -505,12 +519,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // (o lugar original na lista). Mede a posição atual (topo) e a do placeholder e
     // translada até lá.
     const card = morphedSourceCard;
+    let flightMs = 500;   // fallback (sem card): mantém o tempo do slide da seção
     if (card && indicatePlaceholder) {
       const cRect = card.getBoundingClientRect();
       const pRect = indicatePlaceholder.getBoundingClientRect();
       const dx = pRect.left - cRect.left;
       const dy = pRect.top  - cRect.top;
-      card.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}`;
+      // Descida com a MESMA velocidade constante da subida (distância → duração).
+      flightMs = indicateCardFlightMs(Math.hypot(dx, dy));
+      card.style.transition = `transform ${flightMs}ms ${INDICATE_SHEET_EASE}`;
       card.style.transform = `translate(${dx}px, ${dy}px)`;
     }
 
@@ -552,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (postRef) postRef.innerHTML = '';
       morphedSourceCard = null;
       feedBottomBar?.classList.remove('u-hidden');
-    }, 520);   // deixa o FLIP reverso (0.5s) terminar
+    }, Math.max(flightMs, 500) + 40);   // espera o FLIP reverso (variável) E o slide da seção (0.5s)
   };
 
   // Fechar o overlay pelo botão de fechar da barra flutuante. (A busca e o filtro
