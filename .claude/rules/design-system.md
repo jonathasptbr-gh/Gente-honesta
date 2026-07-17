@@ -50,7 +50,8 @@ padrão dos sheets), `--radius-pill` (28).
 transicionar UMA propriedade específica NÃO componha `transition: color var(--transition)`
 (vira `color all 0.3s`, lista inválida, descartada) — use `--ease` (a mesma curva, sem
 propriedade/duração): `transition: color 0.3s var(--ease)`. Em JS, a const `EASE_STD`
-(`feed/index.js`) espelha essa curva. `--sheet-ease` (`cubic-bezier(0.32,0.72,0,1)`) é a curva única
+(`feed/index.js`) espelha essa curva. `--sheet-ease` (`cubic-bezier(0.3,0.9,0.7,1)`, freio firme —
+cauda curta p/ o elemento assentar rápido e ficar interativo, não "rastejar" o último 1%) é a curva única
 dos sheets deslizantes. `--scroll-thumb-dark` = thumb da barra fina sobre superfícies CLARAS
 (sobre verde usa-se `--on-green-muted`).
 

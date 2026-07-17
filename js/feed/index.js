@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
     void concludeBtn.offsetWidth; // reflow: fixa o estado inicial
     // Velocidade única: o "deslize" do botão dourado dura conforme a distância (dx).
     const swapMs = window.moveMs ? window.moveMs(dx) : 420;
-    concludeBtn.style.transition = `transform ${swapMs}ms var(--sheet-ease, cubic-bezier(0.32,0.72,0,1))`;
+    concludeBtn.style.transition = `transform ${swapMs}ms var(--sheet-ease, cubic-bezier(0.3,0.9,0.7,1))`;
     concludeBtn.style.transform  = 'translateX(0)';
     closeBtn.style.transition = 'opacity 0.3s ease 0.12s';
     closeBtn.style.opacity    = '1';
@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchWrap       = document.querySelector('.agenda-filters__search-wrap'); // busca real (campo + filtro)
   const barSearchState   = document.getElementById('bar-search-state');       // lar original da barra de busca
   const INDICATE_PROMPT  = 'Quem você quer indicar?';
-  const INDICATE_SHEET_EASE = 'cubic-bezier(0.32,0.72,0,1)';   // espelha --sheet-ease
+  const INDICATE_SHEET_EASE = 'cubic-bezier(0.3,0.9,0.7,1)';   // espelha --sheet-ease
 
   // O "voo" do card (subida na ENTRADA / descida na SAÍDA) usa a velocidade ÚNICA
   // do app (window.moveMs): a distância percorrida vira duração na MESMA velocidade
@@ -2932,11 +2932,11 @@ document.addEventListener('DOMContentLoaded', () => {
       cardEl.style.transform = `translateY(${dy}px)`;
       if (indicatedEl) { indicatedEl.style.transition = 'none'; indicatedEl.style.opacity = '0'; indicatedEl.style.transform = 'translateY(18px)'; }
       void cardEl.offsetWidth; // reflow: fixa o estado inicial
-      cardEl.style.transition = 'transform 0.42s var(--sheet-ease, cubic-bezier(0.32,0.72,0,1))';
+      cardEl.style.transition = 'transform 0.42s var(--sheet-ease, cubic-bezier(0.3,0.9,0.7,1))';
       cardEl.style.transform = 'translateY(0)';
       const revealIndicated = () => {
         if (!indicatedEl) return;
-        indicatedEl.style.transition = 'opacity 0.3s ease, transform 0.38s var(--sheet-ease, cubic-bezier(0.32,0.72,0,1))';
+        indicatedEl.style.transition = 'opacity 0.3s ease, transform 0.38s var(--sheet-ease, cubic-bezier(0.3,0.9,0.7,1))';
         indicatedEl.style.opacity = '1';
         indicatedEl.style.transform = 'translateY(0)';
       };
