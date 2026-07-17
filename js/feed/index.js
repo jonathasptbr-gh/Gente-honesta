@@ -453,11 +453,11 @@ document.addEventListener('DOMContentLoaded', () => {
       sourceCard.style.transition = 'none';
       sourceCard.style.transform = `translate(${dx}px, ${dy}px)`;
 
-      // Seção de profissionais começa abaixo (fora da tela) e sobe.
+      // Seção de profissionais começa abaixo (fora da tela) e sobe. Slide LIMPO,
+      // SEM fade (só transform) — a pedido do produto.
       if (indicateProsBox) {
         indicateProsBox.style.transition = 'none';
         indicateProsBox.style.transform = 'translateY(100%)';
-        indicateProsBox.style.opacity = '0';
       }
 
       // Reflow: comita o estado inicial ANTES de aplicar o final (senão o
@@ -469,9 +469,8 @@ document.addEventListener('DOMContentLoaded', () => {
       sourceCard.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}`;
       sourceCard.style.transform = 'none';
       if (indicateProsBox) {
-        indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}, opacity 0.45s ease`;
+        indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}`;
         indicateProsBox.style.transform = 'translateY(0)';
-        indicateProsBox.style.opacity = '1';
       }
 
       // TEMPO 2 — só quando o card TERMINA de subir (fim da transição do transform),
@@ -515,12 +514,11 @@ document.addEventListener('DOMContentLoaded', () => {
       card.style.transform = `translate(${dx}px, ${dy}px)`;
     }
 
-    // Blur some e a seção de profissionais desce junto (mesmo padrão da entrada).
+    // Blur some e a seção de profissionais desce junto (slide LIMPO, sem fade).
     indicateOverlay?.classList.remove('indicate-overlay--open');
     if (indicateProsBox) {
-      indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}, opacity 0.45s ease`;
+      indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}`;
       indicateProsBox.style.transform = 'translateY(100%)';
-      indicateProsBox.style.opacity = '0';
     }
 
     document.querySelectorAll('.pro-card--selected, .pro-card--flipped, .pro-card--expanded').forEach(el => {
