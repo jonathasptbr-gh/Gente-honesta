@@ -1031,6 +1031,18 @@ document.addEventListener('DOMContentLoaded', () => {
       </button>
     </div>`;
 
+  // Variante no MODO INDICAÇÃO (procurando quem indicar): ao chegar ao fim/vazio,
+  // em vez de "fazer pedido", convida a COMPARTILHAR o pedido com alguém de fora
+  // da plataforma (um conhecido ainda não cadastrado). Botão #btn-agenda-cta-share.
+  const AGENDA_CTA_SHARE_HTML = `
+    <div class="agenda-cta-pedido agenda-cta-pedido--share">
+      <span class="material-symbols-rounded agenda-cta-pedido__icon" aria-hidden="true">ios_share</span>
+      <p class="agenda-cta-pedido__text">Não encontrou quem indicar aqui? Compartilhe este pedido com alguém de fora da plataforma — leve a um conhecido de confiança que ainda não se cadastrou.</p>
+      <button type="button" class="btn btn--accent agenda-cta-pedido__btn" id="btn-agenda-cta-share">
+        <span class="material-symbols-rounded" aria-hidden="true">share</span>Compartilhar pedido
+      </button>
+    </div>`;
+
   const renderAgendaList = () => {
     const list = document.getElementById('agenda-list');
     if (!list) return;
@@ -1048,16 +1060,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     list.innerHTML = '';
 
+    // No modo indicação (procurando quem indicar), o CTA de fim/vazio vira
+    // "compartilhar este pedido fora da plataforma"; fora dele, "fazer pedido".
+    const ctaHTML = indicateMode ? AGENDA_CTA_SHARE_HTML : AGENDA_CTA_PEDIDO_HTML;
+
     if (final.length === 0) {
-      // Lista vazia (busca sem resultado ou filtros): mostra o mesmo CTA.
-      list.insertAdjacentHTML('beforeend', AGENDA_CTA_PEDIDO_HTML);
+      // Lista vazia (busca sem resultado ou filtros): mostra o CTA do contexto.
+      list.insertAdjacentHTML('beforeend', ctaHTML);
       return;
     }
 
     final.forEach(pro => list.appendChild(buildProCard(pro, { showPin: true, withId: true })));
 
-    // Fim do feed: CTA de "fazer pedido" (mesmo bloco do estado vazio).
-    list.insertAdjacentHTML('beforeend', AGENDA_CTA_PEDIDO_HTML);
+    // Fim do feed: CTA do contexto (mesmo bloco do estado vazio).
+    list.insertAdjacentHTML('beforeend', ctaHTML);
   };
 
   // Reordena os cards já existentes com animação FLIP:
@@ -1111,11 +1127,46 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('inp-agenda-search')?.addEventListener('input', renderAgendaList);
   renderAgendaList();
 
-  // CTA "Fazer pedido" do fim/vazio da lista de profissionais → leva à aba de
-  // pedidos e abre a gaveta de fazer pedido, em DOIS TEMPOS (calmo): (1) desliza
-  // o carrossel para a aba de Pedidos; (2) só quando o slide termina, com um
-  // respiro, abre a gaveta. Delegação porque o botão é recriado a cada render.
+  // Compartilhar o pedido em indicação com alguém FORA da plataforma (Web Share
+  // no celular; fallback copia p/ a área de transferência no desktop). Usa o
+  // texto do pedido em indicação (activePostId) + convite para o app.
+  const sharePedidoExternal = async (postId) => {
+    const card = document.getElementById(`post-card-${postId}`) || morphedSourceCard;
+    let pedidoText = '';
+    const textEl = card?.querySelector('.pedido-item__text');
+    if (textEl) {
+      const clone = textEl.cloneNode(true);
+      clone.querySelector('.pedido-item__urgent-badge')?.remove();   // tira o "Urgente"
+      pedidoText = clone.textContent.trim();
+    }
+    const url = 'https://gentehonesta.com.br';
+    const msg = pedidoText
+      ? `Vi um pedido no Gente Honesta e lembrei de você:\n\n"${pedidoText}"\n\nConhece um profissional de confiança? Entre e indique (é rápido): ${url}`
+      : `Tem um pedido por indicação no Gente Honesta. Conhece alguém de confiança? Entre e indique: ${url}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Gente Honesta — pedido por indicação', text: msg, url }); }
+      catch (err) { /* usuário cancelou o compartilhamento — silencioso */ }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(msg);
+      await customAlert('Mensagem do pedido copiada! Cole no WhatsApp (ou onde quiser) para convidar seu conhecido.', 'Compartilhar pedido', 'ios_share');
+    } catch {
+      comingSoon('Compartilhar pedido', 'Compartilhar pedido', 'ios_share');
+    }
+  };
+
+  // CTAs de fim/vazio da lista de profissionais (delegação — os botões são
+  // recriados a cada render):
+  //  • #btn-agenda-cta-pedido (navegação normal) → leva à aba de Pedidos e abre a
+  //    gaveta de fazer pedido, em DOIS TEMPOS (calmo): (1) desliza o carrossel;
+  //    (2) só quando o slide termina, com um respiro, abre a gaveta.
+  //  • #btn-agenda-cta-share (modo indicação) → compartilha o pedido fora da app.
   document.getElementById('agenda-list')?.addEventListener('click', (e) => {
+    if (e.target.closest('#btn-agenda-cta-share')) {
+      sharePedidoExternal(activePostId);
+      return;
+    }
     if (!e.target.closest('#btn-agenda-cta-pedido')) return;
     // Tempo 1 — desliza para a aba de Pedidos (mesma curva/duração do carrossel).
     switchToTab(TAB.PEDIDOS);

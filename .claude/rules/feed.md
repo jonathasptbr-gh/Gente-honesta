@@ -255,6 +255,14 @@ Delegação em `#agenda-list` (o botão é recriado a cada render). O clique rod
 gaveta de fazer pedido. `reorderAgendaListAnimated` move `.agenda-cta-pedido` (não mais `.feed-end-cap`)
 para o fim.
 
+**Variante no MODO INDICAÇÃO** (`indicateMode` true — procurando quem indicar): o CTA de fim/vazio
+vira `AGENDA_CTA_SHARE_HTML` (`.agenda-cta-pedido--share`, botão `#btn-agenda-cta-share`) — em vez de
+"fazer pedido", convida a **compartilhar o pedido fora da plataforma** (levar a um conhecido não
+cadastrado). `sharePedidoExternal(activePostId)` usa o texto do pedido em indicação + convite ao app
+via **Web Share API** (`navigator.share`) no celular; no desktop copia p/ a área de transferência
+(fallback `customAlert`/`comingSoon`). A escolha do CTA em `renderAgendaList` é
+`indicateMode ? AGENDA_CTA_SHARE_HTML : AGENDA_CTA_PEDIDO_HTML`.
+
 ## Cards de profissional (flip 3D)
 
 `.pro-card__3d > .pro-card__flipper`: frente = dados (IC, tags, disponibilidade, IC-bar) + fita de
