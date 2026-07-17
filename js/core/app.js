@@ -23,7 +23,7 @@
 // sempre — só a DURAÇÃO passa a ser derivada da distância. Ajuste global de
 // cadência = mexer só em MOVE_SPEED.
 // =========================================================================
-window.MOVE_SPEED  = 0.6825; // px por ms (velocidade linear de qualquer movimento)
+window.MOVE_SPEED  = 0.819;  // px por ms (velocidade linear de qualquer movimento)
 window.MOVE_MIN_MS = 220;    // piso (movimentos curtos não ficam instantâneos)
 window.MOVE_MAX_MS = 1200;   // teto (movimentos longos não arrastam)
 window.moveMs = (distancePx) => Math.round(Math.min(window.MOVE_MAX_MS,
