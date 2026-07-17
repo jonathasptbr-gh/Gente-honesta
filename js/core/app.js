@@ -199,10 +199,15 @@ window.appState = {
 const THEME_COLOR = '#184e1b'; // = var(--p-green)
 window.THEME_COLOR = THEME_COLOR; // exposto p/ outros módulos (ex.: feed.js)
 
+let _activeViewId = null;
 window.showView = function(viewId) {
-  // Troca de tela principal: descarta qualquer camada "voltar" da tela anterior
+  // Troca de tela principal: descarta as camadas "voltar" da tela que SAI
   // (sub-passos do login, gavetas, diálogos) para não deixar sentinela órfã.
-  if (window.backNav) window.backNav.reset();
+  // Só quando a tela REALMENTE muda — chamadas repetidas para a MESMA tela
+  // (ex.: onAuthStateChanged do Firebase reemitindo com o mesmo usuário) NÃO
+  // podem zerar as camadas abertas do feed (aba/gaveta/modo indicação).
+  if (window.backNav && viewId !== _activeViewId) window.backNav.reset();
+  _activeViewId = viewId;
 
   document.querySelectorAll('.screen').forEach(el => {
     el.classList.remove('screen--active');
