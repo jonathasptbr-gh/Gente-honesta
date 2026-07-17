@@ -46,6 +46,10 @@ Navegação por clique ou swipe horizontal.
 (-66.6%). `showVagasPanel()`/`showProsPanel()`/`showPedidosPanel()` alternam classes + o estado da
 action bar.
 
+**Velocidade única:** painel + trilho da action bar + slider das abas são UM gesto — `switchToTab`
+seta `--panel-slide-dur` = `moveMs(nº de painéis atravessados × largura da viewport)`, e os três usam
+esse var no CSS (ficam SINCRONIZADOS; salto de 2 abas dura o dobro). Ver `app-core.md`.
+
 ## Action bar (carrossel sincronizado)
 
 `#feed-action-bar` (`.agenda-filters`) fica abaixo da top; muda de estado conforme a aba. As 3
@@ -79,7 +83,11 @@ arredondados, slide-down "gaveta", backdrop que dim SÓ o feed abaixo da barra. 
 2. **Clip** (`__clip`, `top:--sheet-top; bottom:0; overflow:hidden; pointer-events:none`) = recorta a
    gaveta; deixa os toques atravessarem até o container.
 3. **Painel** (`__panel`, `pointer-events:auto`) = nasce em `translateY(-100%)` e vai a
-   `translateY(0)` (`transition: transform 0.5s var(--sheet-ease)`), emergindo pra baixo. SEM fade.
+   `translateY(0)` (`transition: transform var(--sheet-ease)`), emergindo pra baixo. SEM fade. A
+   **DURAÇÃO** do slide é derivada da ALTURA do painel via `window.moveMs` (velocidade única do app),
+   setada inline em `anchorBelowActionBar` a cada abertura — ver "Velocidade única de movimento" em
+   `app-core.md`. Toda gaveta também se registra no `backNav` (`push`/`remove`) para o "voltar" do
+   celular fechá-la.
 
 > Por que `overflow:hidden` num wrapper e não `clip-path`/`mask` no container: `clip-path` remove os
 > toques da área recortada (quebra o hit-test do "Fechar"); `mask` deixava um flash de 1 quadro no
@@ -207,7 +215,38 @@ obrigatória:
 ```
 **Crítico:** o header fica FORA do container com scroll (siblings). Nunca `position:sticky` no header
 (cards expandidos passavam por baixo dele). `openIndicatedPopup(postId)` renderiza via
-`renderFlippableProCards` + `bindProCardFlip` (delegação registrada UMA vez por container).
+`renderFlippableProCards` + `bindProCardFlip` (delegação registrada UMA vez por container). É um
+bottom sheet: sobe `translateY(100%)→0` com duração pela altura (`--indicated-sheet-dur`, `moveMs`,
+que também alimenta o atraso de visibilidade no fechamento). Registrado no `backNav` (`indicated-popup`).
+
+## Modo indicação (overlay `#indicate-overlay`)
+
+Acionado por "Indicar alguém" num pedido (`enterIndicateMode(postId)`); fechado por `exitIndicateMode`
+(registrado no `backNav`, id `indicate-overlay`). Overlay fixo SOBRE o feed de pedidos (não troca de
+painel): blur escuro (`.indicate-overlay__backdrop`, mesma receita das gavetas) + o card REAL do
+pedido (MOVIDO, não clonado) flutuando ao topo (`#indicate-post-ref`) + a seção de profissionais
+(`#indicate-pros`) = a `#agenda-list` REAL reparentada (reusa render/seleção/flip/pin). Um placeholder
+(`indicate-card-placeholder`) guarda o lugar do card na lista.
+
+**Empilhamento (z-index):** a **bottom bar das abas é MOVIDA para dentro do overlay** durante a
+indicação (volta para a casa `barHomeParent`/`barHomeNext` ANTES de esconder o overlay). Ordem:
+
+```
+feed (atrás) < backdrop blur (0) < card do pedido (1) < bottom bar (2, com backdrop-filter) < seção pros (3)
+```
+
+Assim o card sobe/desce ATRÁS da barra (sem "pular" para frente) e a lista desliza por cima dela.
+
+**Coreografia (DOIS TEMPOS, simétrica e invertida):**
+- **Entrada:** o card SOBE ao topo (FLIP por `transform` inline) + a seção sobe de baixo
+  (`translateY(100%)→0`, slide LIMPO SEM fade). SÓ ao chegar ao topo (transitionend + respiro de
+  ~70ms) o botão "Indicar alguém" vira a frase "Quem você quer indicar?" (`morphSourceToPrompt`).
+- **Saída:** INVERSO — o botão VOLTA primeiro (`restoreSourceCard`, un-morph) e, após um respiro
+  (`UNMORPH_MS`), o card DESCE de volta ao slot do placeholder + a seção desce.
+
+**Velocidade:** o voo do card e o slide da seção derivam a duração da distância/altura via
+`window.moveMs` (velocidade única — ver `app-core.md`); a curva é `INDICATE_SHEET_EASE` (espelha
+`--sheet-ease`).
 
 ## Scroll-to-top nas abas
 
@@ -251,7 +290,8 @@ chegar ao fim da lista quanto com a lista vazia (busca sem resultado, filtros) i
 procura? Faça um pedido público por indicações" + botão `#btn-agenda-cta-pedido` (`btn--accent`).
 Delegação em `#agenda-list` (o botão é recriado a cada render). O clique roda em **DOIS TEMPOS**:
 (1) `switchToTab(TAB.PEDIDOS)` desliza o carrossel; (2) no `transitionend` de `transform` do
-`#feed-panels` (fallback por timer 650ms), com um respiro de 180ms, `myPedidoNavigate()` abre a
+`#feed-panels` (fallback por timer = duração do painel `--panel-slide-dur` + 200ms, já que o slide
+agora tem duração derivada da velocidade única), com um respiro de 180ms, `myPedidoNavigate()` abre a
 gaveta de fazer pedido. `reorderAgendaListAnimated` move `.agenda-cta-pedido` (não mais `.feed-end-cap`)
 para o fim.
 

@@ -52,7 +52,10 @@ transicionar UMA propriedade específica NÃO componha `transition: color var(--
 propriedade/duração): `transition: color 0.3s var(--ease)`. Em JS, a const `EASE_STD`
 (`feed/index.js`) espelha essa curva. `--sheet-ease` (`cubic-bezier(0.3,0.9,0.7,1)`, freio firme —
 cauda curta p/ o elemento assentar rápido e ficar interativo, não "rastejar" o último 1%) é a curva única
-dos sheets deslizantes. `--scroll-thumb-dark` = thumb da barra fina sobre superfícies CLARAS
+dos sheets deslizantes. **DURAÇÃO dos movimentos ≠ fixa:** todo DESLOCAMENTO (gavetas, painéis, abas,
+modo indicação, etc.) deriva a duração da DISTÂNCIA percorrida ÷ velocidade única
+(`window.moveMs`/`MOVE_SPEED`, em `core/app.js`) — só a duração; a curva segue a de cada transição.
+Detalhe em `.claude/rules/app-core.md`. `--scroll-thumb-dark` = thumb da barra fina sobre superfícies CLARAS
 (sobre verde usa-se `--on-green-muted`).
 
 **Blur:** `--blur-sm` (5px, backdrops), `--blur-lg` (14px, faixa da bottom-bar). O tutorial
