@@ -458,8 +458,8 @@ document.addEventListener('DOMContentLoaded', () => {
       refContainer.innerHTML = '';
       refContainer.appendChild(sourceCard);
 
-      // Mostra o overlay + acende o blur; esconde a bottom bar (o overlay cobre tudo).
-      feedBottomBar?.classList.add('u-hidden');
+      // Mostra o overlay + acende o blur. A bottom bar das abas CONTINUA visível: o
+      // overlay (z-index maior) a cobre com o blur igual ao resto da tela — não some.
       indicateOverlay?.classList.remove('u-hidden');
       void indicateOverlay?.offsetHeight;
       indicateOverlay?.classList.add('indicate-overlay--open');
@@ -587,7 +587,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const postRef = document.getElementById('indicate-post-ref');
         if (postRef) postRef.innerHTML = '';
         morphedSourceCard = null;
-        feedBottomBar?.classList.remove('u-hidden');
       }, Math.max(flightMs, prosMs) + 40);   // espera o FLIP reverso E o slide da seção
     };
 
