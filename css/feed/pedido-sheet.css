@@ -81,7 +81,7 @@
      altura), aberto = na posição. Sem fade de opacidade — deslize puro.
      Duração calma (0.5s) para o deslize ficar suave. */
   transform: translateY(-100%);
-  transition: transform 0.5s var(--sheet-ease);
+  transition: transform 0.7s var(--sheet-ease);
 }
 
 .pedido-sheet--open .pedido-sheet__panel {

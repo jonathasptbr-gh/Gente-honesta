@@ -457,7 +457,7 @@
   max-height: calc(var(--app-height, 100dvh) * 0.92);
   overflow: hidden;
   transform: translateY(100%);
-  transition: transform 0.32s var(--sheet-ease);
+  transition: transform 0.45s var(--sheet-ease);
 }
 
 .indicated-popup--open .indicated-popup__sheet {

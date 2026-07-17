@@ -344,9 +344,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // de um card que já estava perto do topo; assim a percepção de velocidade é a mesma
   // para qualquer posição de origem. Limitada a [MIN, MAX] p/ não ficar instantânea
   // (cards muito próximos) nem arrastada (extremos), e a curva --sheet-ease é mantida.
-  const INDICATE_CARD_SPEED  = 0.85;   // px por ms (~850 px/s)
-  const INDICATE_CARD_MIN_MS = 340;
-  const INDICATE_CARD_MAX_MS = 900;
+  const INDICATE_CARD_SPEED  = 0.6;    // px por ms (~600 px/s) — cadência calma
+  const INDICATE_CARD_MIN_MS = 470;
+  const INDICATE_CARD_MAX_MS = 1150;
   const indicateCardFlightMs = (distancePx) => Math.round(Math.min(
     INDICATE_CARD_MAX_MS, Math.max(INDICATE_CARD_MIN_MS, Math.abs(distancePx) / INDICATE_CARD_SPEED)));
 
@@ -478,12 +478,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Estado FINAL (anima): card sobe ao topo, seção sobe de baixo. A subida do card
       // dura conforme a DISTÂNCIA (velocidade constante — ver indicateCardFlightMs); a
-      // seção mantém o slide padrão das gavetas (0.5s) + fade 0.45s.
+      // seção sobe num slide LIMPO (sem fade) numa cadência calma (0.72s).
       const riseMs = indicateCardFlightMs(Math.hypot(dx, dy));
       sourceCard.style.transition = `transform ${riseMs}ms ${INDICATE_SHEET_EASE}`;
       sourceCard.style.transform = 'none';
       if (indicateProsBox) {
-        indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}`;
+        indicateProsBox.style.transition = `transform 0.72s ${INDICATE_SHEET_EASE}`;
         indicateProsBox.style.transform = 'translateY(0)';
       }
 
@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // (o lugar original na lista). Mede a posição atual (topo) e a do placeholder e
     // translada até lá.
     const card = morphedSourceCard;
-    let flightMs = 500;   // fallback (sem card): mantém o tempo do slide da seção
+    let flightMs = 720;   // fallback (sem card): acompanha o slide da seção (0.72s)
     if (card && indicatePlaceholder) {
       const cRect = card.getBoundingClientRect();
       const pRect = indicatePlaceholder.getBoundingClientRect();
@@ -534,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Blur some e a seção de profissionais desce junto (slide LIMPO, sem fade).
     indicateOverlay?.classList.remove('indicate-overlay--open');
     if (indicateProsBox) {
-      indicateProsBox.style.transition = `transform 0.5s ${INDICATE_SHEET_EASE}`;
+      indicateProsBox.style.transition = `transform 0.72s ${INDICATE_SHEET_EASE}`;
       indicateProsBox.style.transform = 'translateY(100%)';
     }
 
@@ -569,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (postRef) postRef.innerHTML = '';
       morphedSourceCard = null;
       feedBottomBar?.classList.remove('u-hidden');
-    }, Math.max(flightMs, 500) + 40);   // espera o FLIP reverso (variável) E o slide da seção (0.5s)
+    }, Math.max(flightMs, 720) + 40);   // espera o FLIP reverso (variável) E o slide da seção (0.72s)
   };
 
   // Fechar o overlay pelo botão de fechar da barra flutuante. (A busca e o filtro
