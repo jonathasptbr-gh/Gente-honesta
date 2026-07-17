@@ -313,12 +313,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const closePedidosSheet = showProsPanel;
 
   // TELA - PRINCIPAL (FEED) - MODO INDICAÇÃO (OVERLAY sobre o feed de pedidos)
-  // Coreografia (v352): ao tocar "Indicar alguém" num pedido, o BOTÃO do card é
-  // trocado — animado — pela frase "Quem você quer indicar..." (2 linhas), MANTENDO
-  // o botão de contagem (2/3) ao lado. Então um overlay flutua SOBRE o feed de
-  // pedidos: a tela inteira recebe o blur escuro (o mesmo das gavetas), o card do
-  // pedido (clone NÍTIDO) flutua até o topo (sobre a região histórico/fazer pedido)
-  // e a seção de profissionais (barra de busca + cards) SOBE deslizando de baixo.
+  // Coreografia (v383, DOIS TEMPOS): ao tocar "Indicar alguém" num pedido, um overlay
+  // flutua SOBRE o feed: a tela recebe o blur escuro (o mesmo das gavetas), o card do
+  // pedido (nítido, com o botão "Indicar alguém" AINDA visível) flutua até o topo e a
+  // seção de profissionais (barra de busca + cards) SOBE deslizando de baixo. SÓ
+  // DEPOIS que o card chega ao topo é que o BOTÃO é trocado — animado (crossfade
+  // absoluto, sem mudar a altura) — pela frase "Quem você quer indicar..." (2 linhas),
+  // MANTENDO o botão de contagem (2/3) ao lado.
   // NÃO troca de painel — o feed de pedidos permanece atrás (borrado). A lista real
   // #agenda-list é MOVIDA para o overlay (reparent) p/ reusar seleção/flip/pin.
   const feedBottomBar    = document.querySelector('#feed-bottom-bar');
@@ -390,11 +391,10 @@ document.addEventListener('DOMContentLoaded', () => {
     activePostId = postId;
     morphedSourceCard = sourceCard;
 
-    // 1) Morph do botão → frase, no card REAL da lista de pedidos (visível, nítido).
-    morphSourceToPrompt(sourceCard);
-
-    // 2) "Depois": overlay acende o blur, o card REAL é MOVIDO e flutua ao topo, e a
-    //    seção de profissionais (busca + cards) sobe deslizando de baixo.
+    // DOIS TEMPOS: o card sobe ao topo com o botão "Indicar alguém" AINDA visível e,
+    // SÓ depois de chegar ao topo, o botão vira a frase "Quem você quer indicar?"
+    // (ver morphAtTop no fim deste passo). Aqui: acende o overlay, MOVE o card e sobe
+    // a seção de profissionais. Delay curto só p/ o feedback do toque assentar.
     setTimeout(() => {
       if (!indicateMode) return;   // saiu antes do timer (defensivo)
       const srcRect = sourceCard.getBoundingClientRect();
@@ -466,7 +466,24 @@ document.addEventListener('DOMContentLoaded', () => {
         indicateProsBox.style.transform = 'translateY(0)';
         indicateProsBox.style.opacity = '1';
       }
-    }, 320);   // tempo do morph do botão → frase (casa com a transição do morph, 0.3s)
+
+      // TEMPO 2 — só quando o card TERMINA de subir (fim da transição do transform),
+      // com um respiro, o botão "Indicar alguém" vira a frase "Quem você quer indicar?".
+      let morphed = false;
+      const morphAtTop = () => {
+        if (morphed || !indicateMode) return;
+        morphed = true;
+        morphSourceToPrompt(sourceCard);
+      };
+      const onRiseEnd = (ev) => {
+        if (ev.target === sourceCard && ev.propertyName === 'transform') {
+          sourceCard.removeEventListener('transitionend', onRiseEnd);
+          setTimeout(morphAtTop, 70);   // pequeno respiro após chegar ao topo
+        }
+      };
+      sourceCard.addEventListener('transitionend', onRiseEnd);
+      setTimeout(() => { sourceCard.removeEventListener('transitionend', onRiseEnd); morphAtTop(); }, 640); // fallback (transição 0.5s + folga)
+    }, 30);   // delay curto só p/ o feedback do toque (não espera mais o morph)
   };
 
   const exitIndicateMode = () => {
