@@ -262,10 +262,14 @@ window.navigateTo = function(stepId) {
 // dispensáveis (sheets, diálogos, popups, sub-passos do login, abas do feed,
 // tutorial) sincronizada com a History API.
 //
-// Modelo de UMA sentinela: enquanto houver QUALQUER camada aberta existe
-// exatamente UMA entrada extra no histórico. Cada "voltar" real fecha a camada
-// do TOPO e, se ainda restarem camadas, re-arma a sentinela — assim um toque em
-// "voltar" fecha uma camada de cada vez, sem nunca sair do app antes da hora.
+// Modelo de UMA ENTRADA POR CAMADA: cada camada aberta cria a SUA própria
+// entrada no histórico, no momento da ABERTURA (dentro do gesto do usuário).
+// Assim, N camadas abertas = N entradas empilhadas, e cada "voltar" consome
+// UMA entrada e fecha UMA camada — SEM precisar re-empilhar nada dentro do
+// próprio popstate. (O modelo anterior, de uma sentinela única re-armada no
+// popstate, funcionava no desktop mas era instável no PWA instalado / Samsung
+// Internet: empilhar histórico DURANTE um "voltar" não é confiável, então o 2º
+// "voltar" saía do app em vez de fechar a 2ª camada.)
 //
 // Contrato de uso (cross-módulo via window.backNav):
 //   window.backNav.push('id-unico', fecharFn)  → ao ABRIR uma camada
@@ -274,44 +278,51 @@ window.navigateTo = function(stepId) {
 // A `fecharFn` registrada é o MESMO fechamento da UI; quando o "voltar" a chama,
 // o remove() interno vira no-op (guarda handlingPop), evitando recursão.
 //
-// A reconciliação com o histórico é adiada para uma microtask e coalescida, de
-// modo que "fechar A + abrir B" no mesmo toque (troca de gavetas irmãs) não gere
-// history.back()+pushState no mesmo tick (condição de corrida) — vira um no-op.
+// A sincronização com o histórico é adiada a uma microtask e coalescida: "fechar
+// A + abrir B" no mesmo toque (troca de gavetas irmãs) fica com contagem líquida
+// inalterada → nenhuma mexida no histórico (B reaproveita a entrada de A).
 // =========================================================================
 window.backNav = (function () {
-  const stack = [];            // [{ id, close }] — camadas abertas (LIFO)
-  let sentinelActive = false;  // há uma sentinela no histórico ainda não consumida?
-  let ignorePop = 0;           // popstates programáticos (nosso history.back) a ignorar
-  let handlingPop = false;     // rodando o close() de um "voltar" real do usuário
-  let reconcileScheduled = false;
+  const stack = [];        // [{ id, close }] — camadas abertas (LIFO)
+  let pushed = 0;          // nº de entradas que ADICIONAMOS ao histórico (1 por camada)
+  let ignorePop = 0;       // popstates dos nossos history.back() a ignorar
+  let handlingPop = false; // rodando o close() de um "voltar" real do usuário
+  let scheduled = false;
 
   const findIdx = (id) => {
     for (let i = stack.length - 1; i >= 0; i--) if (stack[i].id === id) return i;
     return -1;
   };
 
+  // Casa o nº de entradas no histórico com a profundidade da pilha.
   function reconcile() {
-    reconcileScheduled = false;
-    if (stack.length > 0 && !sentinelActive) {
-      sentinelActive = true;
-      try { history.pushState({ ghBackNav: true }, ''); } catch (_) { sentinelActive = false; }
-    } else if (stack.length === 0 && sentinelActive) {
-      sentinelActive = false;
+    scheduled = false;
+    // ADIÇÕES em lote: pushState é seguro e roda ainda no mesmo turno do gesto.
+    while (pushed < stack.length) {
+      pushed++;
+      try { history.pushState({ ghBackNav: pushed }, ''); }
+      catch (_) { pushed--; break; }
+    }
+    // REMOÇÕES (fechamentos pela UI): UMA por vez — o popstate ignorado do nosso
+    // history.back() re-agenda a próxima, garantindo 1 popstate por back (sem a
+    // ambiguidade de quantos popstates um history.go(-n) dispara).
+    if (pushed > stack.length) {
+      pushed--;
       ignorePop++;
       try { history.back(); } catch (_) { ignorePop = Math.max(0, ignorePop - 1); }
     }
   }
 
   function scheduleReconcile() {
-    if (reconcileScheduled) return;
-    reconcileScheduled = true;
+    if (scheduled) return;
+    scheduled = true;
     Promise.resolve().then(reconcile);
   }
 
   function push(id, close) {
     if (!id || typeof close !== 'function') return;
     const existing = findIdx(id);
-    if (existing !== -1) stack.splice(existing, 1);   // reabertura: move ao topo
+    if (existing !== -1) { stack[existing].close = close; return; } // já rastreada: só atualiza
     stack.push({ id, close });
     scheduleReconcile();
   }
@@ -326,23 +337,21 @@ window.backNav = (function () {
 
   // Troca de tela principal: as camadas pertencem à tela que está saindo.
   function reset() {
-    if (!stack.length) { scheduleReconcile(); return; }
-    stack.length = 0;
+    if (stack.length) stack.length = 0;
     scheduleReconcile();
   }
 
   window.addEventListener('popstate', function () {
-    if (ignorePop > 0) { ignorePop--; return; }   // nosso próprio history.back()
-    if (!sentinelActive) return;                  // não é nossa sentinela: deixa navegar
-    // "Voltar" real do usuário consumindo a sentinela:
-    sentinelActive = false;
+    if (ignorePop > 0) { ignorePop--; scheduleReconcile(); return; } // nosso history.back(): consome e segue removendo
+    // "Voltar" real do usuário: o navegador JÁ consumiu uma das nossas entradas.
+    if (pushed > 0) pushed--;
     const layer = stack.pop();
     if (layer) {
       handlingPop = true;
       try { layer.close(); } catch (e) { console.warn('[backNav] close falhou', e); }
       handlingPop = false;
     }
-    scheduleReconcile();   // re-arma a sentinela se ainda há camadas abertas
+    scheduleReconcile();   // caso o close() tenha mexido na pilha (raro)
   });
 
   return {
