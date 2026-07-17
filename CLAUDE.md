@@ -115,7 +115,8 @@ css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; N
   feed/ajudantes.css       — sheet "Serviço de ajudantes"
 
 js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
-  core/app.js       — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW
+  core/app.js       — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW,
+                          backNav (botão "voltar" do sistema)
   tutorial/tutorial.js — 2º. Motor genérico de tour (window.startTutorial)
   install/install.js   — 3º. PWA: beforeinstallprompt, isStandalone, view-install
   auth/session.js   — 4º. onAuthStateChanged: decide a tela inicial, resetAuthFlow, tutorial
@@ -197,7 +198,9 @@ abrir ao público.
    botão só-ícone carrega `aria-label`; elemento clicável é `<button>` (nunca `<div>` com listener).
 8. **Sheet/dropdown novo?** Reuse o scaffolding `.pedido-sheet*`/`.historico-sheet*` (3 camadas
    container/clip/panel, `--sheet-top` medido em JS, gaveta com `--sheet-ease`, tap-outside, abridor
-   vira "Fechar" via `.action-close-mode`) — não recrie do zero.
+   vira "Fechar" via `.action-close-mode`) — não recrie do zero. **E registre a camada no `backNav`**
+   (`window.backNav.push(id, fecharFn)` ao abrir, `window.backNav.remove(id)` ao fechar) para o botão
+   "voltar" do celular fechá-la — detalhe em `.claude/rules/app-core.md`.
 9. **Rola?** Os 3 feeds escondem a barra; TODO outro container com scroll usa a barra fina sempre
    visível (`::-webkit-scrollbar` 5px + thumb, `scrollbar-width: thin`), na borda do painel.
 10. **Diálogo?** Sempre `await customAlert(...)`/`await customConfirm(...)` — nunca `alert()`/`confirm()`.

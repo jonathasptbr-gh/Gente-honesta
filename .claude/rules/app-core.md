@@ -19,7 +19,8 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
 **core/app.js** (base): `window.auth` (Firebase Auth), `window.appState` (estado mutável),
 `window.showView(viewId)`, `window.navigateTo(stepId)`, `window.openDialog({...})`,
 `window.customAlert(msg, title?, icon?)`, `window.customConfirm(msg, title?, icon?)`,
-`window.watchScrollShadows(el)`, `window.THEME_COLOR`.
+`window.watchScrollShadows(el)`, `window.backNav` (`push`/`remove`/`reset`/`has`/`depth`),
+`window.THEME_COLOR`.
 
 **tutorial/tutorial.js:** `window.startTutorial(steps, opts)`, `window.resetTutorialSeen(id)`.
 
@@ -54,6 +55,48 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
 troca sub-passo dentro de `#view-auth` (`u-hidden`). Contrato: telas SÓ por `.screen--active`;
 sub-elementos SÓ por `u-hidden`; nunca `display` inline em `.screen`. O `onAuthStateChanged`
 (`auth/session.js`) é quem oculta o loader em transições normais.
+
+`showView` também limpa a pilha do `backNav` (abaixo) quando a tela REALMENTE muda — guard
+`_activeViewId`, então chamadas repetidas para a MESMA tela (o Firebase reemite
+`onAuthStateChanged` com o mesmo usuário → `showView('view-feed')` de novo) NÃO zeram as camadas
+abertas do feed.
+
+## Navegação pelo botão "voltar" do sistema (`window.backNav`)
+
+Camada central (`core/app.js`) que faz o botão/gesto "voltar" do Android FECHAR a camada
+dispensável aberta (gaveta, diálogo, popup, sub-passo do login, aba do feed, tutorial) em vez de
+SAIR do PWA — via History API.
+
+**Modelo: UMA entrada de histórico por camada**, criada na ABERTURA (dentro do gesto do usuário).
+N camadas abertas = N entradas empilhadas; cada "voltar" consome UMA entrada e fecha UMA camada,
+**sem re-empilhar nada dentro do `popstate`**. (O modelo anterior — uma sentinela única re-armada
+no `popstate` — funcionava no Chromium desktop mas era instável no PWA instalado / Samsung Internet:
+o 2º "voltar" saía do app em vez de fechar a 2ª camada. Empilhar histórico DURANTE um "voltar" não
+é confiável; por isso a entrada de cada camada nasce no toque de ABRIR.)
+
+**Contrato (cross-módulo via `window.backNav`):**
+- `push(id, fecharFn)` — ao ABRIR a camada; `id` único; `fecharFn` = o MESMO fechamento da UI.
+- `remove(id)` — no início da função de FECHAR pela UI (tap-outside/botão). No-op se o `id` não
+  está na pilha (pode ser chamado preventivamente, ex.: `closeFiltersSheet` nas trocas de aba).
+- `reset()` — usado só pelo `showView` na troca real de tela (ver acima).
+- `has(id)` / `depth()` — consulta.
+
+Quando o "voltar" real fecha uma camada, ele chama a `fecharFn` registrada; o `remove` dentro dela
+vira no-op (guarda `handlingPop`) — sem recursão. A sincronização com o histórico é adiada a uma
+microtask e coalescida: "fechar A + abrir B" no mesmo toque (troca de gavetas IRMÃS) tem contagem
+líquida inalterada → nenhuma entrada nova. Fechamentos pela UI consomem a entrada com
+`history.back()` (um por vez, re-agendado pelo `popstate` ignorado — sem depender de quantos
+`popstate` um `history.go(-n)` dispara).
+
+**Camadas registradas hoje** (`id`): `dialog-global` (`openDialog` → cancelar), `camera` (câmera do
+cadastro), `auth:step-phone`/`auth:step-otp` (passos do login), `feed-tab` (→ aba Profissionais),
+`pedido-sheet`, `historico-sheet`, `vaga-sheet`, `vaga-detail-sheet`, `ajudante-sheet`,
+`filters-sheet`, `contracts-sheet`, `contracts-filters-sheet`, `indicated-popup`,
+`indicate-overlay`, `tutorial` (→ encerra o tour). Colapsáveis inline (Detalhes profissionais,
+autocomplete de área) e o flip dos cards NÃO são camadas — fecham sozinhos.
+
+**Ao adicionar uma nova camada dispensável:** `push(id, fecharFn)` no abrir + `remove(id)` no fechar,
+com `id` único. Nada mais — o "voltar" passa a fechá-la automaticamente.
 
 ## Diálogos — primitivo único `openDialog`
 
@@ -110,7 +153,7 @@ telas fica por conta do fade-out do loader.
 ## Service Worker
 
 Incrementar `CACHE_NAME` (`service-worker.js`) a cada deploy com mudanças de cache (atual:
-`gentehonesta-v333`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
+`gentehonesta-v386`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
 caches antigos. **CRÍTICO — o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`:** sem
 isso, o `Cache-Control: max-age=600` do GitHub Pages devolvia arquivos VELHOS por até 10 min após
 um deploy e o botão "Atualizar" recarregava a versão antiga. `no-cache` = revalida via ETag (304
