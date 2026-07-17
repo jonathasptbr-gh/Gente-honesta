@@ -222,6 +222,8 @@
     startScrollWatch(scrollParent);
 
     overlayEl.classList.remove('u-hidden');
+    // Botão "voltar" do sistema encerra (pula) o tour guiado.
+    window.backNav?.push('tutorial', finish);
     currentIndex = 0;
     renderStep();
   };
@@ -445,6 +447,7 @@
 
   function finish() {
     if (!overlayEl) return;
+    window.backNav?.remove('tutorial');
     overlayEl.classList.add('u-hidden');
     stopMutationWatch();
     stopScrollWatch();

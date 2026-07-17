@@ -200,6 +200,10 @@ const THEME_COLOR = '#184e1b'; // = var(--p-green)
 window.THEME_COLOR = THEME_COLOR; // exposto p/ outros módulos (ex.: feed.js)
 
 window.showView = function(viewId) {
+  // Troca de tela principal: descarta qualquer camada "voltar" da tela anterior
+  // (sub-passos do login, gavetas, diálogos) para não deixar sentinela órfã.
+  if (window.backNav) window.backNav.reset();
+
   document.querySelectorAll('.screen').forEach(el => {
     el.classList.remove('screen--active');
   });
@@ -243,6 +247,105 @@ window.navigateTo = function(stepId) {
   }
 
 };
+
+
+// =========================================================================
+// NAVEGAÇÃO PELO BOTÃO "VOLTAR" DO SISTEMA (Android / gesto de retorno)
+// -------------------------------------------------------------------------
+// O app é um SPA sem URLs: sem isto, o "voltar" do celular SAI do PWA em vez
+// de fechar a gaveta/diálogo/passo aberto. Aqui mantemos uma PILHA de camadas
+// dispensáveis (sheets, diálogos, popups, sub-passos do login, abas do feed,
+// tutorial) sincronizada com a History API.
+//
+// Modelo de UMA sentinela: enquanto houver QUALQUER camada aberta existe
+// exatamente UMA entrada extra no histórico. Cada "voltar" real fecha a camada
+// do TOPO e, se ainda restarem camadas, re-arma a sentinela — assim um toque em
+// "voltar" fecha uma camada de cada vez, sem nunca sair do app antes da hora.
+//
+// Contrato de uso (cross-módulo via window.backNav):
+//   window.backNav.push('id-unico', fecharFn)  → ao ABRIR uma camada
+//   window.backNav.remove('id-unico')          → ao FECHAR pela UI (tap/botão)
+//   window.backNav.reset()                     → troca de tela principal (showView)
+// A `fecharFn` registrada é o MESMO fechamento da UI; quando o "voltar" a chama,
+// o remove() interno vira no-op (guarda handlingPop), evitando recursão.
+//
+// A reconciliação com o histórico é adiada para uma microtask e coalescida, de
+// modo que "fechar A + abrir B" no mesmo toque (troca de gavetas irmãs) não gere
+// history.back()+pushState no mesmo tick (condição de corrida) — vira um no-op.
+// =========================================================================
+window.backNav = (function () {
+  const stack = [];            // [{ id, close }] — camadas abertas (LIFO)
+  let sentinelActive = false;  // há uma sentinela no histórico ainda não consumida?
+  let ignorePop = 0;           // popstates programáticos (nosso history.back) a ignorar
+  let handlingPop = false;     // rodando o close() de um "voltar" real do usuário
+  let reconcileScheduled = false;
+
+  const findIdx = (id) => {
+    for (let i = stack.length - 1; i >= 0; i--) if (stack[i].id === id) return i;
+    return -1;
+  };
+
+  function reconcile() {
+    reconcileScheduled = false;
+    if (stack.length > 0 && !sentinelActive) {
+      sentinelActive = true;
+      try { history.pushState({ ghBackNav: true }, ''); } catch (_) { sentinelActive = false; }
+    } else if (stack.length === 0 && sentinelActive) {
+      sentinelActive = false;
+      ignorePop++;
+      try { history.back(); } catch (_) { ignorePop = Math.max(0, ignorePop - 1); }
+    }
+  }
+
+  function scheduleReconcile() {
+    if (reconcileScheduled) return;
+    reconcileScheduled = true;
+    Promise.resolve().then(reconcile);
+  }
+
+  function push(id, close) {
+    if (!id || typeof close !== 'function') return;
+    const existing = findIdx(id);
+    if (existing !== -1) stack.splice(existing, 1);   // reabertura: move ao topo
+    stack.push({ id, close });
+    scheduleReconcile();
+  }
+
+  function remove(id) {
+    if (handlingPop) return;                    // um "voltar" real já está desempilhando
+    const idx = id ? findIdx(id) : stack.length - 1;
+    if (idx === -1) return;                     // não rastreada (já fechada) — no-op
+    stack.splice(idx, 1);
+    scheduleReconcile();
+  }
+
+  // Troca de tela principal: as camadas pertencem à tela que está saindo.
+  function reset() {
+    if (!stack.length) { scheduleReconcile(); return; }
+    stack.length = 0;
+    scheduleReconcile();
+  }
+
+  window.addEventListener('popstate', function () {
+    if (ignorePop > 0) { ignorePop--; return; }   // nosso próprio history.back()
+    if (!sentinelActive) return;                  // não é nossa sentinela: deixa navegar
+    // "Voltar" real do usuário consumindo a sentinela:
+    sentinelActive = false;
+    const layer = stack.pop();
+    if (layer) {
+      handlingPop = true;
+      try { layer.close(); } catch (e) { console.warn('[backNav] close falhou', e); }
+      handlingPop = false;
+    }
+    scheduleReconcile();   // re-arma a sentinela se ainda há camadas abertas
+  });
+
+  return {
+    push, remove, reset,
+    has: (id) => findIdx(id) !== -1,
+    depth: () => stack.length,
+  };
+})();
 
 
 // =========================================================================
@@ -292,10 +395,15 @@ window.openDialog = function({ title = "Aviso", message = "", icon = "error",
       btnConfirm.removeEventListener('click', onConfirm);
       btnCancel.removeEventListener('click', onCancel);
       _dialogSupersede = null;
+      // Consome a camada "voltar" deste diálogo (no-op se o fechamento veio do
+      // próprio botão "voltar" do sistema, que já a desempilhou).
+      if (window.backNav) window.backNav.remove('dialog-global');
     };
     const settle = (value) => { cleanup(); resolve(value); };
     const onConfirm = () => settle(true);
     const onCancel = () => settle(false);
+    // Botão "voltar" do sistema fecha o diálogo como cancelar/negar.
+    if (window.backNav) window.backNav.push('dialog-global', onCancel);
     // Se superado por outro diálogo: desliga sem esconder (o novo já reusa o box).
     _dialogSupersede = () => {
       btnConfirm.removeEventListener('click', onConfirm);

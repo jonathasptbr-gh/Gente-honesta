@@ -511,6 +511,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const openCameraDialog = async () => {
+    // Botão "voltar" do sistema fecha (cancela) o diálogo da câmera.
+    window.backNav?.push('camera', closeCameraDialog);
     cameraPhotoTaken = !!window.appState.photoBlob;
     if (cameraPhotoTaken) {
       // Foto já existe — mostra preview direto
@@ -527,6 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const closeCameraDialog = () => {
+    window.backNav?.remove('camera');
     stopStream();
     overlayCamera?.classList.add('u-hidden');
     if (videoElement) videoElement.classList.add('u-hidden');

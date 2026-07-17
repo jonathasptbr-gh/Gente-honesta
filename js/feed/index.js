@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeFiltersSheet();   // filtros de profissionais, se abertos
     anchorBelowActionBar(contractsSheet);
     contractsSheet?.classList.add('historico-sheet--open');
+    window.backNav?.push('contracts-sheet', closeContractsSheet);
     // Abriu → para de piscar (marca como "visto"). Sem persistência: a cada
     // abertura do app o botão volta a piscar até ser aberto uma vez.
     btnOpenContracts?.classList.remove('agenda-filters__icon-btn--notify');
@@ -121,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function closeContractsSheet() {
     if (!isContractsSheetOpen()) return;   // guarda: também evita TDZ no setup
+    window.backNav?.remove('contracts-sheet');
     closeContractsFiltersSheet();
     contractsSheet?.classList.remove('historico-sheet--open');
     setContractsButtonClose(false);
@@ -137,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function openContractsFiltersSheet() {
     anchorBelowActionBar(contractsFiltersSheet);
     contractsFiltersSheet?.classList.add('historico-sheet--open');
+    window.backNav?.push('contracts-filters-sheet', closeContractsFiltersSheet);
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
     btn?.classList.add('agenda-filters__filter-pill--active');
@@ -145,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function closeContractsFiltersSheet() {
     if (!contractsFiltersSheet?.classList.contains('historico-sheet--open')) return;
+    window.backNav?.remove('contracts-filters-sheet');
     contractsFiltersSheet.classList.remove('historico-sheet--open');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'false');
@@ -341,8 +345,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (titleEl && postId !== 'my') titleEl.textContent = 'Profissionais indicados';
     renderIndicatedBlock(postId);
     document.getElementById('indicated-popup')?.classList.add('indicated-popup--open');
+    window.backNav?.push('indicated-popup', closeIndicatedPopup);
   };
   const closeIndicatedPopup = () => {
+    window.backNav?.remove('indicated-popup');
     document.getElementById('indicated-popup')?.classList.remove('indicated-popup--open');
   };
   document.getElementById('btn-close-indicated-popup')?.addEventListener('click', closeIndicatedPopup);
@@ -390,6 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
     indicateMode = true;
     activePostId = postId;
     morphedSourceCard = sourceCard;
+    window.backNav?.push('indicate-overlay', exitIndicateMode);
 
     // DOIS TEMPOS: o card sobe ao topo com o botão "Indicar alguém" AINDA visível e,
     // SÓ depois de chegar ao topo, o botão vira a frase "Quem você quer indicar?"
@@ -488,6 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const exitIndicateMode = () => {
     if (!indicateMode) return;
+    window.backNav?.remove('indicate-overlay');
     indicateMode = false;
     activePostId = null;
     selectedProId = null;
@@ -1900,8 +1908,10 @@ document.addEventListener('DOMContentLoaded', () => {
       anchorBelowActionBar(vagaSheet);
       vagaSheet?.classList.add('pedido-sheet--open');
       setVagaOpenerClose(true);
+      window.backNav?.push('vaga-sheet', closeVagaSheet);
     };
     const closeVagaSheet = () => {
+      window.backNav?.remove('vaga-sheet');
       vagaSheet?.classList.remove('pedido-sheet--open');
       // Restaura o rótulo natural do abridor (Criar vaga OU Ver vaga, conforme
       // já exista uma vaga publicada).
@@ -1954,8 +1964,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // O dourado "desliza" do abridor (Ver vaga) para o vizinho (Ajudantes),
       // virando "Concluir vaga"; "Fechar" surge no lugar do abridor.
       animateConcludeSwap(btnAjudanteBar, btnCriarVaga);
+      window.backNav?.push('vaga-detail-sheet', closeVagaDetailSheet);
     };
     const closeVagaDetailSheet = () => {
+      window.backNav?.remove('vaga-detail-sheet');
       vagaDetailSheet?.classList.remove('pedido-sheet--open');
       resetConcludeSwap(btnAjudanteBar, btnCriarVaga); // limpa a animação de abertura
       setVagaOpenerClose(false);
@@ -2146,8 +2158,10 @@ document.addEventListener('DOMContentLoaded', () => {
       anchorBelowActionBar(ajudanteSheet);
       ajudanteSheet?.classList.add('pedido-sheet--open');
       setAjudanteClose(true);
+      window.backNav?.push('ajudante-sheet', closeAjudanteSheet);
     };
     const closeAjudanteSheet = () => {
+      window.backNav?.remove('ajudante-sheet');
       ajudanteSheet?.classList.remove('pedido-sheet--open');
       setAjudanteClose(false);
     };
@@ -2364,6 +2378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Só restaura o título se o sheet estava mesmo aberto: closeFiltersSheet é
     // chamado preventivamente nas trocas de aba e não pode apagar o título de
     // outra gaveta.
+    window.backNav?.remove('filters-sheet');
     sheet?.classList.remove('historico-sheet--open');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'false');
@@ -2374,6 +2389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sheet = document.getElementById('filters-sheet');
     anchorBelowActionBar(sheet);
     sheet?.classList.add('historico-sheet--open');
+    window.backNav?.push('filters-sheet', closeFiltersSheet);
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
     btn?.classList.add('agenda-filters__filter-pill--active');
@@ -2540,6 +2556,12 @@ document.addEventListener('DOMContentLoaded', () => {
     else showProsPanel();
     // Reflete o estado de scroll do NOVO painel na elevação da barra
     updateBarElevation();
+    // Botão "voltar" do sistema fora da aba inicial (Profissionais) → retorna a ela
+    // antes de sair do app. Camada única: trocar entre abas não-inicial não empilha.
+    if (window.backNav) {
+      if (tabName === TAB.HOME) window.backNav.remove('feed-tab');
+      else window.backNav.push('feed-tab', () => switchToTab(TAB.HOME));
+    }
   };
 
   document.querySelectorAll('.feed-tabs-pill__tab').forEach(tab => {
@@ -2770,6 +2792,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const pedidoPublishFooter = document.getElementById('pedido-publish-footer');
 
   const closePedidoSheet = () => {
+    window.backNav?.remove('pedido-sheet');
     pedidoSheet?.classList.remove('pedido-sheet--open');
     pedidoSheet?.classList.remove('pedido-sheet--morph');
     pedidoPublishFooter?.classList.add('u-hidden');
@@ -2811,6 +2834,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pedidoSheet?.classList.remove('pedido-sheet--full', 'pedido-sheet--morph');
     pedidoSheet?.classList.add('pedido-sheet--open');
     setMyPedidoButton('close');
+    window.backNav?.push('pedido-sheet', closePedidoSheet);
   };
 
   // Abre o detalhe unificado (pedido + indicações). `sourceEl` = o item do
@@ -2820,6 +2844,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const openPedidoDetail = (id, sourceEl) => {
     const pedido = getPedidoById(id);
     if (!pedido) return;
+    window.backNav?.push('pedido-sheet', closePedidoSheet);
     detailPedidoId = id;
     const active = pedido.status === PEDIDO_STATUS.ACTIVE;
     pedidoDetailMode = active ? PEDIDO_DETAIL_MODE.ACTIVE : PEDIDO_DETAIL_MODE.OLD;
@@ -3056,8 +3081,10 @@ document.addEventListener('DOMContentLoaded', () => {
     anchorBelowActionBar(historicoSheet);
     historicoSheet?.classList.add('historico-sheet--open');
     setHistoricoButton('close');
+    window.backNav?.push('historico-sheet', closeHistorico);
   };
   const closeHistorico = () => {
+    window.backNav?.remove('historico-sheet');
     historicoSheet?.classList.remove('historico-sheet--open');
     // Se um detalhe (ativo ou antigo) está aberto sobre o histórico, o botão
     // Histórico segue como "Fechar" e o título do DETALHE permanece na top bar;

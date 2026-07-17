@@ -157,6 +157,14 @@ window.sendOTP = async function(isResend = false) {
           if (phoneDisplay) phoneDisplay.innerText = rawPhone;
           restoreButton(btn, originalText);
           navigateTo('form-otp');
+          // Botão "voltar" do sistema no passo OTP → retorna ao passo do telefone
+          // (mesmo comportamento do "Alterar número").
+          window.backNav?.push('auth:step-otp', () => {
+            clearOTPFields();
+            navigateTo('form-phone');
+            const bs = document.getElementById('btn-send-sms');
+            if (bs && window.appState.cooldownActive) bs.disabled = true;
+          });
         }
 
         startCooldown();
@@ -379,9 +387,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // INTERAÇÕES DO DOM - Mapeamento e Escuta de Cliques de Navegação Core
-  document.getElementById('btn-start')?.addEventListener('click', () => navigateTo('form-phone'));
+  document.getElementById('btn-start')?.addEventListener('click', () => {
+    navigateTo('form-phone');
+    // Botão "voltar" do sistema no passo do telefone → retorna à intro (carrossel).
+    window.backNav?.push('auth:step-phone', () => navigateTo('step-intro'));
+  });
 
   document.getElementById('btn-back-phone')?.addEventListener('click', () => {
+    // Consome a camada "voltar" do passo OTP (fechamento pela UI).
+    window.backNav?.remove('auth:step-otp');
     clearOTPFields();
     navigateTo('form-phone');
     const btnSend = document.getElementById('btn-send-sms');
