@@ -524,64 +524,74 @@ document.addEventListener('DOMContentLoaded', () => {
     closeFiltersSheet();   // fecha a gaveta de filtros, se aberta no overlay
     if (agendaSearchInput) { agendaSearchInput.value = ''; syncSearchClearIcon(); }
 
-    // FLIP REVERSO do card REAL: volta flutuando do topo até a posição do placeholder
-    // (o lugar original na lista). Mede a posição atual (topo) e a do placeholder e
-    // translada até lá.
     const card = morphedSourceCard;
-    let flightMs = 720;   // fallback (sem card): acompanha o slide da seção (0.72s)
-    if (card && indicatePlaceholder) {
-      const cRect = card.getBoundingClientRect();
-      const pRect = indicatePlaceholder.getBoundingClientRect();
-      const dx = pRect.left - cRect.left;
-      const dy = pRect.top  - cRect.top;
-      // Descida com a MESMA velocidade constante da subida (distância → duração).
-      flightMs = indicateCardFlightMs(Math.hypot(dx, dy));
-      card.style.transition = `transform ${flightMs}ms ${INDICATE_SHEET_EASE}`;
-      card.style.transform = `translate(${dx}px, ${dy}px)`;
-    }
 
-    // Blur some e a seção de profissionais desce junto (slide LIMPO, sem fade),
-    // pela mesma velocidade única (distância = altura da seção).
-    indicateOverlay?.classList.remove('indicate-overlay--open');
-    let prosMs = 700;
-    if (indicateProsBox) {
-      prosMs = window.moveMs(indicateProsBox.offsetHeight);
-      indicateProsBox.style.transition = `transform ${prosMs}ms ${INDICATE_SHEET_EASE}`;
-      indicateProsBox.style.transform = 'translateY(100%)';
-    }
+    // TEMPO 1 (fechar) — INVERSO da abertura: o botão "Indicar alguém" VOLTA
+    // (un-morph, frase → botão) ANTES de qualquer movimento. Na abertura o morph vem
+    // DEPOIS da subida; no fechamento o un-morph vem ANTES da descida.
+    if (card) restoreSourceCard(card);
 
-    document.querySelectorAll('.pro-card--selected, .pro-card--flipped, .pro-card--expanded').forEach(el => {
-      proCardForceReset(el);
-    });
-
-    // Ao fim: DEVOLVE o card real ao lugar do placeholder (some o transform → cai
-    // exatamente no slot), desfaz o morph, devolve a barra de busca e a lista, e
-    // esconde o overlay. Restaura a bottom bar.
-    setTimeout(() => {
+    // TEMPO 2 — só após o botão reaparecer (respiro do un-morph) o card DESCE de volta
+    // ao lugar, a seção desce e o blur some. A distância é medida AQUI (card já com a
+    // altura final do botão) p/ o pouso casar com o placeholder.
+    const UNMORPH_MS = 300;   // ~duração do crossfade do botão (ver restoreSourceCard)
+    const runReturn = () => {
+      // FLIP REVERSO do card REAL: do topo até a posição do placeholder na lista.
+      let flightMs = 700;
       if (card && indicatePlaceholder) {
-        card.style.transition = 'none';
-        card.style.transform = '';
-        card.style.transformOrigin = '';
-        indicatePlaceholder.replaceWith(card);   // card real de volta ao slot exato
-        void card.offsetHeight;                  // comita o slot antes das transições do un-morph
-        restoreSourceCard(card);                 // desfaz o morph ANIMADO (frase → botão, verde → normal)
+        const cRect = card.getBoundingClientRect();
+        const pRect = indicatePlaceholder.getBoundingClientRect();
+        const dx = pRect.left - cRect.left;
+        const dy = pRect.top  - cRect.top;
+        // Descida com a MESMA velocidade única da subida (distância → duração).
+        flightMs = indicateCardFlightMs(Math.hypot(dx, dy));
+        card.style.transition = `transform ${flightMs}ms ${INDICATE_SHEET_EASE}`;
+        card.style.transform = `translate(${dx}px, ${dy}px)`;
       }
-      indicatePlaceholder = null;
 
-      const agendaList = document.getElementById('agenda-list');
-      agendaList?.classList.remove('agenda-list--indicate-mode');
-      if (agendaList && prosPanelHost) prosPanelHost.appendChild(agendaList);
-      // Barra de busca volta para a linha de busca da action bar, antes do contratos.
-      if (searchWrap && barSearchState) barSearchState.insertBefore(searchWrap, btnOpenContracts);
-      resetAgendaList();
+      // Blur some e a seção de profissionais desce junto (slide LIMPO, sem fade),
+      // pela mesma velocidade única (distância = altura da seção).
+      indicateOverlay?.classList.remove('indicate-overlay--open');
+      let prosMs = 700;
+      if (indicateProsBox) {
+        prosMs = window.moveMs(indicateProsBox.offsetHeight);
+        indicateProsBox.style.transition = `transform ${prosMs}ms ${INDICATE_SHEET_EASE}`;
+        indicateProsBox.style.transform = 'translateY(100%)';
+      }
 
-      indicateOverlay?.classList.add('u-hidden');
-      if (indicateProsBox) { indicateProsBox.style.transition = ''; indicateProsBox.style.transform = ''; indicateProsBox.style.opacity = ''; }
-      const postRef = document.getElementById('indicate-post-ref');
-      if (postRef) postRef.innerHTML = '';
-      morphedSourceCard = null;
-      feedBottomBar?.classList.remove('u-hidden');
-    }, Math.max(flightMs, prosMs) + 40);   // espera o FLIP reverso E o slide da seção (ambos variáveis)
+      document.querySelectorAll('.pro-card--selected, .pro-card--flipped, .pro-card--expanded').forEach(el => {
+        proCardForceReset(el);
+      });
+
+      // Ao fim: DEVOLVE o card real ao slot do placeholder (some o transform → cai
+      // exatamente no lugar), devolve a barra de busca e a lista, e esconde o overlay.
+      // O un-morph já ocorreu no TEMPO 1 (não roda mais aqui).
+      setTimeout(() => {
+        if (card && indicatePlaceholder) {
+          card.style.transition = 'none';
+          card.style.transform = '';
+          card.style.transformOrigin = '';
+          indicatePlaceholder.replaceWith(card);   // card real de volta ao slot exato
+        }
+        indicatePlaceholder = null;
+
+        const agendaList = document.getElementById('agenda-list');
+        agendaList?.classList.remove('agenda-list--indicate-mode');
+        if (agendaList && prosPanelHost) prosPanelHost.appendChild(agendaList);
+        // Barra de busca volta para a linha de busca da action bar, antes do contratos.
+        if (searchWrap && barSearchState) barSearchState.insertBefore(searchWrap, btnOpenContracts);
+        resetAgendaList();
+
+        indicateOverlay?.classList.add('u-hidden');
+        if (indicateProsBox) { indicateProsBox.style.transition = ''; indicateProsBox.style.transform = ''; indicateProsBox.style.opacity = ''; }
+        const postRef = document.getElementById('indicate-post-ref');
+        if (postRef) postRef.innerHTML = '';
+        morphedSourceCard = null;
+        feedBottomBar?.classList.remove('u-hidden');
+      }, Math.max(flightMs, prosMs) + 40);   // espera o FLIP reverso E o slide da seção
+    };
+
+    setTimeout(runReturn, UNMORPH_MS);
   };
 
   // Fechar o overlay pelo botão de fechar da barra flutuante. (A busca e o filtro
