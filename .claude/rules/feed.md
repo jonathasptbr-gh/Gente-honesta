@@ -419,8 +419,8 @@ accessors viram queries async sem mexer nos chamadores). Detalhe dos dados: `moc
 = parcelas), `mockComments[]` (15, exibidos 5 por vez), `mockIndicatedByPost{}` (post de TERCEIROS →
 pros; o próprio pedido usa `pedido.indicated`), `mockVagas[]` (3), `mockHelpers`. Placeholders:
 Contratar/WhatsApp/Compartilhar dão alerta; pedido/histórico/candidatura sem persistência no Firestore
-(tudo em memória/localStorage). Lista de pedidos = 2 itens hardcoded no HTML (`#list-feed`, badges
-`2/3`).
+(tudo em memória/localStorage). Lista de pedidos = 5 itens hardcoded no HTML (`#list-feed`,
+`#post-card-0..4`, badges de fração tipo `2/3`).
 
 ## Dívidas técnicas (feed) — consolidar ao mexer
 
