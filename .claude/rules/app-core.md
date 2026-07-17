@@ -20,7 +20,7 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
 `window.showView(viewId)`, `window.navigateTo(stepId)`, `window.openDialog({...})`,
 `window.customAlert(msg, title?, icon?)`, `window.customConfirm(msg, title?, icon?)`,
 `window.watchScrollShadows(el)`, `window.backNav` (`push`/`remove`/`reset`/`has`/`depth`),
-`window.THEME_COLOR`.
+`window.moveMs(distanciaPx)`, `window.MOVE_SPEED`, `window.THEME_COLOR`.
 
 **tutorial/tutorial.js:** `window.startTutorial(steps, opts)`, `window.resetTutorialSeen(id)`.
 
@@ -98,6 +98,28 @@ autocomplete de área) e o flip dos cards NÃO são camadas — fecham sozinhos.
 **Ao adicionar uma nova camada dispensável:** `push(id, fecharFn)` no abrir + `remove(id)` no fechar,
 com `id` único. Nada mais — o "voltar" passa a fechá-la automaticamente.
 
+## Velocidade única de movimento (`window.moveMs`)
+
+Todo DESLOCAMENTO do app tem a MESMA velocidade linear: a DURAÇÃO deriva da distância a percorrer
+÷ `MOVE_SPEED` (px/ms). `window.moveMs(distanciaPx)` (`core/app.js`) é a fonte única — `clamp` entre
+`MOVE_MIN_MS`/`MOVE_MAX_MS`. Ajuste global de cadência = mexer só em `window.MOVE_SPEED`. A CURVA de
+cada transição continua a de sempre; só a duração passa a ser derivada.
+
+Aplicação (mede a distância no gesto, seta a duração inline ou via CSS var):
+- **Gavetas** (`feed/index.js`): `anchorBelowActionBar` seta `transitionDuration` do `.__panel` pela
+  altura dele (chamado em toda abertura) — cobre os 8 sheets de uma vez.
+- **Carrossel de painéis + trilho da action bar + slider das abas** (UM gesto): `switchToTab` seta
+  `--panel-slide-dur` = `moveMs(nº de painéis × largura da viewport)`; os 3 elementos usam esse var
+  no CSS (ficam SINCRONIZADOS e a duração cresce em salto de 2 abas). O default do var vem do
+  `setViewportVars` (`core/app.js`, recalculado no resize).
+- **Modo indicação** (`feed/index.js`): voo do card e slide da seção medem a distância/altura →
+  `moveMs`. **Bottom sheet de indicados**: `--indicated-sheet-dur` pela altura (alimenta o slide E o
+  atraso de visibilidade). **`animateConcludeSwap`**: `moveMs(dx)`.
+
+FORA do padrão de propósito: FLIP dos cards (rotação 180°, velocidade ANGULAR constante por
+natureza — duração fixa), colapsáveis de altura (ease assimétrico deliberado do cadastro) e
+micro-interações de toque (press/hover ≤0.2s, mudança de cor 0.3s = feedback, não deslocamento).
+
 ## Diálogos — primitivo único `openDialog`
 
 `window.openDialog({title, message, icon, showCancel, confirmText, cancelText, scrollable})`
@@ -153,7 +175,7 @@ telas fica por conta do fade-out do loader.
 ## Service Worker
 
 Incrementar `CACHE_NAME` (`service-worker.js`) a cada deploy com mudanças de cache (atual:
-`gentehonesta-v389`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
+`gentehonesta-v390`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
 caches antigos. **CRÍTICO — o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`:** sem
 isso, o `Cache-Control: max-age=600` do GitHub Pages devolvia arquivos VELHOS por até 10 min após
 um deploy e o botão "Atualizar" recarregava a versão antiga. `no-cache` = revalida via ETag (304

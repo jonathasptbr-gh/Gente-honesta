@@ -44,6 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlayOn = indicateMode && indicateOverlay && !indicateOverlay.classList.contains('u-hidden');
     const bar = overlayOn ? document.getElementById('indicate-bar') : document.getElementById('feed-action-bar');
     if (bar && el) el.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
+    // Velocidade única: a gaveta desliza a altura do próprio painel → a DURAÇÃO do
+    // slide deriva dessa distância (chamado em toda abertura, antes da classe --open).
+    const panel = el && el.querySelector('.pedido-sheet__panel, .historico-sheet__panel');
+    if (panel && window.moveMs) panel.style.transitionDuration = `${window.moveMs(panel.offsetHeight)}ms`;
   }
 
   // Abridor vira "fechar" (X) enquanto a gaveta está aberta — verde sólido,
@@ -241,14 +245,16 @@ document.addEventListener('DOMContentLoaded', () => {
     closeBtn.style.transition = 'none';
     closeBtn.style.opacity    = '0';
     void concludeBtn.offsetWidth; // reflow: fixa o estado inicial
-    concludeBtn.style.transition = 'transform 0.42s var(--sheet-ease, cubic-bezier(0.32,0.72,0,1))';
+    // Velocidade única: o "deslize" do botão dourado dura conforme a distância (dx).
+    const swapMs = window.moveMs ? window.moveMs(dx) : 420;
+    concludeBtn.style.transition = `transform ${swapMs}ms var(--sheet-ease, cubic-bezier(0.32,0.72,0,1))`;
     concludeBtn.style.transform  = 'translateX(0)';
     closeBtn.style.transition = 'opacity 0.3s ease 0.12s';
     closeBtn.style.opacity    = '1';
     concludeBtn._swapT = setTimeout(() => {
       concludeBtn.style.transition = ''; concludeBtn.style.transform = ''; concludeBtn.style.zIndex = '';
       closeBtn.style.transition = ''; closeBtn.style.opacity = '';
-    }, 470);
+    }, swapMs + 60);
   }
 
   // Limpa qualquer estado inline deixado pela animação acima (ao fechar o detalhe,
@@ -338,17 +344,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const INDICATE_PROMPT  = 'Quem você quer indicar?';
   const INDICATE_SHEET_EASE = 'cubic-bezier(0.32,0.72,0,1)';   // espelha --sheet-ease
 
-  // Duração do "voo" do card (subida na ENTRADA / descida na SAÍDA) PROPORCIONAL à
-  // distância percorrida → velocidade LINEAR constante. Um card que estava lá embaixo
-  // (mais longe do topo) leva MAIS tempo, em vez de "disparar" na mesma meia-segundo
-  // de um card que já estava perto do topo; assim a percepção de velocidade é a mesma
-  // para qualquer posição de origem. Limitada a [MIN, MAX] p/ não ficar instantânea
-  // (cards muito próximos) nem arrastada (extremos), e a curva --sheet-ease é mantida.
-  const INDICATE_CARD_SPEED  = 0.6;    // px por ms (~600 px/s) — cadência calma
-  const INDICATE_CARD_MIN_MS = 470;
-  const INDICATE_CARD_MAX_MS = 1150;
-  const indicateCardFlightMs = (distancePx) => Math.round(Math.min(
-    INDICATE_CARD_MAX_MS, Math.max(INDICATE_CARD_MIN_MS, Math.abs(distancePx) / INDICATE_CARD_SPEED)));
+  // O "voo" do card (subida na ENTRADA / descida na SAÍDA) usa a velocidade ÚNICA
+  // do app (window.moveMs): a distância percorrida vira duração na MESMA velocidade
+  // de todo o resto (gavetas, painéis, seção de profissionais). A curva --sheet-ease
+  // é mantida.
+  const indicateCardFlightMs = (distancePx) => window.moveMs(distancePx);
 
   const openIndicatedPopup = (postId) => {
     // Título padrão para pedidos de terceiros; para o pedido próprio o chamador
@@ -356,7 +356,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const titleEl = document.getElementById('indicated-popup-title');
     if (titleEl && postId !== 'my') titleEl.textContent = 'Profissionais indicados';
     renderIndicatedBlock(postId);
-    document.getElementById('indicated-popup')?.classList.add('indicated-popup--open');
+    const popup = document.getElementById('indicated-popup');
+    // Velocidade única: o bottom sheet sobe a própria altura → duração derivada
+    // (o var alimenta o slide E o atraso de visibilidade no fechamento).
+    const popupSheet = popup?.querySelector('.indicated-popup__sheet');
+    if (popup && popupSheet && window.moveMs) {
+      popup.style.setProperty('--indicated-sheet-dur', `${window.moveMs(popupSheet.offsetHeight)}ms`);
+    }
+    popup?.classList.add('indicated-popup--open');
     window.backNav?.push('indicated-popup', closeIndicatedPopup);
   };
   const closeIndicatedPopup = () => {
@@ -483,7 +490,9 @@ document.addEventListener('DOMContentLoaded', () => {
       sourceCard.style.transition = `transform ${riseMs}ms ${INDICATE_SHEET_EASE}`;
       sourceCard.style.transform = 'none';
       if (indicateProsBox) {
-        indicateProsBox.style.transition = `transform 0.72s ${INDICATE_SHEET_EASE}`;
+        // Slide da seção pela mesma velocidade única (distância = altura da seção).
+        const prosMs = window.moveMs(indicateProsBox.offsetHeight);
+        indicateProsBox.style.transition = `transform ${prosMs}ms ${INDICATE_SHEET_EASE}`;
         indicateProsBox.style.transform = 'translateY(0)';
       }
 
@@ -531,10 +540,13 @@ document.addEventListener('DOMContentLoaded', () => {
       card.style.transform = `translate(${dx}px, ${dy}px)`;
     }
 
-    // Blur some e a seção de profissionais desce junto (slide LIMPO, sem fade).
+    // Blur some e a seção de profissionais desce junto (slide LIMPO, sem fade),
+    // pela mesma velocidade única (distância = altura da seção).
     indicateOverlay?.classList.remove('indicate-overlay--open');
+    let prosMs = 700;
     if (indicateProsBox) {
-      indicateProsBox.style.transition = `transform 0.72s ${INDICATE_SHEET_EASE}`;
+      prosMs = window.moveMs(indicateProsBox.offsetHeight);
+      indicateProsBox.style.transition = `transform ${prosMs}ms ${INDICATE_SHEET_EASE}`;
       indicateProsBox.style.transform = 'translateY(100%)';
     }
 
@@ -569,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (postRef) postRef.innerHTML = '';
       morphedSourceCard = null;
       feedBottomBar?.classList.remove('u-hidden');
-    }, Math.max(flightMs, 720) + 40);   // espera o FLIP reverso (variável) E o slide da seção (0.72s)
+    }, Math.max(flightMs, prosMs) + 40);   // espera o FLIP reverso E o slide da seção (ambos variáveis)
   };
 
   // Fechar o overlay pelo botão de fechar da barra flutuante. (A busca e o filtro
@@ -1222,7 +1234,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (ev.target === feedPanels && ev.propertyName === 'transform') openDrawer();
     };
     feedPanels?.addEventListener('transitionend', onSlideEnd);
-    setTimeout(openDrawer, 650);   // fallback caso o transitionend não dispare
+    // fallback caso o transitionend não dispare — folga sobre a duração do painel
+    // (agora derivada da velocidade única, via --panel-slide-dur).
+    const panelDur = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--panel-slide-dur')) || 600;
+    setTimeout(openDrawer, panelDur + 200);
   });
 
 
@@ -2530,6 +2545,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const slider = document.querySelector('.feed-tabs-pill__slider');
     if (!slider) return;
     const idx = TAB_ORDER.indexOf(tabName);
+    // Duração via --panel-slide-dur (definida no switchToTab): o slider é parte do
+    // MESMO gesto que o painel/trilho e desliza junto, não como movimento à parte.
     slider.style.transform = `translateX(${idx * 100}%)`;
   };
   updateSlider(TAB.HOME); // posiciona o slider na aba ativa inicial
@@ -2552,6 +2569,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const switchToTab = (tabName) => {
     if (tabName === activeTab) return;
+    // Velocidade única: painel + trilho + slider são UM gesto; a duração deriva da
+    // distância percorrida (nº de painéis atravessados × largura da viewport).
+    const hops = Math.abs(TAB_ORDER.indexOf(tabName) - TAB_ORDER.indexOf(activeTab)) || 1;
+    if (window.moveMs) document.documentElement.style.setProperty('--panel-slide-dur', `${window.moveMs(hops * window.innerWidth)}ms`);
     // Volta o botão da aba anterior ao padrão
     setTabButton(activeTab, false);
     activeTab = tabName;

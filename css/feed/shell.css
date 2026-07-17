@@ -470,7 +470,7 @@
   background: var(--bg-canvas);
   /* Default: mostra o painel central (Profissionais) */
   transform: translateX(-33.3333%);
-  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--panel-slide-dur, 0.55s) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Slide para a esquerda: mostra o painel de Vagas */

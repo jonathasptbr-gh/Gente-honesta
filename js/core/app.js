@@ -13,13 +13,33 @@
 // do feed "vazar" para baixo da tela. O grid do feed (auto | 1fr | auto) usa esta
 // altura para fixar topo e base e rolar só o meio.
 // =========================================================================
+// =========================================================================
+// VELOCIDADE ÚNICA DE MOVIMENTO — padroniza a "cara" das animações
+// Toda animação de DESLOCAMENTO do app deriva sua DURAÇÃO desta velocidade
+// linear × a distância a percorrer → todos os movimentos têm a MESMA velocidade
+// (o tempo total varia com a distância percorrida). Piso/teto evitam movimentos
+// curtos instantâneos e longos arrastados. `window.moveMs(distanciaPx)` é a FONTE
+// ÚNICA usada por core/feed/onboarding; a CURVA de cada transição continua a de
+// sempre — só a DURAÇÃO passa a ser derivada da distância. Ajuste global de
+// cadência = mexer só em MOVE_SPEED.
+// =========================================================================
+window.MOVE_SPEED  = 0.65;   // px por ms (velocidade linear de qualquer movimento)
+window.MOVE_MIN_MS = 220;    // piso (movimentos curtos não ficam instantâneos)
+window.MOVE_MAX_MS = 1200;   // teto (movimentos longos não arrastam)
+window.moveMs = (distancePx) => Math.round(Math.min(window.MOVE_MAX_MS,
+  Math.max(window.MOVE_MIN_MS, Math.abs(distancePx) / window.MOVE_SPEED)));
+
 (function () {
-  const setAppHeight = () => {
-    document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+  const setViewportVars = () => {
+    const root = document.documentElement;
+    root.style.setProperty('--app-height', window.innerHeight + 'px');
+    // Carrossel de painéis + trilho da action bar deslizam UMA largura de viewport
+    // → duração pela mesma velocidade única (recalculada no resize/rotação).
+    root.style.setProperty('--panel-slide-dur', `${window.moveMs(window.innerWidth)}ms`);
   };
-  setAppHeight();
-  window.addEventListener('resize', setAppHeight);
-  window.addEventListener('orientationchange', setAppHeight);
+  setViewportVars();
+  window.addEventListener('resize', setViewportVars);
+  window.addEventListener('orientationchange', setViewportVars);
 })();
 
 

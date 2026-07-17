@@ -421,8 +421,8 @@
   justify-content: flex-end;
   pointer-events: none;
   visibility: hidden;
-  /* Mantém visível durante a animação de fechamento */
-  transition: visibility 0s linear 0.45s;
+  /* Mantém visível durante a animação de fechamento (acompanha a duração do slide) */
+  transition: visibility 0s linear var(--indicated-sheet-dur, 0.45s);
 }
 
 .indicated-popup--open {
@@ -457,7 +457,7 @@
   max-height: calc(var(--app-height, 100dvh) * 0.92);
   overflow: hidden;
   transform: translateY(100%);
-  transition: transform 0.45s var(--sheet-ease);
+  transition: transform var(--indicated-sheet-dur, 0.45s) var(--sheet-ease);
 }
 
 .indicated-popup--open .indicated-popup__sheet {
