@@ -248,6 +248,16 @@ Assim o card sobe/desce ATRÁS da barra (sem "pular" para frente) e a lista desl
 `window.moveMs` (velocidade única — ver `app-core.md`); a curva é `INDICATE_SHEET_EASE` (espelha
 `--sheet-ease`).
 
+**Interatividade no fechamento (não travar a tela):** o overlay é `position:fixed; inset:0` — enquanto
+visível ele CAPTURA todos os toques. No fechamento, assim que a DESCIDA começa (`runReturn`, após o
+respiro `UNMORPH_MS`), o overlay recebe `style.pointerEvents = 'none'`: dali em diante é só limpeza
+VISUAL e o feed de pedidos ABAIXO já pode ser tocado/rolado. Sem isso, a tela ficava travada até o fim
+NOMINAL da transição (`Math.max(flightMs, prosMs)+40`), bem depois de a curva de freio firme já ter
+assentado o movimento — perceptível em telas altas (seção alta → `prosMs` longo). A flag
+`indicateExiting` (setada no início de `exitIndicateMode`, limpa no fim da limpeza) bloqueia
+`enterIndicateMode` durante essa janela, senão a reabertura reparentaria card/lista no meio da
+limpeza. `pointerEvents` é restaurado (`''`) na limpeza final, junto com o `u-hidden`.
+
 ## Scroll-to-top nas abas
 
 Rolar um painel além de 80px muda o ícone/label da aba ativa para `arrow_upward` / "Voltar ao topo".
