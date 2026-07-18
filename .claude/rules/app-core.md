@@ -21,7 +21,8 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
 `window.customAlert(msg, title?, icon?)`, `window.customConfirm(msg, title?, icon?)`,
 `window.watchScrollShadows(el)`, `window.backNav` (`push`/`remove`/`reset`/`has`/`depth`),
 `window.moveMs(distanciaPx, speed?)`, `window.MOVE_SPEED`/`MOVE_SPEED_OPEN`/`MOVE_SPEED_CLOSE`,
-`window.animLane` (coordenador de movimentos — `begin`/`end`/`settle`/`token`/`busy`; ver abaixo),
+`window.MOVE_ACCEL` (multiplicador de velocidade do acelerador; ver moveGate), `window.moveGate`
+(trava+fila+acelerador de movimentos — `run`/`busy`/`depth`; ver abaixo),
 `window.THEME_COLOR`, `window.icon(nome, classeExtra?)` (HTML de um ícone do sprite SVG),
 `window.setIcon(elIcone, nome)` (troca o glifo de um ícone já no DOM — antes `el.textContent = nome`).
 
@@ -133,36 +134,41 @@ FORA do padrão de propósito: FLIP dos cards (rotação 180°, velocidade ANGUL
 natureza — duração fixa), colapsáveis de altura (ease assimétrico deliberado do cadastro) e
 micro-interações de toque (press/hover ≤0.2s, mudança de cor 0.3s = feedback, não deslocamento).
 
-## Coordenador de movimentos (`window.animLane`) — animações de shell nunca simultâneas
+## Trava + fila + acelerador de movimentos (`window.moveGate`)
 
-Movimentos de DESLOCAMENTO que compartilham DOM/shell (reparent de `#agenda-list`/bottom bar, gavetas,
-modo indicação) não podem rodar SIMULTÂNEOS — é a raiz dos bugs de "camadas atravessadas / elementos
-sumindo" ao interagir rápido (dois movimentos limpam/reparentam DOM em cadeias `transitionend`/`setTimeout`
-que se atropelam). `window.animLane` (`core/app.js`) serializa por **RAIAS** (`'shell'` hoje): numa raia só
-há UM movimento por vez; começar um novo faz **fast-forward** do anterior (chama seu `settle` SÍNCRONO =
-pula pro estado final na hora) em vez de deixá-lo animando junto. Assim o toque novo age na hora
-(responsivo) e o anterior assenta limpo.
+**Regra de segurança:** uma animação de DESLOCAMENTO não pode COMEÇAR enquanto outra não terminou — é o
+que elimina os bugs de "camadas atravessadas / elementos sumindo" ao tocar rápido (dois movimentos
+reparentando/limpando DOM ao mesmo tempo em cadeias `transitionend`/`setTimeout` que se atropelam).
+`window.moveGate` (`core/app.js`) serializa: movimentos disparados durante um em curso entram na **FILA**,
+na ordem, e rodam um após o outro. NÃO passam pela trava micro-interações (press/cor/sombra = feedback) nem
+estados **parados** (uma gaveta/overlay já aberto e em repouso não bloqueia) — só a JANELA de animação.
 
-**NÃO passam pela raia:** micro-interações (press/cor/sombra = feedback, não deslocamento), os FLIPS de
-card (elementos 3D independentes que não corrompem o shell) e os movimentos que já são **máquinas de
-estado idempotentes por classe** e se auto-curam na re-entrada (o carrossel de abas `switchToTab`, o
-bottom sheet de indicados, as gavetas puramente `--open`). Só entram na raia os movimentos com **cleanup
-assíncrono que reparenta/limpa DOM** — hoje o **modo indicação** (`feed/index.js`, `enter/exitIndicateMode`).
+**Acelerador:** ao chegar um movimento novo com outro em curso, o em curso é agilizado **2×**
+(`playbackRate` das suas animações via `getAnimations`, e a espera cai pela metade — SÓ se acelerou o
+visual, senão nunca sobreporia); e cada item da fila roda 2× (via `window.MOVE_ACCEL`, que o `moveMs`
+multiplica na velocidade), MENOS o ÚLTIMO, que roda normal. Rajada de toques → sequência ágil que termina
+suave, sem sobreposição.
 
-**Contrato:**
-- `begin(id, settle)` — inicia um movimento: bump do token (supera callbacks pendentes) + fast-forward do
-  anterior (roda o `settle` dele). Devolve o token; guarde-o e aborte callbacks assíncronos com
-  `if (t !== window.animLane.token(id)) return`.
-- `end(id, token)` — movimento terminou naturalmente (animação assentou) → libera a raia (só se ainda for o dono).
-- `settle(id)` — fast-forward manual do que estiver em curso (ex.: `switchToTab` chama `settle('shell')`
-  antes de deslizar, p/ não passar o carrossel POR CIMA de um reparent inacabado).
-- `settle` DEVE ser idempotente e síncrono: leva o movimento ao estado FINAL sem animar (ex.:
-  `settleIndicate`/`finalizeIndicateNow`).
+**Contrato:** `window.moveGate.run(id, play, roots?)`:
+- `play()` — EXECUTA o movimento (síncrono) e DEVOLVE a duração (ms) da sua animação. Roda na hora se a
+  trava está livre; senão entra na fila e roda quando chegar a vez.
+- `roots[]` — elementos-raiz cujas animações podem ser aceleradas em voo (`getAnimations({subtree:true})`).
+- A fila AVANÇA por TIMER (duração devolvida + folga), NUNCA por `transitionend` → um `transitionend`
+  perdido nunca congela a fila (sem deadlock). `moveGate.busy`/`moveGate.depth` consultam o estado.
 
-**Ao criar um movimento novo com cleanup assíncrono que mexa em DOM compartilhado:** enrole-o na raia
-(`begin` no início, `end` no fim, `settle` que snap-a pro final) e guarde os callbacks com o token — senão
-ele volta a poder rodar simultâneo e corromper. Movimento puramente idempotente por classe (como o
-carrossel) não precisa entrar; só chame `settle('shell')` antes se ele puder atropelar um reparent.
+**Movimentos hoje na trava** (`feed/index.js`): carrossel de abas (`switchToTab`→`doSwitchToTab`, devolve
+`--panel-slide-dur`), modo indicação (`enter/exitIndicateMode`→`doEnter/doExitIndicate`, devolvem a duração
+da abertura/fechamento), e os FLIPS de card (pro e vaga — o toggle inteiro, incluindo o "fecha os outros"
+do accordion, é UM movimento). Durações de `moveMs` embutem `MOVE_ACCEL`; as durações FIXAS (flips) não —
+seu acelerador vem só do `playbackRate` no item em curso. **Indicação NÃO deixa `MOVE_ACCEL` encurtar seu
+est** (as durações internas são medidas em setTimeout, já com accel=1) — o `est` é calculado com accel=1 p/
+casar com a animação real e não abrir a fila cedo demais.
+
+**Ao criar um movimento de deslocamento novo:** enrole o disparo em `moveGate.run(id, play, [raiz])`, com
+`play` fazendo o movimento e devolvendo a duração. Leia o estado (aberto/fechado) DENTRO do `play` (ele roda
+desenfileirado — o estado do clique pode estar velho). Movimento que reparenta DOM deve ainda ter um snap
+síncrono defensivo (ver `finalizeIndicateNow`) + guarda por token (`indicateGen`) para o caso de callbacks
+tardios.
 
 ## Diálogos — primitivo único `openDialog`
 

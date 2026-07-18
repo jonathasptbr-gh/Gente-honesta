@@ -250,21 +250,28 @@ Assim o card sobe/desce ATRÁS da barra (sem "pular" para frente) e a lista desl
 `MOVE_SPEED_CLOSE` (1.5, ágil); ver `app-core.md`. A curva é `INDICATE_SHEET_EASE` (espelha
 `--sheet-ease`).
 
-**Corrida de interrupção — coordenador de movimentos (`window.animLane`) + snap síncrono.** A entrada e a
+**Serialização de movimentos — trava+fila+acelerador (`window.moveGate`) + snap síncrono.** A entrada e a
 saída reparentam DOM (`#agenda-list`, busca, bottom bar, card) e o devolvem "pra casa" em cadeias
-`transitionend`/`setTimeout` de ~1s. Se dois movimentos de shell rodam juntos (sai e reentra antes de
-assentar; trocar de aba no meio), o cleanup TARDIO de um superado clobbava o outro (camadas
-"atravessadas"/elementos sumindo). Blindagem: o modo indicação é um **movimento da raia `'shell'`** do
-coordenador `window.animLane` (`core/app.js`, ver `app-core.md`). `enterIndicateMode`/`exitIndicateMode`
-chamam `window.animLane.begin('shell', settleIndicate)` (fast-forward de qualquer movimento shell em
-curso) e capturam o token; TODO callback assíncrono aborta com `if (gen !== window.animLane.token('shell'))`.
-`settleIndicate` = snap SÍNCRONO ao fechado (`finalizeIndicateNow` + `backNav.remove`), idempotente/defensivo.
-`switchToTab` chama `window.animLane.settle('shell')` + (se `indicateMode`) `settleIndicate()` ANTES de
-deslizar o carrossel — senão o carrossel passaria por cima do reparent e a aba Profissionais ficava vazia.
-**Ao adicionar qualquer passo assíncrono novo nesse fluxo, capture o token e guarde o callback.** Nota
-de armadilha: as guardas de "voltar pra casa" em `finalizeIndicateNow` usam **parent DIRETO** (`el.parentElement !== casa`),
-NÃO `casa.contains(el)` — a casa da bottom bar (`#view-feed`) contém o próprio `#indicate-overlay`, então
-`.contains` daria true com a barra ainda presa dentro do overlay e pulava o restore.
+`transitionend`/`setTimeout` de ~1s. Se dois movimentos rodam juntos (sai e reentra antes de assentar;
+trocar de aba no meio; flip + outra coisa), o cleanup TARDIO de um clobbava o outro (camadas
+"atravessadas"/elementos sumindo). Blindagem: TODO movimento de deslocamento passa pela trava/fila do
+`window.moveGate` (`core/app.js`, ver `app-core.md`) — carrossel (`switchToTab`→`doSwitchToTab`), indicação
+(`enter/exitIndicateMode`→`doEnter/doExitIndicate`) e os FLIPS. Um movimento novo com outro em curso entra na
+FILA (não sobrepõe); o em curso é agilizado 2× (playbackRate) p/ a fila drenar. Cada `play` FAZ o movimento e
+devolve sua duração; a fila avança por timer (nunca `transitionend` → sem deadlock).
+- `doSwitchToTab`: se `indicateMode`, faz snap síncrono da indicação (`backNav.remove` + `finalizeIndicateNow`)
+  ANTES de deslizar — senão o carrossel passaria por cima do `#agenda-list` reparentado e a aba Profissionais
+  ficaria vazia. Devolve `--panel-slide-dur`.
+- `doEnter/doExitIndicate`: guardam em TEMPO DE EXECUÇÃO (`if (indicateMode) return 0` / `if (!indicateMode)
+  return 0` — o estado do clique é velho, o play roda desenfileirado). Além do gate, mantêm o token
+  `indicateGen` (finalize o bumpa) para abortar callbacks tardios (o morph órfão). O `est` devolvido usa
+  accel=1 (a subida/descida interna é medida em setTimeout, sem `MOVE_ACCEL`), senão a fila abriria cedo.
+- Flips: o toggle inteiro (incl. "fecha os outros" do accordion) é UM `moveGate.run('flip', …, [card])`; o
+  estado (`isFlipped`) é lido DENTRO do play.
+
+**Armadilha:** as guardas de "voltar pra casa" em `finalizeIndicateNow` usam **parent DIRETO**
+(`el.parentElement !== casa`), NÃO `casa.contains(el)` — a casa da bottom bar (`#view-feed`) contém o próprio
+`#indicate-overlay`, então `.contains` daria true com a barra ainda presa dentro do overlay e pulava o restore.
 
 > **Verificador de invariantes (dev):** `window.checkInvariants('rótulo')` (`feed/index.js`, topo do
 > DOMContentLoaded) devolve a lista de violações de estado em repouso — exatamente 1 `.screen--active`;

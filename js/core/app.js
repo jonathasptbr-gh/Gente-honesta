@@ -36,45 +36,77 @@ window.MOVE_SPEED_OPEN  = 1.1;   // px/ms — ABERTURA (entra na tela): mais sua
 window.MOVE_SPEED_CLOSE = 1.5;   // px/ms — FECHAMENTO (sai da tela): mais ágil/rápida
 window.MOVE_MIN_MS = 220;    // piso (movimentos curtos não ficam instantâneos)
 window.MOVE_MAX_MS = 1200;   // teto (movimentos longos não arrastam)
+// MULTIPLICADOR DE VELOCIDADE (acelerador): 1 = normal, 2 = acelerado. O moveGate
+// (abaixo) o sobe para 2 enquanto DRENA a fila de movimentos — só o ÚLTIMO da fila
+// roda normal; os anteriores são agilizados 2×. Toda duração derivada de moveMs
+// (gavetas, carrossel, indicação, popup) encolhe junto, sem tocar cada chamada.
+window.MOVE_ACCEL = 1;
 window.moveMs = (distancePx, speed = window.MOVE_SPEED) => Math.round(Math.min(window.MOVE_MAX_MS,
-  Math.max(window.MOVE_MIN_MS, Math.abs(distancePx) / speed)));
+  Math.max(window.MOVE_MIN_MS, Math.abs(distancePx) / (speed * (window.MOVE_ACCEL || 1)))));
 
 // =========================================================================
-// COORDENADOR DE MOVIMENTOS (window.animLane) — serializa as animações de
-// DESLOCAMENTO que compartilham DOM/shell para que NUNCA rodem simultâneas.
-// Essa simultaneidade é a raiz dos bugs de "camadas atravessadas / elementos
-// sumindo" ao interagir rápido: dois movimentos reparentam/limpam DOM em cadeias
-// transitionend/setTimeout que se atropelam. Aqui elas passam a ser uma por vez.
+// TRAVA + FILA + ACELERADOR DE MOVIMENTOS (window.moveGate)
+// Regra de segurança: uma animação de DESLOCAMENTO não pode COMEÇAR enquanto
+// outra ainda não terminou — é o que elimina os bugs de "camadas atravessadas /
+// elementos sumindo" ao tocar rápido (dois movimentos reparentando/limpando DOM
+// ao mesmo tempo). Movimentos disparados durante um em curso entram na FILA, na
+// ordem, e rodam um após o outro.
 //
-// Modelo: RAIAS (`lanes`, ex.: 'shell'). Numa raia só há UM movimento por vez;
-// começar um novo faz FAST-FORWARD do anterior — chama seu `settle` SÍNCRONO
-// (pula pro estado final AGORA, sem animar) em vez de deixá-lo animando junto.
-// Assim o toque novo age na hora (responsivo) e o anterior "assenta" limpo.
+// ACELERADOR: ao chegar um movimento novo com outro em curso, o em curso é
+// agilizado 2× (playbackRate das suas animações + espera pela metade) para a fila
+// drenar rápido; e cada item da fila roda 2× (via MOVE_ACCEL), MENOS o ÚLTIMO, que
+// roda na velocidade normal. Assim uma rajada de toques vira uma sequência ágil que
+// termina suave, SEM sobreposição.
 //
-// NÃO passa por aqui micro-interação (press/cor/sombra) nem os FLIPS de card
-// (elementos 3D independentes que não corrompem o shell) — só DESLOCAMENTO de
-// camada. `settle` DEVE ser idempotente e síncrono (leva ao estado final sem
-// animar). Uso:
-//   const t = window.animLane.begin('shell', settleFn);  // inicia (fast-forward do anterior)
-//   … callbacks assíncronos guardam:  if (t !== window.animLane.token('shell')) return;
-//   window.animLane.end('shell', t);                      // terminou naturalmente → libera a raia
-//   window.animLane.settle('shell');                      // fast-forward manual (ex.: antes de trocar de aba)
+// NÃO passam pela trava micro-interações (press/cor) nem estados "parados" (uma
+// gaveta/overlay já aberto e em repouso não bloqueia) — só a JANELA de animação.
+// Uso: window.moveGate.run('id', () => { …faz o movimento…; return duracaoMs; }, [elRaiz])
+//   - `play()` EXECUTA o movimento e devolve a duração (ms) da sua animação.
+//   - `roots[]` = elementos cujas animações podem ser aceleradas em voo (opcional).
+// A fila AVANÇA por TIMER (duração devolvida + folga) — nunca depende de
+// transitionend, então NUNCA trava (um transitionend perdido não congela o app).
 // =========================================================================
-window.animLane = (() => {
-  const lanes = new Map();
-  const get = (id) => { let L = lanes.get(id); if (!L) { L = { gen: 0, settle: null }; lanes.set(id, L); } return L; };
-  const run = (L) => { const s = L.settle; L.settle = null; if (s) { try { s(); } catch (e) { console.warn('[animLane] settle falhou:', e); } } };
+window.moveGate = (() => {
+  const pending = [];
+  let running = null;   // { roots, endAt, timer }
+  const now = () => performance.now();
+  function launch(item) {
+    const accel = pending.length ? 2 : 1;   // há mais na fila atrás → agiliza; senão normal
+    const prev = window.MOVE_ACCEL;
+    window.MOVE_ACCEL = accel;
+    let dur = 260;
+    try { const d = item.play(); if (typeof d === 'number' && d > 0) dur = d; }
+    catch (e) { console.warn('[moveGate] play falhou:', e); }
+    window.MOVE_ACCEL = prev;
+    const total = Math.max(80, dur) + 40;   // folga p/ a transição realmente assentar
+    running = { roots: (item.roots || []).filter(Boolean), endAt: now() + total, timer: null };
+    running.timer = setTimeout(finish, total);
+  }
+  function finish() { running = null; if (pending.length) launch(pending.shift()); }
+  // Agiliza 2× o movimento EM CURSO: acelera visualmente as animações dos roots e,
+  // SÓ se conseguiu (senão haveria sobreposição), encurta a espera pela metade.
+  function speedUpRunning() {
+    if (!running) return;
+    const remaining = running.endAt - now();
+    if (remaining <= 40) return;   // quase no fim: deixa terminar
+    let sped = false;
+    for (const r of running.roots) {
+      const anims = r.getAnimations ? r.getAnimations({ subtree: true }) : [];
+      for (const a of anims) { try { a.playbackRate = 2; sped = true; } catch (_) {} }
+    }
+    if (!sped) return;   // não acelerou o visual → mantém o tempo (nunca sobrepõe)
+    clearTimeout(running.timer);
+    const nr = remaining / 2;
+    running.endAt = now() + nr;
+    running.timer = setTimeout(finish, nr);
+  }
   return {
-    // Inicia um movimento na raia: supera callbacks pendentes (bump do token) e
-    // FAST-FORWARDA o movimento anterior (settle síncrono). Devolve o token novo
-    // — guarde-o e aborte callbacks assíncronos com `if (t !== token(id)) return`.
-    begin(id, settle) { const L = get(id); L.gen++; run(L); L.settle = settle || null; return L.gen; },
-    // Movimento terminou naturalmente: libera a raia (só se ainda for o dono).
-    end(id, token) { const L = get(id); if (token === L.gen) L.settle = null; },
-    // Fast-forward manual do que estiver em curso (supera + settle síncrono).
-    settle(id) { const L = get(id); if (L.settle) { L.gen++; run(L); } },
-    token(id) { return get(id).gen; },
-    busy(id) { return !!get(id).settle; },
+    run(id, play, roots) {
+      if (running) { pending.push({ id, play, roots }); speedUpRunning(); }
+      else launch({ id, play, roots });
+    },
+    get busy() { return !!running; },
+    get depth() { return pending.length; },
   };
 })();
 

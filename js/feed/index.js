@@ -398,10 +398,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let selectedProId = null;
   let morphedSourceCard = null;   // card REAL que é movido para o overlay (restaurar na saída)
   let indicatePlaceholder = null; // espaçador que guarda o lugar do card na lista
-  // O modo indicação é um MOVIMENTO da raia 'shell' do coordenador (window.animLane):
-  // enter/exit chamam animLane.begin('shell', …) e seus callbacks assíncronos abortam
-  // quando superados (token != atual). Ver settleIndicate/finalizeIndicateNow abaixo.
-  const SHELL_LANE = 'shell';
+  let indicateGen = 0;            // token de geração: cada enter/exit incrementa;
+                                  // callbacks assíncronos superados (gen != atual) abortam.
 
   // =======================================================================
   // VERIFICADOR DE INVARIANTES (dev) — DETECTA (não conserta) estado
@@ -488,10 +486,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // desfaz — sem animação — qualquer reparent pendente do modo indicação, seja
   // qual for a metade em que a cadeia assíncrona (transitionend/setTimeout) parou.
   // É a rede de segurança das CORRIDAS de interrupção: se um enter/exit foi
-  // superado (token da raia 'shell'), seus callbacks tardios abortam e deixam DOM
-  // pela metade — chamar isto na (re)entrada devolve tudo pra casa antes de reabrir.
-  // NÃO mexe no backNav nem na raia (quem chama cuida disso; ver settleIndicate).
+  // superado (token de geração), seus callbacks tardios abortam e deixam DOM pela
+  // metade — chamar isto na (re)entrada devolve tudo pra casa antes de reabrir.
+  // Bumpa indicateGen: INVALIDA qualquer callback pendente da indicação (o morph
+  // do botão, o runReturn) — sem isso, um morph atrasado poderia inserir a frase
+  // "Quem você quer indicar?" num card JÁ restaurado (prompt órfão). NÃO mexe no backNav.
   const finalizeIndicateNow = () => {
+    indicateGen++;
     const card = morphedSourceCard;
     // Card real de volta ao slot exato (se ainda há placeholder guardando o lugar).
     if (card && indicatePlaceholder && indicatePlaceholder.parentElement) {
@@ -506,10 +507,10 @@ document.addEventListener('DOMContentLoaded', () => {
       card.querySelector('.post-card__indicate-btn')?.classList.remove('post-card__indicate-btn--morph-out');
       card.querySelector('.pedido-item__prompt')?.remove();
     }
-    // Lista, busca e bottom bar de volta às casas (só se ainda estiverem fora).
-    // Guardas por PARENT DIRETO (não `.contains`, que é profundo): a casa da bottom
-    // bar (#view-feed) CONTÉM o próprio #indicate-overlay, então `contains` daria
-    // true com a barra ainda presa dentro do overlay e o restore era pulado.
+    // Lista, busca e bottom bar de volta às casas. Guardas por PARENT DIRETO (não
+    // `.contains`, que é profundo): a casa da bottom bar (#view-feed) CONTÉM o
+    // próprio #indicate-overlay, então `contains` daria true com a barra ainda
+    // presa dentro do overlay e o restore era pulado (barra sumia ao trocar de aba).
     const agendaList = document.getElementById('agenda-list');
     agendaList?.classList.remove('agenda-list--indicate-mode');
     if (agendaList && prosPanelHost && agendaList.parentElement !== prosPanelHost) prosPanelHost.appendChild(agendaList);
@@ -531,23 +532,24 @@ document.addEventListener('DOMContentLoaded', () => {
     morphedSourceCard = null;
   };
 
-  // `settle` da raia 'shell' para o modo indicação: leva ao estado FECHADO na hora
-  // (sem animar) e libera a camada do backNav. É o que roda quando outro movimento
-  // shell dá fast-forward neste (ou quando trocar de aba o interrompe).
-  const settleIndicate = () => { window.backNav?.remove('indicate-overlay'); finalizeIndicateNow(); };
-
+  // Entrada GATED: abrir a indicação é um movimento (reparenta #agenda-list + barra)
+  // → entra na trava/fila do moveGate p/ nunca rodar junto de outro movimento.
   const enterIndicateMode = (postId) => {
     const sourceCard = document.getElementById(`post-card-${postId}`);
     if (!sourceCard || indicateMode) return;
+    window.moveGate.run('indicate-enter', () => doEnterIndicate(postId, sourceCard), [indicateOverlay]);
+  };
+  const doEnterIndicate = (postId, sourceCard) => {
+    // Guarda em TEMPO DE EXECUÇÃO (a da chamada é estado velho — o play roda depois,
+    // desenfileirado): já aberto → não reabre (evita 2 enters sobreporem e orfanarem
+    // o prompt/card).
+    if (indicateMode) return 0;
     // Baseline limpo: se um exit anterior ainda não assentou (DOM a meio caminho
     // de voltar pra casa), snap síncrono ao fechado ANTES de reabrir — senão o
     // cleanup tardio dele chegaria e clobbava esta abertura (bug das camadas
     // "atravessadas" ao interagir rápido). O gen abaixo neutraliza esse cleanup.
     finalizeIndicateNow();
-    // Registra a ABERTURA como movimento da raia 'shell': faz fast-forward de
-    // qualquer movimento shell em curso (ex.: uma saída ainda animando) e devolve
-    // o token que guarda os callbacks assíncronos abaixo.
-    const gen = window.animLane.begin(SHELL_LANE, settleIndicate);
+    const gen = ++indicateGen;
     indicateMode = true;
     activePostId = postId;
     morphedSourceCard = sourceCard;
@@ -558,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // (ver morphAtTop no fim deste passo). Aqui: acende o overlay, MOVE o card e sobe
     // a seção de profissionais. Delay curto só p/ o feedback do toque assentar.
     setTimeout(() => {
-      if (gen !== window.animLane.token(SHELL_LANE)) return;   // superado (saída/re-entrada) antes do timer
+      if (gen !== indicateGen) return;   // superado (saída/re-entrada) antes do timer
       const srcRect = sourceCard.getBoundingClientRect();
 
       // Move a BARRA DE BUSCA real (campo + pílula de filtro com suas funções) para
@@ -638,13 +640,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // com um respiro, o botão "Indicar alguém" vira a frase "Quem você quer indicar?".
       let morphed = false;
       const morphAtTop = () => {
-        if (morphed || gen !== window.animLane.token(SHELL_LANE)) return;
+        if (morphed || gen !== indicateGen) return;
         morphed = true;
         morphSourceToPrompt(sourceCard);
-        // Animação de ABERTURA assentou: libera a raia (o MODO indicação segue
-        // aberto, mas não há mais movimento em curso). Fechar depois é um novo
-        // movimento; trocar de aba dá snap via settleIndicate.
-        window.animLane.end(SHELL_LANE, gen);
       };
       const onRiseEnd = (ev) => {
         if (ev.target === sourceCard && ev.propertyName === 'transform') {
@@ -655,13 +653,25 @@ document.addEventListener('DOMContentLoaded', () => {
       sourceCard.addEventListener('transitionend', onRiseEnd);
       setTimeout(() => { sourceCard.removeEventListener('transitionend', onRiseEnd); morphAtTop(); }, riseMs + 160); // fallback (fim da subida + folga)
     }, 30);   // delay curto só p/ o feedback do toque (não espera mais o morph)
+    // Duração da ABERTURA p/ o gate cronometrar (subida do card + respiros). O
+    // MODO fica aberto DEPOIS, mas "parado" — não bloqueia mais a fila. A subida
+    // interna (riseMs) é medida no setTimeout acima, JÁ com MOVE_ACCEL=1 (assíncrono),
+    // então o est também usa accel=1 (senão subestimaria e a fila abriria cedo demais,
+    // sobrepondo). O acelerador da indicação vem do playbackRate (speedUpRunning).
+    const _a = window.MOVE_ACCEL; window.MOVE_ACCEL = 1;
+    const est = window.moveMs(window.innerHeight, window.MOVE_SPEED_OPEN) + 260;
+    window.MOVE_ACCEL = _a;
+    return est;
   };
 
+  // Saída GATED: fechar a indicação também é um movimento (devolve o DOM às casas).
   const exitIndicateMode = () => {
     if (!indicateMode) return;
-    // A SAÍDA é um novo movimento da raia 'shell' (fast-forward de qualquer
-    // movimento shell pendente + token que guarda os callbacks abaixo).
-    const gen = window.animLane.begin(SHELL_LANE, settleIndicate);
+    window.moveGate.run('indicate-exit', () => doExitIndicate(), [indicateOverlay]);
+  };
+  const doExitIndicate = () => {
+    if (!indicateMode) return 0;
+    const gen = ++indicateGen;   // supera qualquer callback pendente da abertura
     window.backNav?.remove('indicate-overlay');
     indicateMode = false;
     activePostId = null;
@@ -681,7 +691,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // altura final do botão) p/ o pouso casar com o placeholder.
     const UNMORPH_MS = 300;   // ~duração do crossfade do botão (ver restoreSourceCard)
     const runReturn = () => {
-      if (gen !== window.animLane.token(SHELL_LANE)) return;   // re-entrada superou esta saída — não anima nem restaura
+      if (gen !== indicateGen) return;   // re-entrada superou esta saída — não anima nem restaura
       // FLIP REVERSO do card REAL: do topo até a posição do placeholder na lista.
       let flightMs = 700;
       if (card && indicatePlaceholder) {
@@ -713,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // exatamente no lugar), devolve a barra de busca e a lista, e esconde o overlay.
       // O un-morph já ocorreu no TEMPO 1 (não roda mais aqui).
       setTimeout(() => {
-        if (gen !== window.animLane.token(SHELL_LANE)) return;   // re-entrada assumiu — não clobbar o novo estado
+        if (gen !== indicateGen) return;   // re-entrada assumiu — não clobbar o novo estado
         if (card && indicatePlaceholder) {
           card.style.transition = 'none';
           card.style.transform = '';
@@ -741,11 +751,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const postRef = document.getElementById('indicate-post-ref');
         if (postRef) postRef.innerHTML = '';
         morphedSourceCard = null;
-        window.animLane.end(SHELL_LANE, gen);   // saída assentou → libera a raia
       }, Math.max(flightMs, prosMs) + 40);   // espera o FLIP reverso E o slide da seção
     };
 
     setTimeout(runReturn, UNMORPH_MS);
+    // Duração total do fechamento (un-morph + descida do card/seção) p/ o gate —
+    // com accel=1 (a descida interna é medida assíncrona, sem MOVE_ACCEL).
+    const _a = window.MOVE_ACCEL; window.MOVE_ACCEL = 1;
+    const est = UNMORPH_MS + window.moveMs(window.innerHeight, window.MOVE_SPEED_CLOSE) + 120;
+    window.MOVE_ACCEL = _a;
+    return est;
   };
 
   // Fechar o overlay pelo botão de fechar da barra flutuante. (A busca e o filtro
@@ -1031,10 +1046,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const card = e.target.closest('.pro-card');
       if (!card) return;
-      const isFlipped = card.classList.contains('pro-card--flipped');
-      containerEl.querySelectorAll('.pro-card--flipped').forEach(el => { if (el !== card) proCardFlipToFront(el); });
-      if (isFlipped) proCardFlipToFront(card);
-      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS); }
+      // Flip é um MOVIMENTO → passa pela trava/fila (não sobrepõe carrossel/gaveta/
+      // indicação nem outro flip; o em curso acelera via playbackRate). Estado lido
+      // em tempo de execução (o play roda desenfileirado).
+      window.moveGate.run('flip', () => {
+        const isFlipped = card.classList.contains('pro-card--flipped');
+        containerEl.querySelectorAll('.pro-card--flipped').forEach(el => { if (el !== card) proCardFlipToFront(el); });
+        if (isFlipped) { proCardFlipToFront(card); return PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs + 40; }
+        proCardFlipToBack(card);
+        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
+        return PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs + 40;
+      }, [card]);
     });
   }
 
@@ -1206,25 +1228,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = e.target.closest('.pro-card');
     if (!card) return;
 
+    // Flip é um MOVIMENTO → passa pela trava/fila do moveGate (não sobrepõe carrossel/
+    // gaveta/indicação nem outro flip; o em curso acelera via playbackRate).
     if (indicateMode) {
       // ── Modo indicação: desseleciona anterior e flipa o novo ──
       // (os botões Cancelar/Indicar vêm da classe da lista, não do card)
-      document.querySelectorAll('#agenda-list .pro-card--selected').forEach(el => {
-        el.classList.remove('pro-card--selected');
-        proCardFlipToFront(el);
-      });
-      card.classList.add('pro-card--selected');
-      selectedProId = card.id;
-      proCardFlipToBack(card);
-      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
+      window.moveGate.run('flip', () => {
+        document.querySelectorAll('#agenda-list .pro-card--selected').forEach(el => {
+          el.classList.remove('pro-card--selected');
+          proCardFlipToFront(el);
+        });
+        card.classList.add('pro-card--selected');
+        selectedProId = card.id;
+        proCardFlipToBack(card);
+        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
+        return PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs + 40;
+      }, [card]);
     } else {
       // ── Navegação normal: flip para o verso ou fecha se já estava aberto ──
-      const isFlipped = card.classList.contains('pro-card--flipped');
-      document.querySelectorAll('#agenda-list .pro-card--flipped').forEach(el => {
-        if (el !== card) proCardFlipToFront(el);
-      });
-      if (isFlipped) proCardFlipToFront(card);
-      else { proCardFlipToBack(card); setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS); }
+      window.moveGate.run('flip', () => {
+        const isFlipped = card.classList.contains('pro-card--flipped');
+        document.querySelectorAll('#agenda-list .pro-card--flipped').forEach(el => {
+          if (el !== card) proCardFlipToFront(el);
+        });
+        if (isFlipped) { proCardFlipToFront(card); return PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs + 40; }
+        proCardFlipToBack(card);
+        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
+        return PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs + 40;
+      }, [card]);
     }
   });
 
@@ -1871,10 +1902,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (front) {
       const card = front.closest('.vaga-card');
       if (card && !card.classList.contains('vaga-card--flipped')) {
-        document.querySelectorAll('#vagas-list .vaga-card--flipped').forEach(other => {
-          if (other !== card) vagaCardFlipToFront(other);
-        });
-        vagaCardFlipToBack(card);
+        // Flip = movimento → trava/fila do moveGate.
+        window.moveGate.run('flip', () => {
+          document.querySelectorAll('#vagas-list .vaga-card--flipped').forEach(other => {
+            if (other !== card) vagaCardFlipToFront(other);
+          });
+          vagaCardFlipToBack(card);
+          return VAGA_CARD_CFG.flipMs + VAGA_CARD_CFG.expandMs + 40;
+        }, [card]);
       }
       return;
     }
@@ -2731,19 +2766,25 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.classList.toggle('feed-tabs-pill__tab--totop', !!scrolled);
   };
 
+  // Entrada GATED: o carrossel é um movimento — entra na trava/fila do moveGate p/
+  // não deslizar por cima de outro movimento em curso (nem outro por cima dele).
   const switchToTab = (tabName) => {
     if (tabName === activeTab) return;
-    // Fast-forward de qualquer movimento shell em curso (uma gaveta/indicação ainda
-    // animando) para não deslizar o carrossel POR CIMA de um reparent inacabado.
-    window.animLane.settle(SHELL_LANE);
-    // Modo indicação é uma camada persistente sobre o feed de pedidos: trocar de aba
-    // sai dele NA HORA (snap, sem animar) antes do carrossel — senão o #agenda-list
-    // (que está reparentado no overlay) deslizaria e a aba Profissionais ficaria vazia.
-    if (indicateMode) settleIndicate();
+    window.moveGate.run('carousel', () => doSwitchToTab(tabName), [feedPanels]);
+  };
+  // Corpo real: FAZ a troca e devolve a DURAÇÃO do slide (ms) p/ o gate cronometrar.
+  const doSwitchToTab = (tabName) => {
+    if (tabName === activeTab) return 0;
+    // Modo indicação é camada persistente sobre o feed de pedidos: sair dele NA HORA
+    // (snap, sem animar) antes do carrossel — senão o #agenda-list reparentado
+    // deslizaria e a aba Profissionais ficaria vazia.
+    if (indicateMode) { window.backNav?.remove('indicate-overlay'); finalizeIndicateNow(); }
     // Velocidade única: painel + trilho + slider são UM gesto; a duração deriva da
     // distância percorrida (nº de painéis atravessados × largura da viewport).
+    // moveMs já embute o MOVE_ACCEL do gate (acelerado se há fila atrás).
     const hops = Math.abs(TAB_ORDER.indexOf(tabName) - TAB_ORDER.indexOf(activeTab)) || 1;
-    if (window.moveMs) document.documentElement.style.setProperty('--panel-slide-dur', `${window.moveMs(hops * window.innerWidth)}ms`);
+    const dur = window.moveMs ? window.moveMs(hops * window.innerWidth) : 300;
+    document.documentElement.style.setProperty('--panel-slide-dur', `${dur}ms`);
     // Volta o botão da aba anterior ao padrão
     setTabButton(activeTab, false);
     activeTab = tabName;
@@ -2769,6 +2810,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tabName === TAB.HOME) window.backNav.remove('feed-tab');
       else window.backNav.push('feed-tab', () => switchToTab(TAB.HOME));
     }
+    return dur;
   };
 
   document.querySelectorAll('.feed-tabs-pill__tab').forEach(tab => {
