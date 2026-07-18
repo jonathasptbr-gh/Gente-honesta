@@ -343,11 +343,6 @@ button, input, textarea {
   color: var(--p-green-dark);
 }
 
-.screen__subtitle {
-  margin-top: 4px;
-  font-size: var(--fs-7);
-  color: var(--t-sub);
-}
 
 
 /* ===========================================

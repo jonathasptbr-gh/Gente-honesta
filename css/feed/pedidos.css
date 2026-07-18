@@ -94,9 +94,6 @@
   flex-shrink: 0;
 }
 
-.pedido-item .ic-bar__label {
-  display: none;
-}
 
 /* IC usa as cores PADRÃO (verde/gold/vermelho) sobre o fundo branco — sem override.
    A denúncia do pedido migrou de botão dedicado para o pressionar-longo do card. */
@@ -170,61 +167,6 @@
   box-shadow: var(--shadow-sm);
 }
 
-.post-card__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-sm);
-}
-
-.post-card__author {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.post-card__avatar {
-  width: 42px;
-  height: 56px;
-  border-radius: var(--radius-xs);
-  object-fit: cover;
-  border: 2px solid var(--border-light);
-  background: var(--bg-soft);
-  flex-shrink: 0;
-}
-
-.post-card__author-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.post-card__author-name {
-  font-size: var(--fs-7);
-  font-weight: var(--fw-bold);
-  color: var(--t-main);
-  line-height: 1.2;
-}
-
-/* Imagem opcional — proporção 4:3 */
-.post-card__body {
-  padding: 6px var(--space-md);        /* reduzido: menos espaço vertical */
-}
-
-.post-card__text {
-  font-size: var(--fs-7);
-  line-height: 1.45;                   /* levemente mais compacto */
-  color: var(--t-main);
-}
-
-.post-card__footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-md) var(--space-sm); /* reduzido: top xs, bottom sm */
-}
-
 .post-card__indicate-btn {
   flex: 3 1 55%;
   gap: var(--space-xs);
@@ -254,21 +196,6 @@
 }
 
 .post-card__indicate-info .icon {
-  font-size: 1.2rem;
-}
-
-.post-card__share-btn {
-  flex: 2 1 40%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 9px var(--space-sm);    /* igualado ao indicate-btn (antes era 14px) */
-  font-size: var(--fs-5);
-  border-radius: var(--radius-md);
-}
-
-.post-card__share-btn .icon {
   font-size: 1.2rem;
 }
 

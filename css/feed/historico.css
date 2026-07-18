@@ -237,23 +237,6 @@
   gap: var(--space-xs);
 }
 
-/* Card de referência: text + badge de contagem lado a lado */
-.indicate-ref__body-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: 4px var(--space-sm) 10px;
-}
-
-.indicate-ref__body-row .pedido-item__text {
-  flex: 1;
-  padding: 0;
-}
-
-.indicate-ref__body-row .post-card__indicate-info {
-  flex-shrink: 0;
-}
-
 /* Componente QAV (Qualidade / Agilidade / Valor) — ícone + barra colorida,
    empilhados. Reutilizado nos indicados e na lista expandida de contatos. */
 .qav {
@@ -644,16 +627,6 @@
 
 #view-feed .agenda-list::-webkit-scrollbar { display: none; }
 
-/* Label "Estes são os profissionais na sua região" */
-.agenda-list__region-label {
-  text-align: center;
-  font-size: var(--fs-4);
-  color: var(--on-green-strong); /* legível sobre o --bg-canvas escuro */
-  padding: var(--space-xs) 0 var(--space-sm);
-  font-weight: var(--fw-medium);
-  letter-spacing: 0.01em;
-}
-
 /* ── Fim de feed: linha-aviso "você viu tudo" nos 3 feeds (profissionais,
    vagas e pedidos) — texto discreto entre dois traços, sobre o --bg-canvas. */
 /* Linha de "fim do feed" (ainda usada pelas listas de PEDIDOS e VAGAS; a lista
@@ -691,19 +664,12 @@
 }
 
 /* Aviso de "lista vazia" sobre superfície verde (indicados/agenda). Extraído
-   do estilo inline duplicado em feed.js. Base: inline compacto (verso/indicados);
-   --block: centralizado com respiro (lista principal da agenda). */
+   do estilo inline duplicado em feed.js. */
 .list-empty-hint {
   font-size: var(--fs-4);
   color: var(--on-green-strong);
 }
 
-.list-empty-hint--block {
-  display: block;
-  text-align: center;
-  padding: var(--space-xl) 0;
-  font-size: var(--fs-6);
-}
 
 /* Base do card — overflow:hidden para animação de altura; sem perspective aqui
    (overflow:hidden + preserve-3d no mesmo ancestral quebra o flip em WebKit/Blink). */

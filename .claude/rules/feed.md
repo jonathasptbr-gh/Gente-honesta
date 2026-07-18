@@ -404,8 +404,8 @@ Abridor vira "Fechar" (`setAjudanteClose`); fecha por tap-outside.
 | `.comment--entering` | `commentFadeIn` fade+slide-up 0.22s |
 | `.indicated-popup__scroll` | Wrapper de scroll do popup (fora do header) |
 
-Em `components/buttons.css`: `btn--danger` (`--danger` + branco, Cancelar); `btn--accent` (`--a-gold` +
-`--p-green-dark`, Concluir pedido/CTAs).
+Em `components/buttons.css`: `btn--accent` (`--a-gold` + `--p-green-dark`, Concluir pedido/CTAs).
+(Ações destrutivas usam o `--danger` direto no elemento — não há mais `btn--danger`, que estava sem uso.)
 
 > Scrollbar: os 3 feeds ESCONDEM a barra; todo o resto usa barra fina sempre visível — detalhe
 > completo em `.claude/rules/design-system.md`.

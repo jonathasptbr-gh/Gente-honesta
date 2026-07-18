@@ -436,17 +436,10 @@
   text-align: left;
 }
 
-.collapsible__trigger--gold {
-  background: var(--gold-soft);
-}
-
 .collapsible__trigger .icon:first-child {
   color: var(--p-green);
 }
 
-.collapsible__trigger--gold .icon:first-child {
-  color: var(--a-gold);
-}
 
 .collapsible__chevron {
   margin-left: auto;
