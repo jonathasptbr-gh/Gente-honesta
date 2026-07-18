@@ -159,10 +159,12 @@ suave, sem sobreposição.
 **Movimentos hoje na trava** (`feed/index.js`): carrossel de abas (`switchToTab`→`doSwitchToTab`, devolve
 `--panel-slide-dur`), modo indicação (`enter/exitIndicateMode`→`doEnter/doExitIndicate`, devolvem a duração
 da abertura/fechamento), e os FLIPS de card (pro e vaga — o toggle inteiro, incluindo o "fecha os outros"
-do accordion, é UM movimento). Durações de `moveMs` embutem `MOVE_ACCEL`; as durações FIXAS (flips) não —
-seu acelerador vem só do `playbackRate` no item em curso. **Indicação NÃO deixa `MOVE_ACCEL` encurtar seu
-est** (as durações internas são medidas em setTimeout, já com accel=1) — o `est` é calculado com accel=1 p/
-casar com a animação real e não abrir a fila cedo demais.
+do accordion, é UM movimento). Durações de `moveMs` embutem `MOVE_ACCEL`; os FLIPS também honram o acelerador
+— `flipCardToBack/Front` lêem `window.MOVE_ACCEL` (síncrono, dentro do play) e dividem `flipMs/expandMs/collMs`
+por ele, aplicando a duração de rotação escalada INLINE no `flipper` (`cfg.flipperSel`) p/ casar com o CSS
+(senão a expansão começaria antes da rotação acelerada terminar); o `flipper` volta à duração do CSS no fim.
+Um flip enfileirado roda 2×. **Indicação NÃO deixa `MOVE_ACCEL` encurtar seu est** (as durações internas são
+medidas em setTimeout, já com accel=1) — o `est` é calculado com accel=1 p/ casar com a animação real.
 
 **Ao criar um movimento de deslocamento novo:** enrole o disparo em `moveGate.run(id, play, [raiz])`, com
 `play` fazendo o movimento e devolvendo a duração. Leia o estado (aberto/fechado) DENTRO do `play` (ele roda

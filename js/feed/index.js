@@ -1052,10 +1052,10 @@ document.addEventListener('DOMContentLoaded', () => {
       window.moveGate.run('flip', () => {
         const isFlipped = card.classList.contains('pro-card--flipped');
         containerEl.querySelectorAll('.pro-card--flipped').forEach(el => { if (el !== card) proCardFlipToFront(el); });
-        if (isFlipped) { proCardFlipToFront(card); return PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs + 40; }
+        if (isFlipped) { proCardFlipToFront(card); return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 40; }
         proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
-        return PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs + 40;
+        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 40;
       }, [card]);
     });
   }
@@ -1242,7 +1242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedProId = card.id;
         proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
-        return PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs + 40;
+        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 40;
       }, [card]);
     } else {
       // ── Navegação normal: flip para o verso ou fecha se já estava aberto ──
@@ -1251,10 +1251,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#agenda-list .pro-card--flipped').forEach(el => {
           if (el !== card) proCardFlipToFront(el);
         });
-        if (isFlipped) { proCardFlipToFront(card); return PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs + 40; }
+        if (isFlipped) { proCardFlipToFront(card); return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 40; }
         proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
-        return PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs + 40;
+        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 40;
       }, [card]);
     }
   });
@@ -1698,6 +1698,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   function flipCardToBack(card, cfg) {
+    // Velocidade padrão: honra o acelerador (window.MOVE_ACCEL) como os demais
+    // movimentos — um flip ENFILEIRADO roda 2×. acc é lido AGORA (síncrono, dentro
+    // do play do moveGate, onde MOVE_ACCEL está setado); os setTimeouts abaixo
+    // disparam depois (accel=1), mas usam estes locais já escalados.
+    const acc = window.MOVE_ACCEL || 1;
+    const flipMs = Math.round(cfg.flipMs / acc), expandMs = Math.round(cfg.expandMs / acc);
+    // A ROTAÇÃO é CSS (duração fixa no arquivo) — casa com flipMs via duração inline
+    // no flipper, senão a expansão começaria antes da rotação (accel) terminar.
+    const flipper = card.querySelector(cfg.flipperSel);
+    if (flipper) flipper.style.transitionDuration = flipMs + 'ms';
     const frontH = card.offsetHeight;
     card.dataset.frontH = frontH;
     card.style.transition = 'none';
@@ -1717,22 +1727,27 @@ document.addEventListener('DOMContentLoaded', () => {
           card.style.clipPath = 'inset(0 0 0 0)';
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              const timing = `${cfg.expandMs}ms ${EASE_STD}`;
+              const timing = `${expandMs}ms ${EASE_STD}`;
               card.style.transition = `height ${timing}`;
               card.style.height     = backH + 'px';
               if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = ''; }
               setTimeout(() => {
                 card.style.height = 'auto'; card.style.transition = ''; card.style.clipPath = '';
                 if (footer) footer.style.transition = '';
-              }, cfg.expandMs + 20);
+              }, expandMs + 20);
             });
           });
-        }, cfg.flipMs);
+        }, flipMs);
       });
     });
   }
 
   function flipCardToFront(card, cfg, onComplete) {
+    // Honra o acelerador (ver flipCardToBack): colapso + rotação de volta escalados.
+    const acc = window.MOVE_ACCEL || 1;
+    const collMs = Math.round(cfg.collMs / acc), flipMs = Math.round(cfg.flipMs / acc);
+    const flipper = card.querySelector(cfg.flipperSel);
+    if (flipper) flipper.style.transitionDuration = flipMs + 'ms';
     const frontH   = parseInt(card.dataset.frontH || 200);
     const currentH = card.offsetHeight;
     const delta    = currentH - frontH;
@@ -1743,7 +1758,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.clipPath = 'inset(0 0 0 0)';
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const timing = `${cfg.collMs}ms ${EASE_STD}`;
+        const timing = `${collMs}ms ${EASE_STD}`;
         card.style.transition = `height ${timing}`;
         card.style.height     = frontH + 'px';
         if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = `translateY(-${delta}px)`; }
@@ -1756,11 +1771,12 @@ document.addEventListener('DOMContentLoaded', () => {
               card.classList.remove(cfg.flippedClass);
               setTimeout(() => {
                 card.style.height = ''; card.style.transition = ''; card.style.overflow = '';
+                if (flipper) flipper.style.transitionDuration = '';   // volta à duração do CSS
                 if (onComplete) onComplete();
-              }, cfg.flipMs + 30);
+              }, flipMs + 30);
             });
           });
-        }, cfg.collMs + 10);
+        }, collMs + 10);
       });
     });
   }
@@ -1770,6 +1786,8 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.height = card.style.overflow = card.style.transition = card.style.clipPath = '';
     const footer = card.querySelector(cfg.footerSel);
     if (footer) { footer.style.transform = footer.style.transition = ''; }
+    const flipper = card.querySelector(cfg.flipperSel);
+    if (flipper) flipper.style.transitionDuration = '';   // volta à duração do CSS
   }
 
   // ── Wrappers vaga-card ────────────────────────────────────────────────────
@@ -1908,7 +1926,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (other !== card) vagaCardFlipToFront(other);
           });
           vagaCardFlipToBack(card);
-          return VAGA_CARD_CFG.flipMs + VAGA_CARD_CFG.expandMs + 40;
+          return (VAGA_CARD_CFG.flipMs + VAGA_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 40;
         }, [card]);
       }
       return;

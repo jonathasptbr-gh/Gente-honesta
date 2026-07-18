@@ -28,12 +28,14 @@ export const VAGA_CARD_CFG = {
   flippedClass: 'vaga-card--flipped', expandedClass: 'vaga-card--expanded',
   backSel:   '.vaga-card__back',
   footerSel: '.vaga-card__back-footer',
+  flipperSel: '.vaga-card__flipper',
 };
 export const PRO_CARD_CFG = {
   flipMs: 500, expandMs: 380, collMs: 300,
   flippedClass: 'pro-card--flipped', expandedClass: 'pro-card--expanded',
   backSel:   '.pro-card__back',
   footerSel: '.pro-card__back-actions',
+  flipperSel: '.pro-card__flipper',
 };
 // Atraso para rolar o card à vista DEPOIS do flip + expansão terminarem
 // (+ buffer). Derivado do cfg para não desincronizar se a animação mudar.
