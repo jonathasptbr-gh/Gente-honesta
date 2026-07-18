@@ -362,10 +362,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const indicateCardFlightMs = (distancePx, speed) => window.moveMs(distancePx, speed);
 
   const openIndicatedPopup = (postId) => {
-    // Título padrão para pedidos de terceiros; para o pedido próprio o chamador
-    // já atualizou para "Indicações para você" antes de chamar esta função.
+    // Só é chamado com o id numérico do pedido (badges de fração) — sempre título
+    // de terceiros. (O caso 'my' era morto: nenhum chamador o passava.)
     const titleEl = document.getElementById('indicated-popup-title');
-    if (titleEl && postId !== 'my') titleEl.textContent = 'Profissionais indicados';
+    if (titleEl) titleEl.textContent = 'Profissionais indicados';
     renderIndicatedBlock(postId);
     const popup = document.getElementById('indicated-popup');
     // Velocidade única: o bottom sheet sobe a própria altura → duração derivada
