@@ -52,24 +52,27 @@ window.moveMs = (distancePx, speed = window.MOVE_SPEED) => Math.round(Math.min(w
 // ao mesmo tempo). Movimentos disparados durante um em curso entram na FILA, na
 // ordem, e rodam um após o outro.
 //
-// ACELERADOR: ao chegar um movimento novo com outro em curso, o em curso é
-// agilizado 2× (playbackRate das suas animações + espera pela metade) para a fila
-// drenar rápido; e cada item da fila roda 2× (via MOVE_ACCEL), MENOS o ÚLTIMO, que
-// roda na velocidade normal. Assim uma rajada de toques vira uma sequência ágil que
-// termina suave, SEM sobreposição.
+// ACELERADOR (na FILA): cada item ENFILEIRADO roda 2× (via MOVE_ACCEL, que encolhe
+// AS DURAÇÕES da própria animação E a duração reportada JUNTAS — sem sobreposição),
+// MENOS o ÚLTIMO, que roda normal. O item EM CURSO NÃO é encurtado: a trava só solta
+// quando a duração REPORTADA por ele termina — encurtá-lo (como uma tentativa anterior
+// via playbackRate fazia) sobrepunha, porque animações multi-fase (flip: rotação→
+// expansão em setTimeout) têm fases futuras que o playbackRate não alcança, e a trava
+// soltava no meio. Resultado: rajada de toques = sequência que drena ágil (itens da
+// fila 2×) e SEMPRE sem sobreposição.
 //
 // NÃO passam pela trava micro-interações (press/cor) nem estados "parados" (uma
 // gaveta/overlay já aberto e em repouso não bloqueia) — só a JANELA de animação.
-// Uso: window.moveGate.run('id', () => { …faz o movimento…; return duracaoMs; }, [elRaiz])
-//   - `play()` EXECUTA o movimento e devolve a duração (ms) da sua animação.
-//   - `roots[]` = elementos cujas animações podem ser aceleradas em voo (opcional).
+// Uso: window.moveGate.run('id', () => { …faz o movimento…; return duracaoMs; })
+//   - `play()` EXECUTA o movimento e devolve a duração (ms) da sua animação. A duração
+//     DEVE cobrir a animação inteira (todas as fases + folga) — é o que garante zero
+//     sobreposição. Subestimar solta a trava cedo e o próximo movimento atropela.
 // A fila AVANÇA por TIMER (duração devolvida + folga) — nunca depende de
 // transitionend, então NUNCA trava (um transitionend perdido não congela o app).
 // =========================================================================
 window.moveGate = (() => {
   const pending = [];
-  let running = null;   // { roots, endAt, timer }
-  const now = () => performance.now();
+  let running = null;   // { timer }
   function launch(item) {
     const accel = pending.length ? 2 : 1;   // há mais na fila atrás → agiliza; senão normal
     const prev = window.MOVE_ACCEL;
@@ -79,31 +82,15 @@ window.moveGate = (() => {
     catch (e) { console.warn('[moveGate] play falhou:', e); }
     window.MOVE_ACCEL = prev;
     const total = Math.max(80, dur) + 40;   // folga p/ a transição realmente assentar
-    running = { roots: (item.roots || []).filter(Boolean), endAt: now() + total, timer: null };
-    running.timer = setTimeout(finish, total);
+    running = { timer: setTimeout(finish, total) };
   }
   function finish() { running = null; if (pending.length) launch(pending.shift()); }
-  // Agiliza 2× o movimento EM CURSO: acelera visualmente as animações dos roots e,
-  // SÓ se conseguiu (senão haveria sobreposição), encurta a espera pela metade.
-  function speedUpRunning() {
-    if (!running) return;
-    const remaining = running.endAt - now();
-    if (remaining <= 40) return;   // quase no fim: deixa terminar
-    let sped = false;
-    for (const r of running.roots) {
-      const anims = r.getAnimations ? r.getAnimations({ subtree: true }) : [];
-      for (const a of anims) { try { a.playbackRate = 2; sped = true; } catch (_) {} }
-    }
-    if (!sped) return;   // não acelerou o visual → mantém o tempo (nunca sobrepõe)
-    clearTimeout(running.timer);
-    const nr = remaining / 2;
-    running.endAt = now() + nr;
-    running.timer = setTimeout(finish, nr);
-  }
   return {
+    // `roots` é aceito e ignorado (compat com chamadas antigas): a aceleração do
+    // item em curso foi removida por causar sobreposição em animações multi-fase.
     run(id, play, roots) {
-      if (running) { pending.push({ id, play, roots }); speedUpRunning(); }
-      else launch({ id, play, roots });
+      if (running) pending.push({ id, play });
+      else launch({ id, play });
     },
     get busy() { return !!running; },
     get depth() { return pending.length; },

@@ -143,16 +143,20 @@ reparentando/limpando DOM ao mesmo tempo em cadeias `transitionend`/`setTimeout`
 na ordem, e rodam um após o outro. NÃO passam pela trava micro-interações (press/cor/sombra = feedback) nem
 estados **parados** (uma gaveta/overlay já aberto e em repouso não bloqueia) — só a JANELA de animação.
 
-**Acelerador:** ao chegar um movimento novo com outro em curso, o em curso é agilizado **2×**
-(`playbackRate` das suas animações via `getAnimations`, e a espera cai pela metade — SÓ se acelerou o
-visual, senão nunca sobreporia); e cada item da fila roda 2× (via `window.MOVE_ACCEL`, que o `moveMs`
-multiplica na velocidade), MENOS o ÚLTIMO, que roda normal. Rajada de toques → sequência ágil que termina
-suave, sem sobreposição.
+**Acelerador (na FILA):** cada item ENFILEIRADO roda **2×** (via `window.MOVE_ACCEL`, que o `moveMs`
+multiplica na velocidade; os flips leem `MOVE_ACCEL` direto), MENOS o ÚLTIMO, que roda normal. O item EM
+CURSO roda CHEIO — NÃO é encurtado. **Por quê:** uma tentativa anterior encurtava o em curso via
+`playbackRate` + metade do timer, mas animações MULTI-FASE (flip: rotação→expansão em `setTimeout`; indicação)
+têm fases futuras que o `playbackRate` não alcança, então a trava soltava no MEIO e o próximo movimento
+ATROPELAVA (era exatamente o bug de "mudei de aba enquanto o flip animava"). `MOVE_ACCEL` é seguro porque
+encolhe A DURAÇÃO REAL da animação E a duração reportada JUNTAS (síncrono, no `play`). Trade-off: numa rajada
+o 1º item (o em curso) roda cheio; os do meio 2×; o último normal.
 
-**Contrato:** `window.moveGate.run(id, play, roots?)`:
-- `play()` — EXECUTA o movimento (síncrono) e DEVOLVE a duração (ms) da sua animação. Roda na hora se a
-  trava está livre; senão entra na fila e roda quando chegar a vez.
-- `roots[]` — elementos-raiz cujas animações podem ser aceleradas em voo (`getAnimations({subtree:true})`).
+**Contrato:** `window.moveGate.run(id, play)`:
+- `play()` — EXECUTA o movimento (síncrono) e DEVOLVE a duração (ms) da sua animação. A duração DEVE cobrir
+  a animação INTEIRA (todas as fases + folga) — é o que garante zero sobreposição; subestimar solta a trava
+  cedo e o próximo atropela. Roda na hora se a trava está livre; senão entra na fila.
+- (aceita um 3º arg `roots` por compat, mas é IGNORADO.)
 - A fila AVANÇA por TIMER (duração devolvida + folga), NUNCA por `transitionend` → um `transitionend`
   perdido nunca congela a fila (sem deadlock). `moveGate.busy`/`moveGate.depth` consultam o estado.
 
@@ -166,8 +170,9 @@ por ele, aplicando a duração de rotação escalada INLINE no `flipper` (`cfg.f
 Um flip enfileirado roda 2×. **Indicação NÃO deixa `MOVE_ACCEL` encurtar seu est** (as durações internas são
 medidas em setTimeout, já com accel=1) — o `est` é calculado com accel=1 p/ casar com a animação real.
 
-**Ao criar um movimento de deslocamento novo:** enrole o disparo em `moveGate.run(id, play, [raiz])`, com
-`play` fazendo o movimento e devolvendo a duração. Leia o estado (aberto/fechado) DENTRO do `play` (ele roda
+**Ao criar um movimento de deslocamento novo:** enrole o disparo em `moveGate.run(id, play)`, com
+`play` fazendo o movimento e devolvendo a duração (que DEVE cobrir a animação inteira). Leia o estado
+(aberto/fechado) DENTRO do `play` (ele roda
 desenfileirado — o estado do clique pode estar velho). Movimento que reparenta DOM deve ainda ter um snap
 síncrono defensivo (ver `finalizeIndicateNow`) + guarda por token (`indicateGen`) para o caso de callbacks
 tardios.

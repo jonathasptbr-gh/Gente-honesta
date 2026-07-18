@@ -256,9 +256,11 @@ saída reparentam DOM (`#agenda-list`, busca, bottom bar, card) e o devolvem "pr
 trocar de aba no meio; flip + outra coisa), o cleanup TARDIO de um clobbava o outro (camadas
 "atravessadas"/elementos sumindo). Blindagem: TODO movimento de deslocamento passa pela trava/fila do
 `window.moveGate` (`core/app.js`, ver `app-core.md`) — carrossel (`switchToTab`→`doSwitchToTab`), indicação
-(`enter/exitIndicateMode`→`doEnter/doExitIndicate`) e os FLIPS. Um movimento novo com outro em curso entra na
-FILA (não sobrepõe); o em curso é agilizado 2× (playbackRate) p/ a fila drenar. Cada `play` FAZ o movimento e
-devolve sua duração; a fila avança por timer (nunca `transitionend` → sem deadlock).
+(`enter/exitIndicateMode`→`doEnter/doExitIndicate`) e os FLIPS (pro e vaga, abrir E fechar — incl. os botões
+"Voltar"/verso via `gateCloseProCard`/`gateVagaFlip*`). Um movimento novo com outro em curso entra na FILA
+(não sobrepõe); os itens da FILA rodam 2× (`MOVE_ACCEL`), MENOS o último; o em curso roda CHEIO (encurtá-lo
+atropelava animações multi-fase — ver `app-core.md`). Cada `play` FAZ o movimento e devolve a duração INTEIRA
+(todas as fases + folga); a fila avança por timer (nunca `transitionend` → sem deadlock).
 - `doSwitchToTab`: se `indicateMode`, faz snap síncrono da indicação (`backNav.remove` + `finalizeIndicateNow`)
   ANTES de deslizar — senão o carrossel passaria por cima do `#agenda-list` reparentado e a aba Profissionais
   ficaria vazia. Devolve `--panel-slide-dur`.

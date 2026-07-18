@@ -657,7 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // MODO fica aberto DEPOIS, mas "parado" — não bloqueia mais a fila. A subida
     // interna (riseMs) é medida no setTimeout acima, JÁ com MOVE_ACCEL=1 (assíncrono),
     // então o est também usa accel=1 (senão subestimaria e a fila abriria cedo demais,
-    // sobrepondo). O acelerador da indicação vem do playbackRate (speedUpRunning).
+    // sobrepondo). Um enter/exit ENFILEIRADO roda 2x (MOVE_ACCEL); o em curso roda cheio.
     const _a = window.MOVE_ACCEL; window.MOVE_ACCEL = 1;
     const est = window.moveMs(window.innerHeight, window.MOVE_SPEED_OPEN) + 260;
     window.MOVE_ACCEL = _a;
@@ -1023,6 +1023,34 @@ document.addEventListener('DOMContentLoaded', () => {
     pros.forEach(pro => listEl.appendChild(buildProCard(pro, { showPin: false })));
   }
 
+  // Fecha (flip→front) um pro-card COMO MOVIMENTO — passa pela trava/fila do moveGate,
+  // igual à abertura. Sem isto, fechar pelo botão "Voltar"/toque no verso rodaria FORA
+  // da trava e poderia sobrepor um carrossel/gaveta. `pre` roda antes (limpar seleção).
+  const gateCloseProCard = (c, pre) => {
+    if (!c) return;
+    window.moveGate.run('flip', () => {
+      if (pre) pre();
+      proCardFlipToFront(c);
+      return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 120;
+    });
+  };
+  // Idem para os cards de VAGA (abrir = flip→back com accordion; fechar = flip→front).
+  const gateVagaFlipBack = (card) => {
+    if (!card || card.classList.contains('vaga-card--flipped')) return;
+    window.moveGate.run('flip', () => {
+      document.querySelectorAll('#vagas-list .vaga-card--flipped').forEach(other => { if (other !== card) vagaCardFlipToFront(other); });
+      vagaCardFlipToBack(card);
+      return (VAGA_CARD_CFG.flipMs + VAGA_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
+    });
+  };
+  const gateVagaFlipFront = (card, done) => {
+    if (!card) return;
+    window.moveGate.run('flip', () => {
+      vagaCardFlipToFront(card, done);
+      return (VAGA_CARD_CFG.collMs + VAGA_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 120;
+    });
+  };
+
   // Registra delegação de cliques de flip num container de pro-cards.
   // Chamar uma vez por container estático; não chamar dentro de funções de render.
   // function declaration (hoisted): o bind em #agenda-indicated-list ocorre acima
@@ -1040,22 +1068,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       if (e.target.closest('.pro-card__back-btn--back') || e.target.closest('.pro-card__back')) {
-        const c = e.target.closest('.pro-card');
-        if (c) proCardFlipToFront(c);
+        gateCloseProCard(e.target.closest('.pro-card'));
         return;
       }
       const card = e.target.closest('.pro-card');
       if (!card) return;
       // Flip é um MOVIMENTO → passa pela trava/fila (não sobrepõe carrossel/gaveta/
-      // indicação nem outro flip; o em curso acelera via playbackRate). Estado lido
+      // indicação nem outro flip). Um flip enfileirado roda 2x (MOVE_ACCEL). Estado lido
       // em tempo de execução (o play roda desenfileirado).
       window.moveGate.run('flip', () => {
         const isFlipped = card.classList.contains('pro-card--flipped');
         containerEl.querySelectorAll('.pro-card--flipped').forEach(el => { if (el !== card) proCardFlipToFront(el); });
-        if (isFlipped) { proCardFlipToFront(card); return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 40; }
+        if (isFlipped) { proCardFlipToFront(card); return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 120; }
         proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
-        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 40;
+        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
       }, [card]);
     });
   }
@@ -1188,7 +1215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // frente sem trocar Cancelar/Indicar por WhatsApp durante a animação.
     if (e.target.closest('.pro-card__back-btn--cancel-indicate')) {
       const c = e.target.closest('.pro-card');
-      if (c) { c.classList.remove('pro-card--selected'); selectedProId = null; proCardFlipToFront(c); }
+      gateCloseProCard(c, () => { c.classList.remove('pro-card--selected'); selectedProId = null; });
       return;
     }
 
@@ -1214,14 +1241,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botão Voltar no verso → desflipa
     if (e.target.closest('.pro-card__back-btn--back')) {
       const c = e.target.closest('.pro-card');
-      if (c) { c.classList.remove('pro-card--selected'); selectedProId = null; proCardFlipToFront(c); }
+      gateCloseProCard(c, () => { c.classList.remove('pro-card--selected'); selectedProId = null; });
       return;
     }
 
     // Clique no resto do verso (fora dos botões) → fecha
     if (e.target.closest('.pro-card__back')) {
       const c = e.target.closest('.pro-card');
-      if (c) { c.classList.remove('pro-card--selected'); proCardFlipToFront(c); }
+      gateCloseProCard(c, () => c.classList.remove('pro-card--selected'));
       return;
     }
 
@@ -1229,7 +1256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!card) return;
 
     // Flip é um MOVIMENTO → passa pela trava/fila do moveGate (não sobrepõe carrossel/
-    // gaveta/indicação nem outro flip; o em curso acelera via playbackRate).
+    // gaveta/indicação nem outro flip). Um flip enfileirado roda 2x (MOVE_ACCEL).
     if (indicateMode) {
       // ── Modo indicação: desseleciona anterior e flipa o novo ──
       // (os botões Cancelar/Indicar vêm da classe da lista, não do card)
@@ -1242,7 +1269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedProId = card.id;
         proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
-        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 40;
+        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
       }, [card]);
     } else {
       // ── Navegação normal: flip para o verso ou fecha se já estava aberto ──
@@ -1251,10 +1278,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#agenda-list .pro-card--flipped').forEach(el => {
           if (el !== card) proCardFlipToFront(el);
         });
-        if (isFlipped) { proCardFlipToFront(card); return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 40; }
+        if (isFlipped) { proCardFlipToFront(card); return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 120; }
         proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
-        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 40;
+        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
       }, [card]);
     }
   });
@@ -1871,28 +1898,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Flip para o verso — recolhe qualquer outro card aberto em paralelo
     const btnApply = e.target.closest('.vaga-card__btn-apply');
     if (btnApply) {
-      const card = btnApply.closest('.vaga-card');
-      if (!card) return;
-      document.querySelectorAll('#vagas-list .vaga-card--flipped').forEach(other => {
-        if (other !== card) vagaCardFlipToFront(other);
-      });
-      vagaCardFlipToBack(card);
+      gateVagaFlipBack(btnApply.closest('.vaga-card'));
       return;
     }
 
     // Volta para a frente — colapsa → flip back
     const btnBack = e.target.closest('.vaga-card__btn-back');
     if (btnBack) {
-      const card = btnBack.closest('.vaga-card');
-      if (card) vagaCardFlipToFront(card);
+      gateVagaFlipFront(btnBack.closest('.vaga-card'));
       return;
     }
 
     // Enviar candidatura — colapsa → flip back → alerta
     const btnSubmit = e.target.closest('.vaga-card__btn-submit');
     if (btnSubmit) {
-      const card = btnSubmit.closest('.vaga-card');
-      if (card) vagaCardFlipToFront(card, () => {
+      gateVagaFlipFront(btnSubmit.closest('.vaga-card'), () => {
         customAlert('Candidatura enviada com sucesso! Você será notificado quando houver retorno.', 'Candidatura Enviada', 'check_circle');
       });
       return;
@@ -1918,17 +1938,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clique em qualquer OUTRA parte da frente do card → flip (o cabeçalho já saiu acima)
     const front = e.target.closest('.vaga-card__front');
     if (front) {
-      const card = front.closest('.vaga-card');
-      if (card && !card.classList.contains('vaga-card--flipped')) {
-        // Flip = movimento → trava/fila do moveGate.
-        window.moveGate.run('flip', () => {
-          document.querySelectorAll('#vagas-list .vaga-card--flipped').forEach(other => {
-            if (other !== card) vagaCardFlipToFront(other);
-          });
-          vagaCardFlipToBack(card);
-          return (VAGA_CARD_CFG.flipMs + VAGA_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 40;
-        }, [card]);
-      }
+      gateVagaFlipBack(front.closest('.vaga-card'));
       return;
     }
   });
