@@ -379,7 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
   bindProCardFlip(document.getElementById('agenda-indicated-list'));
 
   let indicateMode = false;
-  let indicateExiting = false;    // saída em curso (limpeza visual) — bloqueia reentrada
   let activePostId = null;
   let selectedProId = null;
   let morphedSourceCard = null;   // card REAL que é movido para o overlay (restaurar na saída)
@@ -416,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const enterIndicateMode = (postId) => {
     const sourceCard = document.getElementById(`post-card-${postId}`);
-    if (!sourceCard || indicateMode || indicateExiting) return;
+    if (!sourceCard || indicateMode) return;
     indicateMode = true;
     activePostId = postId;
     morphedSourceCard = sourceCard;
@@ -526,7 +525,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!indicateMode) return;
     window.backNav?.remove('indicate-overlay');
     indicateMode = false;
-    indicateExiting = true;   // impede reabrir enquanto a limpeza visual não termina
     activePostId = null;
     selectedProId = null;
     closeFiltersSheet();   // fecha a gaveta de filtros, se aberta no overlay
@@ -544,15 +542,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // altura final do botão) p/ o pouso casar com o placeholder.
     const UNMORPH_MS = 300;   // ~duração do crossfade do botão (ver restoreSourceCard)
     const runReturn = () => {
-      // A PARTIR DAQUI é só limpeza VISUAL (card desce, seção desliza, blur some). O
-      // destino — o feed de pedidos ABAIXO — já pode receber toques: soltamos a captura
-      // do overlay para a cauda da animação NÃO prender a tela. Com a curva de freio
-      // firme, o movimento assenta bem antes do fim nominal da transição; sem isso a
-      // tela ficava travada até `Math.max(flightMs, prosMs)+40` (perceptível em telas
-      // altas, onde o slide da seção é longo). `indicateExiting` impede reabrir a
-      // indicação no meio dessa limpeza (a reparentação do card/lista colidiria).
-      if (indicateOverlay) indicateOverlay.style.pointerEvents = 'none';
-
       // FLIP REVERSO do card REAL: do topo até a posição do placeholder na lista.
       let flightMs = 700;
       if (card && indicatePlaceholder) {
@@ -607,12 +596,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         indicateOverlay?.classList.add('u-hidden');
-        if (indicateOverlay) indicateOverlay.style.pointerEvents = '';   // restaura p/ a próxima abertura
         if (indicateProsBox) { indicateProsBox.style.transition = ''; indicateProsBox.style.transform = ''; indicateProsBox.style.opacity = ''; }
         const postRef = document.getElementById('indicate-post-ref');
         if (postRef) postRef.innerHTML = '';
         morphedSourceCard = null;
-        indicateExiting = false;   // limpeza concluída — pode reabrir a indicação
       }, Math.max(flightMs, prosMs) + 40);   // espera o FLIP reverso E o slide da seção
     };
 
