@@ -769,7 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.classList.toggle('service-choice__card--active', active);
     card.setAttribute('aria-pressed', String(active));
     const check = card.querySelector('.service-choice__check');
-    if (check) check.innerText = active ? 'check_circle' : 'radio_button_unchecked';
+    if (check) window.setIcon(check, active ? 'check_circle' : 'radio_button_unchecked');
   };
 
   // Atualiza o display único de barras (svc-fill-*); a largura anima via CSS
@@ -809,7 +809,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chip.classList.toggle('chip--active', active);
     chip.setAttribute('aria-pressed', String(active));
     const check = chip.querySelector('.chip__check');
-    if (check) check.innerText = active ? 'check_circle' : 'radio_button_unchecked';
+    if (check) window.setIcon(check, active ? 'check_circle' : 'radio_button_unchecked');
   }
 
   // Dinheiro, Pix, Nota fiscal: pílulas independentes (multi-seleção). NF fica

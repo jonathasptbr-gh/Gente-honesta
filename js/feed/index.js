@@ -2806,7 +2806,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderMyPedidoButton = () => {
     if (getActivePedido()) {
       if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Pedido atual';
-      if (btnMyPedidoIcon)  window.setIcon(btnMyPedidoIcon, 'chat');
+      if (btnMyPedidoIcon)  window.setIcon(btnMyPedidoIcon, 'receipt_long');
     } else {
       if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Fazer pedido';
       if (btnMyPedidoIcon)  window.setIcon(btnMyPedidoIcon, 'add');
