@@ -109,12 +109,12 @@ Todo DESLOCAMENTO do app deriva a DURAÇÃO da distância a percorrer ÷ velocid
 - `MOVE_SPEED` **1.3** — NEUTRA: navegação lateral que não é abrir/fechar (carrossel de abas,
   `animateConcludeSwap`).
 - `MOVE_SPEED_OPEN` **1.1** — ABERTURA (elemento ENTRA na tela): mais lenta/suave, p/ "chegar" calmo.
-- `MOVE_SPEED_CLOSE` **1.4** — FECHAMENTO (elemento SAI da tela): mais rápida/ágil, p/ a tela liberar
+- `MOVE_SPEED_CLOSE` **1.5** — FECHAMENTO (elemento SAI da tela): mais rápida/ágil, p/ a tela liberar
   logo (reduz a sensação de espera no fim). Ajuste global = mexer nessas 3 constantes.
 
 Aplicação (mede a distância no gesto, seta a duração inline ou via CSS var):
 - **Gavetas** (8 sheets, `feed/index.js`): `anchorBelowActionBar` mede a altura do `.__panel` e seta
-  DOIS vars — `--sheet-open-dur` (÷1.1) e `--sheet-close-dur` (÷1.4). O CSS aplica por **transição
+  DOIS vars — `--sheet-open-dur` (÷1.1) e `--sheet-close-dur` (÷1.5). O CSS aplica por **transição
   assimétrica**: o estado BASE do painel usa `--sheet-close-dur` (saída) e o estado `.--open`
   sobrescreve com `--sheet-open-dur` (entrada) — assim entrada e saída têm durações distintas SEM
   tocar cada função de fechar (`pedido-sheet.css`/`historico.css`).
@@ -186,7 +186,7 @@ telas fica por conta do fade-out do loader.
 ## Service Worker
 
 Incrementar `CACHE_NAME` (`service-worker.js`) a cada deploy com mudanças de cache (atual:
-`gentehonesta-v399`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
+`gentehonesta-v400`). Os CSS/JS são atualizados pelo Network-First; o incremento força limpeza de
 caches antigos. **CRÍTICO — o fetch same-origin usa `fetch(request, { cache: 'no-cache' })`:** sem
 isso, o `Cache-Control: max-age=600` do GitHub Pages devolvia arquivos VELHOS por até 10 min após
 um deploy e o botão "Atualizar" recarregava a versão antiga. `no-cache` = revalida via ETag (304

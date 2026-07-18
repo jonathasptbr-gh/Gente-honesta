@@ -86,7 +86,7 @@ arredondados, slide-down "gaveta", backdrop que dim SÓ o feed abaixo da barra. 
    `translateY(0)` (`transition: transform var(--sheet-ease)`), emergindo pra baixo. SEM fade. A
    **DURAÇÃO** do slide é derivada da ALTURA do painel via `window.moveMs`, com velocidade DIRECIONAL:
    `anchorBelowActionBar` mede a altura e seta DOIS vars — `--sheet-open-dur` (abertura, ÷1.1) e
-   `--sheet-close-dur` (fechamento, ÷1.4); o CSS aplica por transição assimétrica (estado base = saída
+   `--sheet-close-dur` (fechamento, ÷1.5); o CSS aplica por transição assimétrica (estado base = saída
    usa close-dur; `.--open` sobrescreve com open-dur). Ver "Velocidade de movimento" em `app-core.md`.
    Toda gaveta também se registra no `backNav` (`push`/`remove`) para o "voltar" do celular fechá-la.
 
@@ -247,7 +247,7 @@ Assim o card sobe/desce ATRÁS da barra (sem "pular" para frente) e a lista desl
 
 **Velocidade:** o voo do card e o slide da seção derivam a duração da distância/altura via
 `window.moveMs`, com velocidade DIRECIONAL — ENTRADA por `MOVE_SPEED_OPEN` (1.1, suave), SAÍDA por
-`MOVE_SPEED_CLOSE` (1.4, ágil); ver `app-core.md`. A curva é `INDICATE_SHEET_EASE` (espelha
+`MOVE_SPEED_CLOSE` (1.5, ágil); ver `app-core.md`. A curva é `INDICATE_SHEET_EASE` (espelha
 `--sheet-ease`).
 
 ## Scroll-to-top nas abas

@@ -33,7 +33,7 @@
 // =========================================================================
 window.MOVE_SPEED       = 1.3;   // px/ms — NEUTRA (movimentos laterais: abas, swaps)
 window.MOVE_SPEED_OPEN  = 1.1;   // px/ms — ABERTURA (entra na tela): mais suave/lenta
-window.MOVE_SPEED_CLOSE = 1.4;   // px/ms — FECHAMENTO (sai da tela): mais ágil/rápida
+window.MOVE_SPEED_CLOSE = 1.5;   // px/ms — FECHAMENTO (sai da tela): mais ágil/rápida
 window.MOVE_MIN_MS = 220;    // piso (movimentos curtos não ficam instantâneos)
 window.MOVE_MAX_MS = 1200;   // teto (movimentos longos não arrastam)
 window.moveMs = (distancePx, speed = window.MOVE_SPEED) => Math.round(Math.min(window.MOVE_MAX_MS,

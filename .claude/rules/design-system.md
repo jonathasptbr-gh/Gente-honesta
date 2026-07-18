@@ -55,7 +55,7 @@ cauda curta p/ o elemento assentar rápido e ficar interativo, não "rastejar" o
 dos sheets deslizantes. **DURAÇÃO dos movimentos ≠ fixa:** todo DESLOCAMENTO (gavetas, painéis, abas,
 modo indicação, etc.) deriva a duração da DISTÂNCIA percorrida ÷ velocidade
 (`window.moveMs`, em `core/app.js`) — só a duração; a curva segue a de cada transição. A velocidade é
-DIRECIONAL: `MOVE_SPEED_OPEN` (1.1, abertura suave) ≠ `MOVE_SPEED_CLOSE` (1.4, fechamento ágil) ≠
+DIRECIONAL: `MOVE_SPEED_OPEN` (1.1, abertura suave) ≠ `MOVE_SPEED_CLOSE` (1.5, fechamento ágil) ≠
 `MOVE_SPEED` (1.3, neutra p/ navegação lateral). Detalhe em `.claude/rules/app-core.md`. `--scroll-thumb-dark` = thumb da barra fina sobre superfícies CLARAS
 (sobre verde usa-se `--on-green-muted`).
 
