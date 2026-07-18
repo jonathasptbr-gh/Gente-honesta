@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 const SYM = './node_modules/@material-symbols/svg-500/rounded';        // Google Symbols Rounded wght500
 const IC  = JSON.parse(readFileSync('./node_modules/@iconify-json/ic/icons.json','utf8')); // Material Icons "round"
 
-const FILL = `add add_box add_to_home_screen arrow_back arrow_upward attach_file attach_money autorenew balance bolt bookmark campaign cancel chat chat_bubble check check_box check_box_outline_blank check_circle check_small chevron_right close commute contract credit_card delete directions_bus diversity_3 domain downloading edit edit_note error event_available event_busy expand_more filter_alt flag gpp_bad gpp_good gpp_maybe group_search groups health_and_safety help history home hourglass_top how_to_reg info install_mobile ios_share keyboard_arrow_down location_off location_on lunch_dining map medical_services more_horiz more_vert paid payments pending_actions person_add person_search phone_android photo_camera progress_activity qr_code_2 radio_button_unchecked receipt_long redeem remove replay restaurant savings schedule school screen_rotation search share shield_question spa sync system_update task_alt travel_explore tune verified_user videocam_off view_agenda visibility warning work workspace_premium`.trim().split(/\s+/);
+const FILL = `add add_box add_to_home_screen arrow_back arrow_upward attach_file attach_money autorenew balance bolt bookmark campaign cancel chat chat_bubble check check_box check_box_outline_blank check_circle check_small chevron_right close cloud_off commute contract credit_card database delete directions_bus diversity_3 domain downloading edit edit_note error event_available event_busy expand_more filter_alt flag gpp_bad gpp_good gpp_maybe group_search groups health_and_safety help history home hourglass_top how_to_reg info install_mobile ios_share keyboard_arrow_down location_off location_on lock logout lunch_dining map medical_services more_horiz more_vert paid payments pending_actions person_add person_search phone_android phone_disabled photo_camera progress_activity public qr_code_2 radio_button_unchecked receipt_long redeem remove replay restaurant savings schedule school screen_rotation search share shield shield_question spa sync system_update task_alt travel_explore tune verified_user videocam_off view_agenda visibility warning work workspace_premium`.trim().split(/\s+/);
 const OUTLINE = `attach_money qr_code_2 credit_card receipt_long attach_file schedule payments help`.trim().split(/\s+/);
 
 // Ícones ausentes no pacote Google (v0.45.8): vêm do set "ic" (Material Icons Round, filled).
@@ -19,7 +19,6 @@ const IC_ROUND = {
   screen_rotation:'round-screen-rotation', system_update:'round-system-update',
 };
 
-const round1 = (s) => s.replace(/-?\d+\.\d+/g, m => String(Math.round(parseFloat(m)*10)/10));
 const symInner = (file) => {
   const svg = readFileSync(`${SYM}/${file}`,'utf8');
   return (svg.match(/<svg[^>]*>([\s\S]*?)<\/svg>/)[1].trim());
@@ -37,7 +36,7 @@ const symbolFor = (name) => {
 
 const dupes = FILL.filter((n,i)=>FILL.indexOf(n)!==i);
 if (dupes.length) throw new Error('DUP: '+dupes);
-if (FILL.length !== 95) throw new Error('esperado 94, veio '+FILL.length);
+if (FILL.length !== 102) throw new Error('contagem inesperada: '+FILL.length);
 
 const symbols = [
   ...FILL.map(symbolFor),
