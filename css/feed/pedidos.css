@@ -57,7 +57,7 @@
   white-space: nowrap;
 }
 
-.pedido-item__urgent-badge .material-symbols-rounded {
+.pedido-item__urgent-badge .icon {
   font-size: 0.95rem;
 }
 
@@ -152,7 +152,7 @@
   font-weight: var(--fw-bold);
 }
 
-.pedido-item__actions .post-card__indicate-info .material-symbols-rounded {
+.pedido-item__actions .post-card__indicate-info .icon {
   font-size: 1.1rem;
 }
 
@@ -253,7 +253,7 @@
   cursor: pointer;
 }
 
-.post-card__indicate-info .material-symbols-rounded {
+.post-card__indicate-info .icon {
   font-size: 1.2rem;
 }
 
@@ -268,7 +268,7 @@
   border-radius: var(--radius-md);
 }
 
-.post-card__share-btn .material-symbols-rounded {
+.post-card__share-btn .icon {
   font-size: 1.2rem;
 }
 

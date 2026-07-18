@@ -220,7 +220,7 @@ body.app-body {
 }
 
 /* Proteção visual contra arrasto */
-img, svg, button, a, span, div, .material-symbols-rounded {
+img, svg, button, a, span, div, .icon {
   -webkit-user-drag: none;
 }
 
@@ -247,14 +247,14 @@ button, input, textarea {
 
 /* ===========================================
    ÍCONES (sprite SVG — símbolos #ic-* no topo do <body>)
-   .material-symbols-rounded NÃO é mais uma fonte: é um <svg><use> do sprite. O
+   .icon NÃO é mais uma fonte: é um <svg><use> do sprite. O
    nome da classe foi mantido para preservar a cascata das ~40 regras que
    dimensionam o ícone por `font-size` e o colorem por `color` — que seguem
    funcionando porque o SVG mede 1em×1em e usa `fill: currentColor`. Assim o ícone
    desenha no 1º paint, sem esperar download de fonte e SEM depender de rede
    (offline-safe no PWA). Troca de glifo em runtime: window.setIcon (core/app.js).
    ======================================== */
-.material-symbols-rounded {
+.icon {
   width: 1em;                 /* tamanho segue o font-size (herdado ou por regra) */
   height: 1em;
   font-size: 24px;            /* default do glifo (era o default da folha do Google) */
@@ -266,7 +266,7 @@ button, input, textarea {
   -webkit-user-select: none;
   user-select: none;
 }
-.material-symbols-rounded use { pointer-events: none; }
+.icon use { pointer-events: none; }
 
 
 /* ===========================================

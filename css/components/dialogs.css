@@ -58,7 +58,7 @@
   color: var(--p-green);
 }
 
-.dialog-box__icon .material-symbols-rounded {
+.dialog-box__icon .icon {
   font-size: 3.5rem;
 }
 

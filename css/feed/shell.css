@@ -63,7 +63,7 @@
 
 /* "+" no peso forte (preset filled forte), coerente com o texto em negrito do
    botão — o wght 500 padrão do ícone ficava fino demais ao lado do rótulo. */
-.contracts-create__btn .material-symbols-rounded {
+.contracts-create__btn .icon {
 }
 
 /* Botão só-ícone que revela a gaveta de pendentes. Altura estica p/ casar com o
@@ -84,7 +84,7 @@
   color: var(--info-blue);
 }
 
-.contracts-pending-toggle .material-symbols-rounded {
+.contracts-pending-toggle .icon {
   font-size: 1.4rem;
 }
 
@@ -187,7 +187,7 @@
   color: var(--t-sub);
 }
 
-.contract-mini__btn .material-symbols-rounded {
+.contract-mini__btn .icon {
   font-size: 1.2rem;
 }
 
@@ -329,7 +329,7 @@
   white-space: nowrap;
 }
 
-.contract-card__status .material-symbols-rounded {
+.contract-card__status .icon {
   font-size: 0.95rem;
 }
 
@@ -386,7 +386,7 @@
   white-space: nowrap;
 }
 
-.contract-card__date .material-symbols-rounded {
+.contract-card__date .icon {
   font-size: 1.05rem;
   color: var(--p-green);
 }
@@ -436,7 +436,7 @@
   white-space: nowrap;
 }
 
-.contract-card__payment .material-symbols-rounded {
+.contract-card__payment .icon {
   font-size: 1rem;
 }
 

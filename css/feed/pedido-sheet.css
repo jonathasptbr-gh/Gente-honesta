@@ -184,7 +184,7 @@
   transition: var(--transition);
 }
 
-.pedido-chip .material-symbols-rounded {
+.pedido-chip .icon {
   font-size: 1.1rem;
 }
 
@@ -216,7 +216,7 @@
   gap: var(--space-sm);
 }
 
-.pedido-toggle__info > .material-symbols-rounded {
+.pedido-toggle__info > .icon {
   color: var(--p-green);   /* ícone verde sobre card claro, como no cadastro */
   font-size: 1.5rem;
 }
@@ -361,7 +361,7 @@
 }
 
 .vaga-dyn-remove:active { transform: scale(var(--press-scale)); }
-.vaga-dyn-remove .material-symbols-rounded { font-size: 1.2rem; }
+.vaga-dyn-remove .icon { font-size: 1.2rem; }
 
 /* Botão "Adicionar requisito / benefício" — texto AZUL padrão (--info-blue,
    o mesmo azul de seleção da gaveta: dias/benefícios ativos) sobre pílula
@@ -384,7 +384,7 @@
 }
 
 .vaga-add-btn:active { transform: scale(var(--press-scale)); }
-.vaga-add-btn .material-symbols-rounded { font-size: 1.1rem; }
+.vaga-add-btn .icon { font-size: 1.1rem; }
 
 /* Hint alinhado à esquerda (padrão do hint é à direita) */
 .pedido-field__hint--left { align-self: flex-start; }
@@ -429,7 +429,7 @@
 
 .vaga-stepper__btn:active { transform: scale(0.92); }
 .vaga-stepper__btn:disabled { opacity: 0.4; cursor: default; }
-.vaga-stepper__btn .material-symbols-rounded {
+.vaga-stepper__btn .icon {
   font-size: 1.3rem;
 }
 
@@ -562,7 +562,7 @@
   font-style: normal;
 }
 
-.vaga-warn .material-symbols-rounded {
+.vaga-warn .icon {
   font-size: 1.1rem;
   flex-shrink: 0;
   margin-top: 1px;
@@ -592,7 +592,7 @@
 
 .vaga-benefit-pill:active { transform: scale(var(--press-scale)); }
 
-.vaga-benefit-pill .material-symbols-rounded {
+.vaga-benefit-pill .icon {
   font-size: 1.1rem;
 }
 
@@ -617,7 +617,7 @@
   margin: 0;
 }
 
-.pedido-detail-indicated__header .material-symbols-rounded { font-size: 1.2rem; }
+.pedido-detail-indicated__header .icon { font-size: 1.2rem; }
 
 .pedido-detail-indicated__fraction {
   margin-left: auto;

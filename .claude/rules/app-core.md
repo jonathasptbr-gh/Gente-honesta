@@ -171,9 +171,9 @@ Todo o app é verde (`--p-green`), então a `meta[theme-color]` é verde em toda
   (`clamp(5.5rem,26vw,8.5rem)`). `#btn-start` usa `btn--accent`. Dots inativos em branco
   translúcido, ativo BRANCO `--t-light` (o azul de seleção sumiria no fundo escuro).
 - **Seta "voltar" é ÍCONE, nunca caractere:** `#btn-back-phone` usa o ícone `arrow_back` do sprite
-  (`<svg class="material-symbols-rounded"><use href="#ic-arrow_back"></use></svg>`) — um caractere
+  (`<svg class="icon"><use href="#ic-arrow_back"></use></svg>`) — um caractere
   digitado como texto solto não compartilha a métrica das letras e fica mais baixo.
-  `.btn--text .material-symbols-rounded` fixa o ícone em `1.1rem`.
+  `.btn--text .icon` fixa o ícone em `1.1rem`.
 
 ## Loader global
 

@@ -82,18 +82,21 @@ dimensiona o `<svg>` 1em), `.qav__label` (0.55rem, senão trunca na coluna de 48
 
 **Ícones:** SPRITE SVG INLINE (não é mais fonte). O sprite `<svg class="icon-sprite">` com os
 símbolos `#ic-*` fica no topo do `<body>` (index.html) e cada uso é
-`<svg class="material-symbols-rounded"><use href="#ic-NOME"></use></svg>`. Desenham no 1º paint,
+`<svg class="icon"><use href="#ic-NOME"></use></svg>`. Desenham no 1º paint,
 sem esperar download e SEM rede (offline-safe — a fonte cross-origin nunca era cacheada pelo SW).
-A classe `.material-symbols-rounded` foi MANTIDA (agora num `<svg>`): a base em `base.css` a faz
-medir `1em×1em` e usar `fill: currentColor`, então as regras existentes seguem dimensionando por
-`font-size` e colorindo por `color`. NÃO use `font-variation-settings` (SVG ignora) — o peso/preenchimento
-já vêm assados no símbolo (wght 500, variante FILL 1). Variante CONTORNO: símbolos `#ic-NOME-o`
-(usados nos meta-items dos cards Pro/vaga e nos botões de ajuda `?`).
+A classe é `.icon` (num `<svg>`): a base em `base.css` a faz medir `1em×1em` e usar
+`fill: currentColor`, então as regras seguem dimensionando por `font-size` e colorindo por `color`.
+NÃO use `font-variation-settings` (SVG ignora) — peso/preenchimento já vêm assados no símbolo (wght
+500, FILL 1). Variante CONTORNO: símbolos `#ic-NOME-o` (meta-items dos cards Pro/vaga e botões `?`).
 - **Gerar HTML de ícone em JS:** `window.icon(nome, classeExtra?)`. **Trocar ícone em runtime:**
   `window.setIcon(elIcone, nome)` (era `elemento.textContent = nome`).
-- **Adicionar um ícone novo:** inclua o nome em `scripts/gen-icon-sprite.mjs` (lista `FILL`; se
-  precisar da variante contorno, em `OUTLINE`), rode-o (`npm i @material-symbols/svg-500
-  @iconify-json/ic` + `node scripts/gen-icon-sprite.mjs`) e cole o sprite gerado no `<body>`.
+- **Adicionar um ícone novo = só USAR** (via `#ic-NOME`, `window.icon`, `setIcon`, `customAlert`/
+  `customConfirm`/`comingSoon(…, 'nome')`, `data-icon`, `icon:`). Depois `npm install` (1ª vez) +
+  **`npm run icons:gen`** — o gerador DERIVA a lista do uso (`scripts/icon-usage.mjs`) e reescreve o
+  sprite direto no `index.html`. **`npm run icons:check`** (e o CI em `deploy.yml`) FALHAM se algum
+  ícone referenciado não tiver símbolo (um `<use>` órfão renderiza EM BRANCO). Só mexa no `OUTLINE`
+  (precisa de contorno) ou `IC_ROUND` (nome falta no pacote Google) do gerador. NUNCA edite o sprite
+  à mão. Em dev, `window.icon`/`setIcon` dão `console.warn` para símbolo ausente.
 
 ## Semântica de cores — AMARELO = AÇÃO; AZUL = SELEÇÃO
 
@@ -183,7 +186,7 @@ pressionar-longo do card, `attachLongPress`.) Bespoke DE PROPÓSITO
   dentro de rótulo uppercase não é mais problema: o ícone é `<svg>`, não texto — `text-transform`
   não o afeta.)
 - **`.btn__spinner` (`components/buttons.css`)** — spinner de loading dos botões (ícone `autorenew`
-  girando). `class="material-symbols-rounded btn__spinner"` (num `<svg><use href="#ic-autorenew">`);
+  girando). `class="icon btn__spinner"` (num `<svg><use href="#ic-autorenew">`);
   variante `--sm` p/ o link de reenvio de SMS.
 - **`.chip` + `.chip--md` (`feed/historico.css`)** — `.chip` é o casco base (radius-pill, inline-flex,
   transição); `.chip--md` é a métrica das pílulas do cadastro (padding `8px 14px`, `--fs-5`).

@@ -27,7 +27,7 @@
   z-index: 2;
 }
 
-.ic-card__info-btn .material-symbols-rounded {
+.ic-card__info-btn .icon {
   font-size: 1.2rem;
   color: var(--p-green-light);   /* claro sobre o card verde */
 }
@@ -43,7 +43,7 @@
   padding-right: 26px;  /* espaço p/ o botão de ajuda (?) */
 }
 
-.material-symbols-rounded.ic-card__head-icon {
+.icon.ic-card__head-icon {
   font-size: 1.5rem;
   color: var(--a-gold);   /* ícone dourado sobre o card verde */
 }

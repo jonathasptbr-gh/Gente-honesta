@@ -175,7 +175,7 @@
 }
 
 .historico-item__delete:active { transform: scale(0.85); }
-.historico-item__delete .material-symbols-rounded {
+.historico-item__delete .icon {
   font-size: 1.35rem;
 }
 
@@ -214,8 +214,8 @@
   text-overflow: ellipsis;
 }
 
-.historico-item__status .material-symbols-rounded,
-.historico-item__count .material-symbols-rounded {
+.historico-item__status .icon,
+.historico-item__count .icon {
   font-size: 0.95rem;
   flex-shrink: 0;
 }
@@ -374,7 +374,7 @@
 
 /* O ícone virou um <svg> FILHO (o botão carrega posição/cor); dimensiona o glifo no
    tamanho do campo — sem esta regra o svg cairia no font-size 24px do base. */
-.agenda-filters__search-icon .material-symbols-rounded {
+.agenda-filters__search-icon .icon {
   font-size: 1.1rem;
 }
 
@@ -506,7 +506,7 @@
 }
 /* Glifo em NEGRITO (wght 700, o preset forte de ícone de botão do app) — vale
    p/ tune/filter_alt e p/ a seta keyboard_arrow_down da gaveta aberta. */
-.agenda-filters__filter-pill .material-symbols-rounded {
+.agenda-filters__filter-pill .icon {
   font-size: 1.2rem;
 }
 
@@ -579,17 +579,17 @@
   gap: 0;
 }
 
-.chip--ic .material-symbols-rounded {
+.chip--ic .icon {
   font-size: 1.15rem;
 }
 
 /* Tier colors: mantidas em ambos os estados (padrão e selecionado) */
-.filters-panel .chip--ic-ok    .material-symbols-rounded { color: var(--success-fill); }
-.filters-panel .chip--ic-warn  .material-symbols-rounded { color: var(--a-gold);      }
-.filters-panel .chip--ic-alert .material-symbols-rounded { color: var(--danger);       }
+.filters-panel .chip--ic-ok    .icon { color: var(--success-fill); }
+.filters-panel .chip--ic-warn  .icon { color: var(--a-gold);      }
+.filters-panel .chip--ic-alert .icon { color: var(--danger);       }
 
 /* Chip "Apenas salvos": ícone no mesmo tamanho dos IC chips desta seção */
-.chip--saved .material-symbols-rounded {
+.chip--saved .icon {
   font-size: 1.05rem;
 }
 

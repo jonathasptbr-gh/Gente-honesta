@@ -82,7 +82,7 @@
    de texto — um glifo de seta comum não se alinha verticalmente ao centro
    do texto ao lado (métrica de fonte diferente); dentro do .btn flex com
    align-items:center, o ícone fica perfeitamente centrado com o rótulo. */
-.btn--text .material-symbols-rounded {
+.btn--text .icon {
   font-size: 1.1rem;
 }
 
@@ -99,7 +99,7 @@
   border-radius: var(--radius-md);
 }
 
-.btn--close .material-symbols-rounded {
+.btn--close .icon {
   font-size: 1.1rem;
 }
 

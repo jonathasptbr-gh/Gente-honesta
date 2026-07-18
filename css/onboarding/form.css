@@ -160,7 +160,7 @@
   line-height: 1.15;
 }
 
-.media-capture__placeholder .material-symbols-rounded {
+.media-capture__placeholder .icon {
   display: block;
   margin-bottom: 4px;
   font-size: 2rem;
@@ -311,7 +311,7 @@
   align-items: center;
 }
 
-.area-search__clear .material-symbols-rounded {
+.area-search__clear .icon {
   font-size: 1.1rem;
 }
 
@@ -404,7 +404,7 @@
   flex-shrink: 0;
 }
 
-.section-help-btn .material-symbols-rounded {
+.section-help-btn .icon {
   font-size: 1.2rem;
   color: var(--t-sub);
 }
@@ -440,11 +440,11 @@
   background: var(--gold-soft);
 }
 
-.collapsible__trigger .material-symbols-rounded:first-child {
+.collapsible__trigger .icon:first-child {
   color: var(--p-green);
 }
 
-.collapsible__trigger--gold .material-symbols-rounded:first-child {
+.collapsible__trigger--gold .icon:first-child {
   color: var(--a-gold);
 }
 

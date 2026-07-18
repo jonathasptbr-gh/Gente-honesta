@@ -138,7 +138,7 @@
 
 .vaga-card__btn-back:active { background: var(--border-light); }
 
-.vaga-card__btn-back .material-symbols-rounded {
+.vaga-card__btn-back .icon {
   font-size: 1.1rem;
 }
 
@@ -157,7 +157,7 @@
 /* dim por opacidade (não o scale do .btn) — mantém a interação original */
 .vaga-card__btn-submit:active { opacity: 0.88; transform: none; }
 
-.vaga-card__btn-submit .material-symbols-rounded {
+.vaga-card__btn-submit .icon {
   font-size: 1.05rem;
 }
 
@@ -359,7 +359,7 @@
   background: var(--p-green-light);
 }
 
-.candid-upload-btn .material-symbols-rounded {
+.candid-upload-btn .icon {
   font-size: 1.1rem;
   color: var(--p-green);
   flex-shrink: 0;
@@ -421,7 +421,7 @@
   opacity: 0.6;
 }
 
-.vaga-card__company-address .material-symbols-rounded {
+.vaga-card__company-address .icon {
   font-size: 0.8rem;
 }
 
@@ -441,7 +441,7 @@
 
 .vaga-card__company-maps:active { opacity: 0.6; }
 
-.vaga-card__company-maps .material-symbols-rounded {
+.vaga-card__company-maps .icon {
   font-size: 1.35rem;
 }
 
@@ -486,7 +486,7 @@
   align-self: flex-start;
 }
 
-.vaga-card__vacancies .material-symbols-rounded {
+.vaga-card__vacancies .icon {
   font-size: 1rem;
 }
 
@@ -524,7 +524,7 @@
   line-height: 1.35;
 }
 
-.vaga-card__req .material-symbols-rounded {
+.vaga-card__req .icon {
   font-size: 0.95rem;
   color: var(--p-green);
   flex-shrink: 0;
@@ -546,7 +546,7 @@
   color: var(--t-main);
 }
 
-.vaga-card__meta-item .material-symbols-rounded {
+.vaga-card__meta-item .icon {
   font-size: 1.05rem;
   color: var(--t-sub);
   flex-shrink: 0;
@@ -559,7 +559,7 @@
   color: var(--p-green-dark);
 }
 
-.vaga-card__salary .material-symbols-rounded {
+.vaga-card__salary .icon {
   color: var(--p-green);
 }
 
@@ -582,7 +582,7 @@
   font-weight: var(--fw-medium);
 }
 
-.vaga-card__benefit .material-symbols-rounded {
+.vaga-card__benefit .icon {
   font-size: 0.9rem;
   color: var(--p-green);
   flex-shrink: 0;
@@ -617,7 +617,7 @@
   transform: none;
 }
 
-.vaga-card__btn-apply .material-symbols-rounded {
+.vaga-card__btn-apply .icon {
   font-size: 1.05rem;
 }
 
@@ -640,7 +640,7 @@
   background: var(--border-light);
 }
 
-.vaga-card__btn-share .material-symbols-rounded {
+.vaga-card__btn-share .icon {
   font-size: 1.2rem;
 }
 
@@ -688,7 +688,7 @@
   gap: 6px;
 }
 
-.vaga-detail__analyze-btn .material-symbols-rounded {
+.vaga-detail__analyze-btn .icon {
   font-size: 1.1rem;
 }
 
@@ -716,5 +716,5 @@
 
 .vaga-detail__count-value { line-height: 1; }
 
-.vaga-detail__count .material-symbols-rounded { font-size: 1.2rem; }
+.vaga-detail__count .icon { font-size: 1.2rem; }
 

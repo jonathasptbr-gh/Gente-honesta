@@ -1,2 +1,5 @@
-tools/node_modules/
-tools/package-lock.json
+# Dependências de DEV (só as ferramentas de scripts/ usam; o site é estático).
+node_modules/
+
+# Saída antiga do gerador de ícones (agora ele escreve direto no index.html).
+scripts/icon-sprite.html

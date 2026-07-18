@@ -61,14 +61,15 @@
     <link rel="apple-touch-icon" href="icon-512-maskable.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 
-    <!-- Fonte de TEXTO (Inter) apenas. Os ÍCONES não vêm mais de fonte: são um
-         sprite SVG inline (símbolos #ic-* no topo do <body>) — desenham no 1º
-         paint, sem esperar download e sem depender de rede (offline-safe). A
-         Material Symbols Rounded do Google foi removida (era cross-origin, nunca
-         cacheada pelo Service Worker → offline os glifos viravam texto cru). -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Fontes 100% SELF-HOSTED — nenhuma chamada ao Google.
+         - TEXTO: Inter (woff2 em /fonts, @font-face em css/base/fonts.css).
+         - ÍCONES: sprite SVG inline (#ic-* no topo do <body>).
+         Ambos desenham/renderizam sem depender de rede (offline-safe no PWA); o
+         Service Worker cacheia os woff2 same-origin. Antes o Google Fonts era
+         cross-origin e nunca era cacheado → offline o texto/glifos degradavam. -->
+    <link rel="preload" href="fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/inter-latin-800.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/base/fonts.css">
 
     <link rel="stylesheet" href="css/base/base.css">
     <!-- pasta components/ (mesma ordem = cascata idêntica) -->
@@ -103,13 +104,10 @@
 
     <!-- ============================================================================
          SPRITE DE ÍCONES (SVG inline) — substitui a fonte Material Symbols Rounded.
-         Os ícones desenham no 1º paint, sem esperar download de fonte e SEM rede
-         (offline-safe no PWA). Cada <use href="#ic-NOME"> instancia um símbolo.
-         Fonte: Material Symbols Rounded wght 500 (variante -fill = padrão FILL 1);
-         sufixo "-o" = contorno (FILL 0), usado em meta-items e botões de ajuda.
-         9 ícones ausentes do pacote (GPP + phone/install/rotation/update/expand)
-         vêm do Material Icons "round". Cor via currentColor; tamanho via font-size.
-         GERADO por scripts/gen-sprite — não editar à mão.
+         Os ícones desenham no 1º paint, sem esperar download e SEM rede (offline no
+         PWA). Cada <use href="#ic-NOME"> instancia um símbolo.
+         GERADO por scripts/gen-icon-sprite.mjs (lista DERIVADA do uso via
+         icon-usage.mjs) — não editar à mão; rode `npm run icons:gen`.
          ============================================================================ -->
     <svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
     <symbol id="ic-add" viewBox="0 -960 960 960"><path d="M445.93-445.93H228.09q-14.43 0-24.25-9.88-9.82-9.87-9.82-24.37 0-14.49 9.82-24.19 9.82-9.7 24.25-9.7h217.84v-217.84q0-14.43 9.88-24.37 9.87-9.94 24.37-9.94 14.49 0 24.19 9.94 9.7 9.94 9.7 24.37v217.84h217.84q14.43 0 24.37 9.88 9.94 9.87 9.94 24.37 0 14.49-9.94 24.19-9.94 9.7-24.37 9.7H514.07v217.84q0 14.43-9.88 24.25-9.87 9.82-24.37 9.82-14.49 0-24.19-9.82-9.7-9.82-9.7-24.25v-217.84Z"/></symbol>
@@ -230,7 +228,7 @@
          Em mobile fica display:none e nunca interfere no app.
          ===================================================================== -->
     <div id="screen-desktop-block" class="desktop-block" aria-hidden="true">
-        <svg class="material-symbols-rounded desktop-block__icon" aria-hidden="true"><use href="#ic-phone_android"></use></svg>
+        <svg class="icon desktop-block__icon" aria-hidden="true"><use href="#ic-phone_android"></use></svg>
         <h1 class="desktop-block__title">Gente Honesta é mobile</h1>
         <p class="desktop-block__text">
             Este aplicativo foi feito para o seu celular.<br>
@@ -244,7 +242,7 @@
          No PWA instalado o manifest trava a rotação e esta tela nunca aparece.
          ===================================================================== -->
     <div id="screen-rotate-block" class="rotate-block" aria-hidden="true">
-        <svg class="material-symbols-rounded rotate-block__icon" aria-hidden="true"><use href="#ic-screen_rotation"></use></svg>
+        <svg class="icon rotate-block__icon" aria-hidden="true"><use href="#ic-screen_rotation"></use></svg>
         <h1 class="rotate-block__title">Gire o celular</h1>
         <p class="rotate-block__text">
             O Gente Honesta foi feito para o modo retrato.
@@ -270,10 +268,10 @@
             <!-- Ações: cancelar à esquerda, câmera/confirmar à direita -->
             <div class="camera-view__actions">
                 <button type="button" id="btn-camera-cancel" class="btn btn--primary camera-view__action-btn camera-view__action-btn--cancel" aria-label="Cancelar">
-                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-close"></use></svg>
+                    <svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>
                 </button>
                 <button type="button" id="btn-snap" class="btn btn--outline camera-view__action-btn" aria-label="Tirar foto">
-                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-photo_camera"></use></svg>
+                    <svg class="icon" aria-hidden="true"><use href="#ic-photo_camera"></use></svg>
                 </button>
             </div>
         </div>
@@ -286,7 +284,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v401</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v402</span>
     </div>
 
     <!-- =====================================================================
@@ -296,7 +294,7 @@
     <div id="dialog-global" class="overlay-dialog u-hidden">
         <div class="dialog-box">
             <div id="dialog-icon" class="dialog-box__icon">
-                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-error"></use></svg>
+                <svg class="icon" aria-hidden="true"><use href="#ic-error"></use></svg>
             </div>
             <h3 id="dialog-title" class="dialog-box__title">Aviso</h3>
             <p id="dialog-message" class="dialog-box__message">Mensagem padrão.</p>
@@ -314,7 +312,7 @@
          segundo plano — nunca recarrega sozinho, só com o clique aqui.
          ===================================================================== -->
     <div id="pwa-update-banner" class="pwa-update-banner u-hidden" role="status">
-        <svg class="material-symbols-rounded pwa-update-banner__icon" aria-hidden="true"><use href="#ic-system_update"></use></svg>
+        <svg class="icon pwa-update-banner__icon" aria-hidden="true"><use href="#ic-system_update"></use></svg>
         <p id="pwa-update-text" class="pwa-update-banner__text">Nova versão disponível.</p>
         <button type="button" id="btn-pwa-update" class="btn btn--accent btn--pill pwa-update-banner__btn">Atualizar</button>
     </div>
@@ -342,13 +340,13 @@
                     </div>
 
                     <div class="intro-carousel__slide">
-                        <svg class="material-symbols-rounded intro-carousel__icon" aria-hidden="true"><use href="#ic-person_search"></use></svg>
+                        <svg class="icon intro-carousel__icon" aria-hidden="true"><use href="#ic-person_search"></use></svg>
                         <h1 class="auth-section__title">Indicações</h1>
                         <p class="auth-section__text">Publique um pedido quando precisar de um serviço — ou indique alguém de confiança e fortaleça sua própria reputação.</p>
                     </div>
 
                     <div class="intro-carousel__slide">
-                        <svg class="material-symbols-rounded intro-carousel__icon" aria-hidden="true"><use href="#ic-shield_question"></use></svg>
+                        <svg class="icon intro-carousel__icon" aria-hidden="true"><use href="#ic-shield_question"></use></svg>
                         <h1 class="auth-section__title">Confiança</h1>
                         <p class="auth-section__text">Cada usuário tem uma reputação viva, que sobe e desce conforme avaliações, acordos cumpridos e indicações recebidas.</p>
                     </div>
@@ -389,7 +387,7 @@
         <!-- Passo 3: OTP -->
         <form id="form-otp" class="auth-section u-hidden" novalidate>
             <button type="button" id="btn-back-phone" class="btn btn--text">
-                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-arrow_back"></use></svg>Alterar número
+                <svg class="icon" aria-hidden="true"><use href="#ic-arrow_back"></use></svg>Alterar número
             </button>
             <h1 class="auth-section__title">Validar Código</h1>
             <p class="auth-section__text">Enviamos um código para:<br><b id="text-display-phone" class="text-accent"></b></p>
@@ -446,7 +444,7 @@
                 <div class="profile-header-row__photo">
                     <button type="button" id="media-preview" class="media-capture__display" aria-label="Tirar foto de perfil">
                         <div id="media-placeholder" class="media-capture__placeholder">
-                            <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-photo_camera"></use></svg>
+                            <svg class="icon" aria-hidden="true"><use href="#ic-photo_camera"></use></svg>
                             <span class="media-capture__placeholder-text">Adicionar foto</span>
                         </div>
                     </button>
@@ -470,20 +468,20 @@
             <!-- ── Localização ──────────────────────────────────────────── -->
             <div class="form-group">
                 <button type="button" id="btn-register-location" class="card location-check">
-                    <svg class="material-symbols-rounded location-check__icon" aria-hidden="true"><use href="#ic-location_on"></use></svg>
+                    <svg class="icon location-check__icon" aria-hidden="true"><use href="#ic-location_on"></use></svg>
                     <div class="location-check__content">
                         <strong id="text-location-status">Registrar sua região atual</strong>
                     </div>
-                    <svg id="icon-location-status" class="material-symbols-rounded location-check__status" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
+                    <svg id="icon-location-status" class="icon location-check__status" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
                 </button>
             </div>
 
             <!-- ── Detalhes profissionais (opcional) — seção colapsável ─────── -->
             <div class="collapsible">
                 <button type="button" id="btn-toggle-prodetails" class="collapsible__trigger" aria-expanded="false" aria-controls="panel-prodetails">
-                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-work"></use></svg>
+                    <svg class="icon" aria-hidden="true"><use href="#ic-work"></use></svg>
                     Detalhes profissionais <span class="form-group__optional">(opcional)</span>
-                    <svg class="material-symbols-rounded collapsible__chevron" aria-hidden="true"><use href="#ic-expand_more"></use></svg>
+                    <svg class="icon collapsible__chevron" aria-hidden="true"><use href="#ic-expand_more"></use></svg>
                 </button>
                 <div id="panel-prodetails" class="collapsible__panel u-hidden">
 
@@ -494,7 +492,7 @@
                         <div class="area-search">
                             <input type="text" id="inp-area-search" class="input-text" placeholder="Buscar profissões ou áreas de atuação...">
                             <button type="button" id="btn-area-clear" class="area-search__clear u-hidden" aria-label="Limpar busca">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-close"></use></svg>
+                                <svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>
                             </button>
                             <ul id="list-area-results" class="area-search__results u-hidden"></ul>
                         </div>
@@ -520,7 +518,7 @@
                         <div class="form-group__header">
                             <label class="form-group__label">Padrão de Serviços</label>
                             <button type="button" id="btn-service-help" class="section-help-btn" aria-label="Dúvidas sobre o padrão de serviços">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-help-o"></use></svg>
+                                <svg class="icon" aria-hidden="true"><use href="#ic-help-o"></use></svg>
                             </button>
                         </div>
                         <p class="form-group__description">Escolha o perfil que melhor descreve seu serviço. Cada opção define sua relação entre <strong>qualidade</strong>, <strong>agilidade</strong> e <strong>valor</strong> — e vai se ajustando sozinha conforme as avaliações que você receber.</p>
@@ -529,28 +527,28 @@
                              barras individuais. -->
                         <div id="container-service-choice" class="service-choice">
                             <button type="button" class="service-choice__card service-choice__card--active" data-service="padrao" data-q="5" data-a="5" data-v="5" aria-pressed="true">
-                                <svg class="material-symbols-rounded service-choice__icon" aria-hidden="true"><use href="#ic-balance"></use></svg>
+                                <svg class="icon service-choice__icon" aria-hidden="true"><use href="#ic-balance"></use></svg>
                                 <span class="service-choice__title">Padrão</span>
                                 <span class="service-choice__sub">Equilibrado</span>
-                                <svg class="material-symbols-rounded service-choice__check" aria-hidden="true"><use href="#ic-check_circle"></use></svg>
+                                <svg class="icon service-choice__check" aria-hidden="true"><use href="#ic-check_circle"></use></svg>
                             </button>
                             <button type="button" class="service-choice__card" data-service="premium" data-q="8" data-a="5" data-v="7" aria-pressed="false">
-                                <svg class="material-symbols-rounded service-choice__icon" aria-hidden="true"><use href="#ic-workspace_premium"></use></svg>
+                                <svg class="icon service-choice__icon" aria-hidden="true"><use href="#ic-workspace_premium"></use></svg>
                                 <span class="service-choice__title">Premium</span>
                                 <span class="service-choice__sub">Alta qualidade</span>
-                                <svg class="material-symbols-rounded service-choice__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
+                                <svg class="icon service-choice__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
                             </button>
                             <button type="button" class="service-choice__card" data-service="rapido" data-q="5" data-a="8" data-v="6" aria-pressed="false">
-                                <svg class="material-symbols-rounded service-choice__icon" aria-hidden="true"><use href="#ic-bolt"></use></svg>
+                                <svg class="icon service-choice__icon" aria-hidden="true"><use href="#ic-bolt"></use></svg>
                                 <span class="service-choice__title">Rápido</span>
                                 <span class="service-choice__sub">Alta agilidade</span>
-                                <svg class="material-symbols-rounded service-choice__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
+                                <svg class="icon service-choice__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
                             </button>
                             <button type="button" class="service-choice__card" data-service="economico" data-q="4" data-a="4" data-v="3" aria-pressed="false">
-                                <svg class="material-symbols-rounded service-choice__icon" aria-hidden="true"><use href="#ic-savings"></use></svg>
+                                <svg class="icon service-choice__icon" aria-hidden="true"><use href="#ic-savings"></use></svg>
                                 <span class="service-choice__title">Custo-benefício</span>
                                 <span class="service-choice__sub">Econômico</span>
-                                <svg class="material-symbols-rounded service-choice__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
+                                <svg class="icon service-choice__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
                             </button>
                         </div>
 
@@ -581,25 +579,25 @@
                         <label class="form-group__label">Métodos de pagamento aceitos</label>
                         <div id="container-payment-methods" class="payment-methods">
                             <button type="button" class="chip chip--md chip--payment chip--active" data-payment="cash" aria-pressed="true">
-                                Dinheiro<svg class="material-symbols-rounded chip__check" aria-hidden="true"><use href="#ic-check_circle"></use></svg>
+                                Dinheiro<svg class="icon chip__check" aria-hidden="true"><use href="#ic-check_circle"></use></svg>
                             </button>
                             <button type="button" class="chip chip--md chip--payment" data-payment="pix" aria-pressed="false">
-                                Pix<svg class="material-symbols-rounded chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
+                                Pix<svg class="icon chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
                             </button>
                         </div>
                         <p class="payment-methods__subgroup-label">Cartão</p>
                         <div id="container-payment-card" class="payment-methods">
                             <button type="button" class="chip chip--md chip--payment" data-card="debit" aria-pressed="false">
-                                Débito<svg class="material-symbols-rounded chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
+                                Débito<svg class="icon chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
                             </button>
                             <button type="button" class="chip chip--md chip--payment" data-card="1" aria-pressed="false">
-                                Crédito à vista<svg class="material-symbols-rounded chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
+                                Crédito à vista<svg class="icon chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
                             </button>
                             <button type="button" class="chip chip--md chip--payment" data-card="6" aria-pressed="false">
-                                Crédito até 6x<svg class="material-symbols-rounded chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
+                                Crédito até 6x<svg class="icon chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
                             </button>
                             <button type="button" class="chip chip--md chip--payment" data-card="12" aria-pressed="false">
-                                Crédito até 12x<svg class="material-symbols-rounded chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
+                                Crédito até 12x<svg class="icon chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
                             </button>
                         </div>
                     </div>
@@ -607,7 +605,7 @@
                     <div class="form-group">
                         <div id="container-payment-nf" class="payment-methods">
                             <button type="button" class="chip chip--md chip--payment" data-payment="nf" aria-pressed="false">
-                                Emito nota fiscal<svg class="material-symbols-rounded chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
+                                Emito nota fiscal<svg class="icon chip__check" aria-hidden="true"><use href="#ic-radio_button_unchecked"></use></svg>
                             </button>
                         </div>
                     </div>
@@ -620,7 +618,7 @@
                          dados profissionais preenchidos. -->
                     <div class="form-group">
                         <button type="button" id="chk-profile-public" class="card card--shadow profile-public-check" aria-pressed="false">
-                            <span class="profile-public-check__box check-box"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-check"></use></svg></span>
+                            <span class="profile-public-check__box check-box"><svg class="icon" aria-hidden="true"><use href="#ic-check"></use></svg></span>
                             <span class="profile-public-check__text">Tornar meu perfil público para buscas e indicações na minha região</span>
                         </button>
                     </div>
@@ -641,12 +639,12 @@
             <div class="form-group form-group--ic-fill">
                 <div class="card card--shadow ic-card">
                     <button type="button" id="btn-ic-info" class="ic-card__info-btn" aria-label="Mais informações sobre o Índice de Confiança">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-help-o"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-help-o"></use></svg>
                     </button>
 
                     <!-- Cabeçalho no padrão das seções: ícone verde + rótulo -->
                     <div class="ic-card__head">
-                        <svg class="material-symbols-rounded ic-card__head-icon" aria-hidden="true"><use href="#ic-verified_user"></use></svg>
+                        <svg class="icon ic-card__head-icon" aria-hidden="true"><use href="#ic-verified_user"></use></svg>
                         <span class="ic-card__eyebrow">Sua reputação na plataforma</span>
                     </div>
 
@@ -678,19 +676,19 @@
                     <div class="ic-meter">
                         <div class="ic-meter__zones">
                             <div class="ic-zone ic-zone--bad">
-                                <svg class="material-symbols-rounded ic-zone__shield" aria-hidden="true"><use href="#ic-gpp_bad"></use></svg>
+                                <svg class="icon ic-zone__shield" aria-hidden="true"><use href="#ic-gpp_bad"></use></svg>
                                 <span class="ic-zone__range">0–24</span>
                             </div>
                             <div class="ic-zone ic-zone--alert">
-                                <svg class="material-symbols-rounded ic-zone__shield" aria-hidden="true"><use href="#ic-gpp_maybe"></use></svg>
+                                <svg class="icon ic-zone__shield" aria-hidden="true"><use href="#ic-gpp_maybe"></use></svg>
                                 <span class="ic-zone__range">25–49</span>
                             </div>
                             <div class="ic-zone ic-zone--warn ic-zone--current">
-                                <svg class="material-symbols-rounded ic-zone__shield" aria-hidden="true"><use href="#ic-shield_question"></use></svg>
+                                <svg class="icon ic-zone__shield" aria-hidden="true"><use href="#ic-shield_question"></use></svg>
                                 <span class="ic-zone__range">50–74</span>
                             </div>
                             <div class="ic-zone ic-zone--ok">
-                                <svg class="material-symbols-rounded ic-zone__shield" aria-hidden="true"><use href="#ic-gpp_good"></use></svg>
+                                <svg class="icon ic-zone__shield" aria-hidden="true"><use href="#ic-gpp_good"></use></svg>
                                 <span class="ic-zone__range">75–100</span>
                             </div>
                         </div>
@@ -736,14 +734,14 @@
          ===================================================================== -->
     <section id="view-install" class="screen">
         <div class="auth-section">
-            <svg id="icon-install-hero" class="material-symbols-rounded auth-section__icon-hero" aria-hidden="true"><use href="#ic-install_mobile"></use></svg>
+            <svg id="icon-install-hero" class="icon auth-section__icon-hero" aria-hidden="true"><use href="#ic-install_mobile"></use></svg>
             <h1 id="text-install-title" class="auth-section__title">Instale o app na<br>sua tela inicial</h1>
             <p id="text-install-sub" class="auth-section__text">Tenha o Gente Honesta sempre à mão: abre mais rápido, em tela cheia e com a cara de aplicativo de verdade.</p>
 
             <!-- Bloco ANDROID/Chrome: instalação em 1 toque via beforeinstallprompt -->
             <div id="install-block-android" class="install-guide u-hidden">
                 <button type="button" id="btn-install-app" class="btn btn--primary btn--large">
-                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add_to_home_screen"></use></svg>
+                    <svg class="icon" aria-hidden="true"><use href="#ic-add_to_home_screen"></use></svg>
                     Instalar agora
                 </button>
             </div>
@@ -752,15 +750,15 @@
             <div id="install-block-ios" class="install-guide u-hidden">
                 <ol class="install-guide__steps">
                     <li class="card card--soft install-guide__step">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-ios_share"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-ios_share"></use></svg>
                         <span>Toque em <strong>Compartilhar</strong> na barra do Safari</span>
                     </li>
                     <li class="card card--soft install-guide__step">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add_box"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-add_box"></use></svg>
                         <span>Escolha <strong>Adicionar à Tela de Início</strong></span>
                     </li>
                     <li class="card card--soft install-guide__step">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-check_circle"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-check_circle"></use></svg>
                         <span>Confirme tocando em <strong>Adicionar</strong></span>
                     </li>
                 </ol>
@@ -770,11 +768,11 @@
             <div id="install-block-generic" class="install-guide u-hidden">
                 <ol class="install-guide__steps">
                     <li class="card card--soft install-guide__step">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-more_vert"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-more_vert"></use></svg>
                         <span>Abra o <strong>menu do navegador</strong></span>
                     </li>
                     <li class="card card--soft install-guide__step">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add_to_home_screen"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-add_to_home_screen"></use></svg>
                         <span>Toque em <strong>Adicionar à tela inicial</strong> ou <strong>Instalar app</strong></span>
                     </li>
                 </ol>
@@ -786,7 +784,7 @@
                  discreto. Neste estágio o acesso ao feed por esta tela é removido. -->
             <div id="install-block-progress" class="install-guide u-hidden">
                 <p class="card card--soft install-progress__note">
-                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-info"></use></svg>
+                    <svg class="icon" aria-hidden="true"><use href="#ic-info"></use></svg>
                     <span>Se o navegador pedir, confirme a instalação. Você pode <strong>fechar esta aba</strong> quando quiser — o app continuará sendo instalado normalmente.</span>
                 </p>
                 <button type="button" id="btn-retry-install" class="btn btn--text install-retry">Algo deu errado? Tentar instalar novamente</button>
@@ -824,7 +822,7 @@
                      antes do botão de fechar. -->
                 <div id="indicate-bar" class="indicate-overlay__bar">
                     <button type="button" id="btn-indicate-close" class="btn btn--icon indicate-overlay__close" aria-label="Fechar indicação">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-close"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>
                     </button>
                 </div>
                 <!-- Wrapper de scroll (as sombras de corte vivem AQUI, sobrevivem ao
@@ -840,7 +838,7 @@
                 <div class="indicated-popup__header">
                     <p class="indicated-popup__title" id="indicated-popup-title">Profissionais indicados</p>
                     <button type="button" id="btn-close-indicated-popup" class="btn btn--close agenda-indicated__cancel" aria-label="Fechar">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-close"></use></svg>Fechar
+                        <svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>Fechar
                     </button>
                 </div>
                 <div class="indicated-popup__scroll">
@@ -896,17 +894,17 @@
                             <p class="agenda-filters__group-label eyebrow">Confiança</p>
                             <div class="agenda-filters__chips">
                                 <button type="button" class="chip chip--saved" data-filter-saved aria-pressed="false">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-bookmark"></use></svg>
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-bookmark"></use></svg>
                                     Apenas salvos
                                 </button>
                                 <button type="button" class="chip chip--ic chip--ic-ok"    data-filter-ic="ok"    aria-pressed="false" aria-label="Confiança alta">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-gpp_good"></use></svg>
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-gpp_good"></use></svg>
                                 </button>
                                 <button type="button" class="chip chip--ic chip--ic-warn"  data-filter-ic="warn"  aria-pressed="false" aria-label="Confiança média">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-shield_question"></use></svg>
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-shield_question"></use></svg>
                                 </button>
                                 <button type="button" class="chip chip--ic chip--ic-alert" data-filter-ic="alert" aria-pressed="false" aria-label="Confiança baixa">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-gpp_maybe"></use></svg>
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-gpp_maybe"></use></svg>
                                 </button>
                             </div>
                         </div>
@@ -934,7 +932,7 @@
 
                         <!-- Adicionar contatos -->
                         <button type="button" id="btn-sync-contacts" class="btn btn--accent agenda-filters__add-contacts-btn">
-                            <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-sync"></use></svg>
+                            <svg class="icon" aria-hidden="true"><use href="#ic-sync"></use></svg>
                             Sincronizar Contatos
                         </button>
 
@@ -965,10 +963,10 @@
                             <span class="pedido-field__label eyebrow">Urgência</span>
                             <div class="pedido-chip-row" id="pedido-urgency">
                                 <button type="button" class="pedido-chip pedido-chip--active" data-urgency="normal" aria-pressed="true">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-schedule"></use></svg>Normal
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-schedule"></use></svg>Normal
                                 </button>
                                 <button type="button" class="pedido-chip" data-urgency="urgent" aria-pressed="false">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-bolt"></use></svg>Urgente
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-bolt"></use></svg>Urgente
                                 </button>
                             </div>
                         </div>
@@ -985,7 +983,7 @@
 
                         <button type="button" class="pedido-toggle" id="pedido-neighbors" aria-pressed="false">
                             <span class="pedido-toggle__info">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-travel_explore"></use></svg>
+                                <svg class="icon" aria-hidden="true"><use href="#ic-travel_explore"></use></svg>
                                 <span class="pedido-toggle__text">
                                     <span class="pedido-toggle__title">Buscar em cidades vizinhas</span>
                                     <span class="pedido-toggle__sub">Amplia o alcance do seu pedido</span>
@@ -1001,7 +999,7 @@
                         <div id="pedido-detail-card-container"></div>
                         <div class="pedido-detail-indicated">
                             <p class="pedido-detail-indicated__header eyebrow">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-groups"></use></svg>
+                                <svg class="icon" aria-hidden="true"><use href="#ic-groups"></use></svg>
                                 Indicações recebidas
                                 <span class="pedido-detail-indicated__fraction" id="pedido-detail-fraction">0/3</span>
                             </p>
@@ -1013,7 +1011,7 @@
                              ao ver o pedido ativo); este bloco fica oculto para não duplicar. -->
                         <div class="pedido-sheet__actions u-hidden" id="pedido-detail-actions">
                             <button type="button" id="btn-pedido-concluir" class="btn btn--accent">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-check_circle"></use></svg>
+                                <svg class="icon" aria-hidden="true"><use href="#ic-check_circle"></use></svg>
                                 Concluir pedido
                             </button>
                         </div>
@@ -1055,11 +1053,11 @@
                             <span class="pedido-field__label eyebrow">Número de vagas</span>
                             <div class="vaga-stepper" id="vaga-count">
                                 <button type="button" class="vaga-stepper__btn" id="vaga-count-dec" aria-label="Diminuir número de vagas">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-remove"></use></svg>
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-remove"></use></svg>
                                 </button>
                                 <span class="vaga-stepper__value" id="vaga-count-value" aria-live="polite">1</span>
                                 <button type="button" class="vaga-stepper__btn" id="vaga-count-inc" aria-label="Aumentar número de vagas">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add"></use></svg>
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>
                                 </button>
                             </div>
                         </div>
@@ -1068,7 +1066,7 @@
                             <span class="pedido-field__label eyebrow">Requisitos</span>
                             <div class="vaga-dyn-list" id="vaga-req-list"></div>
                             <button type="button" class="vaga-add-btn" id="btn-add-req">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add"></use></svg>Adicionar requisito
+                                <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>Adicionar requisito
                             </button>
                         </div>
 
@@ -1078,17 +1076,17 @@
                                 <div class="vaga-time">
                                     <span class="vaga-time__label">Início</span>
                                     <div class="vaga-stepper vaga-stepper--time" id="stepper-hora-inicio" role="group" aria-label="Horário de início">
-                                        <button type="button" class="vaga-stepper__btn" data-step="-1" aria-label="Meia hora antes"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-remove"></use></svg></button>
+                                        <button type="button" class="vaga-stepper__btn" data-step="-1" aria-label="Meia hora antes"><svg class="icon" aria-hidden="true"><use href="#ic-remove"></use></svg></button>
                                         <span class="vaga-stepper__value" id="vaga-hora-inicio-value" aria-live="polite">08:00</span>
-                                        <button type="button" class="vaga-stepper__btn" data-step="1" aria-label="Meia hora depois"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add"></use></svg></button>
+                                        <button type="button" class="vaga-stepper__btn" data-step="1" aria-label="Meia hora depois"><svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg></button>
                                     </div>
                                 </div>
                                 <div class="vaga-time">
                                     <span class="vaga-time__label">Fim</span>
                                     <div class="vaga-stepper vaga-stepper--time" id="stepper-hora-fim" role="group" aria-label="Horário de término">
-                                        <button type="button" class="vaga-stepper__btn" data-step="-1" aria-label="Meia hora antes"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-remove"></use></svg></button>
+                                        <button type="button" class="vaga-stepper__btn" data-step="-1" aria-label="Meia hora antes"><svg class="icon" aria-hidden="true"><use href="#ic-remove"></use></svg></button>
                                         <span class="vaga-stepper__value" id="vaga-hora-fim-value" aria-live="polite">18:00</span>
-                                        <button type="button" class="vaga-stepper__btn" data-step="1" aria-label="Meia hora depois"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add"></use></svg></button>
+                                        <button type="button" class="vaga-stepper__btn" data-step="1" aria-label="Meia hora depois"><svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg></button>
                                     </div>
                                 </div>
                             </div>
@@ -1116,45 +1114,45 @@
                             <span class="pedido-field__label eyebrow">Benefícios <span class="vaga-field__optional">(opcional)</span></span>
                             <div class="vaga-benefit-pills" id="vaga-benefit-pills">
                                 <button type="button" class="vaga-benefit-pill" data-label="Alimentação" data-icon="lunch_dining" aria-pressed="false">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-lunch_dining"></use></svg>Alimentação
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-lunch_dining"></use></svg>Alimentação
                                 </button>
                                 <button type="button" class="vaga-benefit-pill" data-label="Vale alimentação" data-icon="restaurant" aria-pressed="false">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-restaurant"></use></svg>Vale alimentação
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-restaurant"></use></svg>Vale alimentação
                                 </button>
                                 <button type="button" class="vaga-benefit-pill" data-label="Transporte" data-icon="directions_bus" aria-pressed="false">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-directions_bus"></use></svg>Transporte
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-directions_bus"></use></svg>Transporte
                                 </button>
                                 <button type="button" class="vaga-benefit-pill" data-label="Vale transporte" data-icon="commute" aria-pressed="false">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-commute"></use></svg>Vale transporte
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-commute"></use></svg>Vale transporte
                                 </button>
                                 <button type="button" class="vaga-benefit-pill" data-label="Plano de saúde" data-icon="health_and_safety" aria-pressed="false">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-health_and_safety"></use></svg>Plano de saúde
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-health_and_safety"></use></svg>Plano de saúde
                                 </button>
                                 <button type="button" class="vaga-benefit-pill" data-label="Moradia" data-icon="home" aria-pressed="false">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-home"></use></svg>Moradia
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-home"></use></svg>Moradia
                                 </button>
                                 <button type="button" class="vaga-benefit-pill" data-label="Comissão" data-icon="paid" aria-pressed="false">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-paid"></use></svg>Comissão
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-paid"></use></svg>Comissão
                                 </button>
                                 <button type="button" class="vaga-benefit-pill" id="vaga-benefit-outros" data-label="Outros" data-icon="more_horiz" aria-pressed="false">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-more_horiz"></use></svg>Outros
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-more_horiz"></use></svg>Outros
                                 </button>
                             </div>
                             <div class="vaga-dyn-list u-hidden" id="vaga-benefit-list"></div>
                             <button type="button" class="vaga-add-btn u-hidden" id="btn-add-benefit">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add"></use></svg>Adicionar outro benefício
+                                <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>Adicionar outro benefício
                             </button>
                         </div>
 
                         <div class="pedido-field">
                             <button type="button" class="vaga-check" id="chk-vaga-curriculo" aria-pressed="false">
                                 <span class="vaga-check__box check-box" aria-hidden="true">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-check"></use></svg>
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-check"></use></svg>
                                 </span>
                                 <span class="vaga-check__text">Exigir currículo em PDF ou foto <span class="vaga-field__optional">(opcional)</span></span>
                             </button>
                             <span class="pedido-field__hint pedido-field__hint--left vaga-warn">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-warning"></use></svg>
+                                <svg class="icon" aria-hidden="true"><use href="#ic-warning"></use></svg>
                                 Pedir um currículo individual extra pode fazer você perder candidatos.
                             </span>
                         </div>
@@ -1208,12 +1206,12 @@
                     <!-- Função 1: disponibilizar-se como ajudante (sempre visível, em cima) -->
                     <section class="ajudante-section">
                         <h3 class="ajudante-section__title">
-                            <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-how_to_reg"></use></svg>Disponibilizar-me como ajudante
+                            <svg class="icon" aria-hidden="true"><use href="#ic-how_to_reg"></use></svg>Disponibilizar-me como ajudante
                         </h3>
                         <p class="ajudante-intro">Ative para aparecer quando alguém chamar um ajudante. Você pode desativar quando quiser.</p>
 
                         <button type="button" class="helper-toggle" data-avail="light" aria-pressed="false">
-                            <svg class="material-symbols-rounded helper-toggle__check" aria-hidden="true"><use href="#ic-check_box_outline_blank"></use></svg>
+                            <svg class="icon helper-toggle__check" aria-hidden="true"><use href="#ic-check_box_outline_blank"></use></svg>
                             <span class="helper-toggle__info">
                                 <span class="helper-toggle__name">Serviço leve</span>
                                 <span class="helper-toggle__desc">Tarefas simples, sem esforço físico intenso.</span>
@@ -1222,7 +1220,7 @@
                         </button>
 
                         <button type="button" class="helper-toggle" data-avail="heavy" aria-pressed="false">
-                            <svg class="material-symbols-rounded helper-toggle__check" aria-hidden="true"><use href="#ic-check_box_outline_blank"></use></svg>
+                            <svg class="icon helper-toggle__check" aria-hidden="true"><use href="#ic-check_box_outline_blank"></use></svg>
                             <span class="helper-toggle__info">
                                 <span class="helper-toggle__name">Serviço pesado</span>
                                 <span class="helper-toggle__desc">Carga, mudança e trabalho braçal.</span>
@@ -1237,11 +1235,11 @@
                     <section class="ajudante-section">
                         <div class="ajudante-section__head">
                             <h3 class="ajudante-section__title">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-campaign"></use></svg>Chamar um ajudante
+                                <svg class="icon" aria-hidden="true"><use href="#ic-campaign"></use></svg>Chamar um ajudante
                             </h3>
                             <!-- Cancelar: à direita do título, visível só quando há contatos -->
                             <button type="button" id="btn-cancel-helper" class="ajudante-cancel-btn u-hidden">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-close"></use></svg>Cancelar
+                                <svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>Cancelar
                             </button>
                         </div>
 
@@ -1256,14 +1254,14 @@
                                 <button type="button" class="seg-toggle__opt" data-type="heavy" aria-pressed="false">Serviço pesado</button>
                             </div>
                             <button type="button" id="btn-call-helper" class="btn btn--accent ajudante-call-btn">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-diversity_3"></use></svg>Chamar ajudante
+                                <svg class="icon" aria-hidden="true"><use href="#ic-diversity_3"></use></svg>Chamar ajudante
                             </button>
                         </div>
 
                         <!-- Resultado: 2 ajudantes expostos até a meia-noite -->
                         <div id="helper-result" class="u-hidden">
                             <p class="ajudante-note">
-                                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-schedule"></use></svg>
+                                <svg class="icon" aria-hidden="true"><use href="#ic-schedule"></use></svg>
                                 <span>Seus ajudantes de hoje ficam disponíveis até a meia-noite. Depois disso você poderá chamar novamente.</span>
                             </p>
                             <div id="helper-list" class="helper-list"><!-- cards via JS --></div>
@@ -1304,8 +1302,8 @@
                                     <span class="contract-card__status-dot"></span>Ativo
                                 </span>
                                 <div class="contract-card__dates">
-                                    <span class="contract-card__date"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-event_available"></use></svg>Início 05/07/2026</span>
-                                    <span class="contract-card__date"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-event_busy"></use></svg>Fim 20/07/2026</span>
+                                    <span class="contract-card__date"><svg class="icon" aria-hidden="true"><use href="#ic-event_available"></use></svg>Início 05/07/2026</span>
+                                    <span class="contract-card__date"><svg class="icon" aria-hidden="true"><use href="#ic-event_busy"></use></svg>Fim 20/07/2026</span>
                                 </div>
                             </div>
                         </div>
@@ -1314,7 +1312,7 @@
                             <p class="contract-card__desc">Montagem completa de guarda-roupa, cômoda e cabeceira no quarto principal. Inclui fixação na parede e alinhamento das portas.</p>
                             <div class="contract-card__value-box">
                                 <span class="contract-card__value">R$ 320</span>
-                                <span class="contract-card__payment"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-qr_code_2"></use></svg>Pix</span>
+                                <span class="contract-card__payment"><svg class="icon" aria-hidden="true"><use href="#ic-qr_code_2"></use></svg>Pix</span>
                             </div>
                         </div>
                     </article>
@@ -1333,8 +1331,8 @@
                                     <span class="contract-card__status-dot"></span>Ativo
                                 </span>
                                 <div class="contract-card__dates">
-                                    <span class="contract-card__date"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-event_available"></use></svg>Início 10/07/2026</span>
-                                    <span class="contract-card__date"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-event_busy"></use></svg>Fim 12/07/2026</span>
+                                    <span class="contract-card__date"><svg class="icon" aria-hidden="true"><use href="#ic-event_available"></use></svg>Início 10/07/2026</span>
+                                    <span class="contract-card__date"><svg class="icon" aria-hidden="true"><use href="#ic-event_busy"></use></svg>Fim 12/07/2026</span>
                                 </div>
                             </div>
                         </div>
@@ -1343,7 +1341,7 @@
                             <p class="contract-card__desc">Pintura da sala de estar e corredor, duas demãos em tom off-white. Material por conta do contratante.</p>
                             <div class="contract-card__value-box">
                                 <span class="contract-card__value">R$ 850</span>
-                                <span class="contract-card__payment"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-attach_money"></use></svg>Dinheiro</span>
+                                <span class="contract-card__payment"><svg class="icon" aria-hidden="true"><use href="#ic-attach_money"></use></svg>Dinheiro</span>
                             </div>
                         </div>
                     </article>
@@ -1359,11 +1357,11 @@
                             </div>
                             <div class="contract-card__meta">
                                 <span class="contract-card__status contract-card__status--done">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-check_circle"></use></svg>Concluído
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-check_circle"></use></svg>Concluído
                                 </span>
                                 <div class="contract-card__dates">
-                                    <span class="contract-card__date"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-event_available"></use></svg>Início 18/06/2026</span>
-                                    <span class="contract-card__date"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-event_busy"></use></svg>Fim 25/06/2026</span>
+                                    <span class="contract-card__date"><svg class="icon" aria-hidden="true"><use href="#ic-event_available"></use></svg>Início 18/06/2026</span>
+                                    <span class="contract-card__date"><svg class="icon" aria-hidden="true"><use href="#ic-event_busy"></use></svg>Fim 25/06/2026</span>
                                 </div>
                             </div>
                         </div>
@@ -1372,7 +1370,7 @@
                             <p class="contract-card__desc">Revisão do quadro de luz e troca de tomadas antigas por modelos novos em todo o apartamento.</p>
                             <div class="contract-card__value-box">
                                 <span class="contract-card__value">R$ 1.200</span>
-                                <span class="contract-card__payment"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-credit_card"></use></svg>Cartão</span>
+                                <span class="contract-card__payment"><svg class="icon" aria-hidden="true"><use href="#ic-credit_card"></use></svg>Cartão</span>
                             </div>
                         </div>
                     </article>
@@ -1388,11 +1386,11 @@
                             </div>
                             <div class="contract-card__meta">
                                 <span class="contract-card__status contract-card__status--cancelled">
-                                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-cancel"></use></svg>Cancelado
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-cancel"></use></svg>Cancelado
                                 </span>
                                 <div class="contract-card__dates">
-                                    <span class="contract-card__date"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-event_available"></use></svg>Início 01/07/2026</span>
-                                    <span class="contract-card__date"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-event_busy"></use></svg>Fim —</span>
+                                    <span class="contract-card__date"><svg class="icon" aria-hidden="true"><use href="#ic-event_available"></use></svg>Início 01/07/2026</span>
+                                    <span class="contract-card__date"><svg class="icon" aria-hidden="true"><use href="#ic-event_busy"></use></svg>Fim —</span>
                                 </div>
                             </div>
                         </div>
@@ -1401,7 +1399,7 @@
                             <p class="contract-card__desc">Limpeza semanal de apartamento de dois quartos. Cancelado por indisponibilidade de agenda.</p>
                             <div class="contract-card__value-box">
                                 <span class="contract-card__value">R$ 180</span>
-                                <span class="contract-card__payment"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-qr_code_2"></use></svg>Pix</span>
+                                <span class="contract-card__payment"><svg class="icon" aria-hidden="true"><use href="#ic-qr_code_2"></use></svg>Pix</span>
                             </div>
                         </div>
                     </article>
@@ -1413,11 +1411,11 @@
                      + botão só-ícone que revela a gaveta de contratos pendentes. -->
                 <div class="contracts-footer">
                     <button type="button" id="btn-new-contract" class="btn btn--accent contracts-create__btn">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>
                         Criar minicontrato
                     </button>
                     <button type="button" id="btn-toggle-pending" class="btn btn--icon contracts-pending-toggle" aria-label="Contratos pendentes" aria-expanded="false" aria-controls="contracts-pending">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-pending_actions"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-pending_actions"></use></svg>
                     </button>
                 </div>
 
@@ -1434,8 +1432,8 @@
                                 <span class="contract-mini__summary">Montagem de móveis · R$ 320</span>
                             </button>
                             <div class="contract-mini__actions">
-                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Editar"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-edit"></use></svg></button>
-                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Compartilhar"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-share"></use></svg></button>
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Editar"><svg class="icon" aria-hidden="true"><use href="#ic-edit"></use></svg></button>
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Compartilhar"><svg class="icon" aria-hidden="true"><use href="#ic-share"></use></svg></button>
                             </div>
                         </div>
 
@@ -1444,8 +1442,8 @@
                                 <span class="contract-mini__summary">Pintura de sala · R$ 850</span>
                             </button>
                             <div class="contract-mini__actions">
-                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Editar"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-edit"></use></svg></button>
-                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Compartilhar"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-share"></use></svg></button>
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Editar"><svg class="icon" aria-hidden="true"><use href="#ic-edit"></use></svg></button>
+                                <button type="button" class="btn btn--icon contract-mini__btn" aria-label="Compartilhar"><svg class="icon" aria-hidden="true"><use href="#ic-share"></use></svg></button>
                             </div>
                         </div>
                     </div>
@@ -1516,7 +1514,7 @@
                 <!-- Vagas (esquerda) -->
                 <div class="agenda-filters__vagas-row" id="bar-vagas-state">
                     <button type="button" id="btn-criar-vaga" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--criar">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>
                         Criar vaga
                     </button>
                     <button type="button" id="btn-chamar-ajudante" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--ajudante">
@@ -1535,7 +1533,7 @@
 
                     <div class="agenda-filters__search-wrap">
                         <!-- Lupa/limpar: vira X clicável quando há texto (limpa o campo) -->
-                        <button type="button" id="btn-search-clear" class="agenda-filters__search-icon" aria-label="Limpar busca" tabindex="-1"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-search"></use></svg></button>
+                        <button type="button" id="btn-search-clear" class="agenda-filters__search-icon" aria-label="Limpar busca" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#ic-search"></use></svg></button>
                         <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar no Gente Honesta...">
                         <!-- Botão de filtro: pílula branca DENTRO da busca, à direita.
                              Estados (syncFilterPillIcon): repouso = tune → abre a gaveta;
@@ -1543,26 +1541,26 @@
                              gaveta FECHADA = filter_alt + contagem + X (tint azul) e tocar
                              LIMPA todos os filtros (volta ao tune). -->
                         <button type="button" id="btn-toggle-filters" class="agenda-filters__filter-pill" aria-label="Filtrar" aria-expanded="false">
-                            <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-tune"></use></svg>
+                            <svg class="icon" aria-hidden="true"><use href="#ic-tune"></use></svg>
                             <span id="filter-count" class="agenda-filters__filter-count u-hidden">0</span>
-                            <svg class="material-symbols-rounded agenda-filters__filter-clear-x u-hidden" aria-hidden="true"><use href="#ic-close"></use></svg>
+                            <svg class="icon agenda-filters__filter-clear-x u-hidden" aria-hidden="true"><use href="#ic-close"></use></svg>
                         </button>
                     </div>
 
                     <!-- Antigo botão de filtros → agora abre CONTRATOS. Notificação =
                          fundo piscando branco↔azul (classe --notify), removida ao abrir. -->
                     <button type="button" id="btn-open-contracts" class="btn btn--icon agenda-filters__icon-btn agenda-filters__icon-btn--notify" aria-label="Contratos">
-                        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-contract"></use></svg>
+                        <svg class="icon" aria-hidden="true"><use href="#ic-contract"></use></svg>
                     </button>
                 </div>
                 <!-- Pedidos (direita) -->
                 <div class="agenda-filters__pedidos-row" id="bar-pedidos-state">
                     <button type="button" id="btn-historico-pedidos" class="btn btn--white pedido-action__btn">
-                        <svg class="material-symbols-rounded pedido-action__icon" aria-hidden="true"><use href="#ic-history"></use></svg>
+                        <svg class="icon pedido-action__icon" aria-hidden="true"><use href="#ic-history"></use></svg>
                         <span data-btn-label>Histórico</span>
                     </button>
                     <button type="button" id="btn-my-pedido" class="btn btn--accent pedido-action__btn">
-                        <svg class="material-symbols-rounded pedido-action__icon" aria-hidden="true"><use href="#ic-add"></use></svg>
+                        <svg class="icon pedido-action__icon" aria-hidden="true"><use href="#ic-add"></use></svg>
                         <span id="btn-my-pedido-label">Fazer pedido</span>
                     </button>
                 </div>
@@ -1602,10 +1600,10 @@
                                     <img class="pedido-item__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
                                     <span class="pedido-item__name">João Silva</span>
                                 </div>
-                                <p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-bolt"></use></svg>Urgente</span>Preciso de um eletricista de confiança para instalação de tomadas e revisão do quadro de luz. Apartamento no centro.</p>
+                                <p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><svg class="icon" aria-hidden="true"><use href="#ic-bolt"></use></svg>Urgente</span>Preciso de um eletricista de confiança para instalação de tomadas e revisão do quadro de luz. Apartamento no centro.</p>
                                 <div class="pedido-item__actions">
-                                    <div class="pedido-item__morph"><button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-0" data-post-id="0"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar alguém</button></div>
-                                    <button type="button" class="post-card__indicate-info" aria-label="2 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">2/3</span><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-groups"></use></svg></button>
+                                    <div class="pedido-item__morph"><button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-0" data-post-id="0"><svg class="icon" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar alguém</button></div>
+                                    <button type="button" class="post-card__indicate-info" aria-label="2 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">2/3</span><svg class="icon" aria-hidden="true"><use href="#ic-groups"></use></svg></button>
                                 </div>
                             </article>
 
@@ -1617,8 +1615,8 @@
                                 </div>
                                 <p class="pedido-item__text">Alguém conhece uma diarista de confiança para limpeza semanal? Zona Sul. Boa remuneração garantida.</p>
                                 <div class="pedido-item__actions">
-                                    <div class="pedido-item__morph"><button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-1" data-post-id="1"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar alguém</button></div>
-                                    <button type="button" class="post-card__indicate-info" aria-label="2 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">2/3</span><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-groups"></use></svg></button>
+                                    <div class="pedido-item__morph"><button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-1" data-post-id="1"><svg class="icon" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar alguém</button></div>
+                                    <button type="button" class="post-card__indicate-info" aria-label="2 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">2/3</span><svg class="icon" aria-hidden="true"><use href="#ic-groups"></use></svg></button>
                                 </div>
                             </article>
 
@@ -1628,10 +1626,10 @@
                                     <img class="pedido-item__avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="">
                                     <span class="pedido-item__name">Ana Paula Costa</span>
                                 </div>
-                                <p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-bolt"></use></svg>Urgente</span>Vazamento embaixo da pia da cozinha alagando o armário. Preciso de um encanador ainda hoje, se possível. Bairro Jardins.</p>
+                                <p class="pedido-item__text"><span class="pedido-item__urgent-badge" aria-label="Urgente"><svg class="icon" aria-hidden="true"><use href="#ic-bolt"></use></svg>Urgente</span>Vazamento embaixo da pia da cozinha alagando o armário. Preciso de um encanador ainda hoje, se possível. Bairro Jardins.</p>
                                 <div class="pedido-item__actions">
-                                    <div class="pedido-item__morph"><button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-2" data-post-id="2"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar alguém</button></div>
-                                    <button type="button" class="post-card__indicate-info" aria-label="2 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">2/3</span><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-groups"></use></svg></button>
+                                    <div class="pedido-item__morph"><button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-2" data-post-id="2"><svg class="icon" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar alguém</button></div>
+                                    <button type="button" class="post-card__indicate-info" aria-label="2 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">2/3</span><svg class="icon" aria-hidden="true"><use href="#ic-groups"></use></svg></button>
                                 </div>
                             </article>
 
@@ -1643,8 +1641,8 @@
                                 </div>
                                 <p class="pedido-item__text">Quero reformar o banheiro (troca de piso e azulejo). Procuro um pedreiro caprichoso para orçar sem pressa. Zona Norte.</p>
                                 <div class="pedido-item__actions">
-                                    <div class="pedido-item__morph"><button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-3" data-post-id="3"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar alguém</button></div>
-                                    <button type="button" class="post-card__indicate-info" aria-label="1 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">1/3</span><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-groups"></use></svg></button>
+                                    <div class="pedido-item__morph"><button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-3" data-post-id="3"><svg class="icon" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar alguém</button></div>
+                                    <button type="button" class="post-card__indicate-info" aria-label="1 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">1/3</span><svg class="icon" aria-hidden="true"><use href="#ic-groups"></use></svg></button>
                                 </div>
                             </article>
 
@@ -1656,8 +1654,8 @@
                                 </div>
                                 <p class="pedido-item__text">Alguém indica um jardineiro de confiança para manutenção mensal do quintal? Poda, corte de grama e limpeza. Condomínio na Zona Oeste.</p>
                                 <div class="pedido-item__actions">
-                                    <div class="pedido-item__morph"><button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-4" data-post-id="4"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar alguém</button></div>
-                                    <button type="button" class="post-card__indicate-info" aria-label="3 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">3/3</span><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-groups"></use></svg></button>
+                                    <div class="pedido-item__morph"><button type="button" class="btn btn--accent post-card__indicate-btn" id="btn-indicate-4" data-post-id="4"><svg class="icon" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar alguém</button></div>
+                                    <button type="button" class="post-card__indicate-info" aria-label="3 de 3 indicados, ver profissionais indicados"><span class="post-card__indicate-count">3/3</span><svg class="icon" aria-hidden="true"><use href="#ic-groups"></use></svg></button>
                                 </div>
                             </article>
 
@@ -1680,15 +1678,15 @@
                 <!-- Indicador deslizante — posicionado via JS (translateX) -->
                 <div class="feed-tabs-pill__slider" aria-hidden="true"></div>
                 <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="vagas" aria-label="Vagas" aria-selected="false">
-                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-work"></use></svg>
+                    <svg class="icon" aria-hidden="true"><use href="#ic-work"></use></svg>
                     <span class="feed-tabs-pill__tab-label">Vagas</span>
                 </button>
                 <button type="button" class="feed-tabs-pill__tab feed-tabs-pill__tab--active" role="tab" data-tab="home" aria-label="Profissionais" aria-selected="true">
-                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-person_search"></use></svg>
+                    <svg class="icon" aria-hidden="true"><use href="#ic-person_search"></use></svg>
                     <span class="feed-tabs-pill__tab-label">Profissionais</span>
                 </button>
                 <button type="button" class="feed-tabs-pill__tab" role="tab" data-tab="pedidos" aria-label="Pedidos" aria-selected="false">
-                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-view_agenda"></use></svg>
+                    <svg class="icon" aria-hidden="true"><use href="#ic-view_agenda"></use></svg>
                     <span class="feed-tabs-pill__tab-label">Pedidos</span>
                 </button>
             </nav>

@@ -22,10 +22,13 @@ Repositório: jonathasptbr-gh/gente-honesta
 
 - Branch de produção: `main` (GitHub Actions → GitHub Pages → domínio customizado).
 - Para publicar: `git push origin HEAD:main`. CI: `.github/workflows/deploy.yml` (dispara no push
-  para `main`; **sem build step** — os arquivos são estáticos, o deploy publica o repo direto).
+  para `main`; **sem build step** — os arquivos são estáticos, o deploy publica o repo direto). O CI
+  roda UM guardrail antes de publicar: `node scripts/check-icons.mjs` (falha o deploy se algum ícone
+  referenciado não tiver símbolo no sprite). O `package.json` é só ferramenta de DEV (gerador/checker
+  de ícones) — não é build do site.
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v401**.
+  bump.) Versão atual: **v402**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**
@@ -86,11 +89,16 @@ manifest.json       — PWA manifest (start_url/scope "./"; background/theme_col
 service-worker.js   — Network-First, cache offline, CACHE_NAME = "gentehonesta-vN"
 CNAME               — "gentehonesta.com.br"
 .nojekyll           — impede o Jekyll do GitHub Pages de processar os arquivos
-.gitignore          — arquivos ignorados pelo git
+.gitignore          — arquivos ignorados pelo git (node_modules/ = só dev; site é estático)
+package.json        — ferramenta de DEV (não é build do site): `npm run icons:gen` / `icons:check`
 CONVENTIONS.md      — convenções portáveis (nomenclatura/estrutura/teoria); ver prosa acima
 AUDITORIA-DESIGN-v260.md — snapshot histórico de auditoria de design (v260); referência, não é código ativo
 icon*.svg / *.png   — arte do ícone/PWA (quadrado full-bleed p/ maskable; arredondado p/ "any";
                       transparente e "intro" p/ usos internos). Fundo verde --p-green
+fonts/              — Inter (woff2, subset latin+latin-ext) SELF-HOSTED — sem Google Fonts online;
+                      @font-face em css/base/fonts.css. Ícones = sprite SVG inline (NÃO é fonte).
+scripts/            — tooling de ícones: icon-usage.mjs (deriva a lista do uso), gen-icon-sprite.mjs
+                      (reescreve o sprite no index.html), check-icons.mjs (guardrail, roda no CI)
 
 css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; NÃO reordenar)
   base/base.css            — design tokens (:root), roteamento de telas, utilitários, animações

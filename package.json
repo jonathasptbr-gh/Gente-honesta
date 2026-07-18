@@ -1,0 +1,14 @@
+{
+  "name": "gente-honesta-tooling",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ferramentas de DEV do Gente Honesta. NÃO é build do site — o site é estático e o deploy publica os arquivos verbatim (ver CLAUDE.md). Aqui vivem só o gerador do sprite de ícones e o checker.",
+  "scripts": {
+    "icons:gen": "node scripts/gen-icon-sprite.mjs",
+    "icons:check": "node scripts/check-icons.mjs"
+  },
+  "devDependencies": {
+    "@material-symbols/svg-500": "^0.45.8",
+    "@iconify-json/ic": "^1.2.4"
+  }
+}

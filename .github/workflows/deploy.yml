@@ -23,6 +23,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Guardrail (NÃO é build — o site segue estático): falha o deploy se algum
+      # ícone referenciado no código não tiver <symbol> no sprite (renderizaria em
+      # branco). O checker só usa `fs`, então roda sem `npm install`.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verificar ícones do sprite
+        run: node scripts/check-icons.mjs
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3

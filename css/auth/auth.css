@@ -18,9 +18,9 @@
   animation: stepFadeIn 0.3s ease-out forwards;
 }
 
-/* Especificidade composta (0,2,0) para vencer o `.material-symbols-rounded { font-size:24px }`
+/* Especificidade composta (0,2,0) para vencer o `.icon { font-size:24px }`
    injetado pela folha do Google, independentemente da ordem de carregamento. */
-.material-symbols-rounded.auth-section__icon-hero {
+.icon.auth-section__icon-hero {
   font-size: clamp(7rem, 32vw, 11rem);
   display: block;
   margin-top: 2rem;
@@ -181,7 +181,7 @@
    TODOS os 3 slides compartilham (glifos e logo), garantindo que título e texto
    comecem no mesmo Y — sem isso, ícones de alturas diferentes desalinhavam o
    conteúdo ao deslizar entre os painéis. */
-.material-symbols-rounded.intro-carousel__icon {
+.icon.intro-carousel__icon {
   font-size: clamp(5.5rem, 26vw, 8.5rem);
   height: clamp(5.5rem, 26vw, 8.5rem);
   display: flex;

@@ -20,7 +20,7 @@
   text-align: left;
 }
 
-.install-progress__note .material-symbols-rounded {
+.install-progress__note .icon {
   flex-shrink: 0;
   font-size: 1.2rem;
   color: var(--info-blue);
@@ -73,7 +73,7 @@
   font-weight: var(--fw-heavy);
 }
 
-.install-guide__step .material-symbols-rounded {
+.install-guide__step .icon {
   flex-shrink: 0;
   font-size: 26px;
   color: var(--p-green);

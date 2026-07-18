@@ -26,7 +26,7 @@
   color: var(--p-green-dark);
 }
 
-.ajudante-section__title .material-symbols-rounded {
+.ajudante-section__title .icon {
   font-size: 1.4rem;
   color: var(--p-green);
   flex-shrink: 0;
@@ -209,7 +209,7 @@
   border-radius: var(--radius-md);
 }
 
-.ajudante-note .material-symbols-rounded {
+.ajudante-note .icon {
   font-size: 1.15rem;
   color: var(--p-green);
   flex-shrink: 0;
@@ -268,7 +268,7 @@
   transition: transform 0.15s ease;
 }
 
-.ajudante-cancel-btn .material-symbols-rounded {
+.ajudante-cancel-btn .icon {
   font-size: 1.05rem;
 }
 
@@ -287,7 +287,7 @@
   border-radius: var(--radius-md);
 }
 
-.ajudante-cooldown > .material-symbols-rounded {
+.ajudante-cooldown > .icon {
   font-size: 1.9rem;
   color: var(--p-green);
   flex-shrink: 0;
