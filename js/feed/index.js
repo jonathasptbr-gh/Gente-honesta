@@ -1,6 +1,6 @@
 "use strict";
 import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, getPublishSeedIndicated, addVaga, removeVaga } from './repository.js';
-import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, PRO_FLIP_SETTLE_MS, MAX_VAGAS, MAX_CANDIDATOS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
+import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, MAX_VAGAS, MAX_CANDIDATOS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
 import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './utils.js';
 import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './templates.js';
 import { pinnedPros, filterState, scrolledState, scrollToTopPending, pedidoHistory, myPedido, contractsFilter } from './state.js';
@@ -1078,7 +1078,6 @@ document.addEventListener('DOMContentLoaded', () => {
         containerEl.querySelectorAll('.pro-card--flipped').forEach(el => { if (el !== card) proCardFlipToFront(el); });
         if (isFlipped) return proCardFlipToFront(card).promise;
         const tl = proCardFlipToBack(card);
-        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
         return tl.promise;
       }, accelerateActiveFlips);
     });
@@ -1265,7 +1264,6 @@ document.addEventListener('DOMContentLoaded', () => {
         card.classList.add('pro-card--selected');
         selectedProId = card.id;
         const tl = proCardFlipToBack(card);
-        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
         return tl.promise;
       }, accelerateActiveFlips);
     } else {
@@ -1277,7 +1275,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if (isFlipped) return proCardFlipToFront(card).promise;
         const tl = proCardFlipToBack(card);
-        setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
         return tl.promise;
       }, accelerateActiveFlips);
     }
@@ -1745,9 +1742,10 @@ document.addEventListener('DOMContentLoaded', () => {
       tl.timers.add(rec);
       return rec;
     };
+    tl._scroll = null;   // controller do scroll de ajuste (última fase do ABRIR)
     tl.finish = () => { tl.done = true; tl.timers.clear(); activeFlipTLs.delete(tl); if (card.__flipTL === tl) card.__flipTL = null; tl._resolve && tl._resolve(); };
-    tl.cancel = () => { tl.timers.forEach(r => clearTimeout(r.id)); tl.finish(); };
-    tl.accelerate = () => {                                 // 2× em voo: timers + visual
+    tl.cancel = () => { tl.timers.forEach(r => clearTimeout(r.id)); tl._scroll && tl._scroll.cancel(); tl.finish(); };
+    tl.accelerate = () => {                                 // 2× em voo: timers + visual + scroll
       if (tl.speed >= 2 || tl.done) return;
       tl.speed = 2;
       const t = performance.now();
@@ -1758,12 +1756,70 @@ document.addEventListener('DOMContentLoaded', () => {
         rec.id = setTimeout(() => { tl.timers.delete(rec); rec.fn(); }, remaining);
       }
       try { card.getAnimations({ subtree: true }).forEach(a => { a.playbackRate = 2; }); } catch (_) {}
+      if (tl._scroll) tl._scroll.accelerate();
+    };
+    // Última fase do ABRIR: rola SÓ o container do card p/ trazê-lo à vista (na
+    // velocidade única, acelerável) e só então resolve a promise (tl.finish).
+    tl.settleScroll = () => {
+      const container = scrollableAncestor(card);
+      const sc = animateScrollTo(container, container ? nearestScrollTarget(card, container) : 0);
+      tl._scroll = sc;
+      if (tl.speed >= 2) sc.accelerate();
+      sc.promise.then(() => tl.finish());
     };
     return tl;
   };
   // Callback de aceleração passado ao moveGate: agiliza TODOS os flips em voo (o que
   // abre + os que o accordion está fechando).
   const accelerateActiveFlips = () => { for (const tl of [...activeFlipTLs]) tl.accelerate(); };
+
+  // ── SCROLL ANIMADO UNIFICADO ────────────────────────────────────────────────
+  // Rola SÓ o container passado (nunca ancestrais — era o que fazia o scrollIntoView
+  // pós-flip puxar o carrossel de volta) até targetTop. Duração pela VELOCIDADE ÚNICA
+  // (window.moveMs). Devolve um controller acelerável (ctrl.accelerate() → 2×) e
+  // cancelável (ctrl.cancel()); ctrl.promise resolve no FIM real — é o que empacota o
+  // scroll no movimento (a trava do moveGate espera por ele, e ele acelera junto).
+  const animateScrollTo = (container, targetTop) => {
+    const ctrl = { speed: window.MOVE_ACCEL || 1, done: false, raf: 0, _resolve: null };
+    ctrl.promise = new Promise((res) => { ctrl._resolve = res; });
+    const finish = () => { if (ctrl.done) return; ctrl.done = true; cancelAnimationFrame(ctrl.raf); ctrl._resolve(); };
+    ctrl.accelerate = () => { ctrl.speed = Math.max(ctrl.speed, 2); };
+    ctrl.cancel = finish;
+    if (!container) { finish(); return ctrl; }
+    const from = container.scrollTop;
+    const dist = Math.round(targetTop) - from;
+    if (Math.abs(dist) < 2) { finish(); return ctrl; }
+    const baseDur = window.moveMs(Math.abs(dist));   // âncora de velocidade única
+    let prog = 0, lastT = performance.now();
+    const tick = (t) => {
+      if (ctrl.done) return;
+      const dt = t - lastT; lastT = t;
+      prog = Math.min(1, prog + (dt * ctrl.speed) / baseDur);   // acelera com ctrl.speed
+      container.scrollTop = from + dist * (1 - Math.pow(1 - prog, 3));   // easeOutCubic
+      if (prog < 1) ctrl.raf = requestAnimationFrame(tick);
+      else finish();
+    };
+    ctrl.raf = requestAnimationFrame(tick);
+    return ctrl;
+  };
+  // Ancestral rolável mais próximo (o container de scroll do card) — para rolar SÓ ele.
+  const scrollableAncestor = (el) => {
+    let p = el && el.parentElement;
+    while (p && p !== document.body) {
+      const oy = getComputedStyle(p).overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && p.scrollHeight > p.clientHeight + 1) return p;
+      p = p.parentElement;
+    }
+    return null;
+  };
+  // scrollTop mínimo p/ trazer o card à vista dentro do container (semântica block:'nearest').
+  const nearestScrollTarget = (card, container) => {
+    const cr = card.getBoundingClientRect(), kr = container.getBoundingClientRect();
+    let delta = 0;
+    if (cr.bottom > kr.bottom) delta = cr.bottom - kr.bottom;   // desce só o necessário
+    else if (cr.top < kr.top)  delta = cr.top - kr.top;         // sobe só o necessário (negativo)
+    return container.scrollTop + delta;
+  };
 
   function flipCardToBack(card, cfg) {
     // Velocidade padrão: honra o acelerador. Um flip ENFILEIRADO nasce em 2× (speed);
@@ -1799,7 +1855,7 @@ document.addEventListener('DOMContentLoaded', () => {
               tl.after(cfg.expandMs + 20, () => {
                 card.style.height = 'auto'; card.style.transition = ''; card.style.clipPath = '';
                 if (footer) footer.style.transition = '';
-                tl.finish();
+                tl.settleScroll();   // ajuste de scroll = última fase (resolve a promise)
               });
             });
           });
@@ -2657,7 +2713,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     searchEl?.addEventListener('click', () => {
       if (wasFocused) {
-        document.getElementById('agenda-list')?.scrollTo({ top: 0, behavior: 'smooth' });
+        const list = document.getElementById('agenda-list');
+        let sc = null;
+        window.moveGate.run('scroll-top', () => { sc = animateScrollTo(list, 0); return sc.promise; }, () => sc && sc.accelerate());
       }
     });
   }
@@ -2908,9 +2966,11 @@ document.addEventListener('DOMContentLoaded', () => {
           // ignora o botão até chegar ao topo (senão a seta pisca durante a
           // animação, quando scrollTop ainda está acima do threshold).
           scrollToTopPending[clickedTab] = true;
-          if (clickedTab === TAB.HOME)    agendaListEl?.scrollTo({ top: 0, behavior: 'smooth' });
-          if (clickedTab === TAB.PEDIDOS) pedidosScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
-          if (clickedTab === TAB.VAGAS)   vagasScrollEl?.scrollTo({ top: 0, behavior: 'smooth' });
+          // "Voltar ao topo" também é um MOVIMENTO: passa pela trava/fila + velocidade
+          // única + aceleração (via animateScrollTo), como o resto.
+          const el = clickedTab === TAB.HOME ? agendaListEl : clickedTab === TAB.PEDIDOS ? pedidosScrollEl : vagasScrollEl;
+          let sc = null;
+          window.moveGate.run('scroll-top', () => { sc = animateScrollTo(el, 0); return sc.promise; }, () => sc && sc.accelerate());
           scrolledState[clickedTab] = false;
           setTabButton(clickedTab, false);
         }

@@ -177,7 +177,13 @@ no fim): nasce em `speed`=`MOVE_ACCEL` (2× se enfileirado); a rotação (CSS) c
 (`cfg.flipperSel`); as fases usam `tl.after`/`tl.dur` (setTimeout/duração escaláveis); `tl.accelerate()` (chamado
 pelo gate) reprograma os timers pendentes p/ metade + dobra o `playbackRate` → o flip vai a 2× e a promise
 resolve antes. `flipCardToBack/Front` devolvem a `tl`; os wrappers `pro/vagaCardFlip*` repassam. `flipCardForceReset`
-cancela a timeline pendente do card. **Indicação NÃO deixa `MOVE_ACCEL` encurtar seu est** (as durações internas são
+cancela a timeline pendente do card. O **ajuste de scroll pós-flip** (trazer o card expandido à vista) é a
+ÚLTIMA fase do ABRIR (`tl.settleScroll`) — antes era um `scrollIntoView({smooth})` num `setTimeout` SOLTO, fora
+do movimento, e como o `scrollIntoView` rola TODOS os ancestrais, depois de trocar de aba ele puxava o
+carrossel de volta. Agora é o helper único **`animateScrollTo(container, top)`**: rola SÓ o container do card
+(nunca ancestrais), na VELOCIDADE ÚNICA (`moveMs`), acelerável (`ctrl.accelerate()`), e sua `promise` faz parte
+da `tl.promise` (a trava espera por ele). O **"voltar ao topo"** (tocar a aba ativa; e o tap na busca) também
+passa por `moveGate` (`'scroll-top'`) com o mesmo `animateScrollTo`. **Indicação NÃO deixa `MOVE_ACCEL` encurtar seu est** (as durações internas são
 medidas em setTimeout, já com accel=1) — o `est` é calculado com accel=1 p/ casar com a animação real.
 
 **Ao criar um movimento de deslocamento novo:** enrole o disparo em `moveGate.run(id, play, accelerate?)`, com
