@@ -293,7 +293,7 @@ procura? Faça um pedido público por indicações" + botão `#btn-agenda-cta-pe
 Delegação em `#agenda-list` (o botão é recriado a cada render). O clique roda em **DOIS TEMPOS**:
 (1) `switchToTab(TAB.PEDIDOS)` desliza o carrossel; (2) no `transitionend` de `transform` do
 `#feed-panels` (fallback por timer = duração do painel `--panel-slide-dur` + 200ms, já que o slide
-agora tem duração derivada da velocidade única), com um respiro de 180ms, `myPedidoNavigate()` abre a
+tem duração derivada da distância pela velocidade NEUTRA), com um respiro de 180ms, `myPedidoNavigate()` abre a
 gaveta de fazer pedido. `reorderAgendaListAnimated` move `.agenda-cta-pedido` (não mais `.feed-end-cap`)
 para o fim.
 
