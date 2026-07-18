@@ -72,7 +72,8 @@ window.moveMs = (distancePx, speed = window.MOVE_SPEED) => Math.round(Math.min(w
 // =========================================================================
 window.moveGate = (() => {
   const pending = [];
-  let running = null;   // { timer }
+  let running = null;   // { timer, endAt, accelerate, accelerated }
+  const now = () => performance.now();
   function launch(item) {
     const accel = pending.length ? 2 : 1;   // há mais na fila atrás → agiliza; senão normal
     const prev = window.MOVE_ACCEL;
@@ -82,15 +83,32 @@ window.moveGate = (() => {
     catch (e) { console.warn('[moveGate] play falhou:', e); }
     window.MOVE_ACCEL = prev;
     const total = Math.max(80, dur) + 40;   // folga p/ a transição realmente assentar
-    running = { timer: setTimeout(finish, total) };
+    running = { endAt: now() + total, accelerate: item.accelerate || null, accelerated: false, timer: setTimeout(finish, total) };
   }
   function finish() { running = null; if (pending.length) launch(pending.shift()); }
+  // Agiliza 2× o movimento EM CURSO quando um novo chega atrás. SÓ acelera se ele
+  // souber acelerar TODAS as suas fases (callback `accelerate`) — animação multi-fase
+  // (flip: rotação→expansão em setTimeout) tem fases futuras que o playbackRate sozinho
+  // não alcança; `accelerate` reprograma essas fases E dobra o playbackRate do visual,
+  // aí sim é seguro soltar a trava na METADE (senão a próxima atropelaria a fase que
+  // não acelerou). Sem `accelerate`, o item em curso roda cheio (nunca sobrepõe).
+  function speedUpRunning() {
+    if (!running || !running.accelerate || running.accelerated) return;
+    const remaining = running.endAt - now();
+    if (remaining <= 60) return;   // quase no fim: deixa terminar
+    try { running.accelerate(); } catch (e) { console.warn('[moveGate] accelerate falhou:', e); return; }
+    running.accelerated = true;
+    clearTimeout(running.timer);
+    const nr = remaining / 2;
+    running.endAt = now() + nr;
+    running.timer = setTimeout(finish, nr);
+  }
   return {
-    // `roots` é aceito e ignorado (compat com chamadas antigas): a aceleração do
-    // item em curso foi removida por causar sobreposição em animações multi-fase.
-    run(id, play, roots) {
-      if (running) pending.push({ id, play });
-      else launch({ id, play });
+    // run(id, play, accelerate?) — `accelerate()` (opcional) agiliza 2× TODAS as fases
+    // da animação em curso e é chamado quando um movimento novo entra na fila.
+    run(id, play, accelerate) {
+      if (running) { pending.push({ id, play, accelerate }); speedUpRunning(); }
+      else launch({ id, play, accelerate });
     },
     get busy() { return !!running; },
     get depth() { return pending.length; },

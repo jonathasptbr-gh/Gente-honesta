@@ -1032,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (pre) pre();
       proCardFlipToFront(c);
       return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 120;
-    });
+    }, accelerateActiveFlips);
   };
   // Idem para os cards de VAGA (abrir = flip→back com accordion; fechar = flip→front).
   const gateVagaFlipBack = (card) => {
@@ -1041,14 +1041,14 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('#vagas-list .vaga-card--flipped').forEach(other => { if (other !== card) vagaCardFlipToFront(other); });
       vagaCardFlipToBack(card);
       return (VAGA_CARD_CFG.flipMs + VAGA_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
-    });
+    }, accelerateActiveFlips);
   };
   const gateVagaFlipFront = (card, done) => {
     if (!card) return;
     window.moveGate.run('flip', () => {
       vagaCardFlipToFront(card, done);
       return (VAGA_CARD_CFG.collMs + VAGA_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 120;
-    });
+    }, accelerateActiveFlips);
   };
 
   // Registra delegação de cliques de flip num container de pro-cards.
@@ -1083,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', () => {
         proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
         return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
-      }, [card]);
+      }, accelerateActiveFlips);
     });
   }
 
@@ -1270,7 +1270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
         return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
-      }, [card]);
+      }, accelerateActiveFlips);
     } else {
       // ── Navegação normal: flip para o verso ou fecha se já estava aberto ──
       window.moveGate.run('flip', () => {
@@ -1282,7 +1282,7 @@ document.addEventListener('DOMContentLoaded', () => {
         proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
         return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
-      }, [card]);
+      }, accelerateActiveFlips);
     }
   });
 
@@ -1724,17 +1724,55 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
 
+  // ── MOTOR DE FLIP ACELERÁVEL ────────────────────────────────────────────────
+  // O flip tem DUAS fases sequenciais (rotação → expansão de altura) separadas por
+  // setTimeout. Para o moveGate poder AGILIZAR um flip EM CURSO (quando o usuário
+  // toca outro card / desliza a aba), TODAS as fases precisam acelerar juntas — não
+  // basta o playbackRate da fase atual (a fase futura, ainda em setTimeout, correria
+  // cheia e a próxima animação atropelaria). A "timeline" abaixo guarda os timers
+  // pendentes e, ao acelerar, reprograma cada um p/ METADE do restante E dobra o
+  // playbackRate das transições em voo — o flip inteiro passa a 2×.
+  const activeFlipTLs = new Set();
+  const makeFlipTimeline = (card) => {
+    if (card.__flipTL && !card.__flipTL.done) card.__flipTL.cancel();
+    const tl = { speed: window.MOVE_ACCEL || 1, done: false, timers: new Set() };
+    activeFlipTLs.add(tl);
+    card.__flipTL = tl;
+    tl.dur = (baseMs) => Math.round(baseMs / tl.speed);   // duração de CSS já escalada
+    tl.after = (baseMs, fn) => {                            // setTimeout escalável
+      const rec = { fn, endAt: performance.now() + baseMs / tl.speed, id: 0 };
+      rec.id = setTimeout(() => { tl.timers.delete(rec); fn(); }, baseMs / tl.speed);
+      tl.timers.add(rec);
+      return rec;
+    };
+    tl.finish = () => { tl.done = true; tl.timers.clear(); activeFlipTLs.delete(tl); if (card.__flipTL === tl) card.__flipTL = null; };
+    tl.cancel = () => { tl.timers.forEach(r => clearTimeout(r.id)); tl.finish(); };
+    tl.accelerate = () => {                                 // 2× em voo: timers + visual
+      if (tl.speed >= 2 || tl.done) return;
+      tl.speed = 2;
+      const t = performance.now();
+      for (const rec of [...tl.timers]) {
+        clearTimeout(rec.id);
+        const remaining = Math.max(0, (rec.endAt - t)) / 2;
+        rec.endAt = t + remaining;
+        rec.id = setTimeout(() => { tl.timers.delete(rec); rec.fn(); }, remaining);
+      }
+      try { card.getAnimations({ subtree: true }).forEach(a => { a.playbackRate = 2; }); } catch (_) {}
+    };
+    return tl;
+  };
+  // Callback de aceleração passado ao moveGate: agiliza TODOS os flips em voo (o que
+  // abre + os que o accordion está fechando).
+  const accelerateActiveFlips = () => { for (const tl of [...activeFlipTLs]) tl.accelerate(); };
+
   function flipCardToBack(card, cfg) {
-    // Velocidade padrão: honra o acelerador (window.MOVE_ACCEL) como os demais
-    // movimentos — um flip ENFILEIRADO roda 2×. acc é lido AGORA (síncrono, dentro
-    // do play do moveGate, onde MOVE_ACCEL está setado); os setTimeouts abaixo
-    // disparam depois (accel=1), mas usam estes locais já escalados.
-    const acc = window.MOVE_ACCEL || 1;
-    const flipMs = Math.round(cfg.flipMs / acc), expandMs = Math.round(cfg.expandMs / acc);
-    // A ROTAÇÃO é CSS (duração fixa no arquivo) — casa com flipMs via duração inline
-    // no flipper, senão a expansão começaria antes da rotação (accel) terminar.
+    // Velocidade padrão: honra o acelerador. Um flip ENFILEIRADO nasce em 2× (speed);
+    // um flip EM CURSO é levado a 2× por tl.accelerate() quando outro movimento chega.
+    const tl = makeFlipTimeline(card);
     const flipper = card.querySelector(cfg.flipperSel);
-    if (flipper) flipper.style.transitionDuration = flipMs + 'ms';
+    // A ROTAÇÃO é CSS: casa com flipMs via duração inline no flipper (senão a expansão
+    // começaria antes da rotação terminar). Ao acelerar em voo, o playbackRate cobre.
+    if (flipper) flipper.style.transitionDuration = tl.dur(cfg.flipMs) + 'ms';
     const frontH = card.offsetHeight;
     card.dataset.frontH = frontH;
     card.style.transition = 'none';
@@ -1743,7 +1781,7 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         card.classList.add(cfg.flippedClass);
-        setTimeout(() => {
+        tl.after(cfg.flipMs, () => {
           card.style.overflow = '';
           card.classList.add(cfg.expandedClass);
           const back   = card.querySelector(cfg.backSel);
@@ -1754,27 +1792,26 @@ document.addEventListener('DOMContentLoaded', () => {
           card.style.clipPath = 'inset(0 0 0 0)';
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
-              const timing = `${expandMs}ms ${EASE_STD}`;
+              const timing = `${tl.dur(cfg.expandMs)}ms ${EASE_STD}`;
               card.style.transition = `height ${timing}`;
               card.style.height     = backH + 'px';
               if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = ''; }
-              setTimeout(() => {
+              tl.after(cfg.expandMs + 20, () => {
                 card.style.height = 'auto'; card.style.transition = ''; card.style.clipPath = '';
                 if (footer) footer.style.transition = '';
-              }, expandMs + 20);
+                tl.finish();
+              });
             });
           });
-        }, flipMs);
+        });
       });
     });
   }
 
   function flipCardToFront(card, cfg, onComplete) {
-    // Honra o acelerador (ver flipCardToBack): colapso + rotação de volta escalados.
-    const acc = window.MOVE_ACCEL || 1;
-    const collMs = Math.round(cfg.collMs / acc), flipMs = Math.round(cfg.flipMs / acc);
+    const tl = makeFlipTimeline(card);
     const flipper = card.querySelector(cfg.flipperSel);
-    if (flipper) flipper.style.transitionDuration = flipMs + 'ms';
+    if (flipper) flipper.style.transitionDuration = tl.dur(cfg.flipMs) + 'ms';
     const frontH   = parseInt(card.dataset.frontH || 200);
     const currentH = card.offsetHeight;
     const delta    = currentH - frontH;
@@ -1785,30 +1822,32 @@ document.addEventListener('DOMContentLoaded', () => {
     card.style.clipPath = 'inset(0 0 0 0)';
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        const timing = `${collMs}ms ${EASE_STD}`;
+        const timing = `${tl.dur(cfg.collMs)}ms ${EASE_STD}`;
         card.style.transition = `height ${timing}`;
         card.style.height     = frontH + 'px';
         if (footer) { footer.style.transition = `transform ${timing}`; footer.style.transform = `translateY(-${delta}px)`; }
-        setTimeout(() => {
+        tl.after(cfg.collMs + 10, () => {
           if (footer) { footer.style.transition = 'none'; footer.style.transform = ''; }
           card.classList.remove(cfg.expandedClass);
           card.style.transition = 'none'; card.style.clipPath = ''; card.style.overflow = 'visible';
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               card.classList.remove(cfg.flippedClass);
-              setTimeout(() => {
+              tl.after(cfg.flipMs + 30, () => {
                 card.style.height = ''; card.style.transition = ''; card.style.overflow = '';
                 if (flipper) flipper.style.transitionDuration = '';   // volta à duração do CSS
+                tl.finish();
                 if (onComplete) onComplete();
-              }, flipMs + 30);
+              });
             });
           });
-        }, collMs + 10);
+        });
       });
     });
   }
 
   function flipCardForceReset(card, cfg) {
+    if (card.__flipTL && !card.__flipTL.done) card.__flipTL.cancel();   // mata timers pendentes
     card.classList.remove(cfg.flippedClass, cfg.expandedClass);
     card.style.height = card.style.overflow = card.style.transition = card.style.clipPath = '';
     const footer = card.querySelector(cfg.footerSel);
@@ -2796,9 +2835,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Entrada GATED: o carrossel é um movimento — entra na trava/fila do moveGate p/
   // não deslizar por cima de outro movimento em curso (nem outro por cima dele).
+  // Acelera 2× o carrossel EM CURSO (painel + trilho da barra + slider das abas) —
+  // é single-fase (só transições CSS), então dobrar o playbackRate cobre tudo e é
+  // seguro a trava soltar na metade. Passado ao moveGate como callback de aceleração.
+  const carouselAccelerate = () => {
+    ['#feed-panels', '.agenda-filters__track', '.feed-tabs-pill__slider'].forEach(sel => {
+      document.querySelector(sel)?.getAnimations?.().forEach(a => { try { a.playbackRate = 2; } catch (_) {} });
+    });
+  };
   const switchToTab = (tabName) => {
     if (tabName === activeTab) return;
-    window.moveGate.run('carousel', () => doSwitchToTab(tabName), [feedPanels]);
+    window.moveGate.run('carousel', () => doSwitchToTab(tabName), carouselAccelerate);
   };
   // Corpo real: FAZ a troca e devolve a DURAÇÃO do slide (ms) p/ o gate cronometrar.
   const doSwitchToTab = (tabName) => {

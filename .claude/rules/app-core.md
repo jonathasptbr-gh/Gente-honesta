@@ -143,31 +143,38 @@ reparentando/limpando DOM ao mesmo tempo em cadeias `transitionend`/`setTimeout`
 na ordem, e rodam um após o outro. NÃO passam pela trava micro-interações (press/cor/sombra = feedback) nem
 estados **parados** (uma gaveta/overlay já aberto e em repouso não bloqueia) — só a JANELA de animação.
 
-**Acelerador (na FILA):** cada item ENFILEIRADO roda **2×** (via `window.MOVE_ACCEL`, que o `moveMs`
-multiplica na velocidade; os flips leem `MOVE_ACCEL` direto), MENOS o ÚLTIMO, que roda normal. O item EM
-CURSO roda CHEIO — NÃO é encurtado. **Por quê:** uma tentativa anterior encurtava o em curso via
-`playbackRate` + metade do timer, mas animações MULTI-FASE (flip: rotação→expansão em `setTimeout`; indicação)
-têm fases futuras que o `playbackRate` não alcança, então a trava soltava no MEIO e o próximo movimento
-ATROPELAVA (era exatamente o bug de "mudei de aba enquanto o flip animava"). `MOVE_ACCEL` é seguro porque
-encolhe A DURAÇÃO REAL da animação E a duração reportada JUNTAS (síncrono, no `play`). Trade-off: numa rajada
-o 1º item (o em curso) roda cheio; os do meio 2×; o último normal.
+**Acelerador — 2× em TODOS menos o último.** Dois mecanismos, ambos SEGUROS (a trava só solta na metade
+quando a animação REALMENTE terminou na metade):
+1. **Item ENFILEIRADO** nasce 2× via `window.MOVE_ACCEL` (que o `moveMs` multiplica na velocidade; os flips
+   leem `MOVE_ACCEL` direto) — encolhe a DURAÇÃO REAL E a reportada JUNTAS, síncrono no `play`. O ÚLTIMO da
+   fila roda normal.
+2. **Item EM CURSO** é agilizado 2× quando um novo entra na fila, via o callback `accelerate` (3º arg do
+   `run`). **Crítico:** `accelerate` tem que agilizar TODAS as fases, não só a atual — uma tentativa antiga
+   só dobrava o `playbackRate` da fase corrente, mas animações MULTI-FASE (flip: rotação→expansão em
+   `setTimeout`) têm fases FUTURAS que o `playbackRate` não alcança; a trava soltava no MEIO e o próximo
+   ATROPELAVA (o bug "mudei de aba enquanto o flip animava"). O flip resolve com uma **timeline** acelerável
+   (`makeFlipTimeline`): guarda os timers de fase e, ao acelerar, reprograma cada um p/ metade do restante E
+   dobra o `playbackRate` das transições em voo → o flip inteiro vai a 2×, aí a trava pode soltar na metade
+   com segurança. O carrossel (single-fase) só dobra o `playbackRate` dos elementos que deslizam. Movimento
+   SEM `accelerate` (ex.: indicação hoje) roda cheio quando em curso — nunca sobrepõe.
 
-**Contrato:** `window.moveGate.run(id, play)`:
-- `play()` — EXECUTA o movimento (síncrono) e DEVOLVE a duração (ms) da sua animação. A duração DEVE cobrir
-  a animação INTEIRA (todas as fases + folga) — é o que garante zero sobreposição; subestimar solta a trava
-  cedo e o próximo atropela. Roda na hora se a trava está livre; senão entra na fila.
-- (aceita um 3º arg `roots` por compat, mas é IGNORADO.)
+**Contrato:** `window.moveGate.run(id, play, accelerate?)`:
+- `play()` — EXECUTA o movimento (síncrono) e DEVOLVE a duração (ms) da animação INTEIRA (todas as fases +
+  folga) — é o que garante zero sobreposição; subestimar solta a trava cedo e o próximo atropela.
+- `accelerate?()` — opcional; agiliza 2× TODAS as fases da animação em curso (chamado quando um novo entra
+  na fila). Sem ele, o item em curso roda cheio.
 - A fila AVANÇA por TIMER (duração devolvida + folga), NUNCA por `transitionend` → um `transitionend`
   perdido nunca congela a fila (sem deadlock). `moveGate.busy`/`moveGate.depth` consultam o estado.
 
 **Movimentos hoje na trava** (`feed/index.js`): carrossel de abas (`switchToTab`→`doSwitchToTab`, devolve
-`--panel-slide-dur`), modo indicação (`enter/exitIndicateMode`→`doEnter/doExitIndicate`, devolvem a duração
-da abertura/fechamento), e os FLIPS de card (pro e vaga — o toggle inteiro, incluindo o "fecha os outros"
-do accordion, é UM movimento). Durações de `moveMs` embutem `MOVE_ACCEL`; os FLIPS também honram o acelerador
-— `flipCardToBack/Front` lêem `window.MOVE_ACCEL` (síncrono, dentro do play) e dividem `flipMs/expandMs/collMs`
-por ele, aplicando a duração de rotação escalada INLINE no `flipper` (`cfg.flipperSel`) p/ casar com o CSS
-(senão a expansão começaria antes da rotação acelerada terminar); o `flipper` volta à duração do CSS no fim.
-Um flip enfileirado roda 2×. **Indicação NÃO deixa `MOVE_ACCEL` encurtar seu est** (as durações internas são
+`--panel-slide-dur`; `accelerate`=`carouselAccelerate`), modo indicação (`enter/exitIndicateMode`→`doEnter/
+doExitIndicate`, SEM `accelerate` — roda cheio em curso), e os FLIPS de card (pro e vaga — o toggle inteiro,
+incl. "fecha os outros" do accordion, e o FECHAR pelo botão "Voltar"/verso via `gateCloseProCard`/`gateVagaFlip*`;
+`accelerate`=`accelerateActiveFlips`). O flip roda numa **timeline** (`makeFlipTimeline`): nasce em `speed`=
+`MOVE_ACCEL` (2× se enfileirado); a rotação (CSS) casa via duração inline no `flipper` (`cfg.flipperSel`); as
+fases usam `tl.after`/`tl.dur` (setTimeout/duração escaláveis); `tl.accelerate()` (chamado pelo gate) reprograma
+os timers pendentes p/ metade + dobra o `playbackRate` → o flip inteiro vai a 2× em voo. `flipCardForceReset`
+cancela a timeline pendente do card. **Indicação NÃO deixa `MOVE_ACCEL` encurtar seu est** (as durações internas são
 medidas em setTimeout, já com accel=1) — o `est` é calculado com accel=1 p/ casar com a animação real.
 
 **Ao criar um movimento de deslocamento novo:** enrole o disparo em `moveGate.run(id, play)`, com

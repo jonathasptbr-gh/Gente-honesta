@@ -258,9 +258,11 @@ trocar de aba no meio; flip + outra coisa), o cleanup TARDIO de um clobbava o ou
 `window.moveGate` (`core/app.js`, ver `app-core.md`) — carrossel (`switchToTab`→`doSwitchToTab`), indicação
 (`enter/exitIndicateMode`→`doEnter/doExitIndicate`) e os FLIPS (pro e vaga, abrir E fechar — incl. os botões
 "Voltar"/verso via `gateCloseProCard`/`gateVagaFlip*`). Um movimento novo com outro em curso entra na FILA
-(não sobrepõe); os itens da FILA rodam 2× (`MOVE_ACCEL`), MENOS o último; o em curso roda CHEIO (encurtá-lo
-atropelava animações multi-fase — ver `app-core.md`). Cada `play` FAZ o movimento e devolve a duração INTEIRA
-(todas as fases + folga); a fila avança por timer (nunca `transitionend` → sem deadlock).
+(não sobrepõe); os itens da FILA rodam 2× (`MOVE_ACCEL`), MENOS o último; e o EM CURSO também é agilizado 2×
+via o callback `accelerate` (flip: `makeFlipTimeline`/`accelerateActiveFlips` reprograma os timers de fase +
+dobra o playbackRate; carrossel: `carouselAccelerate`). Indicação NÃO tem `accelerate` → roda cheio em curso.
+Cada `play` devolve a duração INTEIRA (todas as fases + folga); a fila avança por timer (nunca `transitionend`
+→ sem deadlock). Ver `app-core.md` p/ por que encurtar o em curso SEM acelerar todas as fases atropelava.
 - `doSwitchToTab`: se `indicateMode`, faz snap síncrono da indicação (`backNav.remove` + `finalizeIndicateNow`)
   ANTES de deslizar — senão o carrossel passaria por cima do `#agenda-list` reparentado e a aba Profissionais
   ficaria vazia. Devolve `--panel-slide-dur`.
