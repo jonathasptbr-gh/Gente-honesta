@@ -372,6 +372,12 @@
   pointer-events: none;
 }
 
+/* O ícone virou um <svg> FILHO (o botão carrega posição/cor); dimensiona o glifo no
+   tamanho do campo — sem esta regra o svg cairia no font-size 24px do base. */
+.agenda-filters__search-icon .material-symbols-rounded {
+  font-size: 1.1rem;
+}
+
 .agenda-filters__search-icon--clearable {
   pointer-events: auto;
   cursor: pointer;
