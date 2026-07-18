@@ -399,6 +399,58 @@ document.addEventListener('DOMContentLoaded', () => {
   let morphedSourceCard = null;   // card REAL que é movido para o overlay (restaurar na saída)
   let indicatePlaceholder = null; // espaçador que guarda o lugar do card na lista
 
+  // =======================================================================
+  // VERIFICADOR DE INVARIANTES (dev) — DETECTA (não conserta) estado
+  // inconsistente após navegação/animação: DOM reparentado que não voltou pra
+  // casa, camadas presas, telas sem ativo. Só console.warn — custo desprezível,
+  // ZERO efeito no render. O objetivo é transformar "às vezes se perde/atravessa"
+  // num repro exato p/ atacar a causa raiz das corridas de interrupção (o modo
+  // indicação MOVE #agenda-list + barra p/ o overlay e devolve em cadeias
+  // transitionend/setTimeout — se interrompido, o "voltar pra casa" não roda).
+  // Roda ~450ms após a última transição assentar (estado em repouso) e sob
+  // demanda: window.checkInvariants('rótulo') → devolve a lista de violações.
+  // =======================================================================
+  const _isHidden = (el) => !el || el.classList.contains('u-hidden');
+  const _within = (el, sel) => !!(el && el.closest(sel));
+  function checkInvariants(label = '') {
+    const bad = [];
+    const active = document.querySelectorAll('.screen.screen--active').length;
+    if (active !== 1) bad.push(`telas .screen--active = ${active} (esperado 1)`);
+
+    const overlay = document.getElementById('indicate-overlay');
+    if (indicateMode && _isHidden(overlay)) bad.push('indicateMode=true mas #indicate-overlay escondido');
+    if (!indicateMode && !_isHidden(overlay)) bad.push('indicateMode=false mas #indicate-overlay visível');
+
+    const agendaList = document.getElementById('agenda-list');
+    if (agendaList && !indicateMode && !_within(agendaList, '.feed-panel--pros'))
+      bad.push('#agenda-list fora da .feed-panel--pros sem indicação (reparent não voltou → aba Profissionais vazia)');
+    if (agendaList && indicateMode && !_within(agendaList, '#indicate-scroll'))
+      bad.push('#agenda-list não está no #indicate-scroll durante indicação');
+
+    if (!indicateMode) {
+      if (_within(document.getElementById('feed-bottom-bar'), '#indicate-overlay')) bad.push('barra inferior presa no #indicate-overlay sem indicação');
+      if (_within(document.querySelector('.agenda-filters__search-wrap'), '#indicate-overlay')) bad.push('barra de busca presa no #indicate-overlay sem indicação');
+      if (document.querySelector('.indicate-card-placeholder')) bad.push('.indicate-card-placeholder órfão sem indicação');
+      if (document.querySelector('.pedido-item__prompt')) bad.push('.pedido-item__prompt órfão sem indicação');
+      const ref = document.getElementById('indicate-post-ref');
+      if (ref && ref.children.length) bad.push('#indicate-post-ref ainda segura o card sem indicação (não voltou pro slot)');
+      const pros = document.getElementById('indicate-pros');
+      if (pros && pros.style.transform && pros.style.transform !== 'none') bad.push(`#indicate-pros com transform inline sobrando: "${pros.style.transform}"`);
+    }
+
+    if (bad.length) console.warn('[invariantes' + (label ? ' · ' + label : '') + '] ✗ estado inconsistente:', bad);
+    return bad;
+  }
+  window.checkInvariants = checkInvariants;
+
+  // Auto-run: ~450ms após a ÚLTIMA transição assentar (cada transitionend
+  // reinicia o timer → o check só roda no estado em repouso, sem falso-positivo
+  // no meio da animação) + ao voltar ao app.
+  let _invTimer = null;
+  const scheduleInvariantCheck = (label) => { clearTimeout(_invTimer); _invTimer = setTimeout(() => checkInvariants(label), 450); };
+  document.addEventListener('transitionend', () => scheduleInvariantCheck('pós-transição'), true);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) scheduleInvariantCheck('retorno ao app'); });
+
   // Substitui (animado) SÓ o botão "Indicar alguém" pela frase de 2 linhas, DENTRO
   // da linha de ações — o botão de contagem (2/3) permanece à direita. Roda no card
   // REAL (que depois é movido para o overlay, não clonado).
