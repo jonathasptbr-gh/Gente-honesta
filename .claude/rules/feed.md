@@ -259,10 +259,11 @@ trocar de aba no meio; flip + outra coisa), o cleanup TARDIO de um clobbava o ou
 (`enter/exitIndicateMode`→`doEnter/doExitIndicate`) e os FLIPS (pro e vaga, abrir E fechar — incl. os botões
 "Voltar"/verso via `gateCloseProCard`/`gateVagaFlip*`). Um movimento novo com outro em curso entra na FILA
 (não sobrepõe); os itens da FILA rodam 2× (`MOVE_ACCEL`), MENOS o último; e o EM CURSO também é agilizado 2×
-via o callback `accelerate` (flip: `makeFlipTimeline`/`accelerateActiveFlips` reprograma os timers de fase +
-dobra o playbackRate; carrossel: `carouselAccelerate`). Indicação NÃO tem `accelerate` → roda cheio em curso.
-Cada `play` devolve a duração INTEIRA (todas as fases + folga); a fila avança por timer (nunca `transitionend`
-→ sem deadlock). Ver `app-core.md` p/ por que encurtar o em curso SEM acelerar todas as fases atropelava.
+via `accelerate` (flip: `makeFlipTimeline`/`accelerateActiveFlips`; carrossel: `carouselAccelerate`). A trava
+solta na CONCLUSÃO REAL da animação — `play` devolve uma PROMISE (flip: `tl.promise`; carrossel: `transitionend`
+do `#feed-panels`), então acelerar só faz resolver ANTES e a trava nunca solta no meio (nem no aparelho, onde
+uma versão que estimava a metade do tempo atropelava). Indicação devolve número/`est` e roda cheia em curso.
+Ver `app-core.md`.
 - `doSwitchToTab`: se `indicateMode`, faz snap síncrono da indicação (`backNav.remove` + `finalizeIndicateNow`)
   ANTES de deslizar — senão o carrossel passaria por cima do `#agenda-list` reparentado e a aba Profissionais
   ficaria vazia. Devolve `--panel-slide-dur`.

@@ -143,43 +143,46 @@ reparentando/limpando DOM ao mesmo tempo em cadeias `transitionend`/`setTimeout`
 na ordem, e rodam um após o outro. NÃO passam pela trava micro-interações (press/cor/sombra = feedback) nem
 estados **parados** (uma gaveta/overlay já aberto e em repouso não bloqueia) — só a JANELA de animação.
 
-**Acelerador — 2× em TODOS menos o último.** Dois mecanismos, ambos SEGUROS (a trava só solta na metade
-quando a animação REALMENTE terminou na metade):
+**A trava solta na CONCLUSÃO REAL da animação, não num tempo estimado.** `play()` devolve uma **PROMISE**
+que resolve quando a animação termina DE VERDADE (o flip resolve no fim da sua timeline; o carrossel no
+`transitionend` do `#feed-panels`). Assim a trava NUNCA solta no meio — mesmo que a aceleração não seja
+exata no aparelho (foi o bug "a 2ª ação acontece durante a 1ª": a versão antiga estimava a metade do tempo
+e soltava cedo). O timer é só **FALLBACK** anti-deadlock (3,5s). Um movimento simples pode devolver um
+número (duração) → usa só o timer.
+
+**Acelerador — 2× em TODOS menos o último:**
 1. **Item ENFILEIRADO** nasce 2× via `window.MOVE_ACCEL` (que o `moveMs` multiplica na velocidade; os flips
-   leem `MOVE_ACCEL` direto) — encolhe a DURAÇÃO REAL E a reportada JUNTAS, síncrono no `play`. O ÚLTIMO da
-   fila roda normal.
+   leem `MOVE_ACCEL` direto) — encolhe a animação real E a duração JUNTAS, síncrono no `play`. O ÚLTIMO roda normal.
 2. **Item EM CURSO** é agilizado 2× quando um novo entra na fila, via o callback `accelerate` (3º arg do
-   `run`). **Crítico:** `accelerate` tem que agilizar TODAS as fases, não só a atual — uma tentativa antiga
-   só dobrava o `playbackRate` da fase corrente, mas animações MULTI-FASE (flip: rotação→expansão em
-   `setTimeout`) têm fases FUTURAS que o `playbackRate` não alcança; a trava soltava no MEIO e o próximo
-   ATROPELAVA (o bug "mudei de aba enquanto o flip animava"). O flip resolve com uma **timeline** acelerável
-   (`makeFlipTimeline`): guarda os timers de fase e, ao acelerar, reprograma cada um p/ metade do restante E
-   dobra o `playbackRate` das transições em voo → o flip inteiro vai a 2×, aí a trava pode soltar na metade
-   com segurança. O carrossel (single-fase) só dobra o `playbackRate` dos elementos que deslizam. Movimento
-   SEM `accelerate` (ex.: indicação hoje) roda cheio quando em curso — nunca sobrepõe.
+   `run`). Como a trava espera a CONCLUSÃO REAL, `accelerate` só precisa fazer a animação ACABAR ANTES —
+   a trava segue e solta na hora certa (nunca antes). O flip usa uma **timeline** (`makeFlipTimeline`):
+   reprograma os timers de cada fase p/ metade do restante + dobra o `playbackRate` das transições em voo →
+   o flip inteiro vai a 2× e a promise resolve antes. O carrossel só dobra o `playbackRate` dos elementos que
+   deslizam (o `transitionend` vem antes). Movimento SEM `accelerate` (indicação hoje) roda cheio em curso.
 
 **Contrato:** `window.moveGate.run(id, play, accelerate?)`:
-- `play()` — EXECUTA o movimento (síncrono) e DEVOLVE a duração (ms) da animação INTEIRA (todas as fases +
-  folga) — é o que garante zero sobreposição; subestimar solta a trava cedo e o próximo atropela.
+- `play()` — EXECUTA o movimento (síncrono) e devolve uma **PROMISE** (resolve no fim REAL da animação) OU um
+  número (duração, p/ o timer fallback quando não há como sinalizar o fim).
 - `accelerate?()` — opcional; agiliza 2× TODAS as fases da animação em curso (chamado quando um novo entra
-  na fila). Sem ele, o item em curso roda cheio.
-- A fila AVANÇA por TIMER (duração devolvida + folga), NUNCA por `transitionend` → um `transitionend`
-  perdido nunca congela a fila (sem deadlock). `moveGate.busy`/`moveGate.depth` consultam o estado.
+  na fila) → a promise resolve antes. Sem ele, o item em curso roda cheio.
+- `moveGate.busy`/`moveGate.depth` consultam o estado.
 
 **Movimentos hoje na trava** (`feed/index.js`): carrossel de abas (`switchToTab`→`doSwitchToTab`, devolve
-`--panel-slide-dur`; `accelerate`=`carouselAccelerate`), modo indicação (`enter/exitIndicateMode`→`doEnter/
-doExitIndicate`, SEM `accelerate` — roda cheio em curso), e os FLIPS de card (pro e vaga — o toggle inteiro,
-incl. "fecha os outros" do accordion, e o FECHAR pelo botão "Voltar"/verso via `gateCloseProCard`/`gateVagaFlip*`;
-`accelerate`=`accelerateActiveFlips`). O flip roda numa **timeline** (`makeFlipTimeline`): nasce em `speed`=
-`MOVE_ACCEL` (2× se enfileirado); a rotação (CSS) casa via duração inline no `flipper` (`cfg.flipperSel`); as
-fases usam `tl.after`/`tl.dur` (setTimeout/duração escaláveis); `tl.accelerate()` (chamado pelo gate) reprograma
-os timers pendentes p/ metade + dobra o `playbackRate` → o flip inteiro vai a 2× em voo. `flipCardForceReset`
+uma PROMISE que resolve no `transitionend` do `#feed-panels`; `accelerate`=`carouselAccelerate`), modo
+indicação (`enter/exitIndicateMode`→`doEnter/doExitIndicate`, devolvem um NÚMERO/`est` e SEM `accelerate` —
+roda cheio em curso), e os FLIPS de card (pro e vaga — o toggle inteiro, incl. "fecha os outros" do accordion,
+e o FECHAR pelo botão "Voltar"/verso via `gateCloseProCard`/`gateVagaFlip*`; devolvem `tl.promise`;
+`accelerate`=`accelerateActiveFlips`). O flip roda numa **timeline** (`makeFlipTimeline`, `tl.promise` resolve
+no fim): nasce em `speed`=`MOVE_ACCEL` (2× se enfileirado); a rotação (CSS) casa via duração inline no `flipper`
+(`cfg.flipperSel`); as fases usam `tl.after`/`tl.dur` (setTimeout/duração escaláveis); `tl.accelerate()` (chamado
+pelo gate) reprograma os timers pendentes p/ metade + dobra o `playbackRate` → o flip vai a 2× e a promise
+resolve antes. `flipCardToBack/Front` devolvem a `tl`; os wrappers `pro/vagaCardFlip*` repassam. `flipCardForceReset`
 cancela a timeline pendente do card. **Indicação NÃO deixa `MOVE_ACCEL` encurtar seu est** (as durações internas são
 medidas em setTimeout, já com accel=1) — o `est` é calculado com accel=1 p/ casar com a animação real.
 
-**Ao criar um movimento de deslocamento novo:** enrole o disparo em `moveGate.run(id, play)`, com
-`play` fazendo o movimento e devolvendo a duração (que DEVE cobrir a animação inteira). Leia o estado
-(aberto/fechado) DENTRO do `play` (ele roda
+**Ao criar um movimento de deslocamento novo:** enrole o disparo em `moveGate.run(id, play, accelerate?)`, com
+`play` devolvendo uma PROMISE que resolve no FIM REAL da animação (ou um número se não der p/ sinalizar o fim).
+Leia o estado (aberto/fechado) DENTRO do `play` (ele roda
 desenfileirado — o estado do clique pode estar velho). Movimento que reparenta DOM deve ainda ter um snap
 síncrono defensivo (ver `finalizeIndicateNow`) + guarda por token (`indicateGen`) para o caso de callbacks
 tardios.

@@ -72,40 +72,44 @@ window.moveMs = (distancePx, speed = window.MOVE_SPEED) => Math.round(Math.min(w
 // =========================================================================
 window.moveGate = (() => {
   const pending = [];
-  let running = null;   // { timer, endAt, accelerate, accelerated }
-  const now = () => performance.now();
+  let running = null;   // { timer, accelerate, accelerated, settled }
   function launch(item) {
     const accel = pending.length ? 2 : 1;   // há mais na fila atrás → agiliza; senão normal
     const prev = window.MOVE_ACCEL;
     window.MOVE_ACCEL = accel;
-    let dur = 260;
-    try { const d = item.play(); if (typeof d === 'number' && d > 0) dur = d; }
-    catch (e) { console.warn('[moveGate] play falhou:', e); }
+    let result = 260;
+    try { result = item.play(); } catch (e) { console.warn('[moveGate] play falhou:', e); }
     window.MOVE_ACCEL = prev;
-    const total = Math.max(80, dur) + 40;   // folga p/ a transição realmente assentar
-    running = { endAt: now() + total, accelerate: item.accelerate || null, accelerated: false, timer: setTimeout(finish, total) };
+    const rec = { accelerate: item.accelerate || null, accelerated: false, settled: false, timer: null };
+    running = rec;
+    // A trava solta quando a animação REALMENTE termina. Movimento multi-fase (flip,
+    // carrossel) devolve uma PROMISE que resolve no fim de verdade — acelerar faz
+    // resolver antes, então a trava NUNCA solta no meio (zero sobreposição, sem depender
+    // do timer bater com a animação). O timer é só FALLBACK anti-deadlock. Um movimento
+    // simples pode devolver um número (duração) → usa só o timer.
+    const done = () => { if (rec.settled) return; rec.settled = true; clearTimeout(rec.timer); running = null; if (pending.length) launch(pending.shift()); };
+    rec.done = done;
+    if (result && typeof result.then === 'function') {
+      result.then(done, done);
+      rec.timer = setTimeout(done, 3500);   // fallback generoso (a promise deve resolver antes)
+    } else {
+      const dur = (typeof result === 'number' && result > 0) ? result : 260;
+      rec.timer = setTimeout(done, Math.max(80, dur) + 40);
+    }
   }
-  function finish() { running = null; if (pending.length) launch(pending.shift()); }
-  // Agiliza 2× o movimento EM CURSO quando um novo chega atrás. SÓ acelera se ele
-  // souber acelerar TODAS as suas fases (callback `accelerate`) — animação multi-fase
-  // (flip: rotação→expansão em setTimeout) tem fases futuras que o playbackRate sozinho
-  // não alcança; `accelerate` reprograma essas fases E dobra o playbackRate do visual,
-  // aí sim é seguro soltar a trava na METADE (senão a próxima atropelaria a fase que
-  // não acelerou). Sem `accelerate`, o item em curso roda cheio (nunca sobrepõe).
+  // Agiliza 2× o movimento EM CURSO quando um novo chega atrás. NÃO mexe no timer: a
+  // trava solta na conclusão REAL da animação (promise) — acelerar só faz essa conclusão
+  // vir antes. Assim nunca solta antes do fim, mesmo que a aceleração não seja exata.
+  // `accelerate` reprograma TODAS as fases da animação (ver makeFlipTimeline/carouselAccelerate).
   function speedUpRunning() {
     if (!running || !running.accelerate || running.accelerated) return;
-    const remaining = running.endAt - now();
-    if (remaining <= 60) return;   // quase no fim: deixa terminar
-    try { running.accelerate(); } catch (e) { console.warn('[moveGate] accelerate falhou:', e); return; }
     running.accelerated = true;
-    clearTimeout(running.timer);
-    const nr = remaining / 2;
-    running.endAt = now() + nr;
-    running.timer = setTimeout(finish, nr);
+    try { running.accelerate(); } catch (e) { console.warn('[moveGate] accelerate falhou:', e); }
   }
   return {
-    // run(id, play, accelerate?) — `accelerate()` (opcional) agiliza 2× TODAS as fases
-    // da animação em curso e é chamado quando um movimento novo entra na fila.
+    // run(id, play, accelerate?) — `play()` devolve uma PROMISE (resolve no fim real da
+    // animação) ou um número (duração, p/ o timer). `accelerate()` (opcional) agiliza 2×
+    // a animação em curso; chamado quando um movimento novo entra na fila.
     run(id, play, accelerate) {
       if (running) { pending.push({ id, play, accelerate }); speedUpRunning(); }
       else launch({ id, play, accelerate });

@@ -1030,8 +1030,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!c) return;
     window.moveGate.run('flip', () => {
       if (pre) pre();
-      proCardFlipToFront(c);
-      return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 120;
+      return proCardFlipToFront(c).promise;   // trava solta na conclusão REAL do flip
     }, accelerateActiveFlips);
   };
   // Idem para os cards de VAGA (abrir = flip→back com accordion; fechar = flip→front).
@@ -1039,15 +1038,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!card || card.classList.contains('vaga-card--flipped')) return;
     window.moveGate.run('flip', () => {
       document.querySelectorAll('#vagas-list .vaga-card--flipped').forEach(other => { if (other !== card) vagaCardFlipToFront(other); });
-      vagaCardFlipToBack(card);
-      return (VAGA_CARD_CFG.flipMs + VAGA_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
+      return vagaCardFlipToBack(card).promise;
     }, accelerateActiveFlips);
   };
   const gateVagaFlipFront = (card, done) => {
     if (!card) return;
     window.moveGate.run('flip', () => {
-      vagaCardFlipToFront(card, done);
-      return (VAGA_CARD_CFG.collMs + VAGA_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 120;
+      return vagaCardFlipToFront(card, done).promise;
     }, accelerateActiveFlips);
   };
 
@@ -1079,10 +1076,10 @@ document.addEventListener('DOMContentLoaded', () => {
       window.moveGate.run('flip', () => {
         const isFlipped = card.classList.contains('pro-card--flipped');
         containerEl.querySelectorAll('.pro-card--flipped').forEach(el => { if (el !== card) proCardFlipToFront(el); });
-        if (isFlipped) { proCardFlipToFront(card); return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 120; }
-        proCardFlipToBack(card);
+        if (isFlipped) return proCardFlipToFront(card).promise;
+        const tl = proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
-        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
+        return tl.promise;
       }, accelerateActiveFlips);
     });
   }
@@ -1267,9 +1264,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         card.classList.add('pro-card--selected');
         selectedProId = card.id;
-        proCardFlipToBack(card);
+        const tl = proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
-        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
+        return tl.promise;
       }, accelerateActiveFlips);
     } else {
       // ── Navegação normal: flip para o verso ou fecha se já estava aberto ──
@@ -1278,10 +1275,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('#agenda-list .pro-card--flipped').forEach(el => {
           if (el !== card) proCardFlipToFront(el);
         });
-        if (isFlipped) { proCardFlipToFront(card); return (PRO_CARD_CFG.collMs + PRO_CARD_CFG.flipMs) / (window.MOVE_ACCEL || 1) + 120; }
-        proCardFlipToBack(card);
+        if (isFlipped) return proCardFlipToFront(card).promise;
+        const tl = proCardFlipToBack(card);
         setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), PRO_FLIP_SETTLE_MS);
-        return (PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs) / (window.MOVE_ACCEL || 1) + 120;
+        return tl.promise;
       }, accelerateActiveFlips);
     }
   });
@@ -1736,6 +1733,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const makeFlipTimeline = (card) => {
     if (card.__flipTL && !card.__flipTL.done) card.__flipTL.cancel();
     const tl = { speed: window.MOVE_ACCEL || 1, done: false, timers: new Set() };
+    // promise resolvida quando a animação REALMENTE termina — é o que a trava do
+    // moveGate espera (acelerar faz resolver antes; a trava nunca solta no meio).
+    tl.promise = new Promise((res) => { tl._resolve = res; });
     activeFlipTLs.add(tl);
     card.__flipTL = tl;
     tl.dur = (baseMs) => Math.round(baseMs / tl.speed);   // duração de CSS já escalada
@@ -1745,7 +1745,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tl.timers.add(rec);
       return rec;
     };
-    tl.finish = () => { tl.done = true; tl.timers.clear(); activeFlipTLs.delete(tl); if (card.__flipTL === tl) card.__flipTL = null; };
+    tl.finish = () => { tl.done = true; tl.timers.clear(); activeFlipTLs.delete(tl); if (card.__flipTL === tl) card.__flipTL = null; tl._resolve && tl._resolve(); };
     tl.cancel = () => { tl.timers.forEach(r => clearTimeout(r.id)); tl.finish(); };
     tl.accelerate = () => {                                 // 2× em voo: timers + visual
       if (tl.speed >= 2 || tl.done) return;
@@ -1806,6 +1806,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
     });
+    return tl;
   }
 
   function flipCardToFront(card, cfg, onComplete) {
@@ -1844,6 +1845,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
     });
+    return tl;
   }
 
   function flipCardForceReset(card, cfg) {
@@ -1857,8 +1859,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Wrappers vaga-card ────────────────────────────────────────────────────
-  function vagaCardFlipToBack(card)              { flipCardToBack(card, VAGA_CARD_CFG); }
-  function vagaCardFlipToFront(card, onComplete) { flipCardToFront(card, VAGA_CARD_CFG, onComplete); }
+  function vagaCardFlipToBack(card)              { return flipCardToBack(card, VAGA_CARD_CFG); }
+  function vagaCardFlipToFront(card, onComplete) { return flipCardToFront(card, VAGA_CARD_CFG, onComplete); }
 
   // Anima a altura do PAINEL de um <details> de observação: de só o resumo até
   // resumo+campo (abrir) ou o contrário (fechar). O card de candidatura, em
@@ -1920,9 +1922,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function proCardFlipToBack(card)               { flipCardToBack(card, PRO_CARD_CFG); }
+  function proCardFlipToBack(card)               { return flipCardToBack(card, PRO_CARD_CFG); }
   function proCardFlipToFront(card, onComplete)  {
-    flipCardToFront(card, PRO_CARD_CFG, () => {
+    return flipCardToFront(card, PRO_CARD_CFG, () => {
       resetProCardBack(card);
       if (onComplete) onComplete();
     });
@@ -2885,7 +2887,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tabName === TAB.HOME) window.backNav.remove('feed-tab');
       else window.backNav.push('feed-tab', () => switchToTab(TAB.HOME));
     }
-    return dur;
+    // Resolve na CONCLUSÃO REAL do slide (transitionend do #feed-panels) — acelerar
+    // faz o transitionend vir antes, então a trava solta na hora certa, nunca no meio.
+    return new Promise((resolve) => {
+      let settled = false;
+      const finishSlide = () => { if (settled) return; settled = true; feedPanels?.removeEventListener('transitionend', onEnd); resolve(); };
+      const onEnd = (e) => { if (e.target === feedPanels && e.propertyName === 'transform') finishSlide(); };
+      feedPanels?.addEventListener('transitionend', onEnd);
+      setTimeout(finishSlide, dur + 140);   // fallback se o transitionend não vier
+    });
   };
 
   document.querySelectorAll('.feed-tabs-pill__tab').forEach(tab => {
