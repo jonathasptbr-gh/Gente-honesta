@@ -250,6 +250,25 @@ Assim o card sobe/desce ATRÁS da barra (sem "pular" para frente) e a lista desl
 `MOVE_SPEED_CLOSE` (1.5, ágil); ver `app-core.md`. A curva é `INDICATE_SHEET_EASE` (espelha
 `--sheet-ease`).
 
+**Corrida de interrupção (entra/sai rápido) — token de geração + snap síncrono.** A entrada e a
+saída reparentam DOM (`#agenda-list`, busca, bottom bar, card) e o devolvem "pra casa" em cadeias
+`transitionend`/`setTimeout` de ~1s. Se o usuário interage rápido (sai e reentra antes de assentar),
+o cleanup TARDIO de uma operação superada clobbava a nova (camadas "atravessadas"/elementos sumindo).
+Blindagem: um contador `indicateGen` — `enterIndicateMode`/`exitIndicateMode` fazem `++indicateGen`
+no início e capturam o `gen`; TODO callback assíncrono deles aborta com `if (gen !== indicateGen)`
+(o superado não toca no DOM). E `enterIndicateMode` chama `finalizeIndicateNow()` no início: um SNAP
+SÍNCRONO ao estado fechado (idempotente/defensivo — devolve qualquer reparent pendente pra casa sem
+animação) que garante baseline limpo antes de reabrir. **Ao adicionar qualquer passo assíncrono novo
+nesse fluxo, capture o `gen` e guarde o callback** — senão a corrida volta.
+
+> **Verificador de invariantes (dev):** `window.checkInvariants('rótulo')` (`feed/index.js`, topo do
+> DOMContentLoaded) devolve a lista de violações de estado em repouso — exatamente 1 `.screen--active`;
+> `indicateMode` ↔ visibilidade do `#indicate-overlay`; `#agenda-list` na casa certa (feed vs overlay);
+> busca/bottom bar/placeholder/`#indicate-post-ref` sem sobra fora da indicação. Roda sozinho ~450ms
+> após a última `transitionend` e no retorno ao app (`console.warn` se inconsistente; custo desprezível,
+> zero efeito no render). É a rede que reproduz corridas de camada como repro exato — rode-o ao mexer
+> em qualquer reparent/animação de camada.
+
 ## Scroll-to-top nas abas
 
 Rolar um painel além de 80px muda o ícone/label da aba ativa para `arrow_upward` / "Voltar ao topo".
