@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function setContractsButtonClose(on) {
     btnOpenContracts?.classList.toggle('agenda-filters__icon-btn--active', on);
     const icon = btnOpenContracts?.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = on ? 'close' : 'contract';
+    if (icon) window.setIcon(icon, on ? 'close' : 'contract');
   }
 
   // Revela/oculta a gaveta de contratos pendentes (collapse via grid-rows no
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnTogglePending?.classList.toggle('contracts-pending-toggle--active', open);
     btnTogglePending?.setAttribute('aria-expanded', open ? 'true' : 'false');
     const icon = btnTogglePending?.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = open ? 'keyboard_arrow_down' : 'pending_actions';
+    if (icon) window.setIcon(icon, open ? 'keyboard_arrow_down' : 'pending_actions');
   }
 
   function applyContractsFilters() {
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function syncSearchClearIcon() {
     if (!searchClearBtn || !agendaSearchInput) return;
     const has = agendaSearchInput.value.length > 0;
-    searchClearBtn.textContent = has ? 'close' : 'search';
+    window.setIcon(searchClearBtn, has ? 'close' : 'search');
     searchClearBtn.classList.toggle('agenda-filters__search-icon--clearable', has);
   }
   agendaSearchInput?.addEventListener('input', syncSearchClearIcon);
@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('filters-sheet')?.classList.contains('historico-sheet--open') ||
       document.getElementById('contracts-filters-sheet')?.classList.contains('historico-sheet--open');
     if (sheetOpen) {
-      icon.textContent = 'keyboard_arrow_down';
+      window.setIcon(icon, 'keyboard_arrow_down');
       clearX?.classList.add('u-hidden');
       pill.setAttribute('aria-label', 'Fechar filtros');
       return;
@@ -692,7 +692,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Gaveta fechada: com filtro ativo, a pílula vira "Limpar" (filter_alt + X);
     // sem filtro, é o abridor (tune).
     const filtered = pill.classList.contains('agenda-filters__filter-pill--filtered');
-    icon.textContent = filtered ? 'filter_alt' : 'tune';
+    window.setIcon(icon, filtered ? 'filter_alt' : 'tune');
     clearX?.classList.toggle('u-hidden', !filtered);
     pill.setAttribute('aria-label', filtered ? 'Limpar filtros' : 'Filtrar');
   }
@@ -1113,10 +1113,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // desliza p/ a aba de pedidos → abre a gaveta de fazer pedido).
   const AGENDA_CTA_PEDIDO_HTML = `
     <div class="agenda-cta-pedido">
-      <span class="material-symbols-rounded agenda-cta-pedido__icon" aria-hidden="true">person_search</span>
+      <svg class="material-symbols-rounded agenda-cta-pedido__icon" aria-hidden="true"><use href="#ic-person_search"></use></svg>
       <p class="agenda-cta-pedido__text">Não está conseguindo achar o profissional que procura? Faça um pedido público por indicações.</p>
       <button type="button" class="btn btn--accent agenda-cta-pedido__btn" id="btn-agenda-cta-pedido">
-        <span class="material-symbols-rounded" aria-hidden="true">add</span>Fazer pedido
+        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add"></use></svg>Fazer pedido
       </button>
     </div>`;
 
@@ -1125,10 +1125,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // da plataforma (um conhecido ainda não cadastrado). Botão #btn-agenda-cta-share.
   const AGENDA_CTA_SHARE_HTML = `
     <div class="agenda-cta-pedido agenda-cta-pedido--share">
-      <span class="material-symbols-rounded agenda-cta-pedido__icon" aria-hidden="true">ios_share</span>
+      <svg class="material-symbols-rounded agenda-cta-pedido__icon" aria-hidden="true"><use href="#ic-ios_share"></use></svg>
       <p class="agenda-cta-pedido__text">Não encontrou quem indicar aqui? Compartilhe este pedido com alguém de fora da plataforma — leve a um conhecido de confiança que ainda não se cadastrou.</p>
       <button type="button" class="btn btn--accent agenda-cta-pedido__btn" id="btn-agenda-cta-share">
-        <span class="material-symbols-rounded" aria-hidden="true">share</span>Compartilhar pedido
+        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-share"></use></svg>Compartilhar pedido
       </button>
     </div>`;
 
@@ -1291,11 +1291,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Hoistada (function) para ficar disponível antes de suas chamadas.
   function vagaContentHTML(vaga, bodyTailHTML = '') {
     const reqHTML = vaga.requisitos.map(r =>
-      `<li class="vaga-card__req"><span class="material-symbols-rounded" aria-hidden="true">check_small</span>${r}</li>`
+      `<li class="vaga-card__req"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-check_small"></use></svg>${r}</li>`
     ).join('');
 
     const benefitHTML = vaga.beneficios.map(b =>
-      `<span class="vaga-card__benefit"><span class="material-symbols-rounded" aria-hidden="true">${b.icon}</span>${b.label}</span>`
+      `<span class="vaga-card__benefit"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-${b.icon}"></use></svg>${b.label}</span>`
     ).join('');
 
     // Seção de benefícios só aparece se a vaga tiver algum (vagas do usuário
@@ -1316,11 +1316,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const companyName = vaga.empresa || (vaga.cnpj ? `CNPJ ${vaga.cnpj}` : '');
     const addressHTML = vaga.endereco
       ? `<a class="vaga-card__company-address" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver no Google Maps: ${vaga.endereco}">
-                  <span class="material-symbols-rounded" aria-hidden="true">location_on</span>
+                  <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-location_on"></use></svg>
                   ${vaga.endereco}
                 </a>`
       : `<span class="vaga-card__company-address vaga-card__company-address--pending">
-                  <span class="material-symbols-rounded" aria-hidden="true">hourglass_top</span>
+                  <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-hourglass_top"></use></svg>
                   Dados da empresa em verificação
                 </span>`;
 
@@ -1328,14 +1328,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // só quando há endereço oficial (vaga por CNPJ pendente não tem mapa ainda).
     const mapsAffordanceHTML = vaga.endereco
       ? `<a class="vaga-card__company-maps" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver endereço no mapa">
-                  <span class="material-symbols-rounded" aria-hidden="true">map</span>
-                  <span class="material-symbols-rounded vaga-card__company-maps-arrow" aria-hidden="true">chevron_right</span>
+                  <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-map"></use></svg>
+                  <svg class="material-symbols-rounded vaga-card__company-maps-arrow" aria-hidden="true"><use href="#ic-chevron_right"></use></svg>
                 </a>`
       : '';
 
     return `
             <div class="vaga-card__company-strip">
-              <span class="material-symbols-rounded vaga-card__company-icon" aria-hidden="true">domain</span>
+              <svg class="material-symbols-rounded vaga-card__company-icon" aria-hidden="true"><use href="#ic-domain"></use></svg>
               <div class="vaga-card__company-info">
                 <span class="vaga-card__company-name">${companyName}</span>
                 ${addressHTML}
@@ -1346,7 +1346,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="vaga-card__role-row">
                 <h3 class="vaga-card__role">${vaga.cargo}</h3>
                 <span class="vaga-card__vacancies">
-                  <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+                  <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-groups"></use></svg>
                   ${vagasLabel}
                 </span>
               </div>
@@ -1358,11 +1358,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="vaga-card__section-label">Detalhes</p>
                 <div class="vaga-card__meta-row">
                   <span class="vaga-card__meta-item">
-                    <span class="material-symbols-rounded" aria-hidden="true">schedule</span>
+                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-schedule-o"></use></svg>
                     ${vaga.cargaHoraria}
                   </span>
                   <span class="vaga-card__meta-item vaga-card__salary">
-                    <span class="material-symbols-rounded" aria-hidden="true">payments</span>
+                    <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-payments"></use></svg>
                     ${vaga.salario}
                   </span>
                 </div>
@@ -1389,7 +1389,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="candid-section">
                 <p class="candid-section-label">Currículo completo</p>
                 <label class="candid-upload-btn" data-vaga="${vaga.id}">
-                  <span class="material-symbols-rounded" aria-hidden="true">attach_file</span>
+                  <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-attach_file-o"></use></svg>
                   <span class="candid-upload-text">Adicionar currículo em foto ou PDF</span>
                   <input type="file" accept=".pdf,image/*" class="candid-upload-input" data-vaga="${vaga.id}" aria-label="Anexar currículo">
                 </label>
@@ -1414,7 +1414,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   Me candidatar
                 </button>
                 <button type="button" class="btn vaga-card__btn-share" aria-label="Compartilhar vaga">
-                  <span class="material-symbols-rounded" aria-hidden="true">share</span>
+                  <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-share"></use></svg>
                 </button>
               </div>`;
 
@@ -1504,7 +1504,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div><!-- /back-form -->
             <div class="vaga-card__back-footer">
               <button type="button" class="btn vaga-card__btn-back" aria-label="Voltar para a vaga">
-                <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+                <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-arrow_back"></use></svg>
               </button>
               <button type="button" class="btn btn--primary vaga-card__btn-submit" data-vaga="${vaga.id}">
                 Confirmar
@@ -1669,7 +1669,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'pro-card__load-more';
-        btn.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">expand_more</span>ver mais comentários';
+        btn.innerHTML = '<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-expand_more"></use></svg>ver mais comentários';
         backComments.appendChild(btn);
       }
       btn.dataset.offset = String(COMMENTS_PAGE);
@@ -1890,7 +1890,7 @@ document.addEventListener('DOMContentLoaded', () => {
       row.innerHTML = `
         <input type="text" class="input-text vaga-dyn-input" maxlength="80" placeholder="${placeholder}">
         <button type="button" class="vaga-dyn-remove" aria-label="Remover">
-          <span class="material-symbols-rounded" aria-hidden="true">close</span>
+          <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-close"></use></svg>
         </button>
       `;
       const input = row.querySelector('.vaga-dyn-input');
@@ -1961,9 +1961,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // O abridor da action bar vira "Fechar" (X) enquanto QUALQUER gaveta de vaga
     // está aberta. O rótulo NATURAL depende do estado: "Criar vaga" antes de
     // publicar, "Ver vaga" depois (myVagaId setado).
-    const CRIAR_VAGA_HTML  = '<span class="material-symbols-rounded" aria-hidden="true">add</span>Criar vaga';
-    const VER_VAGA_HTML    = '<span class="material-symbols-rounded" aria-hidden="true">visibility</span>Ver vaga';
-    const FECHAR_VAGA_HTML = '<span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar';
+    const CRIAR_VAGA_HTML  = '<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-add"></use></svg>Criar vaga';
+    const VER_VAGA_HTML    = '<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-visibility"></use></svg>Ver vaga';
+    const FECHAR_VAGA_HTML = '<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-close"></use></svg>Fechar';
     const naturalVagaHTML  = () => (myVagaId ? VER_VAGA_HTML : CRIAR_VAGA_HTML);
     const setVagaOpenerClose = (isClose) => {
       if (!btnCriarVaga) return;
@@ -2000,11 +2000,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ${vagaContentHTML(vaga)}
         <div class="vaga-detail__actions">
           <button type="button" class="btn btn--accent vaga-detail__analyze-btn">
-            <span class="material-symbols-rounded" aria-hidden="true">group_search</span>Analisar candidatos
+            <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-group_search"></use></svg>Analisar candidatos
           </button>
           <button type="button" class="vaga-detail__count" aria-label="${taken} de ${MAX_CANDIDATOS} candidatos inscritos, ver candidatos">
             <span class="vaga-detail__count-value">${taken}/${MAX_CANDIDATOS}</span>
-            <span class="material-symbols-rounded" aria-hidden="true">groups</span>
+            <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-groups"></use></svg>
           </button>
         </div>`;
     };
@@ -2015,7 +2015,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ajudantes; o rótulo natural "Serviço de ajudantes" é o mesmo dos dois lados).
     const btnAjudanteBar = document.getElementById('btn-chamar-ajudante');
     const AJUDANTE_NATURAL_HTML = 'Serviço de ajudantes';
-    const CONCLUIR_VAGA_HTML = '<span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluir vaga';
+    const CONCLUIR_VAGA_HTML = '<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-check_circle"></use></svg>Concluir vaga';
     const setAjudanteConcludeVaga = (isConclude) => {
       if (!btnAjudanteBar) return;
       btnAjudanteBar.classList.toggle('action-conclude-mode', isConclude);
@@ -2212,7 +2212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // O botão "Serviço de ajudantes" vira botão de fechar (X) enquanto o sheet abre.
     const btnAjudante = document.getElementById('btn-chamar-ajudante');
     const AJUDANTE_HTML = 'Serviço de ajudantes';
-    const FECHAR_AJUDANTE_HTML = '<span class="material-symbols-rounded" aria-hidden="true">close</span>Fechar';
+    const FECHAR_AJUDANTE_HTML = '<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-close"></use></svg>Fechar';
     const setAjudanteClose = (isClose) => {
       if (!btnAjudante) return;
       btnAjudante.classList.toggle('action-close-mode', isClose);
@@ -2259,7 +2259,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.toggle('helper-toggle--on', on);
         btn.setAttribute('aria-pressed', String(on));
         const chk = btn.querySelector('.helper-toggle__check');
-        if (chk) chk.innerText = on ? 'check_box' : 'check_box_outline_blank';
+        if (chk) window.setIcon(chk, on ? 'check_box' : 'check_box_outline_blank');
       });
     };
 
@@ -2301,7 +2301,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <a class="btn pro-card__back-btn pro-card__back-btn--whatsapp helper-wa"
              href="https://wa.me/${h.phone}" target="_blank" rel="noopener"
              aria-label="Conversar com ${h.first} no WhatsApp">
-            <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
+            <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-chat"></use></svg>Conversar no WhatsApp
           </a>
         </div>
       </div>`;
@@ -2598,7 +2598,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.querySelector(`.feed-tabs-pill__tab[data-tab="${tabName}"]`);
     if (!btn) return;
     const d = scrolled ? SCROLL_TOP_STATE : (TAB_DEFAULTS[tabName] ?? { icon: 'work', label: tabName });
-    btn.querySelector('.material-symbols-rounded').textContent = d.icon;
+    window.setIcon(btn.querySelector('.material-symbols-rounded'), d.icon);
     btn.querySelector('.feed-tabs-pill__tab-label').textContent = d.label;
     // Seta "Voltar ao topo" REFORÇADA (opsz 24 engrossa o traço no tamanho pequeno)
     btn.classList.toggle('feed-tabs-pill__tab--totop', !!scrolled);
@@ -2806,10 +2806,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const renderMyPedidoButton = () => {
     if (getActivePedido()) {
       if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Pedido atual';
-      if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'chat';
+      if (btnMyPedidoIcon)  window.setIcon(btnMyPedidoIcon, 'chat');
     } else {
       if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Fazer pedido';
-      if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'add';
+      if (btnMyPedidoIcon)  window.setIcon(btnMyPedidoIcon, 'add');
     }
   };
 
@@ -2822,10 +2822,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMyPedido?.classList.toggle('action-close-mode', mode === 'close');
     btnMyPedido?.classList.toggle('action-conclude-mode', mode === 'conclude');
     if (mode === 'conclude') {
-      if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'check_circle';
+      if (btnMyPedidoIcon)  window.setIcon(btnMyPedidoIcon, 'check_circle');
       if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Concluir pedido';
     } else if (mode === 'close') {
-      if (btnMyPedidoIcon)  btnMyPedidoIcon.innerText  = 'close';
+      if (btnMyPedidoIcon)  window.setIcon(btnMyPedidoIcon, 'close');
       if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Fechar';
     } else {
       renderMyPedidoButton();
@@ -2842,13 +2842,13 @@ document.addEventListener('DOMContentLoaded', () => {
     btnHistorico?.classList.toggle('action-close-mode', mode === 'close');
     btnHistorico?.classList.toggle('action-conclude-mode', mode === 'conclude');
     if (mode === 'conclude') {
-      if (icon)  icon.textContent  = 'check_circle';
+      if (icon)  window.setIcon(icon, 'check_circle');
       if (label) label.textContent = 'Concluir pedido';
     } else if (mode === 'close') {
-      if (icon)  icon.textContent  = 'close';
+      if (icon)  window.setIcon(icon, 'close');
       if (label) label.textContent = 'Fechar';
     } else {
-      if (icon)  icon.textContent  = 'history';
+      if (icon)  window.setIcon(icon, 'history');
       if (label) label.textContent = 'Histórico';
     }
   };

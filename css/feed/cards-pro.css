@@ -167,7 +167,6 @@
 
 .pro-card__load-more .material-symbols-rounded {
   font-size: 1rem;
-  font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 20;
 }
 
 .comment {
@@ -333,7 +332,6 @@
 .pro-card__meta-item .material-symbols-rounded {
   font-size: 1rem;
   color: var(--info-blue);
-  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Item de pagamento que o profissional não oferece — esmaecido */

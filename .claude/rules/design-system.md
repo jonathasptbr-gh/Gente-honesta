@@ -72,17 +72,28 @@ títulos de tela/diálogo/painel/seção = 800; nomes de pessoas em cards = 700;
 = 600/700.
 
 **Escala tipográfica:** `--fs-1` (0.6rem) → `--fs-13` (2.2rem). Todo `font-size` de TEXTO usa
-um token; exceções: `clamp()` responsivos (auth.css), ícones Material Symbols (dimensionam
-glifo), `.qav__label` (0.55rem, senão trunca na coluna de 48px) e o numeral-hero 70 do IC
+um token; exceções: `clamp()` responsivos (auth.css), os ícones do sprite SVG (`font-size`
+dimensiona o `<svg>` 1em), `.qav__label` (0.55rem, senão trunca na coluna de 48px) e o numeral-hero 70 do IC
 (1.9rem).
 
 **Altura do viewport:** `--app-height` — definida em `core/app.js` via `window.innerHeight` (corrige
 `100vh`/`100dvh` inconsistentes em PWA instalado/webview). Consumida em `html/body` e nos
 `max-height` dos sheets — sempre `var(--app-height, 100dvh)`, nunca `dvh` cru.
 
-**Ícones:** Material Symbols Rounded (Google CDN, no `<head>`). Default (`base.css`):
-`'FILL' 1, 'wght' 500, 'GRAD' 25, 'opsz' 48`. Preset forte (heros/títulos): `'wght' 700`.
-Preset médio (blocos Pro/pílulas): `'wght' 600, 'opsz' 24`.
+**Ícones:** SPRITE SVG INLINE (não é mais fonte). O sprite `<svg class="icon-sprite">` com os
+símbolos `#ic-*` fica no topo do `<body>` (index.html) e cada uso é
+`<svg class="material-symbols-rounded"><use href="#ic-NOME"></use></svg>`. Desenham no 1º paint,
+sem esperar download e SEM rede (offline-safe — a fonte cross-origin nunca era cacheada pelo SW).
+A classe `.material-symbols-rounded` foi MANTIDA (agora num `<svg>`): a base em `base.css` a faz
+medir `1em×1em` e usar `fill: currentColor`, então as regras existentes seguem dimensionando por
+`font-size` e colorindo por `color`. NÃO use `font-variation-settings` (SVG ignora) — o peso/preenchimento
+já vêm assados no símbolo (wght 500, variante FILL 1). Variante CONTORNO: símbolos `#ic-NOME-o`
+(usados nos meta-items dos cards Pro/vaga e nos botões de ajuda `?`).
+- **Gerar HTML de ícone em JS:** `window.icon(nome, classeExtra?)`. **Trocar ícone em runtime:**
+  `window.setIcon(elIcone, nome)` (era `elemento.textContent = nome`).
+- **Adicionar um ícone novo:** inclua o nome em `scripts/gen-icon-sprite.mjs` (lista `FILL`; se
+  precisar da variante contorno, em `OUTLINE`), rode-o (`npm i @material-symbols/svg-500
+  @iconify-json/ic` + `node scripts/gen-icon-sprite.mjs`) e cole o sprite gerado no `<body>`.
 
 ## Semântica de cores — AMARELO = AÇÃO; AZUL = SELEÇÃO
 
@@ -168,12 +179,12 @@ pressionar-longo do card, `attachLongPress`.) Bespoke DE PROPÓSITO
   Usada no check "perfil público" (cadastro) e "exigir currículo" (criar vaga).
 - **`.eyebrow` (`components/forms.css`)** — rótulo uppercase (`--p-green`, `--fs-5`, 700), agrupada com
   `.form-group__label`. TODOS os labels das gavetas compõem a classe no HTML. Sub-rótulos
-  discretos seguem `.payment-methods__subgroup-label` (fs-3, bold, `--t-sub`, uppercase). O
-  `.material-symbols-rounded` base tem `text-transform: none` (ícone dentro de rótulo uppercase
-  não quebra o glifo).
-- **`.btn__spinner` (`components/buttons.css`)** — spinner de loading dos botões (glifo `autorenew`
-  girando). `class="material-symbols-rounded btn__spinner"`; variante `--sm` p/ o link de
-  reenvio de SMS.
+  discretos seguem `.payment-methods__subgroup-label` (fs-3, bold, `--t-sub`, uppercase). (Ícone
+  dentro de rótulo uppercase não é mais problema: o ícone é `<svg>`, não texto — `text-transform`
+  não o afeta.)
+- **`.btn__spinner` (`components/buttons.css`)** — spinner de loading dos botões (ícone `autorenew`
+  girando). `class="material-symbols-rounded btn__spinner"` (num `<svg><use href="#ic-autorenew">`);
+  variante `--sm` p/ o link de reenvio de SMS.
 - **`.chip` + `.chip--md` (`feed/historico.css`)** — `.chip` é o casco base (radius-pill, inline-flex,
   transição); `.chip--md` é a métrica das pílulas do cadastro (padding `8px 14px`, `--fs-5`).
   Pílulas de pagamento (`chip chip--md chip--payment`) e `.tag-pill` (`chip chip--md tag-pill`,

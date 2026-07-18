@@ -25,7 +25,6 @@ html.is-desktop .desktop-block {
 html.is-desktop .desktop-block__icon {
   font-size: 6rem;
   color: var(--a-gold);
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 48;
 }
 
 .desktop-block__title {
@@ -90,7 +89,6 @@ html.is-landscape:not(.is-desktop) .overlay-dialog {
 .rotate-block__icon {
   font-size: 3.5rem;
   color: var(--a-gold);
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 48;
 }
 
 .rotate-block__title {

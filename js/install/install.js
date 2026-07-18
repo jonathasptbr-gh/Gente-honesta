@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     [el.android, el.ios, el.generic].forEach(b => b?.classList.add('u-hidden'));
     el.skip?.classList.add('u-hidden');
     el.progress?.classList.remove('u-hidden');
-    if (el.hero)  el.hero.innerText = 'downloading';
+    if (el.hero)  window.setIcon(el.hero, 'downloading');
     if (el.title) el.title.innerHTML = 'Instalação em<br>andamento...';
     if (el.sub)   el.sub.innerText = 'Em instantes o Gente Honesta estará disponível na sua tela inicial ou na gaveta de aplicativos. Você já pode fechar esta aba — depois, é só abrir o app pelo ícone.';
   };
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const progress = document.getElementById('install-block-progress');
     if (!progress || progress.classList.contains('u-hidden')) return; // não estamos neste fluxo
     const el = installBlocks();
-    if (el.hero)  el.hero.innerText = 'task_alt';
+    if (el.hero)  window.setIcon(el.hero, 'task_alt');
     if (el.title) el.title.innerHTML = 'App instalado!';
     if (el.sub)   el.sub.innerText = 'Abra o Gente Honesta pelo ícone na sua tela inicial ou na gaveta de aplicativos. Esta aba já pode ser fechada.';
     el.retry?.classList.add('u-hidden');

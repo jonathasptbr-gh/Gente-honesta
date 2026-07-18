@@ -159,7 +159,6 @@
 
 .vaga-card__btn-submit .material-symbols-rounded {
   font-size: 1.05rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Seção genérica do formulário de candidatura */
@@ -364,7 +363,6 @@
   font-size: 1.1rem;
   color: var(--p-green);
   flex-shrink: 0;
-  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 20;
 }
 
 .candid-upload-text {
@@ -393,7 +391,6 @@
   color: var(--info-blue);
   flex-shrink: 0;
   margin-top: 1px;
-  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
 
 .vaga-card__company-info {
@@ -426,7 +423,6 @@
 
 .vaga-card__company-address .material-symbols-rounded {
   font-size: 0.8rem;
-  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 20;
 }
 
 /* Afordância "ver no mapa" à direita do cabeçalho: ícone de mapa + seta,
@@ -447,7 +443,6 @@
 
 .vaga-card__company-maps .material-symbols-rounded {
   font-size: 1.35rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
 }
 
 /* A seta é um pouco menor que o ícone de mapa (afordância "seguir para") */
@@ -493,7 +488,6 @@
 
 .vaga-card__vacancies .material-symbols-rounded {
   font-size: 1rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
 }
 
 /* Seção genérica: label + conteúdo */
@@ -535,7 +529,6 @@
   color: var(--p-green);
   flex-shrink: 0;
   margin-top: 1px;
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 20;
 }
 
 /* Metadados: carga e salário */
@@ -557,7 +550,6 @@
   font-size: 1.05rem;
   color: var(--t-sub);
   flex-shrink: 0;
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Salário com destaque */
@@ -569,7 +561,6 @@
 
 .vaga-card__salary .material-symbols-rounded {
   color: var(--p-green);
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Chips de benefícios */
@@ -595,7 +586,6 @@
   font-size: 0.9rem;
   color: var(--p-green);
   flex-shrink: 0;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
 }
 
 /* Rodapé de ações — stretch garante mesma altura para os dois botões */
@@ -629,7 +619,6 @@
 
 .vaga-card__btn-apply .material-symbols-rounded {
   font-size: 1.05rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Botão "Compartilhar" — mesmo radius-md, padding lateral para ocupar espaço equilibrado */
@@ -701,7 +690,6 @@
 
 .vaga-detail__analyze-btn .material-symbols-rounded {
   font-size: 1.1rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Badge de fração (N/20) — card BRANCO sobre o corpo cinza da gaveta (padrão das

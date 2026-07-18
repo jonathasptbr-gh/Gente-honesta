@@ -21,7 +21,8 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
 `window.customAlert(msg, title?, icon?)`, `window.customConfirm(msg, title?, icon?)`,
 `window.watchScrollShadows(el)`, `window.backNav` (`push`/`remove`/`reset`/`has`/`depth`),
 `window.moveMs(distanciaPx, speed?)`, `window.MOVE_SPEED`/`MOVE_SPEED_OPEN`/`MOVE_SPEED_CLOSE`,
-`window.THEME_COLOR`.
+`window.THEME_COLOR`, `window.icon(nome, classeExtra?)` (HTML de um ícone do sprite SVG),
+`window.setIcon(elIcone, nome)` (troca o glifo de um ícone já no DOM — antes `el.textContent = nome`).
 
 **tutorial/tutorial.js:** `window.startTutorial(steps, opts)`, `window.resetTutorialSeen(id)`.
 
@@ -169,10 +170,10 @@ Todo o app é verde (`--p-green`), então a `meta[theme-color]` é verde em toda
   "Gente Honesta". Os 3 ícones compartilham o mesmo slot de altura fixa
   (`clamp(5.5rem,26vw,8.5rem)`). `#btn-start` usa `btn--accent`. Dots inativos em branco
   translúcido, ativo BRANCO `--t-light` (o azul de seleção sumiria no fundo escuro).
-- **Seta "voltar" é ÍCONE, nunca caractere:** `#btn-back-phone` usa
-  `<span class="material-symbols-rounded">arrow_back</span>` — um glifo digitado como texto solto
-  não compartilha a métrica das letras e fica mais baixo. `.btn--text .material-symbols-rounded`
-  fixa o ícone em `1.1rem`.
+- **Seta "voltar" é ÍCONE, nunca caractere:** `#btn-back-phone` usa o ícone `arrow_back` do sprite
+  (`<svg class="material-symbols-rounded"><use href="#ic-arrow_back"></use></svg>`) — um caractere
+  digitado como texto solto não compartilha a métrica das letras e fica mais baixo.
+  `.btn--text .material-symbols-rounded` fixa o ícone em `1.1rem`.
 
 ## Loader global
 

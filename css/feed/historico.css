@@ -177,7 +177,6 @@
 .historico-item__delete:active { transform: scale(0.85); }
 .historico-item__delete .material-symbols-rounded {
   font-size: 1.35rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .historico-item__text {
@@ -219,7 +218,6 @@
 .historico-item__count .material-symbols-rounded {
   font-size: 0.95rem;
   flex-shrink: 0;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .historico-item__status--active { background: var(--info-blue-light); color: var(--info-blue); }
@@ -369,7 +367,6 @@
   font-size: 1.1rem;
   /* Preset FORTE (wght 700): glifo mais espesso p/ a lupa (e o X de limpar)
      se destacarem no campo — mesmo tamanho, só o traço mais pesado. */
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
   background: none;
   padding: 0;
   pointer-events: none;
@@ -505,7 +502,6 @@
    p/ tune/filter_alt e p/ a seta keyboard_arrow_down da gaveta aberta. */
 .agenda-filters__filter-pill .material-symbols-rounded {
   font-size: 1.2rem;
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
 }
 
 /* Contagem de filtros ativos dentro da pílula (some com u-hidden quando 0) */
@@ -579,7 +575,6 @@
 
 .chip--ic .material-symbols-rounded {
   font-size: 1.15rem;
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 24;
 }
 
 /* Tier colors: mantidas em ambos os estados (padrão e selecionado) */
@@ -590,7 +585,6 @@
 /* Chip "Apenas salvos": ícone no mesmo tamanho dos IC chips desta seção */
 .chip--saved .material-symbols-rounded {
   font-size: 1.05rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 20;
 }
 
 /* Chips de filtro (fora do painel — estilo base preservado) */

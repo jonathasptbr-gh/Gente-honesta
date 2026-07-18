@@ -30,7 +30,6 @@
 .ic-card__info-btn .material-symbols-rounded {
   font-size: 1.2rem;
   color: var(--p-green-light);   /* claro sobre o card verde */
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Cabeçalho no PADRÃO dos TÍTULOS do cadastro ("Detalhes profissionais",
@@ -47,7 +46,6 @@
 .material-symbols-rounded.ic-card__head-icon {
   font-size: 1.5rem;
   color: var(--a-gold);   /* ícone dourado sobre o card verde */
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
 }
 
 .ic-card__eyebrow {
@@ -231,7 +229,6 @@
 
 .ic-zone__shield {
   font-size: 1.35rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .ic-zone__range {

@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const locBtn = document.getElementById('btn-register-location');
     if (locBtn) locBtn.classList.remove('location-check--confirmed', 'location-check--error', 'location-check--error-validation');
     const locIcon = document.getElementById('icon-location-status');
-    if (locIcon) locIcon.innerText = 'radio_button_unchecked';
+    if (locIcon) window.setIcon(locIcon, 'radio_button_unchecked');
     const locText = document.getElementById('text-location-status');
     if (locText) locText.innerText = 'Registrar sua região atual';
 
@@ -486,12 +486,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const setButtonsCapture = () => {
     if (btnSnap) {
       btnSnap.className = 'btn btn--outline camera-view__action-btn';
-      btnSnap.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">photo_camera</span>Tirar foto';
+      btnSnap.innerHTML = '<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-photo_camera"></use></svg>Tirar foto';
       btnSnap.setAttribute('aria-label', 'Tirar foto');
     }
     if (btnCameraCancel) {
       btnCameraCancel.className = 'btn camera-view__action-btn camera-view__action-btn--cancel';
-      btnCameraCancel.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">close</span>Cancelar';
+      btnCameraCancel.innerHTML = '<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-close"></use></svg>Cancelar';
       btnCameraCancel.setAttribute('aria-label', 'Cancelar');
     }
   };
@@ -500,12 +500,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const setButtonsReview = () => {
     if (btnSnap) {
       btnSnap.className = 'btn btn--outline camera-view__action-btn';
-      btnSnap.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">replay</span>Outra foto';
+      btnSnap.innerHTML = '<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-replay"></use></svg>Outra foto';
       btnSnap.setAttribute('aria-label', 'Tirar outra foto');
     }
     if (btnCameraCancel) {
       btnCameraCancel.className = 'btn camera-view__action-btn camera-view__action-btn--confirm';
-      btnCameraCancel.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">check</span>Usar foto';
+      btnCameraCancel.innerHTML = '<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-check"></use></svg>Usar foto';
       btnCameraCancel.setAttribute('aria-label', 'Confirmar foto');
     }
   };
@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!navigator.geolocation) {
       if (btn) btn.classList.add('location-check--error');
-      if (icon) icon.innerText = 'location_off';
+      if (icon) window.setIcon(icon, 'location_off');
       if (statusText) statusText.innerText = 'GPS não disponível neste dispositivo.';
       return;
     }
@@ -610,7 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.classList.remove('location-check--error', 'location-check--error-validation');
       btn.classList.add('location-check--loading');
     }
-    if (icon) icon.innerText = 'progress_activity';
+    if (icon) window.setIcon(icon, 'progress_activity');
     if (statusText) statusText.innerText = 'Obtendo localização...';
 
     // Garante um loading mínimo visível para suavizar a confirmação,
@@ -632,7 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
           btn.classList.remove('location-check--error-validation');
           btn.classList.add('location-check--confirmed');
         }
-        if (icon) icon.innerText = 'check_circle';
+        if (icon) window.setIcon(icon, 'check_circle');
         if (statusText) statusText.innerText = 'Região registrada com sucesso.';
       }),
       (err) => settle(() => {
@@ -640,7 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
           btn.classList.remove('location-check--confirmed');
           btn.classList.add('location-check--error');
         }
-        if (icon) icon.innerText = 'location_off';
+        if (icon) window.setIcon(icon, 'location_off');
 
         if (err.code === err.PERMISSION_DENIED) {
           if (statusText) statusText.innerText = 'Permissão negada. Ative a localização nas configurações do app.';

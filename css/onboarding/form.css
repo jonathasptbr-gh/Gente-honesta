@@ -407,7 +407,6 @@
 .section-help-btn .material-symbols-rounded {
   font-size: 1.2rem;
   color: var(--t-sub);
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Seções colapsáveis */
@@ -517,7 +516,6 @@
   font-size: 1.6rem;
   color: var(--p-green);
   margin-bottom: 2px;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .service-choice__title {

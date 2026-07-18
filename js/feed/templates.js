@@ -54,12 +54,12 @@ export const proBackHTML = () => {
   const commentsHTML = initial.map(buildCommentHTML).join('');
   const hasMore = getComments().length > COMMENTS_PAGE;
   const loadMoreBtn = hasMore
-    ? `<button type="button" class="pro-card__load-more" data-offset="${COMMENTS_PAGE}"><span class="material-symbols-rounded" aria-hidden="true">expand_more</span>ver mais comentários</button>`
+    ? `<button type="button" class="pro-card__load-more" data-offset="${COMMENTS_PAGE}"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-expand_more"></use></svg>ver mais comentários</button>`
     : '';
   _proBackHTML = `
     <div class="pro-card__back">
       <div class="pro-card__comments-header">
-        <span class="material-symbols-rounded" aria-hidden="true">chat_bubble</span>
+        <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-chat_bubble"></use></svg>
         Comentários
       </div>
       <div class="pro-card__back-comments">
@@ -68,17 +68,17 @@ export const proBackHTML = () => {
       </div>
       <div class="pro-card__back-actions">
         <button type="button" class="btn btn--icon pro-card__back-btn pro-card__back-btn--back" aria-label="Voltar">
-          <span class="material-symbols-rounded" aria-hidden="true">arrow_back</span>
+          <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-arrow_back"></use></svg>
         </button>
         <button type="button" class="btn pro-card__back-btn pro-card__back-btn--whatsapp">
-          <span class="material-symbols-rounded" aria-hidden="true">chat</span>Conversar no WhatsApp
+          <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-chat"></use></svg>Conversar no WhatsApp
         </button>
         <button type="button" class="btn btn--icon pro-card__back-btn pro-card__back-btn--share" aria-label="Compartilhar">
-          <span class="material-symbols-rounded" aria-hidden="true">share</span>
+          <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-share"></use></svg>
         </button>
         <button type="button" class="btn pro-card__back-btn pro-card__back-btn--cancel-indicate">Cancelar</button>
         <button type="button" class="btn pro-card__back-btn pro-card__back-btn--confirm-indicate">
-          <span class="material-symbols-rounded" aria-hidden="true">person_add</span>Indicar
+          <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar
         </button>
       </div>
     </div>
@@ -98,7 +98,7 @@ export const proFooterHTML = (pro) => {
     : 'Cartão';
   const cls = active => `pro-card__meta-item${active ? '' : ' pro-card__meta-item--inactive'}`;
   const item = (active, icon, label) =>
-    `<span class="${cls(active)}"><span class="material-symbols-rounded">${icon}</span><span class="pro-card__meta-item__label">${label}</span></span>`;
+    `<span class="${cls(active)}"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-${icon}-o"></use></svg><span class="pro-card__meta-item__label">${label}</span></span>`;
   return `<div class="pro-card__meta">
     ${item(hasCash, 'attach_money', 'Dinheiro')}
     ${item(hasPix, 'qr_code_2', 'Pix')}
@@ -112,24 +112,24 @@ export function historicoItemHTML(p) {
   const active = p.status === PEDIDO_STATUS.ACTIVE;
   const statusCls = active ? 'historico-item__status--active' : 'historico-item__status--done';
   const statusInner = active
-    ? `<span class="material-symbols-rounded" aria-hidden="true">bolt</span>Ativo · ${pedidoHoursLeft(p) > 0 ? pedidoHoursLeft(p) + 'h' : 'Expirado'}`
-    : `<span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Concluído`;
+    ? `<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-bolt"></use></svg>Ativo · ${pedidoHoursLeft(p) > 0 ? pedidoHoursLeft(p) + 'h' : 'Expirado'}`
+    : `<svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-check_circle"></use></svg>Concluído`;
   const urgentBadge = p.urgency === URGENCY.URGENT
-    ? `<span class="pedido-item__urgent-badge" aria-label="Urgente"><span class="material-symbols-rounded" aria-hidden="true">bolt</span>Urgente</span>`
+    ? `<span class="pedido-item__urgent-badge" aria-label="Urgente"><svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-bolt"></use></svg>Urgente</span>`
     : '';
   return `
     <article class="historico-item" data-pedido-id="${p.id}" role="button" tabindex="0">
       <div class="historico-item__top">
         <span class="historico-item__date">${formatPedidoDate(p.createdAt)}</span>
         <button type="button" class="historico-item__delete" data-delete-id="${p.id}" aria-label="Excluir pedido">
-          <span class="material-symbols-rounded" aria-hidden="true">delete</span>
+          <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-delete"></use></svg>
         </button>
       </div>
       <p class="historico-item__text">${urgentBadge}${p.text}</p>
       <div class="historico-item__footer">
         <span class="historico-item__status ${statusCls}">${statusInner}</span>
         <span class="historico-item__count">
-          <span class="material-symbols-rounded" aria-hidden="true">groups</span>${p.indicated.length}/3 indicações
+          <svg class="material-symbols-rounded" aria-hidden="true"><use href="#ic-groups"></use></svg>${p.indicated.length}/3 indicações
         </span>
       </div>
     </article>`;

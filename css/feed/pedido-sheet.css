@@ -186,7 +186,6 @@
 
 .pedido-chip .material-symbols-rounded {
   font-size: 1.1rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .pedido-chip:active { transform: scale(var(--press-scale)); }
@@ -432,7 +431,6 @@
 .vaga-stepper__btn:disabled { opacity: 0.4; cursor: default; }
 .vaga-stepper__btn .material-symbols-rounded {
   font-size: 1.3rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .vaga-stepper__value {
@@ -596,7 +594,6 @@
 
 .vaga-benefit-pill .material-symbols-rounded {
   font-size: 1.1rem;
-  font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 25, 'opsz' 24;
 }
 
 .vaga-benefit-pill[aria-pressed="true"] {

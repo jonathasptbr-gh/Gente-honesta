@@ -57,7 +57,7 @@
 
   /* Escala tipográfica — do menor ao maior (px aproximado @16px root).
      Todo font-size de TEXTO usa um token; exceções: clamp() responsivos
-     e ícones Material Symbols (dimensionam glifo, não texto). */
+     e os ícones do sprite SVG (font-size dimensiona o glifo, não texto). */
   --fs-1: 0.6rem;    /* ~10px — micro-rótulos: tabs, QAV, badges */
   --fs-2: 0.7rem;    /* ~11px — meta de cards, labels pequenos */
   --fs-3: 0.75rem;   /*  12px — hints, legal, timestamps */
@@ -246,24 +246,27 @@ button, input, textarea {
 
 
 /* ===========================================
-   ÍCONES (Material Symbols)
+   ÍCONES (sprite SVG — símbolos #ic-* no topo do <body>)
+   .material-symbols-rounded NÃO é mais uma fonte: é um <svg><use> do sprite. O
+   nome da classe foi mantido para preservar a cascata das ~40 regras que
+   dimensionam o ícone por `font-size` e o colorem por `color` — que seguem
+   funcionando porque o SVG mede 1em×1em e usa `fill: currentColor`. Assim o ícone
+   desenha no 1º paint, sem esperar download de fonte e SEM depender de rede
+   (offline-safe no PWA). Troca de glifo em runtime: window.setIcon (core/app.js).
    ======================================== */
 .material-symbols-rounded {
-  /* Essencial: sem isto, o seletor universal `* { font-family:'Inter' }` vence e os
-     ícones herdam Inter — o glifo não é o ícone e o font-size "não reage". */
-  font-family: 'Material Symbols Rounded';
-  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 25, 'opsz' 48;
+  width: 1em;                 /* tamanho segue o font-size (herdado ou por regra) */
+  height: 1em;
+  font-size: 24px;            /* default do glifo (era o default da folha do Google) */
+  fill: currentColor;         /* herda a cor via `color` das regras existentes */
+  flex-shrink: 0;
   display: inline-block;
+  vertical-align: -0.15em;    /* assenta o ícone na linha de base do texto */
   line-height: 1;
-  white-space: nowrap;
-  /* Imune a text-transform herdado (ex.: rótulos .eyebrow em caixa alta):
-     uppercase no nome do glifo quebra a ligadura e mostra o texto cru. */
-  text-transform: none;
-  direction: ltr;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  -webkit-user-select: none;
+  user-select: none;
 }
+.material-symbols-rounded use { pointer-events: none; }
 
 
 /* ===========================================

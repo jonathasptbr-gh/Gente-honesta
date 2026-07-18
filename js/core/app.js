@@ -39,6 +39,27 @@ window.MOVE_MAX_MS = 1200;   // teto (movimentos longos não arrastam)
 window.moveMs = (distancePx, speed = window.MOVE_SPEED) => Math.round(Math.min(window.MOVE_MAX_MS,
   Math.max(window.MOVE_MIN_MS, Math.abs(distancePx) / speed)));
 
+// =========================================================================
+// ÍCONES (SVG sprite) — window.icon / window.setIcon
+// A antiga fonte Material Symbols foi trocada por um sprite SVG inline (topo do
+// <body>, símbolos #ic-NOME). Vantagem: o ícone desenha no 1º paint, sem esperar
+// download de fonte e SEM depender de rede — offline-safe no PWA (a fonte cross-
+// origin nunca era cacheada pelo Service Worker; offline os glifos viravam texto).
+//   window.icon(nome, classeExtra?)  → devolve o HTML de um ícone (<svg><use>).
+//   window.setIcon(elIcone, nome)    → troca o glifo de um ícone JÁ no DOM
+//                                       (substitui o antigo elemento.textContent = nome).
+// A classe .material-symbols-rounded foi mantida no <svg> de propósito: preserva a
+// cascata das ~40 regras de CSS que dimensionam por font-size e colorem por color
+// (agora via fill:currentColor) e os querySelector('.material-symbols-rounded') do JS.
+// =========================================================================
+window.icon = function (name, extraClass) {
+  return `<svg class="material-symbols-rounded${extraClass ? ' ' + extraClass : ''}" aria-hidden="true"><use href="#ic-${name}"></use></svg>`;
+};
+window.setIcon = function (iconEl, name) {
+  const use = iconEl && iconEl.querySelector('use');
+  if (use) use.setAttribute('href', '#ic-' + name);
+};
+
 (function () {
   const setViewportVars = () => {
     const root = document.documentElement;
@@ -426,7 +447,7 @@ window.openDialog = function({ title = "Aviso", message = "", icon = "error",
 
     titleEl.innerText = title;
     messageEl.innerText = message;
-    iconEl.innerHTML = `<span class="material-symbols-rounded">${icon}</span>`;
+    iconEl.innerHTML = window.icon(icon);
     btnConfirm.innerText = confirmText;
     btnCancel.innerText = cancelText;
     btnCancel.classList.toggle('u-hidden', !showCancel);

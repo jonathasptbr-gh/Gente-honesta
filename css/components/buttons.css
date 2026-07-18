@@ -61,7 +61,6 @@
   vertical-align: middle;
   margin-right: var(--space-xs);
   font-size: 22px;
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
   animation: spin 1s linear infinite;
 }
 

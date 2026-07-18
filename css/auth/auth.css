@@ -26,7 +26,6 @@
   margin-top: 2rem;
   margin-bottom: 2rem;
   color: var(--a-gold);
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
 }
 
 /* .auth-section é usada só no #view-auth (intro/telefone/OTP) e no #view-install,
@@ -190,7 +189,6 @@
   justify-content: center;
   margin-top: 1rem;
   color: var(--a-gold);
-  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 25, 'opsz' 48;
 }
 
 .intro-carousel__dots {
