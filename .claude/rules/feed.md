@@ -15,7 +15,7 @@ paths:
   mova a chamada para depois.
 - **function declarations (hoistadas) vs `const`:** helpers chamados antes de sua posição textual
   DEVEM ser `function`: `renderFlippableProCards`, `buildProCard`, `bindProCardFlip`,
-  `handleLoadMoreComments`, `resetProCardBack`, `proCardFlipToBack/Front`, `flipCardToBack/Front`,
+  `resetProCardBack`, `proCardFlipToBack/Front`, `flipCardToBack/Front`,
   `icTier`, `icShieldIcon`, `openFiltersSheet`, `closeFiltersSheet`, `closeContractsSheet`,
   `historicoItemHTML`, `updateBarElevation`, `anchorBelowActionBar`, `comparePros`, `tapHitsButton`.
   Nunca converter para arrow sem mover a declaração para antes de todas as chamadas.
@@ -345,17 +345,19 @@ via **Web Share API** (`navigator.share`) no celular; no desktop copia p/ a áre
 
 `.pro-card__3d > .pro-card__flipper`: frente = dados (IC, tags, disponibilidade, IC-bar) + fita de
 "salvo" (`.pro-card__saved-ribbon`, canto sup. esq. sobre a foto, via `.pro-card--pinned`); verso
-= `proBackHTML()` (primeiros `COMMENTS_PAGE`=5 comentários + "ver mais" + botões de ação). **Salvar
+= `proBackHTML()` (TODOS os comentários + botões de ação). **Salvar
 contato = pressionar longamente** o card (`attachLongPress` em `#agenda-list` → `togglePinPro`; não
 há mais botão de fixar).
 **Builder único:** `buildProCard(pro, {showPin, withId})` (function hoistada) é a fonte única do
 scaffolding, usada por `renderFlippableProCards` (popup/detalhe, `showPin:false`) E por
 `renderAgendaList` (`showPin:true, withId:true`). Flip via `proCardFlipToBack/Front` (motor genérico
 `flipCardToBack/Front`, config separada pro-card vs vaga-card).
-**Paginação de comentários:** `handleLoadMoreComments(e)` (hoistada) appenda o próximo batch com
-`comment--entering` (stagger 45ms) e anima a altura do card; `resetProCardBack(card)` restaura os
-primeiros 5. `proCardFlipToFront` chama `resetProCardBack` no `onComplete` (verso já oculto, sem
-flash).
+**Comentários = SCROLL INTERNO (não mais "ver mais"):** o verso lista TODOS os comentários numa área
+de ALTURA MÁXIMA fixa (`.pro-card--expanded .pro-card__back-comments`: `max-height: clamp(220px,42vh,340px)`;
+`overflow-y:auto`) que ROLA por dentro — o card expandido NÃO cresce. A área é `.js-scroll-shadows`;
+`buildProCard` chama `window.watchScrollShadows(...)` nela para injetar as shades de borda (topo/base),
+o MESMO sistema de sombras do resto do app (ver `app-core.md`). `resetProCardBack(card)` só volta o
+`scrollTop` ao topo; `proCardFlipToFront` o chama no `onComplete` (verso já oculto, sem flash).
 **Delegação de flip é DUPLICADA (dívida aberta):** `bindProCardFlip` (popup/detalhe) e o handler de
 `#agenda-list` (com pin + modo indicação). Stubs de WhatsApp/Compartilhar centralizados em
 `comingSoon(label, title, icon)`.
@@ -436,8 +438,7 @@ Abridor vira "Fechar" (`setAjudanteClose`); fecha por tap-outside.
 | Classe | Descrição |
 |---|---|
 | `.pedido-item__urgent-badge` | Pílula vermelha "bolt Urgente" inline (única marca de urgência) |
-| `.pro-card__load-more` | "ver mais comentários" — cor `--info-blue` |
-| `.comment--entering` | `commentFadeIn` fade+slide-up 0.22s |
+| `.pro-card__back-comments` | Área de comentários do verso: rola INTERNAMENTE (max-height fixa) com `.js-scroll-shadows` |
 | `.indicated-popup__scroll` | Wrapper de scroll do popup (fora do header) |
 
 Em `components/buttons.css`: `btn--accent` (`--a-gold` + `--p-green-dark`, Concluir pedido/CTAs).

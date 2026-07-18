@@ -10,14 +10,14 @@
 // icon:, …) e rodar `npm run icons:gen`. O `npm run icons:check` (e o CI) falham
 // se algum nome referenciado não tiver símbolo.
 //
-// Fonte dos desenhos: Material Symbols Rounded wght 500 (variante -fill = FILL 1);
+// Fonte dos desenhos: Material Symbols Rounded wght 600 (variante -fill = FILL 1);
 // 9 ícones ausentes do pacote vêm do Material Icons "round" (IC_ROUND).
 // =========================================================================
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { collectUsedIcons } from './icon-usage.mjs';
 
 const ROOT = '.';
-const SYM = './node_modules/@material-symbols/svg-500/rounded';         // Google Symbols Rounded wght500
+const SYM = './node_modules/@material-symbols/svg-600/rounded';         // Google Symbols Rounded wght600
 const IC = JSON.parse(readFileSync('./node_modules/@iconify-json/ic/icons.json', 'utf8')); // Material Icons "round"
 const INDEX = './index.html';
 

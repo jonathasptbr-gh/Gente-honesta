@@ -28,7 +28,7 @@ Repositório: jonathasptbr-gh/gente-honesta
   de ícones) — não é build do site.
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v412**.
+  bump.) Versão atual: **v413**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**
@@ -145,7 +145,7 @@ js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
                           getPublishSeedIndicated + addVaga. avatarSvg (export direto). Os chamadores só
                           falam com accessors.
   feed/config.js    — constantes congeladas: EASE_STD, *_CARD_CFG, TAB_*, SCROLL_*, HELPER_RATES,
-                          placeholders, availOrder/availabilityMeta, COMMENTS_PAGE, MAX_VAGAS/DAY_ORDER.
+                          placeholders, availOrder/availabilityMeta, MAX_VAGAS/DAY_ORDER.
   feed/utils.js     — funções puras: icTier/icShieldIcon, formatPedidoDate, pedidoHoursLeft, comingSoon.
   feed/templates.js — templates de HTML puros: qavHTML, icBarHTML, availHTML, buildCommentHTML,
                           proBackHTML, proFooterHTML, historicoItemHTML.

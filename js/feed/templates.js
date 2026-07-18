@@ -2,7 +2,7 @@
 // TEMPLATES de HTML do feed — funções puras de string (sem estado mutável).
 // =========================================================================
 import { icTier, formatPedidoDate, pedidoHoursLeft } from './utils.js';
-import { availabilityMeta, COMMENTS_PAGE } from './config.js';
+import { availabilityMeta } from './config.js';
 import { getComments } from './repository.js';
 import { PEDIDO_STATUS, URGENCY } from '../core/domain.js';
 
@@ -50,21 +50,18 @@ export const buildCommentHTML = (c) => {
 let _proBackHTML = null;
 export const proBackHTML = () => {
   if (_proBackHTML) return _proBackHTML;
-  const initial = getComments().slice(0, COMMENTS_PAGE);
-  const commentsHTML = initial.map(buildCommentHTML).join('');
-  const hasMore = getComments().length > COMMENTS_PAGE;
-  const loadMoreBtn = hasMore
-    ? `<button type="button" class="pro-card__load-more" data-offset="${COMMENTS_PAGE}"><svg class="icon" aria-hidden="true"><use href="#ic-expand_more"></use></svg>ver mais comentários</button>`
-    : '';
+  // TODOS os comentários de uma vez: a área rola INTERNAMENTE (altura fixa do card
+  // expandido) com o sistema de sombras de borda (.js-scroll-shadows) — sem o antigo
+  // "ver mais" que crescia o card. `watchScrollShadows` injeta as shades por card.
+  const commentsHTML = getComments().map(buildCommentHTML).join('');
   _proBackHTML = `
     <div class="pro-card__back">
       <div class="pro-card__comments-header">
         <svg class="icon" aria-hidden="true"><use href="#ic-chat_bubble"></use></svg>
         Comentários
       </div>
-      <div class="pro-card__back-comments">
+      <div class="pro-card__back-comments js-scroll-shadows">
         <div class="pro-card__comments-list">${commentsHTML}</div>
-        ${loadMoreBtn}
       </div>
       <div class="pro-card__back-actions">
         <button type="button" class="btn btn--icon pro-card__back-btn pro-card__back-btn--back" aria-label="Voltar">

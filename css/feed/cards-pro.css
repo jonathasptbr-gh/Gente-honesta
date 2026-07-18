@@ -72,9 +72,12 @@
   overflow: visible;
 }
 
+/* Expandido: a área de comentários tem ALTURA MÁXIMA fixa e ROLA por dentro (o card
+   para de crescer). O flip mede back.offsetHeight já limitado por este teto. */
 .pro-card--expanded .pro-card__back-comments {
-  overflow: visible;
-  flex: none;
+  flex: 0 1 auto;
+  max-height: clamp(220px, 42vh, 340px);
+  overflow-y: auto;
 }
 
 /* Frente: layout normal do card (foto + QAV + cabeçalho + bio + rodapé) */
@@ -148,39 +151,8 @@
   flex-direction: column;
 }
 
-.pro-card__load-more {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  width: 100%;
-  margin-top: var(--space-xs);
-  padding: 8px;
-  background: var(--on-green-faint);
-  border: none;
-  border-radius: var(--radius-sm);
-  color: var(--info-blue);
-  font-size: var(--fs-4);
-  font-weight: var(--fw-medium);
-  cursor: pointer;
-}
-
-.pro-card__load-more .icon {
-  font-size: 1rem;
-}
-
 .comment {
   padding: var(--space-xs) 0;
-}
-
-/* Animação de entrada de novos comentários (carregados pelo "ver mais") */
-@keyframes commentFadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.comment--entering {
-  animation: commentFadeIn 0.22s ease forwards;
 }
 
 .comment__text {

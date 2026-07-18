@@ -8,7 +8,7 @@
     "icons:check": "node scripts/check-icons.mjs"
   },
   "devDependencies": {
-    "@material-symbols/svg-500": "^0.45.8",
+    "@material-symbols/svg-600": "^0.45.8",
     "@iconify-json/ic": "^1.2.4"
   }
 }

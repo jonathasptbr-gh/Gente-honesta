@@ -20,8 +20,6 @@ export const availabilityMeta = {
   unavailable: { cls: 'unavailable', label: 'Indisponível' },
 };
 
-export const COMMENTS_PAGE = 5;
-
 // ── Motor genérico de animação flip+expansão ─────────────────────────────
 export const VAGA_CARD_CFG = {
   flipMs: 560, expandMs: 450, collMs: 370,

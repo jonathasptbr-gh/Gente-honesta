@@ -1,6 +1,6 @@
 "use strict";
 import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, getPublishSeedIndicated, addVaga, removeVaga } from './repository.js';
-import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, COMMENTS_PAGE, VAGA_CARD_CFG, PRO_CARD_CFG, MAX_VAGAS, MAX_CANDIDATOS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
+import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, VAGA_CARD_CFG, PRO_CARD_CFG, MAX_VAGAS, MAX_CANDIDATOS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
 import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './utils.js';
 import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './templates.js';
 import { pinnedPros, filterState, scrolledState, scrollToTopPending, pedidoHistory, myPedido, contractsFilter } from './state.js';
@@ -482,6 +482,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // TIMELINE ACELERÁVEL GENÉRICA (não-flip): guarda os setTimeouts de FASE e, ao
+  // acelerar, reprograma cada um p/ metade do restante + dobra o playbackRate das
+  // transições em voo dos `roots`. `dur(base)` = duração já escalada pela velocidade;
+  // `after(base, fn)` = setTimeout escalável; `promise` resolve no fim (`finish`).
+  // Usada pelo modo indicação (enter/exit) — mesmo motor que o flip, sem o bookkeeping
+  // por-card. O item EM CURSO acelera quando outro movimento entra na fila do moveGate.
+  const makeMoveTL = (roots = []) => {
+    const tl = { speed: window.MOVE_ACCEL || 1, done: false, timers: new Set(), roots: roots.filter(Boolean) };
+    tl.promise = new Promise((res) => { tl._resolve = res; });
+    tl.dur = (baseMs) => Math.round(baseMs / tl.speed);
+    tl.after = (baseMs, fn) => {
+      const rec = { fn, endAt: performance.now() + baseMs / tl.speed, id: 0 };
+      rec.id = setTimeout(() => { tl.timers.delete(rec); fn(); }, baseMs / tl.speed);
+      tl.timers.add(rec);
+      return rec;
+    };
+    tl.finish = () => { if (tl.done) return; tl.done = true; tl.timers.clear(); tl._resolve && tl._resolve(); };
+    tl.accelerate = () => {
+      if (tl.speed >= 2 || tl.done) return;
+      tl.speed = 2;
+      const t = performance.now();
+      for (const rec of [...tl.timers]) {
+        clearTimeout(rec.id);
+        const remaining = Math.max(0, (rec.endAt - t)) / 2;
+        rec.endAt = t + remaining;
+        rec.id = setTimeout(() => { tl.timers.delete(rec); rec.fn(); }, remaining);
+      }
+      for (const r of tl.roots) { try { r.getAnimations({ subtree: true }).forEach(a => { a.playbackRate = 2; }); } catch (_) {} }
+    };
+    return tl;
+  };
+  let indicateTL = null;   // timeline do movimento de indicação em curso (p/ acelerar)
+
   // SNAP SÍNCRONO ao estado FECHADO (baseline limpo). Idempotente e defensivo:
   // desfaz — sem animação — qualquer reparent pendente do modo indicação, seja
   // qual for a metade em que a cadeia assíncrona (transitionend/setTimeout) parou.
@@ -522,6 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Overlay fechado + limpo.
     indicateOverlay?.classList.remove('indicate-overlay--open');
     indicateOverlay?.classList.add('u-hidden');
+    if (indicateOverlay) indicateOverlay.style.pointerEvents = '';   // devolve interatividade p/ a próxima abertura
     if (indicateProsBox) { indicateProsBox.style.transition = ''; indicateProsBox.style.transform = ''; indicateProsBox.style.opacity = ''; }
     const postRef = document.getElementById('indicate-post-ref');
     if (postRef) postRef.innerHTML = '';
@@ -665,13 +699,22 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Saída GATED: fechar a indicação também é um movimento (devolve o DOM às casas).
+  // Acelerável: se o usuário dispara outra ação (ex.: deslizar p/ Profissionais) durante
+  // o fechamento, o moveGate chama indicateTL.accelerate() → o fechamento vai a 2× e a
+  // próxima ação começa logo (era o bug de "não identifica o slide" ao fechar).
   const exitIndicateMode = () => {
     if (!indicateMode) return;
-    window.moveGate.run('indicate-exit', () => doExitIndicate(), [indicateOverlay]);
+    window.moveGate.run('indicate-exit', () => doExitIndicate(), () => indicateTL && indicateTL.accelerate());
   };
   const doExitIndicate = () => {
     if (!indicateMode) return 0;
     const gen = ++indicateGen;   // supera qualquer callback pendente da abertura
+    const tl = makeMoveTL([morphedSourceCard, indicateProsBox]);   // acelerável (roots = card + seção)
+    indicateTL = tl;
+    // Durante o FECHAMENTO o overlay deixa os toques ATRAVESSAREM até o #feed-panels:
+    // assim um "deslizar p/ Profissionais" já é reconhecido (vira switchToTab, entra na
+    // fila atrás do fechamento E o acelera) em vez de bater no overlay e ser ignorado.
+    if (indicateOverlay) indicateOverlay.style.pointerEvents = 'none';
     window.backNav?.remove('indicate-overlay');
     indicateMode = false;
     activePostId = null;
@@ -691,7 +734,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // altura final do botão) p/ o pouso casar com o placeholder.
     const UNMORPH_MS = 300;   // ~duração do crossfade do botão (ver restoreSourceCard)
     const runReturn = () => {
-      if (gen !== indicateGen) return;   // re-entrada superou esta saída — não anima nem restaura
+      if (gen !== indicateGen) { tl.finish(); return; }   // superado → resolve p/ a fila avançar
       // FLIP REVERSO do card REAL: do topo até a posição do placeholder na lista.
       let flightMs = 700;
       if (card && indicatePlaceholder) {
@@ -699,9 +742,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const pRect = indicatePlaceholder.getBoundingClientRect();
         const dx = pRect.left - cRect.left;
         const dy = pRect.top  - cRect.top;
-        // Descida na velocidade de FECHAMENTO (mais ágil): distância → duração.
+        // Descida na velocidade de FECHAMENTO (mais ágil): distância → duração (base,
+        // accel=1 aqui pois é assíncrono); tl.dur escala se estiver acelerado/enfileirado.
         flightMs = indicateCardFlightMs(Math.hypot(dx, dy), window.MOVE_SPEED_CLOSE);
-        card.style.transition = `transform ${flightMs}ms ${INDICATE_SHEET_EASE}`;
+        card.style.transition = `transform ${tl.dur(flightMs)}ms ${INDICATE_SHEET_EASE}`;
         card.style.transform = `translate(${dx}px, ${dy}px)`;
       }
 
@@ -711,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let prosMs = 700;
       if (indicateProsBox) {
         prosMs = window.moveMs(indicateProsBox.offsetHeight, window.MOVE_SPEED_CLOSE);
-        indicateProsBox.style.transition = `transform ${prosMs}ms ${INDICATE_SHEET_EASE}`;
+        indicateProsBox.style.transition = `transform ${tl.dur(prosMs)}ms ${INDICATE_SHEET_EASE}`;
         indicateProsBox.style.transform = 'translateY(100%)';
       }
 
@@ -722,45 +766,42 @@ document.addEventListener('DOMContentLoaded', () => {
       // Ao fim: DEVOLVE o card real ao slot do placeholder (some o transform → cai
       // exatamente no lugar), devolve a barra de busca e a lista, e esconde o overlay.
       // O un-morph já ocorreu no TEMPO 1 (não roda mais aqui).
-      setTimeout(() => {
-        if (gen !== indicateGen) return;   // re-entrada assumiu — não clobbar o novo estado
-        if (card && indicatePlaceholder) {
-          card.style.transition = 'none';
-          card.style.transform = '';
-          card.style.transformOrigin = '';
-          indicatePlaceholder.replaceWith(card);   // card real de volta ao slot exato
+      tl.after(Math.max(flightMs, prosMs) + 40, () => {
+        if (gen === indicateGen) {   // re-entrada não assumiu → seguro restaurar
+          if (card && indicatePlaceholder) {
+            card.style.transition = 'none';
+            card.style.transform = '';
+            card.style.transformOrigin = '';
+            indicatePlaceholder.replaceWith(card);   // card real de volta ao slot exato
+          }
+          indicatePlaceholder = null;
+
+          const agendaList = document.getElementById('agenda-list');
+          agendaList?.classList.remove('agenda-list--indicate-mode');
+          if (agendaList && prosPanelHost) prosPanelHost.appendChild(agendaList);
+          // Barra de busca volta para a linha de busca da action bar, antes do contratos.
+          if (searchWrap && barSearchState) barSearchState.insertBefore(searchWrap, btnOpenContracts);
+          resetAgendaList();
+
+          // Devolve a bottom bar para a casa ANTES de esconder o overlay (senão sumiria
+          // junto, por estar dentro dele).
+          if (feedBottomBar && barHomeParent) {
+            if (barHomeNext && barHomeNext.parentElement === barHomeParent) barHomeParent.insertBefore(feedBottomBar, barHomeNext);
+            else barHomeParent.appendChild(feedBottomBar);
+          }
+
+          indicateOverlay?.classList.add('u-hidden');
+          if (indicateProsBox) { indicateProsBox.style.transition = ''; indicateProsBox.style.transform = ''; indicateProsBox.style.opacity = ''; }
+          const postRef = document.getElementById('indicate-post-ref');
+          if (postRef) postRef.innerHTML = '';
+          morphedSourceCard = null;
         }
-        indicatePlaceholder = null;
-
-        const agendaList = document.getElementById('agenda-list');
-        agendaList?.classList.remove('agenda-list--indicate-mode');
-        if (agendaList && prosPanelHost) prosPanelHost.appendChild(agendaList);
-        // Barra de busca volta para a linha de busca da action bar, antes do contratos.
-        if (searchWrap && barSearchState) barSearchState.insertBefore(searchWrap, btnOpenContracts);
-        resetAgendaList();
-
-        // Devolve a bottom bar para a casa ANTES de esconder o overlay (senão sumiria
-        // junto, por estar dentro dele).
-        if (feedBottomBar && barHomeParent) {
-          if (barHomeNext && barHomeNext.parentElement === barHomeParent) barHomeParent.insertBefore(feedBottomBar, barHomeNext);
-          else barHomeParent.appendChild(feedBottomBar);
-        }
-
-        indicateOverlay?.classList.add('u-hidden');
-        if (indicateProsBox) { indicateProsBox.style.transition = ''; indicateProsBox.style.transform = ''; indicateProsBox.style.opacity = ''; }
-        const postRef = document.getElementById('indicate-post-ref');
-        if (postRef) postRef.innerHTML = '';
-        morphedSourceCard = null;
-      }, Math.max(flightMs, prosMs) + 40);   // espera o FLIP reverso E o slide da seção
+        tl.finish();   // resolve a promise SEMPRE (a fila do moveGate precisa avançar)
+      });   // espera o FLIP reverso E o slide da seção
     };
 
-    setTimeout(runReturn, UNMORPH_MS);
-    // Duração total do fechamento (un-morph + descida do card/seção) p/ o gate —
-    // com accel=1 (a descida interna é medida assíncrona, sem MOVE_ACCEL).
-    const _a = window.MOVE_ACCEL; window.MOVE_ACCEL = 1;
-    const est = UNMORPH_MS + window.moveMs(window.innerHeight, window.MOVE_SPEED_CLOSE) + 120;
-    window.MOVE_ACCEL = _a;
-    return est;
+    tl.after(UNMORPH_MS, runReturn);
+    return tl.promise;   // trava solta na conclusão REAL (acelerar faz resolver antes)
   };
 
   // Fechar o overlay pelo botão de fechar da barra flutuante. (A busca e o filtro
@@ -912,49 +953,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  // Appends next batch of comments to the card; removes the button when exhausted.
-  // function declaration — chamado antes da sua posição textual em bindProCardFlip e agenda-list.
-  function handleLoadMoreComments(e) {
-    const btn = e.target.closest('.pro-card__load-more');
-    if (!btn) return false;
-    const offset = parseInt(btn.dataset.offset, 10);
-    const nextBatch = getComments().slice(offset, offset + COMMENTS_PAGE);
-    const list = btn.closest('.pro-card__back-comments')?.querySelector('.pro-card__comments-list');
-    if (!list) return true;
-    const card = btn.closest('.pro-card');
-    const currentH = card ? card.offsetHeight : null;
-
-    nextBatch.forEach((c, i) => {
-      const wrap = document.createElement('div');
-      wrap.innerHTML = buildCommentHTML(c);
-      const el = wrap.firstElementChild;
-      el.classList.add('comment--entering');
-      el.style.animationDelay = `${i * 45}ms`;
-      list.appendChild(el);
-    });
-
-    const newOffset = offset + COMMENTS_PAGE;
-    if (newOffset >= getComments().length) btn.remove();
-    else btn.dataset.offset = String(newOffset);
-
-    // Anima a altura do card para acomodar os novos comentários suavemente
-    if (card && card.classList.contains('pro-card--expanded') && currentH !== null) {
-      const back = card.querySelector('.pro-card__back');
-      if (back) {
-        const newH = back.scrollHeight + (card.querySelector('.pro-card__back-actions')?.offsetHeight || 0);
-        card.style.transition = 'none';
-        card.style.height = currentH + 'px';
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          card.style.transition = `height 0.3s ${EASE_STD}`;
-          card.style.height = newH + 'px';
-          setTimeout(() => { card.style.height = 'auto'; card.style.transition = ''; }, 320);
-        }));
-      }
-    }
-
-    return true;
-  }
-
 
 
   // Card padrão de profissional: coluna esquerda (foto + QAV) e coluna direita
@@ -1008,6 +1006,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (showPin && pinnedPros.has(pro.id)) card.classList.add('pro-card--pinned');
     if (withId) card.id = pro.id;
     card.innerHTML = `<div class="pro-card__3d"><div class="pro-card__flipper"><div class="pro-card__front">${proCardHTML(pro, showPin)}</div>${proBackHTML()}</div></div>`;
+    // Sombras de borda + scroll interno dos comentários do verso (injeta as shades).
+    window.watchScrollShadows?.(card.querySelector('.pro-card__back-comments'));
     return card;
   }
 
@@ -1055,7 +1055,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function bindProCardFlip(containerEl) {
     if (!containerEl) return;
     containerEl.addEventListener('click', (e) => {
-      if (handleLoadMoreComments(e)) return;
       if (e.target.closest('.pro-card__back-btn--whatsapp')) {
         comingSoon('Abrir WhatsApp', 'WhatsApp', 'chat');
         return;
@@ -1204,7 +1203,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Se um pressionar-longo acabou de salvar/dessalvar o card, engole o clique
     // que segue o touchend (senão o card flipava logo após salvar).
     if (longPressConsumed) { longPressConsumed = false; return; }
-    if (handleLoadMoreComments(e)) return;
 
     // Botão Cancelar (modo indicação) → desflipa sem sair do modo.
     // Os botões são controlados pela classe da LISTA, então o card volta à
@@ -1348,48 +1346,69 @@ document.addEventListener('DOMContentLoaded', () => {
   // salvos e comuns são listas separadas, cada uma ordenada por filterState.sort.
   const reorderAgendaListAnimated = () => {
     const list = document.getElementById('agenda-list');
-    if (!list) return;
-    const cards = [...list.querySelectorAll(':scope > .pro-card')];
-    if (cards.length < 2) return;
+    if (!list || list.querySelectorAll(':scope > .pro-card').length < 2) return;
+    // Deslocamento de cards = passa pela trava do moveGate (não sobrepõe a outro
+    // movimento — troca de aba, flip, indicação). Enfileirado nasce 2× (o moveMs
+    // lê MOVE_ACCEL); o play devolve uma PROMISE que resolve no FIM REAL do FLIP.
+    window.moveGate.run('agenda-reorder', () => {
+      // Query FRESCA dentro do play (roda desenfileirado; a lista pode ter sido
+      // reconstruída entre o clique e a vez na fila).
+      const cards = [...list.querySelectorAll(':scope > .pro-card')];
+      if (cards.length < 2) return 0;
 
-    const oldTops = new Map(cards.map(c => [c, c.getBoundingClientRect().top]));
+      const oldTops = new Map(cards.map(c => [c, c.getBoundingClientRect().top]));
 
-    const pinnedCards = cards.filter(c =>  pinnedPros.has(c.id));
-    const otherCards  = cards.filter(c => !pinnedPros.has(c.id));
+      const pinnedCards = cards.filter(c =>  pinnedPros.has(c.id));
+      const otherCards  = cards.filter(c => !pinnedPros.has(c.id));
 
-    const proMap = new Map(getProfessionals().map(p => [p.id, p]));
-    const sortCards = (arr) => [...arr].sort((a, b) => {
-      const proA = proMap.get(a.id);
-      const proB = proMap.get(b.id);
-      if (!proA || !proB) return 0;
-      return comparePros(proA, proB);
-    });
-
-    [...sortCards(pinnedCards), ...sortCards(otherCards)].forEach(c => {
-      c.style.animation = 'none'; // evita repetir cardExpand ao reinserir o nó
-      list.appendChild(c);
-    });
-    // Devolve o CTA de fim-de-feed ao FIM (os appendChild acima moveram os
-    // cards para depois dele)
-    const endCta = list.querySelector('.agenda-cta-pedido');
-    if (endCta) list.appendChild(endCta);
-
-    cards.forEach(c => {
-      const delta = oldTops.get(c) - c.getBoundingClientRect().top;
-      if (!delta) return;
-      c.style.transition = 'none';
-      c.style.transform = `translateY(${delta}px)`;
-    });
-
-    // Dois rAF: garante que o navegador pinte o estado deslocado antes de animar
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      cards.forEach(c => {
-        c.style.transition = `transform 0.45s ${EASE_STD}`;
-        c.style.transform = '';
+      const proMap = new Map(getProfessionals().map(p => [p.id, p]));
+      const sortCards = (arr) => [...arr].sort((a, b) => {
+        const proA = proMap.get(a.id);
+        const proB = proMap.get(b.id);
+        if (!proA || !proB) return 0;
+        return comparePros(proA, proB);
       });
-    }));
 
-    setTimeout(() => cards.forEach(c => { c.style.transition = ''; }), 500);
+      [...sortCards(pinnedCards), ...sortCards(otherCards)].forEach(c => {
+        c.style.animation = 'none'; // evita repetir cardExpand ao reinserir o nó
+        list.appendChild(c);
+      });
+      // Devolve o CTA de fim-de-feed ao FIM (os appendChild acima moveram os
+      // cards para depois dele)
+      const endCta = list.querySelector('.agenda-cta-pedido');
+      if (endCta) list.appendChild(endCta);
+
+      let maxDelta = 0;
+      cards.forEach(c => {
+        const delta = oldTops.get(c) - c.getBoundingClientRect().top;
+        if (!delta) return;
+        maxDelta = Math.max(maxDelta, Math.abs(delta));
+        c.style.transition = 'none';
+        c.style.transform = `translateY(${delta}px)`;
+      });
+      if (!maxDelta) return 0;   // nada se moveu — solta a trava na hora
+
+      // Duração pela VELOCIDADE ÚNICA (maior deslocamento); + MOVE_ACCEL se enfileirado.
+      const dur = window.moveMs(maxDelta);
+      let resolveEnd, settled = false;
+      const promise = new Promise((res) => { resolveEnd = res; });
+      const finish = () => {
+        if (settled) return; settled = true;
+        cards.forEach(c => { c.style.transition = ''; });
+        resolveEnd();
+      };
+
+      // Dois rAF: garante que o navegador pinte o estado deslocado antes de animar
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        cards.forEach(c => {
+          c.style.transition = `transform ${dur}ms ${EASE_STD}`;
+          c.style.transform = '';
+        });
+      }));
+
+      setTimeout(finish, dur + 80);   // fim real + respiro dos 2 rAF
+      return promise;
+    });
   };
 
   document.getElementById('inp-agenda-search')?.addEventListener('input', renderAgendaList);
@@ -1956,26 +1975,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Wrappers pro-card ─────────────────────────────────────────────────────
-  // Reseta o verso do card para o estado inicial (primeiros COMMENTS_PAGE comentários).
-  // Chamado após o flip-to-front para que a próxima abertura comece do zero.
+  // Reseta o verso do card após o flip-to-front: volta o scroll dos comentários ao
+  // topo p/ a próxima abertura começar do início (não há mais paginação "ver mais").
   function resetProCardBack(card) {
-    const commentsList = card.querySelector('.pro-card__comments-list');
     const backComments = card.querySelector('.pro-card__back-comments');
-    if (!commentsList || !backComments) return;
-    commentsList.innerHTML = getComments().slice(0, COMMENTS_PAGE).map(buildCommentHTML).join('');
-    let btn = backComments.querySelector('.pro-card__load-more');
-    if (getComments().length > COMMENTS_PAGE) {
-      if (!btn) {
-        btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'pro-card__load-more';
-        btn.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#ic-expand_more"></use></svg>ver mais comentários';
-        backComments.appendChild(btn);
-      }
-      btn.dataset.offset = String(COMMENTS_PAGE);
-    } else if (btn) {
-      btn.remove();
-    }
+    if (backComments) backComments.scrollTop = 0;
   }
 
   function proCardFlipToBack(card)               { return flipCardToBack(card, PRO_CARD_CFG); }
@@ -2411,7 +2415,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (firstError) {
-        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Rola SÓ o corpo da gaveta (nunca ancestrais — scrollIntoView puxaria o feed
+        // atrás junto), na velocidade única, centralizando o campo com erro.
+        const sc = scrollableAncestor(firstError);
+        if (sc) {
+          const cr = firstError.getBoundingClientRect(), kr = sc.getBoundingClientRect();
+          animateScrollTo(sc, sc.scrollTop + (cr.top - kr.top) - (kr.height - cr.height) / 2);
+        }
         await customAlert('Preencha os campos obrigatórios destacados em vermelho para publicar a vaga.', 'Vaga incompleta', 'edit_note');
         return;
       }
