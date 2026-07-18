@@ -275,17 +275,25 @@
 
 /* Frase SOBREPOSTA ao botão (dentro do .pedido-item__morph): mesmo slot, quebra
    normalmente e entra/sai só por OPACITY (crossfade) — simétrico na abertura e no
-   fechamento, sem clipar. O botão de contagem (2/3) fica à direita, intacto. */
+   fechamento, sem clipar. O botão de contagem (2/3) fica à direita, intacto.
+   Ganha a forma/fundo de uma PÍLULA verde semitransparente (mesmo slot do botão
+   "Indicar alguém" que ela substitui) para não parecer texto solto ao lado do
+   botão de contagem — fundo verde a 10% sobre o card branco (tint da marca). */
 .pedido-item__prompt {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   margin: 0;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-pill);
+  background: rgba(var(--p-green-rgb), 0.1);
   font-size: var(--fs-7);
   font-weight: var(--fw-heavy);
-  line-height: 1.2;
+  line-height: 1.15;
   color: var(--p-green);
+  text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.01em;
   opacity: 0;
