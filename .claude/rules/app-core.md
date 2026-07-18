@@ -21,6 +21,7 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
 `window.customAlert(msg, title?, icon?)`, `window.customConfirm(msg, title?, icon?)`,
 `window.watchScrollShadows(el)`, `window.backNav` (`push`/`remove`/`reset`/`has`/`depth`),
 `window.moveMs(distanciaPx, speed?)`, `window.MOVE_SPEED`/`MOVE_SPEED_OPEN`/`MOVE_SPEED_CLOSE`,
+`window.animLane` (coordenador de movimentos — `begin`/`end`/`settle`/`token`/`busy`; ver abaixo),
 `window.THEME_COLOR`, `window.icon(nome, classeExtra?)` (HTML de um ícone do sprite SVG),
 `window.setIcon(elIcone, nome)` (troca o glifo de um ícone já no DOM — antes `el.textContent = nome`).
 
@@ -131,6 +132,37 @@ Aplicação (mede a distância no gesto, seta a duração inline ou via CSS var)
 FORA do padrão de propósito: FLIP dos cards (rotação 180°, velocidade ANGULAR constante por
 natureza — duração fixa), colapsáveis de altura (ease assimétrico deliberado do cadastro) e
 micro-interações de toque (press/hover ≤0.2s, mudança de cor 0.3s = feedback, não deslocamento).
+
+## Coordenador de movimentos (`window.animLane`) — animações de shell nunca simultâneas
+
+Movimentos de DESLOCAMENTO que compartilham DOM/shell (reparent de `#agenda-list`/bottom bar, gavetas,
+modo indicação) não podem rodar SIMULTÂNEOS — é a raiz dos bugs de "camadas atravessadas / elementos
+sumindo" ao interagir rápido (dois movimentos limpam/reparentam DOM em cadeias `transitionend`/`setTimeout`
+que se atropelam). `window.animLane` (`core/app.js`) serializa por **RAIAS** (`'shell'` hoje): numa raia só
+há UM movimento por vez; começar um novo faz **fast-forward** do anterior (chama seu `settle` SÍNCRONO =
+pula pro estado final na hora) em vez de deixá-lo animando junto. Assim o toque novo age na hora
+(responsivo) e o anterior assenta limpo.
+
+**NÃO passam pela raia:** micro-interações (press/cor/sombra = feedback, não deslocamento), os FLIPS de
+card (elementos 3D independentes que não corrompem o shell) e os movimentos que já são **máquinas de
+estado idempotentes por classe** e se auto-curam na re-entrada (o carrossel de abas `switchToTab`, o
+bottom sheet de indicados, as gavetas puramente `--open`). Só entram na raia os movimentos com **cleanup
+assíncrono que reparenta/limpa DOM** — hoje o **modo indicação** (`feed/index.js`, `enter/exitIndicateMode`).
+
+**Contrato:**
+- `begin(id, settle)` — inicia um movimento: bump do token (supera callbacks pendentes) + fast-forward do
+  anterior (roda o `settle` dele). Devolve o token; guarde-o e aborte callbacks assíncronos com
+  `if (t !== window.animLane.token(id)) return`.
+- `end(id, token)` — movimento terminou naturalmente (animação assentou) → libera a raia (só se ainda for o dono).
+- `settle(id)` — fast-forward manual do que estiver em curso (ex.: `switchToTab` chama `settle('shell')`
+  antes de deslizar, p/ não passar o carrossel POR CIMA de um reparent inacabado).
+- `settle` DEVE ser idempotente e síncrono: leva o movimento ao estado FINAL sem animar (ex.:
+  `settleIndicate`/`finalizeIndicateNow`).
+
+**Ao criar um movimento novo com cleanup assíncrono que mexa em DOM compartilhado:** enrole-o na raia
+(`begin` no início, `end` no fim, `settle` que snap-a pro final) e guarde os callbacks com o token — senão
+ele volta a poder rodar simultâneo e corromper. Movimento puramente idempotente por classe (como o
+carrossel) não precisa entrar; só chame `settle('shell')` antes se ele puder atropelar um reparent.
 
 ## Diálogos — primitivo único `openDialog`
 

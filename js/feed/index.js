@@ -398,8 +398,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let selectedProId = null;
   let morphedSourceCard = null;   // card REAL que é movido para o overlay (restaurar na saída)
   let indicatePlaceholder = null; // espaçador que guarda o lugar do card na lista
-  let indicateGen = 0;            // token de geração: cada enter/exit incrementa;
-                                  // callbacks assíncronos superados (gen != atual) abortam.
+  // O modo indicação é um MOVIMENTO da raia 'shell' do coordenador (window.animLane):
+  // enter/exit chamam animLane.begin('shell', …) e seus callbacks assíncronos abortam
+  // quando superados (token != atual). Ver settleIndicate/finalizeIndicateNow abaixo.
+  const SHELL_LANE = 'shell';
 
   // =======================================================================
   // VERIFICADOR DE INVARIANTES (dev) — DETECTA (não conserta) estado
@@ -486,9 +488,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // desfaz — sem animação — qualquer reparent pendente do modo indicação, seja
   // qual for a metade em que a cadeia assíncrona (transitionend/setTimeout) parou.
   // É a rede de segurança das CORRIDAS de interrupção: se um enter/exit foi
-  // superado (token de geração), seus callbacks tardios abortam e deixam DOM pela
-  // metade — chamar isto na (re)entrada devolve tudo pra casa antes de reabrir.
-  // NÃO mexe em backNav nem em indicateGen (quem chama cuida disso).
+  // superado (token da raia 'shell'), seus callbacks tardios abortam e deixam DOM
+  // pela metade — chamar isto na (re)entrada devolve tudo pra casa antes de reabrir.
+  // NÃO mexe no backNav nem na raia (quem chama cuida disso; ver settleIndicate).
   const finalizeIndicateNow = () => {
     const card = morphedSourceCard;
     // Card real de volta ao slot exato (se ainda há placeholder guardando o lugar).
@@ -505,11 +507,14 @@ document.addEventListener('DOMContentLoaded', () => {
       card.querySelector('.pedido-item__prompt')?.remove();
     }
     // Lista, busca e bottom bar de volta às casas (só se ainda estiverem fora).
+    // Guardas por PARENT DIRETO (não `.contains`, que é profundo): a casa da bottom
+    // bar (#view-feed) CONTÉM o próprio #indicate-overlay, então `contains` daria
+    // true com a barra ainda presa dentro do overlay e o restore era pulado.
     const agendaList = document.getElementById('agenda-list');
     agendaList?.classList.remove('agenda-list--indicate-mode');
-    if (agendaList && prosPanelHost && !prosPanelHost.contains(agendaList)) prosPanelHost.appendChild(agendaList);
-    if (searchWrap && barSearchState && !barSearchState.contains(searchWrap)) barSearchState.insertBefore(searchWrap, btnOpenContracts);
-    if (feedBottomBar && barHomeParent && !barHomeParent.contains(feedBottomBar)) {
+    if (agendaList && prosPanelHost && agendaList.parentElement !== prosPanelHost) prosPanelHost.appendChild(agendaList);
+    if (searchWrap && barSearchState && searchWrap.parentElement !== barSearchState) barSearchState.insertBefore(searchWrap, btnOpenContracts);
+    if (feedBottomBar && barHomeParent && feedBottomBar.parentElement !== barHomeParent) {
       if (barHomeNext && barHomeNext.parentElement === barHomeParent) barHomeParent.insertBefore(feedBottomBar, barHomeNext);
       else barHomeParent.appendChild(feedBottomBar);
     }
@@ -526,6 +531,11 @@ document.addEventListener('DOMContentLoaded', () => {
     morphedSourceCard = null;
   };
 
+  // `settle` da raia 'shell' para o modo indicação: leva ao estado FECHADO na hora
+  // (sem animar) e libera a camada do backNav. É o que roda quando outro movimento
+  // shell dá fast-forward neste (ou quando trocar de aba o interrompe).
+  const settleIndicate = () => { window.backNav?.remove('indicate-overlay'); finalizeIndicateNow(); };
+
   const enterIndicateMode = (postId) => {
     const sourceCard = document.getElementById(`post-card-${postId}`);
     if (!sourceCard || indicateMode) return;
@@ -534,7 +544,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // cleanup tardio dele chegaria e clobbava esta abertura (bug das camadas
     // "atravessadas" ao interagir rápido). O gen abaixo neutraliza esse cleanup.
     finalizeIndicateNow();
-    const gen = ++indicateGen;
+    // Registra a ABERTURA como movimento da raia 'shell': faz fast-forward de
+    // qualquer movimento shell em curso (ex.: uma saída ainda animando) e devolve
+    // o token que guarda os callbacks assíncronos abaixo.
+    const gen = window.animLane.begin(SHELL_LANE, settleIndicate);
     indicateMode = true;
     activePostId = postId;
     morphedSourceCard = sourceCard;
@@ -545,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // (ver morphAtTop no fim deste passo). Aqui: acende o overlay, MOVE o card e sobe
     // a seção de profissionais. Delay curto só p/ o feedback do toque assentar.
     setTimeout(() => {
-      if (gen !== indicateGen) return;   // superado (saída/re-entrada) antes do timer
+      if (gen !== window.animLane.token(SHELL_LANE)) return;   // superado (saída/re-entrada) antes do timer
       const srcRect = sourceCard.getBoundingClientRect();
 
       // Move a BARRA DE BUSCA real (campo + pílula de filtro com suas funções) para
@@ -625,9 +638,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // com um respiro, o botão "Indicar alguém" vira a frase "Quem você quer indicar?".
       let morphed = false;
       const morphAtTop = () => {
-        if (morphed || gen !== indicateGen) return;
+        if (morphed || gen !== window.animLane.token(SHELL_LANE)) return;
         morphed = true;
         morphSourceToPrompt(sourceCard);
+        // Animação de ABERTURA assentou: libera a raia (o MODO indicação segue
+        // aberto, mas não há mais movimento em curso). Fechar depois é um novo
+        // movimento; trocar de aba dá snap via settleIndicate.
+        window.animLane.end(SHELL_LANE, gen);
       };
       const onRiseEnd = (ev) => {
         if (ev.target === sourceCard && ev.propertyName === 'transform') {
@@ -642,7 +659,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const exitIndicateMode = () => {
     if (!indicateMode) return;
-    const gen = ++indicateGen;   // supera qualquer callback pendente da abertura
+    // A SAÍDA é um novo movimento da raia 'shell' (fast-forward de qualquer
+    // movimento shell pendente + token que guarda os callbacks abaixo).
+    const gen = window.animLane.begin(SHELL_LANE, settleIndicate);
     window.backNav?.remove('indicate-overlay');
     indicateMode = false;
     activePostId = null;
@@ -662,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // altura final do botão) p/ o pouso casar com o placeholder.
     const UNMORPH_MS = 300;   // ~duração do crossfade do botão (ver restoreSourceCard)
     const runReturn = () => {
-      if (gen !== indicateGen) return;   // re-entrada superou esta saída — não anima nem restaura
+      if (gen !== window.animLane.token(SHELL_LANE)) return;   // re-entrada superou esta saída — não anima nem restaura
       // FLIP REVERSO do card REAL: do topo até a posição do placeholder na lista.
       let flightMs = 700;
       if (card && indicatePlaceholder) {
@@ -694,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // exatamente no lugar), devolve a barra de busca e a lista, e esconde o overlay.
       // O un-morph já ocorreu no TEMPO 1 (não roda mais aqui).
       setTimeout(() => {
-        if (gen !== indicateGen) return;   // re-entrada assumiu — não clobbar o novo estado
+        if (gen !== window.animLane.token(SHELL_LANE)) return;   // re-entrada assumiu — não clobbar o novo estado
         if (card && indicatePlaceholder) {
           card.style.transition = 'none';
           card.style.transform = '';
@@ -722,6 +741,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const postRef = document.getElementById('indicate-post-ref');
         if (postRef) postRef.innerHTML = '';
         morphedSourceCard = null;
+        window.animLane.end(SHELL_LANE, gen);   // saída assentou → libera a raia
       }, Math.max(flightMs, prosMs) + 40);   // espera o FLIP reverso E o slide da seção
     };
 
@@ -2713,6 +2733,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const switchToTab = (tabName) => {
     if (tabName === activeTab) return;
+    // Fast-forward de qualquer movimento shell em curso (uma gaveta/indicação ainda
+    // animando) para não deslizar o carrossel POR CIMA de um reparent inacabado.
+    window.animLane.settle(SHELL_LANE);
+    // Modo indicação é uma camada persistente sobre o feed de pedidos: trocar de aba
+    // sai dele NA HORA (snap, sem animar) antes do carrossel — senão o #agenda-list
+    // (que está reparentado no overlay) deslizaria e a aba Profissionais ficaria vazia.
+    if (indicateMode) settleIndicate();
     // Velocidade única: painel + trilho + slider são UM gesto; a duração deriva da
     // distância percorrida (nº de painéis atravessados × largura da viewport).
     const hops = Math.abs(TAB_ORDER.indexOf(tabName) - TAB_ORDER.indexOf(activeTab)) || 1;

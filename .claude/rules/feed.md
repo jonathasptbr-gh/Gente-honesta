@@ -250,16 +250,21 @@ Assim o card sobe/desce ATRÁS da barra (sem "pular" para frente) e a lista desl
 `MOVE_SPEED_CLOSE` (1.5, ágil); ver `app-core.md`. A curva é `INDICATE_SHEET_EASE` (espelha
 `--sheet-ease`).
 
-**Corrida de interrupção (entra/sai rápido) — token de geração + snap síncrono.** A entrada e a
+**Corrida de interrupção — coordenador de movimentos (`window.animLane`) + snap síncrono.** A entrada e a
 saída reparentam DOM (`#agenda-list`, busca, bottom bar, card) e o devolvem "pra casa" em cadeias
-`transitionend`/`setTimeout` de ~1s. Se o usuário interage rápido (sai e reentra antes de assentar),
-o cleanup TARDIO de uma operação superada clobbava a nova (camadas "atravessadas"/elementos sumindo).
-Blindagem: um contador `indicateGen` — `enterIndicateMode`/`exitIndicateMode` fazem `++indicateGen`
-no início e capturam o `gen`; TODO callback assíncrono deles aborta com `if (gen !== indicateGen)`
-(o superado não toca no DOM). E `enterIndicateMode` chama `finalizeIndicateNow()` no início: um SNAP
-SÍNCRONO ao estado fechado (idempotente/defensivo — devolve qualquer reparent pendente pra casa sem
-animação) que garante baseline limpo antes de reabrir. **Ao adicionar qualquer passo assíncrono novo
-nesse fluxo, capture o `gen` e guarde o callback** — senão a corrida volta.
+`transitionend`/`setTimeout` de ~1s. Se dois movimentos de shell rodam juntos (sai e reentra antes de
+assentar; trocar de aba no meio), o cleanup TARDIO de um superado clobbava o outro (camadas
+"atravessadas"/elementos sumindo). Blindagem: o modo indicação é um **movimento da raia `'shell'`** do
+coordenador `window.animLane` (`core/app.js`, ver `app-core.md`). `enterIndicateMode`/`exitIndicateMode`
+chamam `window.animLane.begin('shell', settleIndicate)` (fast-forward de qualquer movimento shell em
+curso) e capturam o token; TODO callback assíncrono aborta com `if (gen !== window.animLane.token('shell'))`.
+`settleIndicate` = snap SÍNCRONO ao fechado (`finalizeIndicateNow` + `backNav.remove`), idempotente/defensivo.
+`switchToTab` chama `window.animLane.settle('shell')` + (se `indicateMode`) `settleIndicate()` ANTES de
+deslizar o carrossel — senão o carrossel passaria por cima do reparent e a aba Profissionais ficava vazia.
+**Ao adicionar qualquer passo assíncrono novo nesse fluxo, capture o token e guarde o callback.** Nota
+de armadilha: as guardas de "voltar pra casa" em `finalizeIndicateNow` usam **parent DIRETO** (`el.parentElement !== casa`),
+NÃO `casa.contains(el)` — a casa da bottom bar (`#view-feed`) contém o próprio `#indicate-overlay`, então
+`.contains` daria true com a barra ainda presa dentro do overlay e pulava o restore.
 
 > **Verificador de invariantes (dev):** `window.checkInvariants('rótulo')` (`feed/index.js`, topo do
 > DOMContentLoaded) devolve a lista de violações de estado em repouso — exatamente 1 `.screen--active`;

@@ -40,6 +40,45 @@ window.moveMs = (distancePx, speed = window.MOVE_SPEED) => Math.round(Math.min(w
   Math.max(window.MOVE_MIN_MS, Math.abs(distancePx) / speed)));
 
 // =========================================================================
+// COORDENADOR DE MOVIMENTOS (window.animLane) — serializa as animações de
+// DESLOCAMENTO que compartilham DOM/shell para que NUNCA rodem simultâneas.
+// Essa simultaneidade é a raiz dos bugs de "camadas atravessadas / elementos
+// sumindo" ao interagir rápido: dois movimentos reparentam/limpam DOM em cadeias
+// transitionend/setTimeout que se atropelam. Aqui elas passam a ser uma por vez.
+//
+// Modelo: RAIAS (`lanes`, ex.: 'shell'). Numa raia só há UM movimento por vez;
+// começar um novo faz FAST-FORWARD do anterior — chama seu `settle` SÍNCRONO
+// (pula pro estado final AGORA, sem animar) em vez de deixá-lo animando junto.
+// Assim o toque novo age na hora (responsivo) e o anterior "assenta" limpo.
+//
+// NÃO passa por aqui micro-interação (press/cor/sombra) nem os FLIPS de card
+// (elementos 3D independentes que não corrompem o shell) — só DESLOCAMENTO de
+// camada. `settle` DEVE ser idempotente e síncrono (leva ao estado final sem
+// animar). Uso:
+//   const t = window.animLane.begin('shell', settleFn);  // inicia (fast-forward do anterior)
+//   … callbacks assíncronos guardam:  if (t !== window.animLane.token('shell')) return;
+//   window.animLane.end('shell', t);                      // terminou naturalmente → libera a raia
+//   window.animLane.settle('shell');                      // fast-forward manual (ex.: antes de trocar de aba)
+// =========================================================================
+window.animLane = (() => {
+  const lanes = new Map();
+  const get = (id) => { let L = lanes.get(id); if (!L) { L = { gen: 0, settle: null }; lanes.set(id, L); } return L; };
+  const run = (L) => { const s = L.settle; L.settle = null; if (s) { try { s(); } catch (e) { console.warn('[animLane] settle falhou:', e); } } };
+  return {
+    // Inicia um movimento na raia: supera callbacks pendentes (bump do token) e
+    // FAST-FORWARDA o movimento anterior (settle síncrono). Devolve o token novo
+    // — guarde-o e aborte callbacks assíncronos com `if (t !== token(id)) return`.
+    begin(id, settle) { const L = get(id); L.gen++; run(L); L.settle = settle || null; return L.gen; },
+    // Movimento terminou naturalmente: libera a raia (só se ainda for o dono).
+    end(id, token) { const L = get(id); if (token === L.gen) L.settle = null; },
+    // Fast-forward manual do que estiver em curso (supera + settle síncrono).
+    settle(id) { const L = get(id); if (L.settle) { L.gen++; run(L); } },
+    token(id) { return get(id).gen; },
+    busy(id) { return !!get(id).settle; },
+  };
+})();
+
+// =========================================================================
 // ÍCONES (SVG sprite) — window.icon / window.setIcon
 // A antiga fonte Material Symbols foi trocada por um sprite SVG inline (topo do
 // <body>, símbolos #ic-NOME). Vantagem: o ícone desenha no 1º paint, sem esperar
