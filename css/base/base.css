@@ -82,6 +82,8 @@
   /* Sombras */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.07);
   --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.13);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);    /* contato curto e definido (ex.: fita "salvo" girada) */
+  --shadow-up: 0 -4px 12px rgba(0, 0, 0, 0.07);  /* sombra p/ CIMA — rodapé flutuante do verso da vaga */
 
   /* Destaque de estado por MUDANÇA DE COR, nunca por sombra (sombras de destaque
      furavam bordas e viravam linha sólida). SEMÂNTICA DE CORES (v262):

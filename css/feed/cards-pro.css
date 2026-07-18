@@ -474,7 +474,7 @@
   height: 13px;
   background: var(--p-green);
   transform: rotate(-45deg);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-xs);
 }
 
 /* Feedback do pressionar-longo: ao atingir o limiar, o card "arma" — encolhe

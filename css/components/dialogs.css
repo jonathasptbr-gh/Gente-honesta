@@ -178,7 +178,7 @@
 }
 
 
-/* Selo de versão: agora vive DENTRO da top bar, ao lado da marca "Gente Honesta"
-   (`.top-bar__version` em feed.css) — não é mais um marcador flutuante fixo. */
+/* Selo de versão: vive no loader global (`#version-badge` no `#loader-global`),
+   junto do spinner — não é mais um marcador flutuante fixo. */
 
 
