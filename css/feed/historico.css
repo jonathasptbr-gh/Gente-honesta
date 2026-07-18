@@ -81,11 +81,14 @@
   /* Gaveta: fechado = totalmente acima da linha de recorte; desce ao abrir.
      Sem fade de opacidade — deslize puro. Duração calma (0.5s). */
   transform: translateY(-100%);
-  transition: transform 0.7s var(--sheet-ease);
+  /* Transição assimétrica: BASE (saindo) = duração de FECHAMENTO; .--open (entrando)
+     sobrescreve com a de ABERTURA. Ambas medidas por altura em JS. */
+  transition: transform var(--sheet-close-dur, 0.7s) var(--sheet-ease);
 }
 
 .historico-sheet--open .historico-sheet__panel {
   transform: translateY(0);
+  transition-duration: var(--sheet-open-dur, 0.7s);
 }
 
 /* Sem header interno (a top bar de título foi eliminada na v287). */

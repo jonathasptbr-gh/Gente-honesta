@@ -81,11 +81,15 @@
      altura), aberto = na posição. Sem fade de opacidade — deslize puro.
      Duração calma (0.5s) para o deslize ficar suave. */
   transform: translateY(-100%);
-  transition: transform 0.7s var(--sheet-ease);
+  /* Transição assimétrica: o estado BASE (gaveta subindo/saindo) usa a duração de
+     FECHAMENTO; o estado .--open (gaveta descendo/entrando) sobrescreve com a de
+     ABERTURA. Ambas medidas por altura em JS (anchorBelowActionBar). */
+  transition: transform var(--sheet-close-dur, 0.7s) var(--sheet-ease);
 }
 
 .pedido-sheet--open .pedido-sheet__panel {
   transform: translateY(0);
+  transition-duration: var(--sheet-open-dur, 0.7s);
 }
 
 /* Abertura do detalhe a partir de um item do histórico (FLIP): o painel aparece

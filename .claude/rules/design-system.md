@@ -53,9 +53,10 @@ propriedade/duração): `transition: color 0.3s var(--ease)`. Em JS, a const `EA
 (`feed/index.js`) espelha essa curva. `--sheet-ease` (`cubic-bezier(0.3,0.9,0.7,1)`, freio firme —
 cauda curta p/ o elemento assentar rápido e ficar interativo, não "rastejar" o último 1%) é a curva única
 dos sheets deslizantes. **DURAÇÃO dos movimentos ≠ fixa:** todo DESLOCAMENTO (gavetas, painéis, abas,
-modo indicação, etc.) deriva a duração da DISTÂNCIA percorrida ÷ velocidade única
-(`window.moveMs`/`MOVE_SPEED`, em `core/app.js`) — só a duração; a curva segue a de cada transição.
-Detalhe em `.claude/rules/app-core.md`. `--scroll-thumb-dark` = thumb da barra fina sobre superfícies CLARAS
+modo indicação, etc.) deriva a duração da DISTÂNCIA percorrida ÷ velocidade
+(`window.moveMs`, em `core/app.js`) — só a duração; a curva segue a de cada transição. A velocidade é
+DIRECIONAL: `MOVE_SPEED_OPEN` (1.1, abertura suave) ≠ `MOVE_SPEED_CLOSE` (1.4, fechamento ágil) ≠
+`MOVE_SPEED` (1.3, neutra p/ navegação lateral). Detalhe em `.claude/rules/app-core.md`. `--scroll-thumb-dark` = thumb da barra fina sobre superfícies CLARAS
 (sobre verde usa-se `--on-green-muted`).
 
 **Blur:** `--blur-sm` (5px, backdrops), `--blur-lg` (14px, faixa da bottom-bar). O tutorial

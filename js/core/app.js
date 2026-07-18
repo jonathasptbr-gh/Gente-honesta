@@ -15,19 +15,29 @@
 // =========================================================================
 // =========================================================================
 // VELOCIDADE ÚNICA DE MOVIMENTO — padroniza a "cara" das animações
-// Toda animação de DESLOCAMENTO do app deriva sua DURAÇÃO desta velocidade
-// linear × a distância a percorrer → todos os movimentos têm a MESMA velocidade
-// (o tempo total varia com a distância percorrida). Piso/teto evitam movimentos
-// curtos instantâneos e longos arrastados. `window.moveMs(distanciaPx)` é a FONTE
-// ÚNICA usada por core/feed/onboarding; a CURVA de cada transição continua a de
-// sempre — só a DURAÇÃO passa a ser derivada da distância. Ajuste global de
-// cadência = mexer só em MOVE_SPEED.
+// Toda animação de DESLOCAMENTO do app deriva sua DURAÇÃO de uma velocidade
+// linear × a distância a percorrer → a velocidade é a MESMA por categoria de
+// movimento (o tempo total varia com a distância). Piso/teto evitam movimentos
+// curtos instantâneos e longos arrastados. `window.moveMs(distanciaPx, speed)` é
+// a FONTE ÚNICA usada por core/feed/onboarding; a CURVA de cada transição
+// continua a de sempre — só a DURAÇÃO passa a ser derivada da distância.
+//
+// DUAS velocidades direcionais + uma neutra:
+//   - ABERTURA (elemento ENTRA na tela: gaveta desce, card sobe, seção sobe) →
+//     mais SUAVE (mais lenta), p/ o elemento "chegar" com calma.
+//   - FECHAMENTO (elemento SAI da tela) → mais ÁGIL (mais rápida), p/ a tela
+//     liberar logo — reduz a sensação de espera no fim da animação.
+//   - NEUTRA (navegação lateral que não é abrir/fechar: carrossel de abas,
+//     `animateConcludeSwap`) → usa `MOVE_SPEED` (default do 2º argumento).
+// Ajuste global de cadência = mexer nas 3 constantes abaixo.
 // =========================================================================
-window.MOVE_SPEED  = 1.3;    // px por ms (velocidade linear de qualquer movimento) → duração = distância / 1.3
+window.MOVE_SPEED       = 1.3;   // px/ms — NEUTRA (movimentos laterais: abas, swaps)
+window.MOVE_SPEED_OPEN  = 1.1;   // px/ms — ABERTURA (entra na tela): mais suave/lenta
+window.MOVE_SPEED_CLOSE = 1.4;   // px/ms — FECHAMENTO (sai da tela): mais ágil/rápida
 window.MOVE_MIN_MS = 220;    // piso (movimentos curtos não ficam instantâneos)
 window.MOVE_MAX_MS = 1200;   // teto (movimentos longos não arrastam)
-window.moveMs = (distancePx) => Math.round(Math.min(window.MOVE_MAX_MS,
-  Math.max(window.MOVE_MIN_MS, Math.abs(distancePx) / window.MOVE_SPEED)));
+window.moveMs = (distancePx, speed = window.MOVE_SPEED) => Math.round(Math.min(window.MOVE_MAX_MS,
+  Math.max(window.MOVE_MIN_MS, Math.abs(distancePx) / speed)));
 
 (function () {
   const setViewportVars = () => {

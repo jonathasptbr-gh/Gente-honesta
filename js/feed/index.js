@@ -44,10 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const overlayOn = indicateMode && indicateOverlay && !indicateOverlay.classList.contains('u-hidden');
     const bar = overlayOn ? document.getElementById('indicate-bar') : document.getElementById('feed-action-bar');
     if (bar && el) el.style.setProperty('--sheet-top', `${Math.round(bar.getBoundingClientRect().bottom)}px`);
-    // Velocidade única: a gaveta desliza a altura do próprio painel → a DURAÇÃO do
-    // slide deriva dessa distância (chamado em toda abertura, antes da classe --open).
+    // A gaveta desliza a altura do próprio painel → a DURAÇÃO do slide deriva dessa
+    // distância. DUAS durações (abertura mais suave, fechamento mais ágil): o CSS do
+    // painel usa `--sheet-open-dur` no estado `.--open` (entrada) e `--sheet-close-dur`
+    // no estado base (saída) — pattern de transição assimétrica, sem tocar cada função
+    // de fechar. Chamado em toda abertura (altura já é a final), antes da classe --open.
     const panel = el && el.querySelector('.pedido-sheet__panel, .historico-sheet__panel');
-    if (panel && window.moveMs) panel.style.transitionDuration = `${window.moveMs(panel.offsetHeight)}ms`;
+    if (panel && window.moveMs) {
+      const h = panel.offsetHeight;
+      panel.style.setProperty('--sheet-open-dur',  `${window.moveMs(h, window.MOVE_SPEED_OPEN)}ms`);
+      panel.style.setProperty('--sheet-close-dur', `${window.moveMs(h, window.MOVE_SPEED_CLOSE)}ms`);
+    }
   }
 
   // Abridor vira "fechar" (X) enquanto a gaveta está aberta — verde sólido,
@@ -348,11 +355,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const INDICATE_PROMPT  = 'Quem você quer indicar?';
   const INDICATE_SHEET_EASE = 'cubic-bezier(0.3,0.9,0.7,1)';   // espelha --sheet-ease
 
-  // O "voo" do card (subida na ENTRADA / descida na SAÍDA) usa a velocidade ÚNICA
-  // do app (window.moveMs): a distância percorrida vira duração na MESMA velocidade
-  // de todo o resto (gavetas, painéis, seção de profissionais). A curva --sheet-ease
-  // é mantida.
-  const indicateCardFlightMs = (distancePx) => window.moveMs(distancePx);
+  // O "voo" do card (subida na ENTRADA / descida na SAÍDA) usa a velocidade
+  // DIRECIONAL do app: ENTRADA na velocidade de ABERTURA (mais suave), SAÍDA na de
+  // FECHAMENTO (mais ágil). A distância percorrida vira duração; a curva --sheet-ease
+  // é mantida. O chamador passa a velocidade conforme a direção.
+  const indicateCardFlightMs = (distancePx, speed) => window.moveMs(distancePx, speed);
 
   const openIndicatedPopup = (postId) => {
     // Título padrão para pedidos de terceiros; para o pedido próprio o chamador
@@ -365,14 +372,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // (o var alimenta o slide E o atraso de visibilidade no fechamento).
     const popupSheet = popup?.querySelector('.indicated-popup__sheet');
     if (popup && popupSheet && window.moveMs) {
-      popup.style.setProperty('--indicated-sheet-dur', `${window.moveMs(popupSheet.offsetHeight)}ms`);
+      // ABERTURA (sobe): velocidade suave.
+      popup.style.setProperty('--indicated-sheet-dur', `${window.moveMs(popupSheet.offsetHeight, window.MOVE_SPEED_OPEN)}ms`);
     }
     popup?.classList.add('indicated-popup--open');
     window.backNav?.push('indicated-popup', closeIndicatedPopup);
   };
   const closeIndicatedPopup = () => {
     window.backNav?.remove('indicated-popup');
-    document.getElementById('indicated-popup')?.classList.remove('indicated-popup--open');
+    const popup = document.getElementById('indicated-popup');
+    // FECHAMENTO (desce): velocidade ágil — reseta o var antes de sair (o mesmo var
+    // alimenta o slide E o atraso de visibilidade da saída).
+    const popupSheet = popup?.querySelector('.indicated-popup__sheet');
+    if (popup && popupSheet && window.moveMs) {
+      popup.style.setProperty('--indicated-sheet-dur', `${window.moveMs(popupSheet.offsetHeight, window.MOVE_SPEED_CLOSE)}ms`);
+    }
+    popup?.classList.remove('indicated-popup--open');
   };
   document.getElementById('btn-close-indicated-popup')?.addEventListener('click', closeIndicatedPopup);
   document.getElementById('indicated-popup-backdrop')?.addEventListener('click', closeIndicatedPopup);
@@ -489,15 +504,15 @@ document.addEventListener('DOMContentLoaded', () => {
       // navegador coalesce os transforms e não há animação).
       void sourceCard.offsetHeight;
 
-      // Estado FINAL (anima): card sobe ao topo, seção sobe de baixo. A subida do card
-      // dura conforme a DISTÂNCIA (velocidade constante — ver indicateCardFlightMs); a
-      // seção sobe num slide LIMPO (sem fade) numa cadência calma (0.72s).
-      const riseMs = indicateCardFlightMs(Math.hypot(dx, dy));
+      // Estado FINAL (anima): card sobe ao topo, seção sobe de baixo. ENTRADA usa a
+      // velocidade de ABERTURA (mais suave). A subida do card dura conforme a DISTÂNCIA;
+      // a seção sobe num slide LIMPO (sem fade).
+      const riseMs = indicateCardFlightMs(Math.hypot(dx, dy), window.MOVE_SPEED_OPEN);
       sourceCard.style.transition = `transform ${riseMs}ms ${INDICATE_SHEET_EASE}`;
       sourceCard.style.transform = 'none';
       if (indicateProsBox) {
-        // Slide da seção pela mesma velocidade única (distância = altura da seção).
-        const prosMs = window.moveMs(indicateProsBox.offsetHeight);
+        // Slide da seção pela velocidade de ABERTURA (distância = altura da seção).
+        const prosMs = window.moveMs(indicateProsBox.offsetHeight, window.MOVE_SPEED_OPEN);
         indicateProsBox.style.transition = `transform ${prosMs}ms ${INDICATE_SHEET_EASE}`;
         indicateProsBox.style.transform = 'translateY(0)';
       }
@@ -549,18 +564,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const pRect = indicatePlaceholder.getBoundingClientRect();
         const dx = pRect.left - cRect.left;
         const dy = pRect.top  - cRect.top;
-        // Descida com a MESMA velocidade única da subida (distância → duração).
-        flightMs = indicateCardFlightMs(Math.hypot(dx, dy));
+        // Descida na velocidade de FECHAMENTO (mais ágil): distância → duração.
+        flightMs = indicateCardFlightMs(Math.hypot(dx, dy), window.MOVE_SPEED_CLOSE);
         card.style.transition = `transform ${flightMs}ms ${INDICATE_SHEET_EASE}`;
         card.style.transform = `translate(${dx}px, ${dy}px)`;
       }
 
       // Blur some e a seção de profissionais desce junto (slide LIMPO, sem fade),
-      // pela mesma velocidade única (distância = altura da seção).
+      // na velocidade de FECHAMENTO (distância = altura da seção).
       indicateOverlay?.classList.remove('indicate-overlay--open');
       let prosMs = 700;
       if (indicateProsBox) {
-        prosMs = window.moveMs(indicateProsBox.offsetHeight);
+        prosMs = window.moveMs(indicateProsBox.offsetHeight, window.MOVE_SPEED_CLOSE);
         indicateProsBox.style.transition = `transform ${prosMs}ms ${INDICATE_SHEET_EASE}`;
         indicateProsBox.style.transform = 'translateY(100%)';
       }
