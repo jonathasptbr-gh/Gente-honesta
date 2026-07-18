@@ -202,18 +202,11 @@
   font-size: 1.4rem;
 }
 
-/* Aba ativa: só cor muda (o slider amarelo é o fundo) */
+/* Aba ativa: só cor muda (o slider amarelo é o fundo). O ícone agora é SVG do
+   sprite (peso único assado no símbolo) — não há mais reforço de peso por estado
+   como havia com a fonte (font-variation-settings). */
 .feed-tabs-pill__tab--active {
   color: var(--p-green-dark);
-}
-
-.feed-tabs-pill__tab--active .icon {
-}
-
-/* Estado "Voltar ao topo" (js: setTabButton): seta REFORÇADA — no opsz 48 o
-   traço da arrow_upward afinava no tamanho pequeno da aba; opsz 24 + wght 700
-   engrossam o glifo. Vem DEPOIS do --active para vencer (mesma especificidade). */
-.feed-tabs-pill__tab--totop .icon {
 }
 
 .feed-tabs-pill__tab:not(.feed-tabs-pill__tab--active):active {

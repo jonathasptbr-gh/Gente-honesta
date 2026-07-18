@@ -61,11 +61,6 @@
   gap: var(--space-xs);
 }
 
-/* "+" no peso forte (preset filled forte), coerente com o texto em negrito do
-   botão — o wght 500 padrão do ícone ficava fino demais ao lado do rótulo. */
-.contracts-create__btn .icon {
-}
-
 /* Botão só-ícone que revela a gaveta de pendentes. Altura estica p/ casar com o
    CTA (o .btn--icon fixa 44×44 — aqui só a largura importa).
    INATIVO (fechado): card BRANCO + ícone PRETO normal (--t-main) = o glifo de
