@@ -100,7 +100,7 @@ líquida inalterada → nenhuma entrada nova. Fechamentos pela UI consomem a ent
 cadastro), `auth:step-phone`/`auth:step-otp` (passos do login), `feed-tab` (→ aba Profissionais),
 `pedido-sheet`, `historico-sheet`, `vaga-sheet`, `vaga-detail-sheet`, `ajudante-sheet`,
 `filters-sheet`, `contracts-sheet`, `contracts-filters-sheet`, `indicated-popup`,
-`indicate-overlay`, `tutorial` (→ encerra o tour). Colapsáveis inline (Detalhes profissionais,
+`indicate-overlay`, `profile-sheet` (gaveta de perfil), `tutorial` (→ encerra o tour). Colapsáveis inline (Detalhes profissionais,
 autocomplete de área) e o flip dos cards NÃO são camadas — fecham sozinhos.
 
 **Ao adicionar uma nova camada dispensável:** `push(id, fecharFn)` no abrir + `remove(id)` no fechar,

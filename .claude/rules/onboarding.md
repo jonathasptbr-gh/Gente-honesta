@@ -32,8 +32,9 @@ abaixo).
 
 `.screen__header-nav` (título + Cancelar) é `display:flex`; o título usa `flex:1; text-align:left`
 (empurra o botão p/ a direita), `--fs-11` (não `--fs-12`, senão "Complete seu Perfil" quebraria em 2
-linhas). `#btn-onboarding-cancel` é texto puro "Cancelar" (não "Voltar") — encerra a sessão
-(`customConfirm` → `auth.signOut()` → `resetAuthFlow`), não navega para um passo anterior.
+linhas). `#btn-onboarding-cancel` ("Cancelar", pílula-retângulo de fechar) — **no CADASTRO** encerra a
+sessão (`customConfirm` → `auth.signOut()` → `resetAuthFlow`), não navega para um passo anterior. **Em
+MODO EDIÇÃO** (ver "Modo edição") NÃO desloga: volta para a gaveta de perfil descartando as mudanças.
 
 ## Seção "Detalhes profissionais" — colapsável animado + obrigatoriedade condicional
 
@@ -92,13 +93,16 @@ O botão "Editar" da gaveta de perfil (`#profile-sheet`, em `feed/index.js`) rea
 (`setOnboardingEditMode(true)` → título "Editar Perfil" + botão "Salvar alterações" +
 `appState.editingProfile=true`), reflete o estado nos campos (`populateOnboardingFromState` — nome/
 sobrenome do `displayName`, foto, tags, localização, padrão de serviço, pagamento, perfil público),
-tira um **snapshot** e abre `#view-onboarding`. Como perfil e cadastro compartilham o MESMO
-`appState`, "levar os dados" é sobretudo refletir o estado nos widgets. **Cancelar** em modo edição
-NÃO faz logout: `exitOnboardingEdit(true)` DESFAZ as mudanças (restaura o snapshot) e volta ao feed;
-**Salvar** (`finishRegistration`) faz `updateProfile` e, se `editingProfile`, volta direto ao feed
-(`exitOnboardingEdit(false)`, sem a tela-guia de instalação). Limitação do período de testes: foto/
-tags/bio/localização não persistem (sem Firestore), então após um reload só o `displayName` sobrevive
-— editar depois de recarregar pede repreencher o restante.
+tira um **snapshot** e abre `#view-onboarding` com **animação** (modal que sobe + fade: classes
+`.view-edit-in`/`.view-edit-out`, keyframes em `onboarding/form.css`). Como perfil e cadastro
+compartilham o MESMO `appState`, "levar os dados" é sobretudo refletir o estado nos widgets. Tanto
+**Cancelar** quanto **Salvar** VOLTAM PARA A GAVETA DE PERFIL (`window.openProfileSheet`, exposto pelo
+feed), não para o feed nu: **Cancelar** (`exitOnboardingEdit(true)`) DESFAZ as mudanças (restaura o
+snapshot) e NÃO faz logout; **Salvar** (`finishRegistration` → `exitOnboardingEdit(false)`) faz
+`updateProfile` e mantém as mudanças (sem a tela-guia de instalação). O `exitOnboardingEdit` toca a
+animação de saída e SÓ ENTÃO troca de tela (`finish` idempotente com fallback). Limitação do período
+de testes: foto/tags/bio/localização não persistem (sem Firestore), então após um reload só o
+`displayName` sobrevive — editar depois de recarregar pede repreencher o restante.
 
 ## Check "perfil público"
 

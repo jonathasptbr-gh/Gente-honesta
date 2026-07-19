@@ -80,7 +80,7 @@ sem classe de estado), `#bar-pedidos-state` (Histórico + Fazer pedido/Pedido at
 ## Submenus dropdown (gavetas) + botão-abridor que vira "Fechar"
 
 Os submenus que descem da base da action bar — **Histórico** (`#historico-sheet`), **Fazer pedido/
-Pedido atual** (`#pedido-sheet`), **Criar vaga** (`#vaga-sheet`), **Serviço de ajudantes**
+Pedido atual** (`#pedido-sheet`), **Criar vaga** (`#vaga-sheet`), **Diárias**
 (`#ajudante-sheet`), **Filtros** (`#filters-sheet`), **Contratos** (`#contracts-sheet` +
 `#contracts-filters-sheet`) — compartilham o mesmo padrão: container `position:fixed; inset:0;
 z-index:300`, painel no **padrão claro** (corpo `--bg-soft` + elementos internos brancos +
@@ -445,14 +445,15 @@ sheets (abridor "Ver vaga" à esquerda vira "Fechar" via `setVagaOpenerClose`, t
 `feed/vagas.css` (a faixa da empresa sangra até as bordas do painel; o corpo perde o
 padding lateral do card para alinhar).
 
-**Concluir vaga (mesmo sistema dos pedidos):** enquanto o detalhe está aberto, o botão IRMÃO à
-direita (Serviço de ajudantes) vira **"Concluir vaga"** (`setAjudanteConcludeVaga` → `.action-conclude-mode`
+**Concluir vaga (mesmo sistema dos pedidos):** enquanto o detalhe está aberto, o botão IRMÃO
+(**Diárias**, `#btn-chamar-ajudante`, hoje à ESQUERDA — Criar vaga passou p/ a direita) vira
+**"Concluir vaga"** (`setAjudanteConcludeVaga` → `.action-conclude-mode`
 dourado + ícone `check_circle`), espelhando "Concluir pedido" no lado "Pedido atual". Como o container
 (z-300) cobre a barra, tocar nele cai no handler da gaveta → `concluirVaga()` (confirma via
 `customConfirm`, `removeVaga(myVagaId)`, `myVagaId=null`, re-render, fecha e restaura os dois botões —
 abridor volta a "Criar vaga"). Não há histórico de vagas: concluir REMOVE a vaga do feed.
 
-## Sheet "Serviço de ajudantes" (`#ajudante-sheet`)
+## Sheet "Diárias" (`#ajudante-sheet`; ex-"Serviço de ajudantes")
 
 Reusa `.pedido-sheet*`. Duas funções sempre visíveis (`.ajudante-divider`). Estado em `localStorage`.
 - **Disponibilizar-me:** dois `.helper-toggle` (leve/pesado, seleção independente). Diárias da fonte

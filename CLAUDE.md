@@ -28,10 +28,25 @@ Repositório: jonathasptbr-gh/gente-honesta
   de ícones) — não é build do site.
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v421**.
+  bump.) Versão atual: **v432**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**
+
+### Manutenção da documentação (OBRIGATÓRIA a cada merge/deploy)
+
+**Ao subir uma mudança para `main`, ATUALIZE a documentação junto — no MESMO conjunto de
+alterações — e REVISE para não deixar conteúdo morto nos registros estruturais.** Ou seja:
+
+1. **Registrar o novo:** toda mudança de estrutura/arquitetura/comportamento (arquivos, IDs, classes,
+   fluxos, nomes de UI, tokens, mecânicas) deve ser refletida em `CLAUDE.md` e/ou na `.claude/rules/*.md`
+   da área (o Mapa de Arquivos, as tabelas de telas, e as seções de detalhe são a fonte de verdade).
+2. **Podar o morto:** ao alterar/renomear/remover algo, RELEIA a doc da área e apague ou corrija o que
+   descrevia o estado antigo — rótulos de UI renomeados (ex.: um botão que mudou de nome), posições que
+   mudaram (ex.: "à esquerda/direita"), mecânicas substituídas (ex.: slide → fade), IDs/classes que não
+   existem mais. Descrição que contradiz o código é pior que ausência de descrição.
+3. **Bump = checkpoint de doc:** o bump de versão marca "sessão de app fechada"; use-o como gatilho para
+   passar os olhos nas rules tocadas e conferir que nada ficou divergente antes do deploy.
 
 ### Configuração obrigatória antes do primeiro commit de cada sessão
 
@@ -66,7 +81,9 @@ navigateTo('form-otp')      // troca sub-passo dentro de #view-auth (u-hidden)
 | `#view-feed` | autenticado com perfil completo |
 
 Perfil do próprio usuário = **gaveta** `#profile-sheet` (não é `.screen`): slide-down aberto pelo avatar
-da action bar (que vira o Fechar, no mesmo lugar) — reusa `.historico-sheet*` + `--bar-clear`.
+da action bar (que vira o Fechar, no mesmo lugar) — reusa `.historico-sheet*` + `--bar-clear`. Dentro
+dela, **Editar** reabre o `#view-onboarding` em MODO EDIÇÃO (`window.enterProfileEdit`, pré-preenchido;
+Cancelar/Salvar voltam para a gaveta) — detalhe em `.claude/rules/onboarding.md` ("Modo edição").
 
 **Sub-passos de auth** (dentro de `#view-auth`): `step-intro` → `form-phone` → `form-otp`.
 
@@ -119,13 +136,15 @@ css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; N
   onboarding/camera.css    — diálogo da câmera
   install/install.css      — tela-guia de instalação do PWA
   feed/shell.css           — interface do feed + gaveta de contratos + painéis
-  feed/navigation.css      — action bar (pedidos) + bottom bar + feed tabs
+  feed/navigation.css      — action bar (perfil/contratos fixos nas pontas + crossfade da zona do meio;
+                             botões de vagas/pedidos) + bottom bar + feed tabs
   feed/pedidos.css         — lista de pedidos + cards de post
   feed/pedido-sheet.css    — sheet "Fazer pedido" / detalhe unificado
   feed/historico.css       — histórico de pedidos
   feed/cards-pro.css       — flip + cards de profissional
   feed/vagas.css           — painel + card de vaga
-  feed/ajudantes.css       — sheet "Serviço de ajudantes"
+  feed/ajudantes.css       — sheet de "Diárias" (#ajudante-sheet; ex-"Serviço de ajudantes" — só o
+                             rótulo do botão mudou, a lógica/IDs internos seguem "ajudante"/"helper")
   profile/profile.css      — gaveta de perfil do próprio usuário (#profile-sheet); carregada por último.
                              Reusa .historico-sheet* + --bar-clear (o avatar vira o Fechar); painel
                              TRANSPARENTE com o card de profissional real (buildProCard) flutuante + o
@@ -224,7 +243,8 @@ abrir ao público.
    visível (`::-webkit-scrollbar` 5px + thumb, `scrollbar-width: thin`), na borda do painel.
 10. **Diálogo?** Sempre `await customAlert(...)`/`await customConfirm(...)` — nunca `alert()`/`confirm()`.
 11. **Fechou a sessão de mudanças no app?** Bump de `CACHE_NAME` + `#version-badge` juntos, commit e
-    deploy para `main`.
+    deploy para `main` — e **atualize/pode a documentação** junto (ver "Manutenção da documentação"
+    na seção Deploy): registrar o novo e remover o conteúdo morto das rules/CLAUDE.md.
 
 ---
 
