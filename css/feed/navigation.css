@@ -61,7 +61,7 @@
   justify-content: center;
   gap: var(--space-sm);   /* espaço ícone↔texto, igual aos botões padrão (add/close não colam no rótulo) */
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);   /* arredondado como a caixa de busca */
   font-size: var(--fs-6);
   font-weight: var(--fw-bold);
   cursor: pointer;
@@ -77,9 +77,6 @@
   color: var(--p-green-dark);
 }
 
-.agenda-filters__vagas-btn--criar:active {
-  opacity: 0.88;
-}
 
 /* "Diárias" — à ESQUERDA (Criar vaga foi p/ a direita). Padrão AMARELO como os
    demais botões do topo (exceto contratos). */
@@ -87,10 +84,6 @@
   flex: 1;
   background: var(--a-gold);
   color: var(--p-green-dark);
-}
-
-.agenda-filters__vagas-btn--ajudante:active {
-  opacity: 0.88;
 }
 
 .agenda-filters__vagas-btn .icon {
@@ -234,6 +227,19 @@
   gap: var(--space-sm);
   font-size: var(--fs-6);
   white-space: nowrap;
+  border-radius: var(--radius-pill);   /* arredondado como a caixa de busca */
+}
+
+/* ── PADRONIZAÇÃO dos botões do topo (action bar) ─────────────────────────
+   Feedback de toque UNIFORME = FADE (opacity), no lugar do scale do .btn:active.
+   O fade in/out vem da transição padrão (--transition = all 0.3s). Cobre os
+   botões com rótulo (vagas/pedidos) e o de contratos; o avatar e a pílula de
+   filtro têm as mesmas regras em historico.css (preservando o translateY de
+   posição da pílula). O radius-pill do contrato mora em historico.css. */
+.agenda-filters__vagas-btn:active,
+.pedido-action__btn:active {
+  transform: none;
+  opacity: 0.6;
 }
 
 /* MODO "FECHAR": qualquer botão-abridor de submenu da action bar (Histórico,

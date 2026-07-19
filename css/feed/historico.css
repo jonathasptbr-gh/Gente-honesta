@@ -401,10 +401,13 @@
   width: 40px;
   height: 40px;
   flex-shrink: 0;   /* fixo à direita da barra (não encolhe com a zona do meio) */
+  border-radius: var(--radius-pill);   /* arredondado como a caixa de busca (círculo no 40px) */
   background: var(--bg-white);
   color: var(--t-main);
   position: relative;
 }
+/* Fade padronizado no toque (vence o scale do .btn:active). */
+.agenda-filters__icon-btn:active { transform: none; opacity: 0.6; }
 
 /* Notificação de contratos: o FUNDO do botão pisca entre branco e AMARELO
    (--a-gold, o acento de ação/marca — o verde claro ficava discreto demais);
@@ -438,7 +441,7 @@
   background: none;
   transition: var(--transition);
 }
-.agenda-filters__profile:active { transform: scale(var(--press-scale)); }
+.agenda-filters__profile:active { transform: none; opacity: 0.6; }   /* fade padronizado (era scale) */
 /* Avatar REDONDO com moldura branca (anel de avatar = borda FUNCIONAL,
    permitida pelo design sem contorno) — mesmo tamanho (40px) do botão de
    contratos do outro lado. */
@@ -475,7 +478,7 @@
   z-index: 1;   /* acima do input */
   transition: var(--transition);
 }
-.agenda-filters__filter-pill:active { transform: translateY(-50%) scale(var(--press-scale)); }
+.agenda-filters__filter-pill:active { transform: translateY(-50%); opacity: 0.6; }   /* fade (mantém o translateY de posição) */
 /* Filtros ativos = tint AZUL claro padrão de seleção sobre superfície clara
    (--info-blue-light + texto --info-blue) — com o campo em branco PURO o tint
    contrasta bem (sobre o antigo translúcido ele sumia). Fica ANTES do

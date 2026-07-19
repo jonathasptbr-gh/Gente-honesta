@@ -57,7 +57,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-pill);   /* arredondado como a caixa de busca */
   font-size: var(--fs-6);
   font-weight: var(--fw-bold);
   cursor: pointer;
@@ -68,8 +68,8 @@
 /* Ambos no padrão AMARELO dos botões do topo (exceto contratos). */
 .agenda-filters__profile-btn--edit,
 .agenda-filters__profile-btn--logout { background: var(--a-gold); color: var(--p-green-dark); }
-.agenda-filters__profile-btn--edit:active,
-.agenda-filters__profile-btn--logout:active { opacity: 0.88; }
+/* Fade padronizado no toque (igual aos demais botões do topo). */
+.agenda-filters__profile-btn:active { opacity: 0.6; }
 
 /* Card de profissional flutuante: o .pro-card já traz sombra/raio próprios; só
    zera a margem inferior dele (o respiro vem do gap do painel). */
