@@ -286,7 +286,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v423</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v424</span>
     </div>
 
     <!-- =====================================================================
@@ -1552,6 +1552,19 @@
                         </button>
                     </div>
 
+                    <!-- Ações do PERFIL: ocupam o lugar da busca enquanto a gaveta de
+                         perfil está aberta (JS: classe --profile na search-row). Assim
+                         os botões de "navegação" da gaveta vivem na action bar, como nos
+                         outros sheets. Mesma métrica do par de botões de Vagas. -->
+                    <div class="agenda-filters__profile-actions" id="bar-profile-actions">
+                        <button type="button" id="btn-profile-logout" class="agenda-filters__profile-btn agenda-filters__profile-btn--logout">
+                            <svg class="icon" aria-hidden="true"><use href="#ic-logout"></use></svg>Sair
+                        </button>
+                        <button type="button" id="btn-profile-edit" class="agenda-filters__profile-btn agenda-filters__profile-btn--edit">
+                            <svg class="icon" aria-hidden="true"><use href="#ic-edit"></use></svg>Editar
+                        </button>
+                    </div>
+
                     <!-- Antigo botão de filtros → agora abre CONTRATOS. Notificação =
                          fundo piscando branco↔azul (classe --notify), removida ao abrir. -->
                     <button type="button" id="btn-open-contracts" class="btn btn--icon agenda-filters__icon-btn agenda-filters__icon-btn--notify" aria-label="Contratos">
@@ -1714,15 +1727,9 @@
         <div class="historico-sheet__clip">
             <div class="historico-sheet__panel profile-sheet__panel">
 
-                <!-- Ações (exceto Fechar): retangulares com bordas arredondadas. -->
-                <div class="profile-sheet__actions">
-                    <button type="button" id="btn-profile-logout" class="btn profile-sheet__btn">
-                        <svg class="icon" aria-hidden="true"><use href="#ic-logout"></use></svg>Sair
-                    </button>
-                    <button type="button" id="btn-profile-edit" class="btn profile-sheet__btn">
-                        <svg class="icon" aria-hidden="true"><use href="#ic-edit"></use></svg>Editar perfil
-                    </button>
-                </div>
+                <!-- Sair/Editar NÃO ficam aqui: vivem na action bar (search-row),
+                     no lugar da busca, enquanto a gaveta está aberta (o Fechar é o
+                     avatar). Ver #bar-profile-actions no HTML e o toggle no JS. -->
 
                 <!-- Dados principais: card de profissional REAL flutuante
                      (buildProCard: foto, QAV, escudo de IC, tags, disponibilidade,

@@ -3638,6 +3638,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btn?.setAttribute('aria-label', on ? 'Fechar perfil' : 'Perfil');
   }
 
+  // Troca a busca pelas ações Sair/Editar na action bar (só enquanto a gaveta abre).
+  function setProfileBarActions(on) {
+    document.getElementById('bar-search-state')?.classList.toggle('agenda-filters__search-row--profile', on);
+  }
+
   function openProfileSheet() {
     const sheet = document.getElementById('profile-sheet');
     if (!sheet) return;
@@ -3648,6 +3653,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sheet.classList.add('historico-sheet--open');
     window.backNav?.push('profile-sheet', closeProfileSheet);
     setProfileAvatarClose(true);
+    setProfileBarActions(true);        // Sair/Editar ocupam o lugar da busca
   }
 
   function closeProfileSheet() {
@@ -3656,6 +3662,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.backNav?.remove('profile-sheet');
     sheet.classList.remove('historico-sheet--open');
     setProfileAvatarClose(false);
+    setProfileBarActions(false);       // devolve a busca
   }
 
   // Logout (movido do avatar para o botão "Sair" da top bar do perfil).

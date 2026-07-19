@@ -129,8 +129,9 @@ css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; N
   profile/profile.css      — gaveta de perfil do próprio usuário (#profile-sheet); carregada por último.
                              Reusa .historico-sheet* + --bar-clear (o avatar vira o Fechar); painel
                              TRANSPARENTE com o card de profissional real (buildProCard) flutuante + o
-                             card de Avaliações (QR + compartilhar). CSS próprio: backdrop-blur, painel
-                             sem-card, botões Sair/Editar retangulares e o avatar-fecha
+                             card de Avaliações (QR + compartilhar). Sair/Editar vivem na ACTION BAR
+                             (search-row, no lugar da busca via classe --profile), não no painel; CSS
+                             próprio: backdrop-blur, painel sem-card, ações da barra e o avatar-fecha
 
 js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
   core/app.js       — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW,

@@ -31,31 +31,44 @@
 .profile-sheet__panel::-webkit-scrollbar { width: 5px; }
 .profile-sheet__panel::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
 
-/* ── Ações (exceto Fechar): retangulares com bordas arredondadas ─────────
-   Cards brancos lado a lado sobre o feed borrado; base flex-center/press vem
-   de .btn. */
-.profile-sheet__actions {
-  display: flex;
-  gap: var(--space-xs);
-  flex-shrink: 0;
-}
-
-.profile-sheet__btn {
+/* ── Ações do perfil NA ACTION BAR (Sair/Editar) ─────────────────────────
+   Ocupam o lugar da busca enquanto a gaveta está aberta — os botões de
+   "navegação" da gaveta vivem na barra, como nos outros sheets. O Fechar é o
+   avatar (única exceção redonda). Mesma métrica retangular do par de Vagas. */
+.agenda-filters__profile-actions {
+  display: none;         /* só aparece com a gaveta aberta (classe --profile) */
   flex: 1;
-  gap: 6px;
-  padding: 10px var(--space-sm);
-  border-radius: var(--radius-md);
-  background: var(--bg-white);
-  color: var(--t-main);
-  box-shadow: var(--shadow-sm);
-  font-size: var(--fs-5);
-  font-weight: var(--fw-bold);
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
-.profile-sheet__btn .icon {
-  font-size: 1.2rem;
-  color: var(--p-green);
+/* Com a gaveta aberta: as ações substituem a busca + o botão de contratos. */
+.agenda-filters__search-row--profile .agenda-filters__profile-actions { display: flex; }
+.agenda-filters__search-row--profile .agenda-filters__search-wrap,
+.agenda-filters__search-row--profile #btn-open-contracts { display: none; }
+
+.agenda-filters__profile-btn {
+  height: 40px;              /* casa com o avatar (40px) e o par de Vagas */
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-6);
+  font-weight: var(--fw-bold);
+  cursor: pointer;
+  transition: var(--transition);
 }
+.agenda-filters__profile-btn .icon { font-size: 1.1rem; flex-shrink: 0; }
+
+/* Editar = ação principal (dourado, como "Criar vaga"); Sair = secundária (branca). */
+.agenda-filters__profile-btn--edit   { background: var(--a-gold);  color: var(--p-green-dark); }
+.agenda-filters__profile-btn--edit:active { opacity: 0.88; }
+.agenda-filters__profile-btn--logout { background: var(--bg-white); color: var(--p-green-dark); }
+.agenda-filters__profile-btn--logout:active { background: var(--bg-soft); }
 
 /* Card de profissional flutuante: o .pro-card já traz sombra/raio próprios; só
    zera a margem inferior dele (o respiro vem do gap do painel). */
