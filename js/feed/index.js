@@ -1,8 +1,8 @@
 "use strict";
-import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, getPublishSeedIndicated, addVaga, removeVaga } from './repository.js';
+import { getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, getPublishSeedIndicated, addVaga, removeVaga } from './repository.js';
 import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, VAGA_CARD_CFG, PRO_CARD_CFG, MAX_VAGAS, MAX_CANDIDATOS, DAY_ORDER, DEFAULT_WORK_DAYS, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
 import { icTier, comingSoon, shareOrCopy } from './utils.js';
-import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './templates.js';
+import { icBarHTML, buildCommentHTML, proBackHTML, historicoItemHTML, proCardHTML, vagaContentHTML, helperPersonHTML } from './templates.js';
 import { pinnedPros, filterState, scrolledState, scrollToTopPending, pedidoHistory, myPedido, contractsFilter } from './state.js';
 import { PEDIDO_STATUS, PEDIDO_DETAIL_MODE, URGENCY, SORT, TAB, DURATION, HELPER_TYPE, PAY_METHOD, AVAILABILITY, CONTRACT_STATUS } from '../core/domain.js';
 
@@ -177,14 +177,19 @@ document.addEventListener('DOMContentLoaded', () => {
     setPendingOpen(!pendingWrap?.classList.contains('contracts-pending--open'));
   });
 
+  // Tap-outside genérico: fecha a camada quando o toque cai FORA do painel.
+  // Só para os sheets SEM troca de gaveta irmã (contratos, filtros, perfil) — os
+  // que roteiam para o botão irmão têm handler próprio (via tapHitsButton). O
+  // close vai como thunk (`() => close()`): adia a leitura ao clique, sem TDZ se
+  // a função de fechar for declarada mais abaixo. function hoistada.
+  function wireTapOutside(el, panelSel, close) {
+    el?.addEventListener('click', (e) => { if (!e.target.closest(panelSel)) close(); });
+  }
+
   // Tap-outside fecha. Os containers --bar-clear começam ABAIXO da barra, então
   // os toques na barra chegam aos botões/busca reais (sem tapHitsButton).
-  contractsSheet?.addEventListener('click', (e) => {
-    if (!e.target.closest('.historico-sheet__panel')) closeContractsSheet();
-  });
-  contractsFiltersSheet?.addEventListener('click', (e) => {
-    if (!e.target.closest('.historico-sheet__panel')) closeContractsFiltersSheet();
-  });
+  wireTapOutside(contractsSheet, '.historico-sheet__panel', () => closeContractsSheet());
+  wireTapOutside(contractsFiltersSheet, '.historico-sheet__panel', () => closeContractsFiltersSheet());
 
   // Busca compartilhada: com a gaveta aberta, o texto filtra os contratos (o
   // listener dos profissionais segue re-renderizando a lista oculta atrás).
@@ -960,44 +965,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-  // Card padrão de profissional: coluna esquerda (foto + QAV) e coluna direita
-  // (nome/profissão/disponibilidade + ações do cabeçalho + bio).
-  // showPin=false omite o botão de fixar (ex: cards de referência na confirmação).
-
-  const proCardHTML = (pro, showPin = true) => {
-    // Indicador PASSIVO de "salvo": FITA DE MARCADOR no canto superior esquerdo,
-    // cruzando por cima da foto do contato. Só visual — o salvar/dessalvar é por
-    // pressionar longamente o card (não há mais botão de fixar). A fita só é
-    // renderizada nos cards da lista principal (showPin) e sua visibilidade é
-    // controlada pela classe .pro-card--pinned no card (toggle sem re-render).
-    const savedRibbon = showPin
-      ? `<span class="pro-card__saved-ribbon" aria-hidden="true"></span>`
-      : '';
-    return `
-      <div class="pro-card__col-left">
-        <div class="pro-card__avatar-wrap">
-          <img class="pro-card__avatar" src="${avatarSvg}" alt="">
-          ${savedRibbon}
-        </div>
-        ${qavHTML(pro.q, pro.a, pro.v)}
-      </div>
-      <div class="pro-card__col-right">
-        <div class="pro-card__head">
-          <div class="pro-card__head-text">
-            <div class="pro-card__name">${pro.name}</div>
-            <div class="pro-card__tags">${pro.tags}</div>
-            ${availHTML(pro.avail)}
-          </div>
-          <div class="pro-card__head-right">
-            ${icBarHTML(pro.ic, 'lg')}
-          </div>
-        </div>
-        <p class="pro-card__bio">${pro.bio}</p>
-      </div>
-      ${showPin ? proFooterHTML(pro) : ''}
-    `;
-  };
-
   // Constrói UM card de profissional flipável (frente + verso). Fonte ÚNICA do
   // scaffolding — antes o mesmo innerHTML era montado inline aqui e em
   // renderAgendaList. `showPin` inclui o botão salvar + rodapé (só na lista
@@ -1487,94 +1454,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
 
 
-  // Conteúdo visual da vaga (faixa da empresa + divulgador + corpo com
-  // requisitos/detalhes/benefícios), SEM o casco do card nem as ações. Fonte
-  // ÚNICA usada pela FRENTE do card de vaga (renderVagasList) E pela gaveta de
-  // detalhe da vaga (renderVagaDetail) — o "mesmo visual do card, sem o card".
-  // `bodyTailHTML` é injetado ao FIM do corpo (no card = as ações apply/share).
-  // Hoistada (function) para ficar disponível antes de suas chamadas.
-  function vagaContentHTML(vaga, bodyTailHTML = '') {
-    const reqHTML = vaga.requisitos.map(r =>
-      `<li class="vaga-card__req"><svg class="icon" aria-hidden="true"><use href="#ic-check_small"></use></svg>${r}</li>`
-    ).join('');
-
-    const benefitHTML = vaga.beneficios.map(b =>
-      `<span class="vaga-card__benefit"><svg class="icon" aria-hidden="true"><use href="#ic-${b.icon}"></use></svg>${b.label}</span>`
-    ).join('');
-
-    // Seção de benefícios só aparece se a vaga tiver algum (vagas do usuário
-    // podem não ter benefícios — evita um cabeçalho "Benefícios" vazio).
-    const benefitSectionHTML = vaga.beneficios.length ? `
-              <div class="vaga-card__section">
-                <p class="vaga-card__section-label">Benefícios</p>
-                <div class="vaga-card__benefits">${benefitHTML}</div>
-              </div>` : '';
-
-    const vagasLabel = vaga.vagas === 1 ? '1 vaga disponível' : `${vaga.vagas} vagas disponíveis`;
-
-    const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(vaga.mapsQuery)}`;
-
-    // Nome da empresa: se ainda não temos os dados oficiais (vaga criada por
-    // CNPJ), mostramos o próprio CNPJ como identificador. Idem para o endereço,
-    // que vira uma nota "pendente" (não-link) até virem os dados do sistema.
-    const companyName = vaga.empresa || (vaga.cnpj ? `CNPJ ${vaga.cnpj}` : '');
-    const addressHTML = vaga.endereco
-      ? `<a class="vaga-card__company-address" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver no Google Maps: ${vaga.endereco}">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-location_on"></use></svg>
-                  ${vaga.endereco}
-                </a>`
-      : `<span class="vaga-card__company-address vaga-card__company-address--pending">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-hourglass_top"></use></svg>
-                  Dados da empresa em verificação
-                </span>`;
-
-    // Afordância "ver no mapa" à direita do cabeçalho (ícone de mapa + seta) —
-    // só quando há endereço oficial (vaga por CNPJ pendente não tem mapa ainda).
-    const mapsAffordanceHTML = vaga.endereco
-      ? `<a class="vaga-card__company-maps" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver endereço no mapa">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-map"></use></svg>
-                  <svg class="icon vaga-card__company-maps-arrow" aria-hidden="true"><use href="#ic-chevron_right"></use></svg>
-                </a>`
-      : '';
-
-    return `
-            <div class="vaga-card__company-strip">
-              <svg class="icon vaga-card__company-icon" aria-hidden="true"><use href="#ic-domain"></use></svg>
-              <div class="vaga-card__company-info">
-                <span class="vaga-card__company-name">${companyName}</span>
-                ${addressHTML}
-              </div>
-              ${mapsAffordanceHTML}
-            </div>
-            <div class="vaga-card__body">
-              <div class="vaga-card__role-row">
-                <h3 class="vaga-card__role">${vaga.cargo}</h3>
-                <span class="vaga-card__vacancies">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-groups"></use></svg>
-                  ${vagasLabel}
-                </span>
-              </div>
-              <div class="vaga-card__section">
-                <p class="vaga-card__section-label">Requisitos</p>
-                <ul class="vaga-card__requirements">${reqHTML}</ul>
-              </div>
-              <div class="vaga-card__section">
-                <p class="vaga-card__section-label">Detalhes</p>
-                <div class="vaga-card__meta-row">
-                  <span class="vaga-card__meta-item">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-schedule-o"></use></svg>
-                    ${vaga.cargaHoraria}
-                  </span>
-                  <span class="vaga-card__meta-item vaga-card__salary">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-payments"></use></svg>
-                    ${vaga.salario}
-                  </span>
-                </div>
-              </div>
-              ${benefitSectionHTML}
-              ${bodyTailHTML}
-            </div>`;
-  }
 
   const renderVagasList = () => {
     const list = document.getElementById('vagas-list');
@@ -2508,7 +2387,8 @@ document.addEventListener('DOMContentLoaded', () => {
   //      meia-noite daquele dia; depois o botão de chamar volta a ficar
   //      disponível e os ajudantes antigos somem da visualização.
   // Sorteio e persistência são MOCK (localStorage) — placeholder do backend,
-  // onde a entrega real seria "por ordem de chegada". Reusa icBarHTML/avatarSvg.
+  // onde a entrega real seria "por ordem de chegada". O card de contato é
+  // helperPersonHTML (feed/templates.js).
   // =========================================================================
   {
 
@@ -2600,36 +2480,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---- Função 2: chamar um ajudante ----
     let helperCallType = HELPER_TYPE.LIGHT;
-
-    // Card do ajudante: mesmo padrão visual dos cards de profissional do feed
-    // (classes .pro-card__*: avatar retrato, nome, IC-bar, botão WhatsApp verde),
-    // porém com elementos reduzidos — só foto, nome+sobrenome e índice de confiança.
-    // Layout: foto à ESQUERDA; à direita dela, uma linha com nome+sobrenome e o
-    // índice de confiança e, ABAIXO dessa linha (ainda ao lado da foto), o botão
-    // do WhatsApp — tudo dentro de .pro-card__col-right.
-    const helperPersonHTML = (h) => `
-      <div class="pro-card__front pro-card__front--helper" data-id="${h.id}">
-        <div class="pro-card__col-left">
-          <div class="pro-card__avatar-wrap">
-            <img class="pro-card__avatar" src="${avatarSvg}" alt="">
-          </div>
-        </div>
-        <div class="pro-card__col-right">
-          <div class="pro-card__head">
-            <div class="pro-card__head-text">
-              <div class="pro-card__name">${h.first} ${h.last}</div>
-            </div>
-            <div class="pro-card__head-right">
-              ${icBarHTML(h.ic, 'sm')}
-            </div>
-          </div>
-          <a class="btn pro-card__back-btn pro-card__back-btn--whatsapp helper-wa"
-             href="https://wa.me/${h.phone}" target="_blank" rel="noopener"
-             aria-label="Conversar com ${h.first} no WhatsApp">
-            <svg class="icon" aria-hidden="true"><use href="#ic-chat"></use></svg>Conversar no WhatsApp
-          </a>
-        </div>
-      </div>`;
 
     // Sorteia N ajudantes distintos de um tipo, excluindo ids já em uso.
     // Fisher-Yates só como placeholder da entrega "aleatória" (real: ordem de chegada).
@@ -2806,9 +2656,7 @@ document.addEventListener('DOMContentLoaded', () => {
     openFiltersSheet();
   });
   // Fecha ao tocar fora do painel (inclui tocar no próprio botão, que agora é "X")
-  document.getElementById('filters-sheet')?.addEventListener('click', (e) => {
-    if (!e.target.closest('.historico-sheet__panel')) closeFiltersSheet();
-  });
+  wireTapOutside(document.getElementById('filters-sheet'), '.historico-sheet__panel', () => closeFiltersSheet());
 
   // "Limpar filtros" dos PROFISSIONAIS (acionado pela própria pílula de filtro
   // em modo X): zera os 4 grupos (mantém ordenação e pins), des-seleciona os
@@ -3715,9 +3563,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // Tap-outside do painel fecha (container --bar-clear começa abaixo da barra,
   // então o toque no avatar chega ao handler acima; aqui só o resto da gaveta).
-  document.getElementById('profile-sheet')?.addEventListener('click', (e) => {
-    if (!e.target.closest('.historico-sheet__panel')) closeProfileSheet();
-  });
+  wireTapOutside(document.getElementById('profile-sheet'), '.historico-sheet__panel', () => closeProfileSheet());
   document.getElementById('btn-profile-logout')?.addEventListener('click', doLogout);
   // Editar → reabre o formulário do onboarding em MODO EDIÇÃO, já preenchido com
   // os dados do perfil (perfil e cadastro compartilham o mesmo appState).
