@@ -16,8 +16,10 @@ paths:
 - **function declarations (hoistadas) vs `const`:** helpers chamados antes de sua posição textual
   DEVEM ser `function`: `renderFlippableProCards`, `buildProCard`, `bindProCardFlip`,
   `resetProCardBack`, `proCardFlipToBack/Front`, `flipCardToBack/Front`,
-  `icTier`, `icShieldIcon`, `openFiltersSheet`, `closeFiltersSheet`, `closeContractsSheet`,
-  `historicoItemHTML`, `updateBarElevation`, `anchorBelowActionBar`, `comparePros`, `tapHitsButton`.
+  `openFiltersSheet`, `closeFiltersSheet`, `closeContractsSheet`, `closeProfileSheet`,
+  `updateBarElevation`, `anchorBelowActionBar`, `comparePros`, `tapHitsButton`, `syncOpenerAria`,
+  `wireTapOutside`. (icTier/icShieldIcon/historicoItemHTML/vagaContentHTML/proCardHTML saíram do
+  closure: hoje são IMPORTS de utils/templates — sem TDZ.)
   Nunca converter para arrow sem mover a declaração para antes de todas as chamadas.
 - **`text-decoration` não propaga p/ filhos de flex container:** em `.pro-card__meta-item--inactive`
   (risco no método de pagamento indisponível), o `line-through` fica no span do RÓTULO
@@ -83,7 +85,7 @@ Os submenus que descem da base da action bar — **Histórico** (`#historico-she
 Pedido atual** (`#pedido-sheet`), **Criar vaga** (`#vaga-sheet`), **Diárias**
 (`#ajudante-sheet`), **Filtros** (`#filters-sheet`), **Contratos** (`#contracts-sheet` +
 `#contracts-filters-sheet`) — compartilham o mesmo padrão: container `position:fixed; inset:0;
-z-index:300`, painel no **padrão claro** (corpo `--bg-soft` + elementos internos brancos +
+z-index: var(--z-sheet)`, painel no **padrão claro** (corpo `--bg-soft` + elementos internos brancos +
 `--shadow-sm`, labels verdes, seleção tint azul), ancorado em `--sheet-top` (base da barra, medido em
 runtime por `anchorBelowActionBar`), card recuado `--space-md` de cada lado, cantos inferiores
 arredondados, slide-down "gaveta", backdrop que dim SÓ o feed abaixo da barra. `#filters-sheet` reusa
@@ -436,8 +438,8 @@ gaveta), `resetVagaForm()`, `openVagaSheet()`/`closeVagaSheet()`. Publicar valid
 
 Gaveta de detalhe da vaga que o usuário publicou (visão do DONO, não candidatura). Acionada pelo
 mesmo `#btn-criar-vaga` em modo "Ver vaga". Reusa `.pedido-sheet*` (gaveta clara). Renderizada por
-`renderVagaDetail()`: o MESMO visual do card via **`vagaContentHTML(vaga, bodyTail)`** (fonte ÚNICA,
-hoistada, compartilhada com a FRENTE do card em `renderVagasList` — faixa da empresa +
+`renderVagaDetail()`: o MESMO visual do card via **`vagaContentHTML(vaga, bodyTail)`** (fonte ÚNICA
+em `feed/templates.js`, compartilhada com a FRENTE do card em `renderVagasList` — faixa da empresa +
 corpo com requisitos/detalhes/benefícios), **sem o casco do card e SEM "Me candidatar"**. No rodapé,
 `.vaga-detail__actions`: CTA **"Analisar candidatos"** (`.btn.btn--accent`) + badge de fração
 `.vaga-detail__count` (`taken/MAX_CANDIDATOS`, MAX_CANDIDATOS=20 em config.js), mesmo desenho

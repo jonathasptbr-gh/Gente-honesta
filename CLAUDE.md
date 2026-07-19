@@ -176,10 +176,12 @@ js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
                           getPublishSeedIndicated + addVaga/removeVaga. avatarSvg (export direto). Os
                           chamadores só falam com accessors.
   feed/config.js    — constantes congeladas: EASE_STD, *_CARD_CFG, TAB_*, SCROLL_*, HELPER_RATES,
-                          placeholders, availOrder/availabilityMeta, MAX_VAGAS/DAY_ORDER.
-  feed/utils.js     — funções puras: icTier/icShieldIcon, formatPedidoDate, pedidoHoursLeft, comingSoon.
+                          placeholders, availOrder/availabilityMeta, MAX_VAGAS/DAY_ORDER/DEFAULT_WORK_DAYS.
+  feed/utils.js     — funções puras: icTier/icShieldIcon, formatPedidoDate, pedidoHoursLeft, comingSoon,
+                          shareOrCopy (Web Share + fallback de clipboard).
   feed/templates.js — templates de HTML puros: qavHTML, icBarHTML, availHTML, buildCommentHTML,
-                          proBackHTML, proFooterHTML, historicoItemHTML.
+                          proBackHTML, proFooterHTML, historicoItemHTML, proCardHTML, vagaContentHTML,
+                          helperPersonHTML.
   feed/state.js     — estado mutável compartilhado (objetos, nunca reatribuídos): filterState,
                           pinnedPros, pedidoHistory, myPedido, scrolledState, scrollToTopPending,
                           contractsFilter. (Primitivos reatribuídos — activeTab, indicateMode etc. —
@@ -238,8 +240,9 @@ abrir ao público.
 8. **Sheet/dropdown novo?** Reuse o scaffolding `.pedido-sheet*`/`.historico-sheet*` (3 camadas
    container/clip/panel, `--sheet-top` medido em JS, gaveta com `--sheet-ease`, tap-outside, abridor
    vira "Fechar" via `.action-close-mode`) — não recrie do zero. **E registre a camada no `backNav`**
-   (`window.backNav.push(id, fecharFn)` ao abrir, `window.backNav.remove(id)` ao fechar) para o botão
-   "voltar" do celular fechá-la — detalhe em `.claude/rules/app-core.md`.
+   (`window.backNav.push(id, fecharFn)` ao abrir, `window.backNav.remove(id)` ao fechar) **e no
+   `layerFocus`** (`window.layerFocus.enter(el, panelSel)` ao abrir, `leave(el)` ao fechar) — o botão
+   "voltar" do celular a fecha e o foco entra/sai da camada — detalhe em `.claude/rules/app-core.md`.
 9. **Rola?** Os 3 feeds escondem a barra; TODO outro container com scroll usa a barra fina sempre
    visível (`::-webkit-scrollbar` 5px + thumb, `scrollbar-width: thin`), na borda do painel.
 10. **Diálogo?** Sempre `await customAlert(...)`/`await customConfirm(...)` — nunca `alert()`/`confirm()`.
