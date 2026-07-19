@@ -356,8 +356,18 @@ scaffolding, usada por `renderFlippableProCards` (popup/detalhe, `showPin:false`
 de ALTURA MÁXIMA fixa (`.pro-card--expanded .pro-card__back-comments`: `max-height: clamp(220px,42vh,340px)`;
 `overflow-y:auto`) que ROLA por dentro — o card expandido NÃO cresce. A área é `.js-scroll-shadows`;
 `buildProCard` chama `window.watchScrollShadows(...)` nela para injetar as shades de borda (topo/base),
-o MESMO sistema de sombras do resto do app (ver `app-core.md`). `resetProCardBack(card)` só volta o
-`scrollTop` ao topo; `proCardFlipToFront` o chama no `onComplete` (verso já oculto, sem flash).
+o MESMO sistema de sombras do resto do app (ver `app-core.md`). A caixa de scroll é de LADO A LADO do
+card (quebra o padding lateral do `.pro-card__back` por margem negativa, respiro só por dentro) e usa
+`overscroll-behavior: contain`. `resetProCardBack(card)` só volta o `scrollTop` ao topo;
+`proCardFlipToFront` o chama no `onComplete` (verso já oculto, sem flash).
+**Trava do scroll da mãe enquanto o card está aberto:** `overscroll-behavior` sozinho NÃO resolve a
+disputa de gesto — o navegador roteia o 1º pan para o scroller ANCESTRAL (a lista de pros), então o
+overscroll da mãe acontecia antes de rolar os comentários. `proCardFlipToBack` trava o
+`scrollableAncestor(card)` (`overflowY:hidden`) DEPOIS do settle (a fase que precisa achá-lo); o card
+aberto cabe na viewport, então travar a mãe não esconde nada. `proCardFlipToFront`/`proCardForceReset`
+destravam. Um só `_lockedProScroller` por vez (só um card abre por vez; o accordion destrava um e
+trava o próximo). Vale p/ lista, popup de indicados e overlay de indicação (todos passam por esses
+wrappers).
 **Delegação de flip é DUPLICADA (dívida aberta):** `bindProCardFlip` (popup/detalhe) e o handler de
 `#agenda-list` (com pin + modo indicação). Stubs de WhatsApp/Compartilhar centralizados em
 `comingSoon(label, title, icon)`.
