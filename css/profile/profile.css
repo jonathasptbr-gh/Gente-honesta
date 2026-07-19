@@ -65,11 +65,11 @@
 }
 .agenda-filters__profile-btn .icon { font-size: 1.1rem; flex-shrink: 0; }
 
-/* Editar = ação principal (dourado, como "Criar vaga"); Sair = secundária (branca). */
-.agenda-filters__profile-btn--edit   { background: var(--a-gold);  color: var(--p-green-dark); }
-.agenda-filters__profile-btn--edit:active { opacity: 0.88; }
-.agenda-filters__profile-btn--logout { background: var(--bg-white); color: var(--p-green-dark); }
-.agenda-filters__profile-btn--logout:active { background: var(--bg-soft); }
+/* Ambos no padrão AMARELO dos botões do topo (exceto contratos). */
+.agenda-filters__profile-btn--edit,
+.agenda-filters__profile-btn--logout { background: var(--a-gold); color: var(--p-green-dark); }
+.agenda-filters__profile-btn--edit:active,
+.agenda-filters__profile-btn--logout:active { opacity: 0.88; }
 
 /* Card de profissional flutuante: o .pro-card já traz sombra/raio próprios; só
    zera a margem inferior dele (o respiro vem do gap do painel). */

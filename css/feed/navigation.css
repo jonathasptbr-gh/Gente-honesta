@@ -81,15 +81,16 @@
   opacity: 0.88;
 }
 
-/* "Serviço de ajudantes" — ação secundária, à DIREITA: pílula branca. */
+/* "Diárias" — à ESQUERDA (Criar vaga foi p/ a direita). Padrão AMARELO como os
+   demais botões do topo (exceto contratos). */
 .agenda-filters__vagas-btn--ajudante {
   flex: 1;
-  background: var(--bg-white);
+  background: var(--a-gold);
   color: var(--p-green-dark);
 }
 
 .agenda-filters__vagas-btn--ajudante:active {
-  background: var(--bg-soft);
+  opacity: 0.88;
 }
 
 .agenda-filters__vagas-btn .icon {

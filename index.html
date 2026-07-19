@@ -286,7 +286,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v425</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v426</span>
     </div>
 
     <!-- =====================================================================
@@ -1525,12 +1525,12 @@
                     <div class="agenda-filters__track">
                         <!-- Vagas (esquerda) -->
                         <div class="agenda-filters__vagas-row" id="bar-vagas-state">
+                            <button type="button" id="btn-chamar-ajudante" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--ajudante">
+                                Diárias
+                            </button>
                             <button type="button" id="btn-criar-vaga" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--criar">
                                 <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>
                                 Criar vaga
-                            </button>
-                            <button type="button" id="btn-chamar-ajudante" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--ajudante">
-                                Diárias
                             </button>
                         </div>
                         <!-- Busca / Profissionais (centro) -->
@@ -1553,7 +1553,7 @@
                         </div>
                         <!-- Pedidos (direita) -->
                         <div class="agenda-filters__pedidos-row" id="bar-pedidos-state">
-                            <button type="button" id="btn-historico-pedidos" class="btn btn--white pedido-action__btn">
+                            <button type="button" id="btn-historico-pedidos" class="btn btn--accent pedido-action__btn">
                                 <svg class="icon pedido-action__icon" aria-hidden="true"><use href="#ic-history"></use></svg>
                                 <span data-btn-label>Histórico</span>
                             </button>

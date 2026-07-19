@@ -68,11 +68,12 @@ esconde é o `overflow:hidden` + `translateX`.
 > meio (fundo `--p-green` que mascara o conteúdo da aba) — assim funciona em qualquer aba. O avatar
 > vira o Fechar (X) e os contratos seguem visíveis à direita.
 
-> **Estado vagas — ordem/cor dos botões:** ESQUERDA = **Criar vaga** (`#btn-criar-vaga`, DOURADO
-> `--a-gold`, AÇÃO principal); DIREITA = **Diárias** (`#btn-chamar-ajudante`, pílula BRANCA,
-> secundário; novo nome da seção antes chamada "Serviço de ajudantes" — só o rótulo mudou, o sheet
-> `#ajudante-sheet` e a lógica seguem "ajudante"). Classes função-nomeadas `--criar` (dourado) /
-> `--ajudante` (branco).
+> **Estado vagas — ordem/cor dos botões:** ESQUERDA = **Diárias** (`#btn-chamar-ajudante`; novo nome
+> da seção antes chamada "Serviço de ajudantes" — só o rótulo mudou, o sheet `#ajudante-sheet` e a
+> lógica seguem "ajudante"); DIREITA = **Criar vaga** (`#btn-criar-vaga`, opener do vaga-sheet).
+> **Todos os botões do topo são AMARELOS** (`--a-gold`), EXCETO o de contratos — vale para os pares
+> Vagas (Diárias/Criar vaga), Pedidos (Histórico/Fazer pedido) e as ações do perfil (Sair/Editar).
+> Classes função-nomeadas `--criar` / `--ajudante` (hoje ambas douradas).
 
 ## Submenus dropdown (gavetas) + botão-abridor que vira "Fechar"
 
