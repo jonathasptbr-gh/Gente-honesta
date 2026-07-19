@@ -3,8 +3,8 @@
 // =========================================================================
 // FORMULÁRIO DE PERFIL (ONBOARDING) — captura de foto, dados pessoais,
 // áreas de atuação, localização e padrão de serviço.
-// Projetado para reuso: a futura tela de edição de perfil usará os mesmos
-// campos e validações — saveProfile/finishRegistration é o ponto de entrada.
+// Reaproveitado pela tela de edição de perfil (bloco "MODO EDIÇÃO", abaixo):
+// os mesmos campos e validações — finishRegistration é o ponto de entrada.
 // =========================================================================
 
 // HELPER — limpeza dos erros de validação dos campos de nome

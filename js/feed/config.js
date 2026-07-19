@@ -35,18 +35,17 @@ export const PRO_CARD_CFG = {
   footerSel: '.pro-card__back-actions',
   flipperSel: '.pro-card__flipper',
 };
-// Atraso para rolar o card à vista DEPOIS do flip + expansão terminarem
-// (+ buffer). Derivado do cfg para não desincronizar se a animação mudar.
-export const PRO_FLIP_SETTLE_MS = PRO_CARD_CFG.flipMs + PRO_CARD_CFG.expandMs + 50; // 930
 
 // Criar vaga:
 export const MAX_VAGAS = 20;
 // Teto de candidatos inscritos por vaga (fração exibida na gaveta de detalhe).
 export const MAX_CANDIDATOS = 20;
 export const DAY_ORDER = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+// Dias úteis pré-selecionados no formulário de vaga (Seg–Sex; subconjunto de DAY_ORDER).
+export const DEFAULT_WORK_DAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
 
-// Serviço de ajudantes:
-// Diárias padrão (em reais), iguais para todo usuário; pesado > leve.
+// Diárias:
+// Valores padrão (em reais), iguais para todo usuário; pesado > leve.
 export const HELPER_RATES = { light: 100, heavy: 180 };
 
 // Chaves de persistência local (cooldown removido — sem bloqueio de tempo).

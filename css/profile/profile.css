@@ -49,7 +49,7 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.25s var(--ease), visibility 0s linear 0.25s;
+  transition: opacity var(--fade-bar-zone) var(--ease), visibility 0s linear var(--fade-bar-zone);
 }
 
 /* Com a gaveta aberta: o overlay de ações aparece (fade in) sobre a zona do meio. */
@@ -57,30 +57,26 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition: opacity 0.25s var(--ease);
+  transition: opacity var(--fade-bar-zone) var(--ease);
 }
 
+/* COMPÕEM .btn (fundação única); aqui só os overrides do formato 40px, iguais ao
+   par de Vagas (.agenda-filters__vagas-btn) e ao .pedido-action__btn. */
 .agenda-filters__profile-btn {
-  height: 40px;              /* casa com o avatar (40px) e o par de Vagas */
   flex: 1;
   min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 40px;              /* casa com o avatar (40px) e o par de Vagas */
+  padding: 0;                /* zera o padding 16px do .btn */
   gap: 4px;   /* vão ícone↔texto compacto (<= margem lateral), igual aos demais botões do topo */
-  border-radius: var(--radius-md);   /* retângulo padrão do app */
   font-size: var(--fs-6);
-  font-weight: var(--fw-bold);
-  cursor: pointer;
-  transition: var(--transition);
 }
-.agenda-filters__profile-btn .icon { font-size: 1.1rem; flex-shrink: 0; }
+.agenda-filters__profile-btn .icon { flex-shrink: 0; }   /* tamanho vem do padrão único da barra (navigation.css) */
 
 /* Ambos no padrão AMARELO dos botões do topo (exceto contratos). */
 .agenda-filters__profile-btn--edit,
 .agenda-filters__profile-btn--logout { background: var(--a-gold); color: var(--p-green-dark); }
-/* Fade padronizado no toque (igual aos demais botões do topo). */
-.agenda-filters__profile-btn:active { opacity: 0.6; }
+/* Fade padronizado no toque (igual aos demais botões do topo): vence o scale do .btn:active. */
+.agenda-filters__profile-btn:active { transform: none; opacity: 0.6; }
 
 /* Card de profissional flutuante: o .pro-card já traz sombra/raio próprios; só
    zera a margem inferior dele (o respiro vem do gap do painel). */

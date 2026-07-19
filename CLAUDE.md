@@ -28,7 +28,7 @@ Repositório: jonathasptbr-gh/gente-honesta
   de ícones) — não é build do site.
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v432**.
+  bump.) Versão atual: **v433**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**
@@ -164,16 +164,17 @@ js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
                           Vaga/Helper/Comment/AppState). SÓ doc — não é carregado por <script>.
                           Contrato portável (vira interface TS numa migração).
   core/domain.js    — ENUMS de domínio (Object.freeze): PEDIDO_STATUS, PEDIDO_DETAIL_MODE, URGENCY,
-                          DURATION, IC_TIER, AVAILABILITY, HELPER_TYPE, TAB, SORT, PAY_METHOD. Fonte
-                          única dos VALORES; comparar/atribuir sempre pelo enum, nunca string crua.
+                          DURATION, IC_TIER, AVAILABILITY, HELPER_TYPE, TAB, SORT, PAY_METHOD,
+                          CONTRACT_STATUS. Fonte única dos VALORES; comparar/atribuir sempre pelo
+                          enum, nunca string crua.
   feed/index.js     — 7º. Feed (ES MODULE): núcleo de event-wiring + render. Importa os módulos de
                           js/feed/ abaixo + core/domain.js. É o único <script type="module">; os
                           outros 6 (core/app, tutorial, install, auth/session, auth/auth, onboarding)
                           seguem <script defer> clássicos — cross-arquivo via window.* (module-safe).
   feed/repository.js — REPOSITÓRIO (ponto único de troca pro Firestore): arrays mock module-private +
                           accessors getProfessionals/getComments/getVagas/getHelpers/getIndicatedByPost/
-                          getPublishSeedIndicated + addVaga. avatarSvg (export direto). Os chamadores só
-                          falam com accessors.
+                          getPublishSeedIndicated + addVaga/removeVaga. avatarSvg (export direto). Os
+                          chamadores só falam com accessors.
   feed/config.js    — constantes congeladas: EASE_STD, *_CARD_CFG, TAB_*, SCROLL_*, HELPER_RATES,
                           placeholders, availOrder/availabilityMeta, MAX_VAGAS/DAY_ORDER.
   feed/utils.js     — funções puras: icTier/icShieldIcon, formatPedidoDate, pedidoHoursLeft, comingSoon.

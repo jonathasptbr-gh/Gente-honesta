@@ -286,7 +286,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v432</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v433</span>
     </div>
 
     <!-- =====================================================================
@@ -1513,22 +1513,23 @@
                 <!-- Perfil: SEMPRE visível à esquerda. Abre a gaveta de perfil;
                      com ela aberta, o próprio avatar vira o botão de FECHAR (X) no
                      mesmo lugar (.agenda-filters__profile--close). -->
-                <button type="button" id="btn-open-profile" class="agenda-filters__profile" aria-label="Perfil">
+                <button type="button" id="btn-open-profile" class="agenda-filters__profile" aria-label="Perfil" aria-expanded="false">
                     <img id="top-bar-avatar" class="agenda-filters__profile-img" alt="" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>">
                     <span class="agenda-filters__profile-close" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg></span>
                 </button>
 
-                <!-- ZONA DO MEIO (muda por aba): RECORTA (overflow) o trilho
-                     deslizante. As 3 linhas ficam lado a lado (vagas | busca |
-                     pedidos) e o trilho desliza por translateX igual ao feed. -->
+                <!-- ZONA DO MEIO (muda por aba): as 3 linhas (vagas | busca |
+                     pedidos) ficam EMPILHADAS (position:absolute; inset:0) e fazem
+                     CROSSFADE por opacity — o trilho NÃO desliza (só o #feed-panels
+                     e o slider das abas deslizam). -->
                 <div class="agenda-filters__action-row">
                     <div class="agenda-filters__track">
                         <!-- Vagas (esquerda) -->
                         <div class="agenda-filters__vagas-row" id="bar-vagas-state">
-                            <button type="button" id="btn-chamar-ajudante" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--ajudante">
+                            <button type="button" id="btn-chamar-ajudante" class="btn agenda-filters__vagas-btn agenda-filters__vagas-btn--ajudante">
                                 Diárias
                             </button>
-                            <button type="button" id="btn-criar-vaga" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--criar">
+                            <button type="button" id="btn-criar-vaga" class="btn agenda-filters__vagas-btn agenda-filters__vagas-btn--criar">
                                 <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>
                                 Criar vaga
                             </button>
@@ -1569,10 +1570,10 @@
                          cobrindo o conteúdo da aba com fundo verde — assim funciona em
                          QUALQUER aba. O Fechar é o avatar; Sair/Editar aqui. -->
                     <div class="agenda-filters__profile-actions" id="bar-profile-actions">
-                        <button type="button" id="btn-profile-logout" class="agenda-filters__profile-btn agenda-filters__profile-btn--logout">
+                        <button type="button" id="btn-profile-logout" class="btn agenda-filters__profile-btn agenda-filters__profile-btn--logout">
                             <svg class="icon" aria-hidden="true"><use href="#ic-logout"></use></svg>Sair
                         </button>
-                        <button type="button" id="btn-profile-edit" class="agenda-filters__profile-btn agenda-filters__profile-btn--edit">
+                        <button type="button" id="btn-profile-edit" class="btn agenda-filters__profile-btn agenda-filters__profile-btn--edit">
                             <svg class="icon" aria-hidden="true"><use href="#ic-edit"></use></svg>Editar
                         </button>
                     </div>
@@ -1724,9 +1725,9 @@
         <div class="historico-sheet__clip">
             <div class="historico-sheet__panel profile-sheet__panel">
 
-                <!-- Sair/Editar NÃO ficam aqui: vivem na action bar (search-row),
-                     no lugar da busca, enquanto a gaveta está aberta (o Fechar é o
-                     avatar). Ver #bar-profile-actions no HTML e o toggle no JS. -->
+                <!-- Sair/Editar NÃO ficam aqui: vivem na action bar como OVERLAY
+                     sobre a zona do meio (qualquer aba), enquanto a gaveta está aberta
+                     (o Fechar é o avatar). Ver #bar-profile-actions no HTML e o toggle no JS. -->
 
                 <!-- Dados principais: card de profissional REAL flutuante
                      (buildProCard: foto, QAV, escudo de IC, tags, disponibilidade,
@@ -1750,19 +1751,6 @@
             </div><!-- /.profile-sheet__panel -->
         </div><!-- /.historico-sheet__clip -->
     </div><!-- /#profile-sheet -->
-
-    <!-- Confirmação de indicação — dock fixo na base durante o modo indicação (na home) -->
-    <div id="agenda-indicate-confirm" class="agenda-confirm u-hidden">
-        <p class="agenda-confirm__title">Indicar este profissional?</p>
-        <!-- Preenchido via JS com o card do profissional selecionado -->
-        <div id="agenda-selected-pro" class="agenda-confirm__pro-preview"></div>
-        <div class="agenda-confirm__actions">
-            <button type="button" id="btn-cancel-indicate" class="btn agenda-confirm__btn agenda-confirm__btn--cancel">Cancelar</button>
-            <button type="button" id="btn-confirm-indicate" class="btn agenda-confirm__btn agenda-confirm__btn--confirm">
-                Confirmar
-            </button>
-        </div>
-    </div>
 
     <!-- Ordem importa: app.js define os globals (Firebase, roteador, diálogos)
          que os módulos seguintes consomem. -->

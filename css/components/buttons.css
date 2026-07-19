@@ -43,12 +43,6 @@
   color: var(--t-sub);
 }
 
-.btn--white {
-  background: var(--bg-white);
-  color: var(--p-green-dark);
-}
-
-
 /* Spinner de carregamento dos botões (SMS / reenvio) — extraído do inline-style
    duplicado em auth.js. Base: glifo autorenew girando, peso 700 (o padrão 500
    fica fino demais ao lado do texto em negrito). --sm para o link de reenvio. */

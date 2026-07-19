@@ -5,7 +5,7 @@
 // (activeTab, indicateMode, etc.) seguem no closure de feed.js por enquanto.
 // =========================================================================
 
-import { SORT, URGENCY, DURATION } from '../core/domain.js';
+import { SORT, URGENCY, DURATION, CONTRACT_STATUS } from '../core/domain.js';
 
 // --- Profissionais / filtros ---
 // IDs dos cards fixados no topo da lista (persistência em memória por sessão)
@@ -36,4 +36,4 @@ export const myPedido = { text: '', urgency: URGENCY.NORMAL, duration: DURATION.
 // --- Contratos ---
 // Filtro combinado (texto da busca + chip de status) sobre os cards mockados.
 // Minicontratos pendentes não têm status próprio: aparecem só em "Todos".
-export const contractsFilter = { query: '', status: 'all' };
+export const contractsFilter = { query: '', status: CONTRACT_STATUS.ALL };

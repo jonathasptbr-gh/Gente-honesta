@@ -1,10 +1,10 @@
 "use strict";
 import { avatarSvg, getProfessionals, getComments, getVagas, getHelpers, getIndicatedByPost, getPublishSeedIndicated, addVaga, removeVaga } from './repository.js';
-import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, availabilityMeta, VAGA_CARD_CFG, PRO_CARD_CFG, MAX_VAGAS, MAX_CANDIDATOS, DAY_ORDER, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
-import { icTier, icShieldIcon, comingSoon, formatPedidoDate, pedidoHoursLeft } from './utils.js';
+import { SEARCH_PLACEHOLDER_PROS, SEARCH_PLACEHOLDER_CONTRACTS, EASE_STD, availOrder, VAGA_CARD_CFG, PRO_CARD_CFG, MAX_VAGAS, MAX_CANDIDATOS, DAY_ORDER, DEFAULT_WORK_DAYS, HELPER_RATES, LS_HELPER_AVAIL, LS_HELPER_DRAW, TAB_DEFAULTS, SCROLL_TOP_STATE, SCROLL_THRESHOLD, TAB_ORDER } from './config.js';
+import { icTier, comingSoon, shareOrCopy } from './utils.js';
 import { icBarHTML, qavHTML, availHTML, buildCommentHTML, proBackHTML, proFooterHTML, historicoItemHTML } from './templates.js';
 import { pinnedPros, filterState, scrolledState, scrollToTopPending, pedidoHistory, myPedido, contractsFilter } from './state.js';
-import { PEDIDO_STATUS, PEDIDO_DETAIL_MODE, URGENCY, SORT, TAB, DURATION, HELPER_TYPE, PAY_METHOD } from '../core/domain.js';
+import { PEDIDO_STATUS, PEDIDO_DETAIL_MODE, URGENCY, SORT, TAB, DURATION, HELPER_TYPE, PAY_METHOD, AVAILABILITY, CONTRACT_STATUS } from '../core/domain.js';
 
 // =========================================================================
 // TELA - PRINCIPAL (FEED) - Gerenciador de Comportamentos da Interface
@@ -80,14 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const q = contractsFilter.query;
     contractsSheet?.querySelectorAll('.contract-card').forEach((card) => {
       const matchText   = !q || card.textContent.toLowerCase().includes(q);
-      const matchStatus = contractsFilter.status === 'all' ||
+      const matchStatus = contractsFilter.status === CONTRACT_STATUS.ALL ||
                           card.classList.contains(`contract-card--${contractsFilter.status}`);
       card.classList.toggle('u-hidden', !(matchText && matchStatus));
     });
     // Pendentes: bandeja separada, revelada pelo botão do rodapé. Só faz sentido
     // sob "Todos" (não são um status filtrável) — com status específico, oculta
     // o botão-abridor e recolhe a gaveta. O texto da busca filtra os minicontratos.
-    const showPending = contractsFilter.status === 'all';
+    const showPending = contractsFilter.status === CONTRACT_STATUS.ALL;
     btnTogglePending?.classList.toggle('u-hidden', !showPending);
     if (!showPending) setPendingOpen(false);
     pendingWrap?.querySelectorAll('.contract-mini').forEach((mini) => {
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // papel visual do activeFilterCount dos profissionais). Status + campos de
   // valor/mês preenchidos (o texto da busca não conta, como nos profissionais).
   function contractsActiveFilterCount() {
-    let n = contractsFilter.status !== 'all' ? 1 : 0;
+    let n = contractsFilter.status !== CONTRACT_STATUS.ALL ? 1 : 0;
     if (document.getElementById('inp-contracts-min')?.value)  n++;
     if (document.getElementById('inp-contracts-max')?.value)  n++;
     if (document.getElementById('inp-contracts-date')?.value) n++;
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
       statusChips.forEach((c) => { c.classList.remove('chip--active'); c.setAttribute('aria-pressed', 'false'); });
       chip.classList.add('chip--active');
       chip.setAttribute('aria-pressed', 'true');
-      contractsFilter.status = chip.dataset.filterStatus || 'all';
+      contractsFilter.status = chip.dataset.filterStatus || CONTRACT_STATUS.ALL;
       applyContractsFilters();
     });
   });
@@ -295,7 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const feedPanels     = document.getElementById('feed-panels');
   const feedActionBar  = document.getElementById('feed-action-bar');
-  const confirmBlock   = document.getElementById('agenda-indicate-confirm');
 
   // TELA - PRINCIPAL (FEED) - PAINÉIS DESLIZANTES
   // showVagasPanel / showProsPanel / showPedidosPanel: deslizam o container 3-painéis e
@@ -326,11 +325,14 @@ document.addEventListener('DOMContentLoaded', () => {
     feedPanels?.classList.remove('feed-panels--pedidos');
     feedActionBar?.classList.remove('agenda-filters--vagas');
     feedActionBar?.classList.remove('agenda-filters--pedidos');
+    // simetria com showVagasPanel/showPedidosPanel: fecha gavetas abertas ao voltar p/ Profissionais
+    closeFiltersSheet();
+    closeContractsSheet();
+    closeProfileSheet();
   };
 
-  // Atalhos para compatibilidade interna (indicação vem de dentro dos pedidos)
+  // Atalho para compatibilidade interna (indicação vem de dentro dos pedidos)
   const openPedidosSheet  = showPedidosPanel;
-  const closePedidosSheet = showProsPanel;
 
   // TELA - PRINCIPAL (FEED) - MODO INDICAÇÃO (OVERLAY sobre o feed de pedidos)
   // Coreografia (v383, DOIS TEMPOS): ao tocar "Indicar alguém" num pedido, um overlay
@@ -1440,17 +1442,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const msg = pedidoText
       ? `Vi um pedido no Gente Honesta e lembrei de você:\n\n"${pedidoText}"\n\nConhece um profissional de confiança? Entre e indique (é rápido): ${url}`
       : `Tem um pedido por indicação no Gente Honesta. Conhece alguém de confiança? Entre e indique: ${url}`;
-    if (navigator.share) {
-      try { await navigator.share({ title: 'Gente Honesta — pedido por indicação', text: msg, url }); }
-      catch (err) { /* usuário cancelou o compartilhamento — silencioso */ }
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(msg);
-      await customAlert('Mensagem do pedido copiada! Cole no WhatsApp (ou onde quiser) para convidar seu conhecido.', 'Compartilhar pedido', 'ios_share');
-    } catch {
-      comingSoon('Compartilhar pedido', 'Compartilhar pedido', 'ios_share');
-    }
+    await shareOrCopy({
+      title: 'Gente Honesta — pedido por indicação', text: msg, url,
+      copiedTitle: 'Compartilhar pedido',
+      copiedMsg: 'Mensagem do pedido copiada! Cole no WhatsApp (ou onde quiser) para convidar seu conhecido.',
+    });
   };
 
   // CTAs de fim/vazio da lista de profissionais (delegação — os botões são
@@ -2270,7 +2266,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderTime('inicio');
       renderTime('fim');
       daysGroup?.querySelectorAll('.vaga-day').forEach(d => {
-        const on = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'].includes(d.dataset.day);
+        const on = DEFAULT_WORK_DAYS.includes(d.dataset.day);
         d.classList.toggle('vaga-day--active', on);
         d.setAttribute('aria-pressed', String(on));
       });
@@ -2832,9 +2828,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // contratos aberta): volta o status a "Todos", zera valor/mês e re-aplica. A
   // busca (texto) fica — só os filtros são limpos. (function hoistada.)
   function clearContractsFilters() {
-    contractsFilter.status = 'all';
+    contractsFilter.status = CONTRACT_STATUS.ALL;
     document.querySelectorAll('[data-filter-status]').forEach((c) => {
-      const isAll = c.dataset.filterStatus === 'all';
+      const isAll = c.dataset.filterStatus === CONTRACT_STATUS.ALL;
       c.classList.toggle('chip--active', isAll);
       c.setAttribute('aria-pressed', isAll ? 'true' : 'false');
     });
@@ -3581,13 +3577,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // PRINCIPAIS são o MESMO card de profissional do feed (buildProCard +
   // bindProCardFlip): foto, QAV, escudo de IC, tags, disponibilidade, pagamento
   // e — no flip — os comentários. Abaixo, o card de AVALIAÇÃO (QR + compartilhar).
-  // Sair/Editar vivem no topo do painel. Registrada no backNav p/ o "voltar".
+  // Sair/Editar vivem na ACTION BAR como overlay (#bar-profile-actions, classe
+  // agenda-filters--profile); o avatar vira o Fechar. Registrada no backNav p/ o "voltar".
   // =========================================================================
 
   // IC do próprio perfil (mock — a persistência da reputação é feature futura).
   const PROFILE_IC = 78;
   // Disponibilidade exibida no card (passiva, como em qualquer card do feed).
-  const PROFILE_AVAIL = 'available';
+  const PROFILE_AVAIL = AVAILABILITY.AVAILABLE;
 
   // Deriva um "pro" (contrato de models.js) do estado vivo (appState + Firebase)
   // para alimentar buildProCard — o MESMO builder dos cards do feed. O que ainda
@@ -3639,6 +3636,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btn-open-profile');
     btn?.classList.toggle('agenda-filters__profile--close', on);
     btn?.setAttribute('aria-label', on ? 'Fechar perfil' : 'Perfil');
+    btn?.setAttribute('aria-expanded', String(on));   // abridor de camada: estado ARIA sincronizado
   }
 
   // Overlay Sair/Editar sobre a zona do meio da action bar (só com a gaveta
@@ -3657,7 +3655,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sheet.classList.add('historico-sheet--open');
     window.backNav?.push('profile-sheet', closeProfileSheet);
     setProfileAvatarClose(true);
-    setProfileBarActions(true);        // Sair/Editar ocupam o lugar da busca
+    setProfileBarActions(true);        // Sair/Editar = overlay sobre a zona do meio (qualquer aba)
   }
 
   function closeProfileSheet() {
@@ -3703,17 +3701,11 @@ document.addEventListener('DOMContentLoaded', () => {
   async function shareProfile() {
     const url = 'https://gentehonesta.com.br';
     const msg = `Veja meu perfil no Gente Honesta e avalie meu trabalho: ${url}`;
-    if (navigator.share) {
-      try { await navigator.share({ title: 'Meu perfil no Gente Honesta', text: msg, url }); }
-      catch (err) { /* usuário cancelou — silencioso */ }
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(msg);
-      await customAlert('Link do seu perfil copiado! Cole no WhatsApp (ou onde quiser) para pedir uma avaliação.', 'Compartilhar perfil', 'ios_share');
-    } catch {
-      comingSoon('Compartilhar perfil', 'Compartilhar perfil', 'ios_share');
-    }
+    await shareOrCopy({
+      title: 'Meu perfil no Gente Honesta', text: msg, url,
+      copiedTitle: 'Compartilhar perfil',
+      copiedMsg: 'Link do seu perfil copiado! Cole no WhatsApp (ou onde quiser) para pedir uma avaliação.',
+    });
   }
 
   // Avatar da action bar → abre/fecha a gaveta de perfil (o avatar É o abridor

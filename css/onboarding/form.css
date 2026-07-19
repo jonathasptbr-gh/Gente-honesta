@@ -288,6 +288,15 @@
   overflow-y: auto;
   z-index: 50;
   box-shadow: var(--shadow-lg);
+  /* Barra fina sempre visível (painel claro → thumb escuro): regra 9 do DS,
+     como todo scroller fora dos 3 feeds. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll-thumb-dark) transparent;
+}
+.area-search__results::-webkit-scrollbar { width: 5px; }
+.area-search__results::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb-dark);
+  border-radius: 4px;
 }
 
 .area-search__results li {

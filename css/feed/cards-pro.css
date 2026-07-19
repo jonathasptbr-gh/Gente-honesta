@@ -524,57 +524,5 @@
   margin: 4px 0 0;
 }
 
-/* Bloco de confirmação de indicação — dock fixo na base durante o modo indicação na home */
-.agenda-confirm {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 120;            /* acima da barra inferior e do bloco "já indicados" */
-  padding: var(--space-md);
-  padding-bottom: max(var(--space-md), env(safe-area-inset-bottom, 0px));
-  border: none;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  background: var(--a-gold);   /* OURO: parte do processo de indicação */
-  box-shadow: var(--shadow-lg);
-}
-
-.agenda-confirm__title {
-  color: var(--p-green-dark);
-  font-weight: var(--fw-heavy);
-  font-size: var(--fs-10);
-  text-align: center;
-  margin-bottom: var(--space-sm);
-}
-
-/* A prévia é transparente — o card branco interno (.pro-card) é a moldura */
-.agenda-confirm__pro-preview {
-  margin-bottom: var(--space-sm);
-}
-
-/* Botões lado a lado: cancelar (vermelho) à esquerda, confirmar (amarelo) à direita */
-.agenda-confirm__btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.agenda-confirm__btn--cancel {
-  background: var(--danger);
-  color: var(--t-light);
-}
-
-.agenda-confirm__btn--confirm {
-  background: var(--p-green);
-  color: var(--t-light);
-}
-
-.agenda-confirm__actions {
-  display: flex;
-  flex-direction: row;
-  gap: var(--space-xs);
-}
 
 

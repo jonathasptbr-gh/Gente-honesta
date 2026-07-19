@@ -47,14 +47,15 @@ export const buildCommentHTML = (c) => {
   return `<div class="comment"><p class="comment__text">"${text}"</p><div class="comment__byline">${icBarHTML(c.ic, 'sm')}<span class="comment__author">${c.author}</span></div></div>`;
 };
 
-let _proBackHTML = null;
 export const proBackHTML = () => {
-  if (_proBackHTML) return _proBackHTML;
   // TODOS os comentários de uma vez: a área rola INTERNAMENTE (altura fixa do card
   // expandido) com o sistema de sombras de borda (.js-scroll-shadows) — sem o antigo
   // "ver mais" que crescia o card. `watchScrollShadows` injeta as shades por card.
+  // SEM memoização: relê getComments() a cada chamada — quando o accessor virar
+  // consulta async/por-profissional (Firestore), um cache serviria o 1º resultado
+  // para sempre. Hoje os comentários são o mesmo mock p/ todos; custo desprezível.
   const commentsHTML = getComments().map(buildCommentHTML).join('');
-  _proBackHTML = `
+  return `
     <div class="pro-card__back">
       <div class="pro-card__comments-header">
         <span class="pro-card__comments-title">
@@ -90,7 +91,6 @@ export const proBackHTML = () => {
       </div>
     </div>
   `;
-  return _proBackHTML;
 };
 
 /** @param {import('../core/models.js').Professional} pro */

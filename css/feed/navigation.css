@@ -39,7 +39,7 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.22s var(--ease), visibility 0s linear 0.22s;
+  transition: opacity var(--fade-bar-zone) var(--ease), visibility 0s linear var(--fade-bar-zone);
 }
 
 /* Linha ATIVA por aba: default = busca (sem classe de estado); --vagas / --pedidos. */
@@ -49,7 +49,7 @@
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition: opacity 0.22s var(--ease);
+  transition: opacity var(--fade-bar-zone) var(--ease);
 }
 
 /* A linha de pedidos estica os botões à altura toda e usa gap um pouco maior */
@@ -58,27 +58,20 @@
   gap: var(--space-sm);
 }
 
-/* Botões da linha de vagas — mesma altura e cantos do btn padrão (.btn = radius-md) */
+/* Botões da linha de vagas — COMPÕEM .btn (fundação única); aqui só os overrides
+   do formato 40px, iguais ao .pedido-action__btn. O :active (fade) mora abaixo. */
 .agenda-filters__vagas-btn {
-  height: 40px;
   flex: 1;          /* 50/50 estável entre os dois botões */
   min-width: 0;     /* sem isso o texto define a largura mínima e o par "dança" ao trocar o rótulo */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;   /* vão ícone↔texto compacto: fica <= à margem lateral mesmo no botão mais cheio (Fazer pedido) */
-  border: none;
-  border-radius: var(--radius-md);   /* retângulo padrão do app (cantos pouco curvos) */
+  height: 40px;
+  padding: 0;       /* zera o padding 16px do .btn — a altura vem do height 40px */
+  gap: 4px;   /* vão ícone↔texto compacto: fica <= à margem lateral mesmo no botão mais cheio */
   font-size: var(--fs-6);
-  font-weight: var(--fw-bold);
-  cursor: pointer;
-  touch-action: manipulation;
   white-space: nowrap;
-  transition: var(--transition);
   overflow: hidden;
 }
 
-/* "Criar vaga" — AÇÃO principal da aba, à ESQUERDA: dourado (AMARELO = AÇÃO). */
+/* "Criar vaga" — AÇÃO principal da aba, à DIREITA: dourado (AMARELO = AÇÃO). */
 .agenda-filters__vagas-btn--criar {
   background: var(--a-gold);
   color: var(--p-green-dark);
@@ -88,7 +81,6 @@
 /* "Diárias" — à ESQUERDA (Criar vaga foi p/ a direita). Padrão AMARELO como os
    demais botões do topo (exceto contratos). */
 .agenda-filters__vagas-btn--ajudante {
-  flex: 1;
   background: var(--a-gold);
   color: var(--p-green-dark);
 }
@@ -255,7 +247,7 @@
 }
 
 /* MODO "FECHAR": qualquer botão-abridor de submenu da action bar (Histórico,
-   Fazer pedido, Criar vaga, Serviço de ajudantes) vira um botão de fechar padrão
+   Fazer pedido, Criar vaga, Diárias) vira um botão de fechar padrão
    (X + "Fechar") enquanto seu submenu está aberto. Aparência neutra translúcida
    sobre o verde da barra — vence o fundo dourado/branco de cada botão. */
 .action-close-mode {
@@ -267,12 +259,13 @@
 }
 
 /* PADRÃO ÚNICO de ícone dos botões da barra de ação superior — Histórico, Fazer
-   pedido/Pedido atual, Serviço de ajudantes, Criar vaga (add) e o estado "Fechar"
-   (close). Tamanho 1.1rem + bold, condizente com o texto (--fs-6, bold) ao lado.
-   Um lugar só → todos ficam iguais. (O botão de contratos NÃO entra aqui: é
+   pedido/Pedido atual, Diárias, Criar vaga (add), Sair/Editar do perfil e o estado
+   "Fechar" (close). Tamanho 1.1rem + bold, condizente com o texto (--fs-6, bold) ao
+   lado. Um lugar só → todos ficam iguais. (O botão de contratos NÃO entra aqui: é
    só-ícone, sem rótulo, então usa um ícone maior — ver .agenda-filters__icon-btn.) */
 .pedido-action__icon,
 .agenda-filters__vagas-btn .icon,
+.agenda-filters__profile-btn .icon,
 .action-close-mode .icon {
   font-size: 1.1rem !important;
 }
@@ -285,8 +278,8 @@
 }
 
 /* MODO "CONCLUIR": ao ver o detalhe do pedido ATIVO, o botão Histórico vira o
-   botão de ação "Concluir pedido" (dourado, como o btn--accent) — vence o
-   fundo branco do btn--white. */
+   botão de ação "Concluir pedido" (dourado) — o !important vence o fundo do
+   botão-abridor (hoje btn--accent) enquanto o modo está ativo. */
 .action-conclude-mode {
   background: var(--a-gold) !important;
   color: var(--p-green-dark) !important;

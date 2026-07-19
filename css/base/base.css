@@ -161,6 +161,11 @@
      usar `transition: color 0.3s var(--ease)`. É a MESMA curva de --transition. */
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
 
+  /* Duração ÚNICA do crossfade da ZONA DO MEIO da action bar (troca de aba
+     vagas/busca/pedidos E o overlay Sair/Editar do perfil — devem ser o MESMO
+     fade). Fonte única; antes 0.22s (abas) e 0.25s (perfil) divergiam. */
+  --fade-bar-zone: 0.22s;
+
   /* Espaçamento */
   --space-xs: 8px;
   --space-sm: 12px;

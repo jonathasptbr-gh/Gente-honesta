@@ -151,7 +151,7 @@ Flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas`, texto `
 
 ## Action bar de pedidos — DOIS botões sempre visíveis
 
-- `#btn-historico-pedidos` (`btn--white`) — **Histórico**, sempre visível.
+- `#btn-historico-pedidos` (`btn--accent`) — **Histórico**, sempre visível.
 - `#btn-my-pedido` (`btn--accent`) — via `renderMyPedidoButton()`: **"Fazer pedido"** (`add`) sem
   pedido ativo → abre o formulário; **"Pedido atual"** (`receipt_long`) com pedido ativo → abre o
   detalhe unificado.
@@ -478,7 +478,8 @@ Abridor vira "Fechar" (`setAjudanteClose`); fecha por tap-outside.
 | `.indicated-popup__scroll` | Wrapper de scroll do popup (fora do header) |
 
 Em `components/buttons.css`: `btn--accent` (`--a-gold` + `--p-green-dark`, Concluir pedido/CTAs).
-(Ações destrutivas usam o `--danger` direto no elemento — não há mais `btn--danger`, que estava sem uso.)
+(Ações destrutivas usam o `--danger` direto no elemento — não há mais `btn--danger` nem `btn--white`,
+que estavam sem uso: todos os botões do topo da action bar são dourados exceto contratos.)
 
 > Scrollbar: os 3 feeds ESCONDEM a barra; todo o resto usa barra fina sempre visível — detalhe
 > completo em `.claude/rules/design-system.md`.
@@ -487,7 +488,7 @@ Em `components/buttons.css`: `btn--accent` (`--a-gold` + `--p-green-dark`, Concl
 
 `feed/index.js` é um **ES module** (`type="module"`) que lê os dados via os **accessors** do repositório
 **`js/feed/repository.js`** (`getProfessionals`/`getComments`/`getVagas`/`getHelpers`/`getIndicatedByPost`/
-`getPublishSeedIndicated` + `addVaga`; `avatarSvg` é export direto). Os arrays mock são module-private — a view NUNCA os toca
+`getPublishSeedIndicated` + `addVaga`/`removeVaga`; `avatarSvg` é export direto). Os arrays mock são module-private — a view NUNCA os toca
 direto — então é ali, no repositório, que a persistência no Firestore substitui os exemplos (os
 accessors viram queries async sem mexer nos chamadores). Detalhe dos dados: `mockProfessionals[]` (5 pros
 `{id, name, tags, ic, q, a, v, avail, pay:{cash,pix,card}, nf, bio}`; `pay.card`: `0`/`'debit'`/número

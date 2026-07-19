@@ -1,5 +1,5 @@
 /* ===========================================================================
-   SERVIÇO DE AJUDANTES (sheet #ajudante-sheet)
+   DIÁRIAS (sheet #ajudante-sheet; IDs/lógica internos seguem "ajudante"/"helper")
    Reaproveita o scaffolding claro do .pedido-sheet. As duas funções ficam
    sempre visíveis (disponibilizar-se em cima, chamar embaixo), separadas por
    um divisor. Os checkbox de disponibilidade são próprios; o card do ajudante

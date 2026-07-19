@@ -36,3 +36,8 @@ export const SORT = Object.freeze({ NAME: 'name', IC: 'ic', AVAIL: 'avail', QUAL
 
 /** Métodos de pagamento (filterState.includePay / appState.paymentMethods). */
 export const PAY_METHOD = Object.freeze({ CASH: 'cash', PIX: 'pix', CARD: 'card', NF: 'nf' });
+
+/** Status de um contrato (contractsFilter.status + classe .contract-card--*).
+ *  ALL é o sentinela "sem filtro" (data-filter-status="all"). Os demais casam
+ *  com as classes contract-card--active/done/cancelled e os data-filter-status. */
+export const CONTRACT_STATUS = Object.freeze({ ALL: 'all', ACTIVE: 'active', DONE: 'done', CANCELLED: 'cancelled' });
