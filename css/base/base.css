@@ -452,7 +452,13 @@ button, input, textarea {
 @media (prefers-reduced-motion: reduce) {
   .agenda-filters__icon-btn--notify,   /* pisca do botão de contratos */
   .ic-meter__pin-tag,                  /* pulso do pino do IC (cadastro) */
-  .tutorial-highlight {                /* pulso do destaque do tutorial */
+  .tutorial-highlight,                 /* pulso do destaque do tutorial */
+  #load-helmet,                        /* marca do loader: capacete sobe */
+  .overlay-loader__gleam {             /* marca do loader: traço do check */
     animation: none !important;
   }
+  /* O reflexo do loader fica PARADO fora das lentes (invisível) — ícone estático,
+     limpo, sem pulso; a presença do ícone já sinaliza "carregando". */
+  .overlay-loader__shine { animation: none !important; }
+  .overlay-loader__gleam { opacity: 0; }
 }

@@ -279,7 +279,17 @@ Todo o app é verde (`--p-green`), então a `meta[theme-color]` é verde em toda
 ## Loader global
 
 `#loader-global` — mostrado/ocultado com `u-hidden`. O `onAuthStateChanged` é o único responsável
-por ocultá-lo em transições normais; em erros onde o auth não muda, remover manualmente. **CSS
+por ocultá-lo em transições normais; em erros onde o auth não muda, remover manualmente.
+
+**Marca animada** (`.overlay-loader__mark`, SVG inline no `#loader-global`; CSS em
+`components/dialogs.css`): é o PRÓPRIO ícone do app (4 paths do `icon-transparent.svg`, cor por
+TOKEN via classes `.ldr-*`), NÃO o sprite `.icon`. Loop coreografado ÚNICO de 2.4s (cada parte com o
+mesmo `animation-duration infinite`, agindo só na sua janela): capacete sobe/assenta (`#load-helmet`)
+→ traço-brilho branco DESENHA o check (`.overlay-loader__gleam`, `stroke-dashoffset` + `pathLength=1`)
+→ reflexo diagonal cruza os óculos (`.overlay-loader__shine`, `translateX` clipado à forma da lente)
+→ repouso. Frame 0 = ícone COMPLETO (o loader some rápido; nunca pode aparecer "montando").
+`prefers-reduced-motion` (base.css) zera as 3 → ícone estático. O anel girando antigo
+(`.overlay-loader__spinner`) saiu; o `@keyframes spin` fica (ainda usado por `.btn__spinner`). **CSS
 crítico inline no `<head>`** pinta o `html` de verde e dá ao `.overlay-loader` a cobertura
 (`position:fixed; inset:0; background:#184e1b; z-index:9999`) — sem isso havia flash branco no fim
 do splash. **Telas não têm animação de entrada** (`.screen` sem `animation`): a transição entre

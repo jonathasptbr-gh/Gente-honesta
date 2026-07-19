@@ -16,13 +16,63 @@
   transition: opacity .4s ease;
 }
 
-.overlay-loader__spinner {
-  width: 80px;
-  height: 80px;
-  border: 8px solid var(--on-green-soft);
-  border-top-color: var(--t-light);
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
+/* ── Marca animada do loader (o ícone do app; SVG inline no #loader-global) ──
+   Loop coreografado de ~2.4s: capacete sobe/assenta → traço-brilho "desenha" o
+   check → reflexo diagonal cruza os óculos → repouso (ícone inteiro). Cada parte
+   tem o MESMO animation-duration (2.4s infinite) e faz sua ação só na sua janela
+   de tempo, ficando em repouso no resto — assim o ciclo é sincronizado e o frame
+   0 já é o ícone completo (o loader some rápido; não pode aparecer "montando"). */
+.overlay-loader__mark {
+  width: clamp(96px, 30vw, 124px);
+  height: auto;
+  overflow: visible;   /* o capacete sobe além do viewBox sem cortar */
+}
+
+/* Cores por TOKEN (batem com o ícone; se a marca mudar, o loader acompanha). */
+.ldr-face    { fill: var(--t-light); }
+.ldr-glasses { fill: var(--info-blue); }
+.ldr-helmet  { fill: var(--a-gold); }
+.ldr-check   { fill: var(--p-green); }
+
+/* 1) Capacete sobe um pouco e assenta (o grupo leva o check junto). */
+#load-helmet {
+  animation: loaderHelmetRise 2.4s ease-in-out infinite;
+}
+@keyframes loaderHelmetRise {
+  0%   { transform: translateY(0); }
+  8%   { transform: translateY(-24px); }   /* px = unidades do viewBox */
+  20%  { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+/* 2) Check "sendo criado": um traço-brilho branco DESENHA a linha-mãe do check
+   (esq → vértice → dir) e some — o check verde permanece embaixo (nunca vazio). */
+.overlay-loader__gleam {
+  stroke: var(--t-light);
+  stroke-width: 18;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;         /* pathLength="1" no SVG normaliza o comprimento */
+  stroke-dashoffset: 1;
+  opacity: 0;
+  animation: loaderCheckGleam 2.4s ease-in-out infinite;
+}
+@keyframes loaderCheckGleam {
+  0%, 16%  { stroke-dashoffset: 1; opacity: 0; }
+  20%      { opacity: 1; }
+  40%      { stroke-dashoffset: 0; opacity: 1; }
+  48%      { stroke-dashoffset: 0; opacity: 0; }
+  49%, 100%{ stroke-dashoffset: 1; opacity: 0; }
+}
+
+/* 3) Reflexo: faixa branca diagonal cruza os óculos (clipada à forma da lente). */
+.overlay-loader__shine {
+  animation: loaderGlassGlint 2.4s ease-in-out infinite;
+}
+@keyframes loaderGlassGlint {
+  0%, 45%  { transform: translateX(0); }       /* parada à ESQUERDA das lentes (fora do clip) */
+  70%      { transform: translateX(560px); }    /* varre até passar a DIREITA */
+  100%     { transform: translateX(560px); }    /* fica fora à direita; reset invisível no wrap */
 }
 /* Selo de versão discreto no rodapé da tela de loading (spinner fica centrado). */
 .overlay-loader__version {
