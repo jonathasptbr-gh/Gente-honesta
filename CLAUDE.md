@@ -28,7 +28,7 @@ Repositório: jonathasptbr-gh/gente-honesta
   de ícones) — não é build do site.
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v441**.
+  bump.) Versão atual: **v442**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**
