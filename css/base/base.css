@@ -428,3 +428,31 @@ button, input, textarea {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+
+/* ===========================================
+   ACESSIBILIDADE
+   ======================================== */
+
+/* Painel de camada modal focado programaticamente (layerFocus, core/app.js):
+   sem anel de foco — regra 5 do design system (estado nunca ganha anel). */
+.pedido-sheet__panel:focus,
+.historico-sheet__panel:focus,
+.dialog-box:focus,
+.indicated-popup__sheet:focus,
+#btn-dialog-confirm:focus {
+  outline: none;
+}
+
+/* Reduzir movimento (preferência do sistema): desliga SÓ as animações
+   DECORATIVAS INFINITAS (pulsos/pisca). NÃO tocar nas transições funcionais
+   (gavetas, painéis, flips): elas têm listeners de transitionend (moveGate/
+   finalize) — sem transição o evento nunca dispara e a UI travaria. O spin
+   de loading fica (é feedback de progresso, não decoração). */
+@media (prefers-reduced-motion: reduce) {
+  .agenda-filters__icon-btn--notify,   /* pisca do botão de contratos */
+  .ic-meter__pin-tag,                  /* pulso do pino do IC (cadastro) */
+  .tutorial-highlight {                /* pulso do destaque do tutorial */
+    animation: none !important;
+  }
+}

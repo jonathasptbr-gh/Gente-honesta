@@ -113,7 +113,25 @@ cadastro), `auth:step-phone`/`auth:step-otp` (passos do login), `feed-tab` (→ 
 autocomplete de área) e o flip dos cards NÃO são camadas — fecham sozinhos.
 
 **Ao adicionar uma nova camada dispensável:** `push(id, fecharFn)` no abrir + `remove(id)` no fechar,
-com `id` único. Nada mais — o "voltar" passa a fechá-la automaticamente.
+com `id` único, E `window.layerFocus.enter(el, panelSel)` no abrir + `layerFocus.leave(el)` no fechar
+— o "voltar" passa a fechá-la e o FOCO entra/sai da camada automaticamente.
+
+## Foco das camadas modais (`window.layerFocus`)
+
+Fonte única (par do backNav) da gestão de foco das camadas `role="dialog" aria-modal`:
+`enter(el, panelSel?)` guarda o abridor (WeakMap) e foca o painel (`tabindex=-1` +
+`focus({preventScroll})` — sem salto de scroll, sem teclado); `leave(el)` devolve o foco ao
+abridor se ele ainda existe e o foco segue dentro da camada. Supersede-safe (um diálogo
+substituindo outro mantém o abridor original). Consumidores: as 9 gavetas do feed, o
+`openDialog` (foca `#btn-dialog-confirm`; leave no teardown único) e o popup de indicados.
+O `#indicate-overlay` fica FORA de propósito (reparenta DOM real; foco + reparent = corrida).
+CSS: painéis focados sem anel (`base.css`, seção ACESSIBILIDADE) + `prefers-reduced-motion`
+desliga SÓ pulsos decorativos (pisca de contratos, pino do IC, destaque do tutorial) — NUNCA
+transições com `transitionend` (moveGate depende delas).
+
+**Decisão registrada — NÃO fundir os 9 pares open/close num helper:** a ordem interna
+render→anchor→classe é semântica por gaveta (o `anchorBelowActionBar` MEDE a altura do painel,
+que depende do render). As fontes únicas ali são backNav + layerFocus + syncOpenerAria.
 
 ## Velocidade de movimento (`window.moveMs`) — direcional (abertura ≠ fechamento)
 

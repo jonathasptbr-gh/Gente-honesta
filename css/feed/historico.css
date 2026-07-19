@@ -68,6 +68,7 @@
 
 .historico-sheet__panel {
   position: absolute;
+  z-index: 1;             /* paridade com .pedido-sheet__panel (esqueletos idênticos p/ futura fusão .sheet*) */
   top: 0;                 /* relativo ao .historico-sheet__clip (já em --sheet-top) */
   left: var(--space-md);  /* card menos largo, como o .pedido-sheet__panel */
   right: var(--space-md);

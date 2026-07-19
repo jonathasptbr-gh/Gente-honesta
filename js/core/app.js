@@ -176,6 +176,36 @@ window.focusFirstError = function (container, sel) {
 // criar-vaga, com finais divergentes — o complemento vai por concatenação).
 window.MSG_REQUIRED_FIELDS = 'Preencha os campos obrigatórios destacados em vermelho';
 
+// =========================================================================
+// FOCO DAS CAMADAS MODAIS — fonte única (par do backNav).
+// As camadas declaram role="dialog" aria-modal, mas nada movia o foco: leitor
+// de tela/teclado ficava atrás do véu. enter(el, panelSel?) guarda o abridor e
+// foca o painel (tabindex=-1 + preventScroll — sem salto de scroll, sem
+// teclado); leave(el) devolve o foco ao abridor se ele ainda existe e o foco
+// segue dentro da camada. Supersede-safe: se o foco JÁ está dentro da camada
+// (um diálogo substituindo outro), o abridor original registrado é mantido.
+// =========================================================================
+window.layerFocus = (() => {
+  const openers = new WeakMap();
+  const safeFocus = (el) => { try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); } };
+  return {
+    enter(el, panelSel) {
+      if (!el) return;
+      const opener = document.activeElement;
+      if (opener && opener !== document.body && !el.contains(opener)) openers.set(el, opener);
+      const panel = (panelSel && el.querySelector(panelSel)) || el;
+      if (!panel.hasAttribute('tabindex')) panel.setAttribute('tabindex', '-1');
+      safeFocus(panel);
+    },
+    leave(el) {
+      if (!el) return;
+      const opener = openers.get(el);
+      openers.delete(el);
+      if (opener && document.contains(opener) && el.contains(document.activeElement)) safeFocus(opener);
+    },
+  };
+})();
+
 (function () {
   const setViewportVars = () => {
     const root = document.documentElement;
@@ -569,8 +599,12 @@ window.openDialog = function({ title = "Aviso", message = "", icon = "error",
     btnCancel.classList.toggle('u-hidden', !showCancel);
     box?.classList.toggle('dialog-box--scrollable', !!scrollable);
     dialog.classList.remove('u-hidden');
+    // Foco entra no botão de ação primária (a11y das camadas modais; supersede
+    // preserva o abridor original — ver layerFocus).
+    window.layerFocus.enter(dialog, '#btn-dialog-confirm');
 
     const cleanup = () => {
+      window.layerFocus.leave(dialog);
       dialog.classList.add('u-hidden');
       box?.classList.remove('dialog-box--scrollable');
       btnConfirm.removeEventListener('click', onConfirm);

@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     anchorBelowActionBar(contractsSheet);
     contractsSheet?.classList.add('historico-sheet--open');
     window.backNav?.push('contracts-sheet', closeContractsSheet);
+    window.layerFocus?.enter(contractsSheet, '.historico-sheet__panel');
     // Abriu → para de piscar (marca como "visto"). Sem persistência: a cada
     // abertura do app o botão volta a piscar até ser aberto uma vez.
     btnOpenContracts?.classList.remove('agenda-filters__icon-btn--notify');
@@ -147,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeContractsSheet() {
     if (!isContractsSheetOpen()) return;   // guarda: também evita TDZ no setup
     window.backNav?.remove('contracts-sheet');
+    window.layerFocus?.leave(contractsSheet);
     closeContractsFiltersSheet();
     contractsSheet?.classList.remove('historico-sheet--open');
     setContractsButtonClose(false);
@@ -164,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     anchorBelowActionBar(contractsFiltersSheet);
     contractsFiltersSheet?.classList.add('historico-sheet--open');
     window.backNav?.push('contracts-filters-sheet', closeContractsFiltersSheet);
+    window.layerFocus?.enter(contractsFiltersSheet, '.historico-sheet__panel');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
     btn?.classList.add('agenda-filters__filter-pill--active');
@@ -173,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeContractsFiltersSheet() {
     if (!contractsFiltersSheet?.classList.contains('historico-sheet--open')) return;
     window.backNav?.remove('contracts-filters-sheet');
+    window.layerFocus?.leave(contractsFiltersSheet);
     contractsFiltersSheet.classList.remove('historico-sheet--open');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'false');
@@ -399,9 +403,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     popup?.classList.add('indicated-popup--open');
     window.backNav?.push('indicated-popup', closeIndicatedPopup);
+    window.layerFocus?.enter(popup, '.indicated-popup__sheet');
   };
   const closeIndicatedPopup = () => {
     window.backNav?.remove('indicated-popup');
+    window.layerFocus?.leave(document.getElementById('indicated-popup'));
     const popup = document.getElementById('indicated-popup');
     // FECHAMENTO (desce): velocidade ágil — reseta o var antes de sair (o mesmo var
     // alimenta o slide E o atraso de visibilidade da saída).
@@ -1032,16 +1038,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }, accelerateActiveFlips);
   };
 
-  // Registra delegação de cliques de flip num container de pro-cards.
+  // Registra delegação de cliques de flip num container de pro-cards — FONTE
+  // ÚNICA da delegação (era duplicada com o handler de #agenda-list; dívida de
+  // feed.md). `withIndicate: true` liga os ramos exclusivos da lista principal:
+  // guarda do long-press, Cancelar/Indicar do modo indicação, limpeza de seleção
+  // nos fechamentos e o flip-de-seleção. Sutileza PRESERVADA: no fechamento pelo
+  // VERSO (fora dos botões) a seleção some do card mas selectedProId NÃO é
+  // anulado (comportamento original); só Voltar/Cancelar anulam.
   // Chamar uma vez por container estático; não chamar dentro de funções de render.
   // function declaration (hoisted): o bind em #agenda-indicated-list ocorre acima
   // desta linha; só é seguro porque funções declaradas são içadas no callback.
-  function bindProCardFlip(containerEl) {
+  function bindProCardFlip(containerEl, { withIndicate = false } = {}) {
     if (!containerEl) return;
     containerEl.addEventListener('click', (e) => {
+      // Se um pressionar-longo acabou de salvar/dessalvar o card, engole o clique
+      // que segue o touchend (senão o card flipava logo após salvar).
+      if (withIndicate && longPressConsumed) { longPressConsumed = false; return; }
+
       // Botão de ordenação dos comentários — ANTES do catch-all do verso (que fecha).
       const sortBtn = e.target.closest('.pro-card__sort-btn');
       if (sortBtn) { sortProComments(sortBtn); return; }
+
+      if (withIndicate) {
+        // Cancelar (modo indicação) → desflipa sem sair do modo. Os botões são
+        // controlados pela classe da LISTA, então o card volta à frente sem
+        // trocar Cancelar/Indicar por WhatsApp durante a animação.
+        if (e.target.closest('.pro-card__back-btn--cancel-indicate')) {
+          const c = e.target.closest('.pro-card');
+          gateCloseProCard(c, () => { c.classList.remove('pro-card--selected'); selectedProId = null; });
+          return;
+        }
+        // Indicar (modo indicação) → confirma e sai
+        if (e.target.closest('.pro-card__back-btn--confirm-indicate')) {
+          exitIndicateMode();
+          customAlert('Indicação registrada com sucesso!', 'Indicação feita', 'check_circle').then(openPedidosSheet);
+          return;
+        }
+      }
+
       if (e.target.closest('.pro-card__back-btn--whatsapp')) {
         comingSoon('Abrir WhatsApp', 'WhatsApp', 'chat');
         return;
@@ -1050,15 +1084,38 @@ document.addEventListener('DOMContentLoaded', () => {
         comingSoon('Compartilhar perfil', 'Compartilhar', 'share');
         return;
       }
-      if (e.target.closest('.pro-card__back-btn--back') || e.target.closest('.pro-card__back')) {
-        gateCloseProCard(e.target.closest('.pro-card'));
+      if (e.target.closest('.pro-card__back-btn--back')) {
+        const c = e.target.closest('.pro-card');
+        gateCloseProCard(c, withIndicate ? () => { c.classList.remove('pro-card--selected'); selectedProId = null; } : undefined);
         return;
       }
+      // Clique no resto do verso (fora dos botões) → fecha
+      if (e.target.closest('.pro-card__back')) {
+        const c = e.target.closest('.pro-card');
+        gateCloseProCard(c, withIndicate ? () => c.classList.remove('pro-card--selected') : undefined);
+        return;
+      }
+
       const card = e.target.closest('.pro-card');
       if (!card) return;
       // Flip é um MOVIMENTO → passa pela trava/fila (não sobrepõe carrossel/gaveta/
       // indicação nem outro flip). Um flip enfileirado roda 2x (MOVE_ACCEL). Estado lido
       // em tempo de execução (o play roda desenfileirado).
+      if (withIndicate && indicateMode) {
+        // ── Modo indicação: desseleciona anterior e flipa o novo ──
+        // (os botões Cancelar/Indicar vêm da classe da lista, não do card)
+        window.moveGate.run('flip', () => {
+          containerEl.querySelectorAll('.pro-card--selected').forEach(el => {
+            el.classList.remove('pro-card--selected');
+            proCardFlipToFront(el);
+          });
+          card.classList.add('pro-card--selected');
+          selectedProId = card.id;
+          const tl = proCardFlipToBack(card);
+          return tl.promise;
+        }, accelerateActiveFlips);
+        return;
+      }
       window.moveGate.run('flip', () => {
         const isFlipped = card.classList.contains('pro-card--flipped');
         containerEl.querySelectorAll('.pro-card--flipped').forEach(el => { if (el !== card) proCardFlipToFront(el); });
@@ -1185,89 +1242,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // TELA - PRINCIPAL (FEED) - AGENDA SHEET - Seleção de Profissional
   // =========================================================================
 
-  // TELA - PRINCIPAL (FEED) - LISTA DE CONTATOS - Seleção de profissional (só no modo indicação)
-  document.getElementById('agenda-list')?.addEventListener('click', (e) => {
-    // Se um pressionar-longo acabou de salvar/dessalvar o card, engole o clique
-    // que segue o touchend (senão o card flipava logo após salvar).
-    if (longPressConsumed) { longPressConsumed = false; return; }
-
-    // Botão de ordenação dos comentários — ANTES do catch-all do verso (que fecha).
-    const sortBtn = e.target.closest('.pro-card__sort-btn');
-    if (sortBtn) { sortProComments(sortBtn); return; }
-
-    // Botão Cancelar (modo indicação) → desflipa sem sair do modo.
-    // Os botões são controlados pela classe da LISTA, então o card volta à
-    // frente sem trocar Cancelar/Indicar por WhatsApp durante a animação.
-    if (e.target.closest('.pro-card__back-btn--cancel-indicate')) {
-      const c = e.target.closest('.pro-card');
-      gateCloseProCard(c, () => { c.classList.remove('pro-card--selected'); selectedProId = null; });
-      return;
-    }
-
-    // Botão Indicar (modo indicação) → confirma e sai
-    if (e.target.closest('.pro-card__back-btn--confirm-indicate')) {
-      exitIndicateMode();
-      customAlert('Indicação registrada com sucesso!', 'Indicação feita', 'check_circle').then(openPedidosSheet);
-      return;
-    }
-
-    // Botão WhatsApp no verso
-    if (e.target.closest('.pro-card__back-btn--whatsapp')) {
-      comingSoon('Abrir WhatsApp', 'WhatsApp', 'chat');
-      return;
-    }
-
-    // Botão Compartilhar no verso
-    if (e.target.closest('.pro-card__back-btn--share')) {
-      comingSoon('Compartilhar perfil', 'Compartilhar', 'share');
-      return;
-    }
-
-    // Botão Voltar no verso → desflipa
-    if (e.target.closest('.pro-card__back-btn--back')) {
-      const c = e.target.closest('.pro-card');
-      gateCloseProCard(c, () => { c.classList.remove('pro-card--selected'); selectedProId = null; });
-      return;
-    }
-
-    // Clique no resto do verso (fora dos botões) → fecha
-    if (e.target.closest('.pro-card__back')) {
-      const c = e.target.closest('.pro-card');
-      gateCloseProCard(c, () => c.classList.remove('pro-card--selected'));
-      return;
-    }
-
-    const card = e.target.closest('.pro-card');
-    if (!card) return;
-
-    // Flip é um MOVIMENTO → passa pela trava/fila do moveGate (não sobrepõe carrossel/
-    // gaveta/indicação nem outro flip). Um flip enfileirado roda 2x (MOVE_ACCEL).
-    if (indicateMode) {
-      // ── Modo indicação: desseleciona anterior e flipa o novo ──
-      // (os botões Cancelar/Indicar vêm da classe da lista, não do card)
-      window.moveGate.run('flip', () => {
-        document.querySelectorAll('#agenda-list .pro-card--selected').forEach(el => {
-          el.classList.remove('pro-card--selected');
-          proCardFlipToFront(el);
-        });
-        card.classList.add('pro-card--selected');
-        selectedProId = card.id;
-        const tl = proCardFlipToBack(card);
-        return tl.promise;
-      }, accelerateActiveFlips);
-    } else {
-      // ── Navegação normal: flip para o verso ou fecha se já estava aberto ──
-      window.moveGate.run('flip', () => {
-        const isFlipped = card.classList.contains('pro-card--flipped');
-        document.querySelectorAll('#agenda-list .pro-card--flipped').forEach(el => {
-          if (el !== card) proCardFlipToFront(el);
-        });
-        if (isFlipped) return proCardFlipToFront(card).promise;
-        const tl = proCardFlipToBack(card);
-        return tl.promise;
-      }, accelerateActiveFlips);
-    }
-  });
+  // TELA - PRINCIPAL (FEED) - LISTA DE CONTATOS - flip/seleção pela DELEGAÇÃO
+  // ÚNICA (bindProCardFlip com os ramos do modo indicação ligados). O long-press
+  // de salvar segue registrado à parte (attachLongPress, acima).
+  bindProCardFlip(document.getElementById('agenda-list'), { withIndicate: true });
 
 
 
@@ -2187,9 +2165,11 @@ document.addEventListener('DOMContentLoaded', () => {
       vagaSheet?.classList.add('pedido-sheet--open');
       setVagaOpenerClose(true);
       window.backNav?.push('vaga-sheet', closeVagaSheet);
+      window.layerFocus?.enter(vagaSheet, '.pedido-sheet__panel');
     };
     const closeVagaSheet = () => {
       window.backNav?.remove('vaga-sheet');
+      window.layerFocus?.leave(vagaSheet);
       vagaSheet?.classList.remove('pedido-sheet--open');
       // Restaura o rótulo natural do abridor (Criar vaga OU Ver vaga, conforme
       // já exista uma vaga publicada).
@@ -2243,9 +2223,11 @@ document.addEventListener('DOMContentLoaded', () => {
       // virando "Concluir vaga"; "Fechar" surge no lugar do abridor.
       animateConcludeSwap(btnAjudanteBar, btnCriarVaga);
       window.backNav?.push('vaga-detail-sheet', closeVagaDetailSheet);
+      window.layerFocus?.enter(vagaDetailSheet, '.pedido-sheet__panel');
     };
     const closeVagaDetailSheet = () => {
       window.backNav?.remove('vaga-detail-sheet');
+      window.layerFocus?.leave(vagaDetailSheet);
       vagaDetailSheet?.classList.remove('pedido-sheet--open');
       resetConcludeSwap(btnAjudanteBar, btnCriarVaga); // limpa a animação de abertura
       setVagaOpenerClose(false);
@@ -2447,9 +2429,11 @@ document.addEventListener('DOMContentLoaded', () => {
       ajudanteSheet?.classList.add('pedido-sheet--open');
       setAjudanteClose(true);
       window.backNav?.push('ajudante-sheet', closeAjudanteSheet);
+      window.layerFocus?.enter(ajudanteSheet, '.pedido-sheet__panel');
     };
     const closeAjudanteSheet = () => {
       window.backNav?.remove('ajudante-sheet');
+      window.layerFocus?.leave(ajudanteSheet);
       ajudanteSheet?.classList.remove('pedido-sheet--open');
       setAjudanteClose(false);
     };
@@ -2639,6 +2623,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // chamado preventivamente nas trocas de aba e não pode apagar o título de
     // outra gaveta.
     window.backNav?.remove('filters-sheet');
+    window.layerFocus?.leave(document.getElementById('filters-sheet'));
     sheet?.classList.remove('historico-sheet--open');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'false');
@@ -2650,6 +2635,7 @@ document.addEventListener('DOMContentLoaded', () => {
     anchorBelowActionBar(sheet);
     sheet?.classList.add('historico-sheet--open');
     window.backNav?.push('filters-sheet', closeFiltersSheet);
+    window.layerFocus?.enter(sheet, '.historico-sheet__panel');
     const btn = document.getElementById('btn-toggle-filters');
     btn?.setAttribute('aria-expanded', 'true');
     btn?.classList.add('agenda-filters__filter-pill--active');
@@ -3087,6 +3073,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const closePedidoSheet = () => {
     window.backNav?.remove('pedido-sheet');
+    window.layerFocus?.leave(pedidoSheet);
     pedidoSheet?.classList.remove('pedido-sheet--open');
     pedidoSheet?.classList.remove('pedido-sheet--morph');
     pedidoPublishFooter?.classList.add('u-hidden');
@@ -3129,6 +3116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pedidoSheet?.classList.add('pedido-sheet--open');
     setMyPedidoButton('close');
     window.backNav?.push('pedido-sheet', closePedidoSheet);
+    window.layerFocus?.enter(pedidoSheet, '.pedido-sheet__panel');
   };
 
   // Abre o detalhe unificado (pedido + indicações). `sourceEl` = o item do
@@ -3139,6 +3127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pedido = getPedidoById(id);
     if (!pedido) return;
     window.backNav?.push('pedido-sheet', closePedidoSheet);
+    window.layerFocus?.enter(pedidoSheet, '.pedido-sheet__panel');
     detailPedidoId = id;
     const active = pedido.status === PEDIDO_STATUS.ACTIVE;
     pedidoDetailMode = active ? PEDIDO_DETAIL_MODE.ACTIVE : PEDIDO_DETAIL_MODE.OLD;
@@ -3376,9 +3365,11 @@ document.addEventListener('DOMContentLoaded', () => {
     historicoSheet?.classList.add('historico-sheet--open');
     setHistoricoButton('close');
     window.backNav?.push('historico-sheet', closeHistorico);
+    window.layerFocus?.enter(historicoSheet, '.historico-sheet__panel');
   };
   const closeHistorico = () => {
     window.backNav?.remove('historico-sheet');
+    window.layerFocus?.leave(historicoSheet);
     historicoSheet?.classList.remove('historico-sheet--open');
     // Se um detalhe (ativo ou antigo) está aberto sobre o histórico, o botão
     // Histórico segue como "Fechar" e o título do DETALHE permanece na top bar;
@@ -3509,6 +3500,7 @@ document.addEventListener('DOMContentLoaded', () => {
     anchorBelowActionBar(sheet);       // --sheet-top + durações derivadas da altura
     sheet.classList.add('historico-sheet--open');
     window.backNav?.push('profile-sheet', closeProfileSheet);
+    window.layerFocus?.enter(sheet, '.historico-sheet__panel');
     setProfileAvatarClose(true);
     setProfileBarActions(true);        // Sair/Editar = overlay sobre a zona do meio (qualquer aba)
   }
@@ -3517,6 +3509,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sheet = document.getElementById('profile-sheet');
     if (!sheet?.classList.contains('historico-sheet--open')) return;
     window.backNav?.remove('profile-sheet');
+    window.layerFocus?.leave(sheet);
     sheet.classList.remove('historico-sheet--open');
     setProfileAvatarClose(false);
     setProfileBarActions(false);       // devolve a busca

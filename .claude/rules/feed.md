@@ -393,9 +393,11 @@ e voltar é que passava). Guarda: `attachTopOverscroll` dá `return` cedo se `e.
 — deixa o scroller aninhado rolar nativo; o estique da lista só age quando o toque começa FORA de um
 card. (Travar o scroll ancestral foi tentado e descartado: impede comparar rolando a lista com um card
 aberto.)
-**Delegação de flip é DUPLICADA (dívida aberta):** `bindProCardFlip` (popup/detalhe) e o handler de
-`#agenda-list` (com pin + modo indicação). Stubs de WhatsApp/Compartilhar centralizados em
-`comingSoon(label, title, icon)`.
+**Delegação de flip é ÚNICA:** `bindProCardFlip(container, {withIndicate})` — a lista principal
+usa `withIndicate:true` (guarda do long-press, Cancelar/Indicar da indicação, limpeza de seleção,
+flip-de-seleção); popup/detalhe/perfil usam o default. Sutileza preservada: fechar pelo VERSO
+(fora dos botões) não anula `selectedProId` — só Voltar/Cancelar anulam. Stubs de
+WhatsApp/Compartilhar centralizados em `comingSoon(label, title, icon)`.
 
 ## Cards de vaga (flip 3D)
 
@@ -503,9 +505,6 @@ Contratar/WhatsApp/Compartilhar dão alerta; pedido/histórico/candidatura sem p
 - **Scaffolding de flip 3D duplicado:** `.pro-card__*` e `.vaga-card__*` (`feed/historico.css` e `feed/vagas.css`) repetem quase
   idêntico o maquinário de flip (`preserve-3d`, `rotateY(180deg)`, `backface-visibility`, colapso
   `--expanded height:0`). Candidato a uma base `.flip-card*` compartilhada.
-- **Delegação de clique do flip PENDENTE:** o builder já é único (`buildProCard`), mas a delegação
-  existe 2× (`bindProCardFlip` p/ popup/detalhe e o handler de `#agenda-list` com pin + modo
-  indicação). Unificá-la exige parametrizar pin/indicação.
 - **Avatar SVG inline:** o mesmo data-URI aparece 10× em `index.html` (todos cinza); em
   `feed/index.js` já é a const `avatarSvg`. Dedup do HTML exigiria converter `<img>`→background (perde o
   swap de `src` do `#top-bar-avatar`) → dívida deliberada.
