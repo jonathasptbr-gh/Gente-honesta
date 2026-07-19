@@ -24,7 +24,16 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
 `window.MOVE_ACCEL` (multiplicador de velocidade do acelerador; ver moveGate), `window.moveGate`
 (trava+fila+acelerador de movimentos — `run`/`busy`/`depth`; ver abaixo),
 `window.THEME_COLOR`, `window.icon(nome, classeExtra?)` (HTML de um ícone do sprite SVG),
-`window.setIcon(elIcone, nome)` (troca o glifo de um ícone já no DOM — antes `el.textContent = nome`).
+`window.setIcon(elIcone, nome)` (troca o glifo de um ícone já no DOM — antes `el.textContent = nome`),
+`window.markFieldError(el, cls?)`/`window.clearFieldError(el, ...cls)`/`window.focusFirstError(container?, sel?)`
+(módulo ÚNICO de erro de formulário — a CLASSE varia por primitiva e vai por argumento; o feed usa
+`markFieldError` mas rola com `animateScrollTo` próprio, nunca `scrollIntoView`),
+`window.MSG_REQUIRED_FIELDS` (frase única da validação de obrigatórios; o complemento
+"para concluir/publicar…" é concatenado por chamador).
+
+**Ícones em JS = SEMPRE `window.icon()`** (nunca montar o `<svg><use>` à mão) — EXCETO usos com a
+variante contorno `-o` ou nome interpolado: o scanner do sprite (`scripts/icon-usage.mjs`) só
+detecta `-o` pelo literal `#ic-X-o`, então esses 4 usos (proFooterHTML etc.) ficam literais.
 
 **tutorial/tutorial.js:** `window.startTutorial(steps, opts)`, `window.resetTutorialSeen(id)`.
 

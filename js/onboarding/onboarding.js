@@ -123,8 +123,8 @@ function setProDetailsOpen(open, animate = true) {
 function highlightMissingProFields({ tags, bio }) {
   const areaInput = document.getElementById('inp-area-search');
   const bioInput = document.getElementById('inp-bio');
-  if (!tags) areaInput?.classList.add('input-text--error');
-  if (!bio) bioInput?.classList.add('input-text--error');
+  if (!tags) window.markFieldError(areaInput);
+  if (!bio) window.markFieldError(bioInput);
   // Espera a animação de abertura terminar antes de rolar até o campo (+buffer)
   setTimeout(() => {
     const first = !tags ? areaInput : bioInput;
@@ -141,47 +141,41 @@ function highlightMissingProFields({ tags, bio }) {
 window.finishRegistration = async function() {
   const user = auth.currentUser;
   if (!user) {
-    return await customAlert("Sua sessão expirou. Faça login novamente para concluir o cadastro.", "Sessão Expirada", "error");
+    return await customAlert("Sua sessão expirou. Faça login novamente para concluir o cadastro.", "Sessão expirada", "error");
   }
   const nome = document.getElementById('inp-name')?.value.trim() ?? '';
   const sobrenome = document.getElementById('inp-surname')?.value.trim() ?? '';
 
-  // Limpa erros anteriores
+  // Limpa erros anteriores (módulo único de erro — core/app.js)
   clearNameErrors();
-  document.getElementById('media-preview')?.classList.remove('media-capture__display--error');
-  document.getElementById('btn-register-location')?.classList.remove('location-check--error-validation');
+  window.clearFieldError(document.getElementById('media-preview'), 'media-capture__display--error');
+  window.clearFieldError(document.getElementById('btn-register-location'), 'location-check--error-validation');
 
   let hasError = false;
 
   if (!window.appState.photoBlob) {
-    document.getElementById('media-preview')?.classList.add('media-capture__display--error');
+    window.markFieldError(document.getElementById('media-preview'), 'media-capture__display--error');
     hasError = true;
   }
 
   if (!nome) {
-    document.getElementById('inp-name')?.classList.add('input-text--error');
+    window.markFieldError(document.getElementById('inp-name'));
     hasError = true;
   }
 
   if (!sobrenome) {
-    document.getElementById('inp-surname')?.classList.add('input-text--error');
+    window.markFieldError(document.getElementById('inp-surname'));
     hasError = true;
   }
 
   if (!window.appState.locationConfirmed) {
-    document.getElementById('btn-register-location')?.classList.add('location-check--error-validation');
+    window.markFieldError(document.getElementById('btn-register-location'), 'location-check--error-validation');
     hasError = true;
   }
 
   if (hasError) {
-    // Rola suavemente até o primeiro campo com erro
-    const firstError = document.querySelector(
-      '.input-text--error, .media-capture__display--error, .location-check--error-validation'
-    );
-    if (firstError) {
-      firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-    return await customAlert("Preencha os campos obrigatórios destacados em vermelho para concluir seu cadastro.", "Cadastro Incompleto", "error");
+    window.focusFirstError();   // rola suavemente até o primeiro campo com erro
+    return await customAlert(window.MSG_REQUIRED_FIELDS + " para concluir seu cadastro.", "Cadastro incompleto", "error");
   }
 
   // DADOS PROFISSIONAIS — obrigatoriedade condicional
@@ -493,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.error('Erro ao acessar câmera:', err);
       closeCameraDialog();
-      await customAlert('Não foi possível acessar a câmera. Verifique as permissões nas configurações do dispositivo.', 'Acesso Negado', 'videocam_off');
+      await customAlert('Não foi possível acessar a câmera. Verifique as permissões nas configurações do dispositivo.', 'Acesso negado', 'videocam_off');
     }
   };
 

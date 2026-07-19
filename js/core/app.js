@@ -148,6 +148,34 @@ window.setIcon = function (iconEl, name) {
   if (use) use.setAttribute('href', '#ic-' + name);
 };
 
+// =========================================================================
+// ERRO DE FORMULÁRIO — fonte única do mecanismo "linha vermelha".
+// A CLASSE varia por primitiva (input-text--error, media-capture__display--error,
+// location-check--error/-validation, vaga-days--error) e é passada por argumento
+// — é BEM legítimo, não deriva. O mecanismo (marcar/limpar/rolar ao primeiro)
+// é um só. Usado por onboarding (cadastro/edição) e feed (criar vaga / pedido).
+// =========================================================================
+window.markFieldError = function (el, cls = 'input-text--error') {
+  el?.classList.add(cls);
+};
+window.clearFieldError = function (el, ...cls) {
+  if (!el) return;
+  el.classList.remove(...(cls.length ? cls : ['input-text--error']));
+};
+// Rola até o PRIMEIRO campo marcado dentro do container (comportamento padrão
+// da validação do cadastro). Seletor cobre todas as classes de erro do app.
+window.focusFirstError = function (container, sel) {
+  const first = (container || document).querySelector(
+    sel || '.input-text--error, .media-capture__display--error, .location-check--error-validation, .vaga-days--error'
+  );
+  first?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return first;
+};
+
+// Frase única da validação de obrigatórios (era duplicada em onboarding e no
+// criar-vaga, com finais divergentes — o complemento vai por concatenação).
+window.MSG_REQUIRED_FIELDS = 'Preencha os campos obrigatórios destacados em vermelho';
+
 (function () {
   const setViewportVars = () => {
     const root = document.documentElement;

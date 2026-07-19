@@ -1207,7 +1207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Botão Indicar (modo indicação) → confirma e sai
     if (e.target.closest('.pro-card__back-btn--confirm-indicate')) {
       exitIndicateMode();
-      customAlert('Indicação registrada com sucesso!', 'Indicação Feita', 'check_circle').then(openPedidosSheet);
+      customAlert('Indicação registrada com sucesso!', 'Indicação feita', 'check_circle').then(openPedidosSheet);
       return;
     }
 
@@ -1933,7 +1933,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSubmit = e.target.closest('.vaga-card__btn-submit');
     if (btnSubmit) {
       gateVagaFlipFront(btnSubmit.closest('.vaga-card'), () => {
-        customAlert('Candidatura enviada com sucesso! Você será notificado quando houver retorno.', 'Candidatura Enviada', 'check_circle');
+        customAlert('Candidatura enviada com sucesso! Você será notificado quando houver retorno.', 'Candidatura enviada', 'check_circle');
       });
       return;
     }
@@ -2309,7 +2309,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Publicar vaga
     document.getElementById('btn-vaga-publish')?.addEventListener('click', async () => {
       let firstError = null;
-      const markError = (el) => { el?.classList.add('input-text--error'); if (!firstError) firstError = el; };
+      // marca via o módulo único (window.markFieldError); firstError segue local
+      // p/ o scroll com animateScrollTo (nunca scrollIntoView — puxaria o feed).
+      const markError = (el, cls) => { window.markFieldError(el, cls); if (el && !firstError) firstError = el; };
 
       // CNPJ: exige 14 dígitos
       const cnpjDigits = (inpCnpj?.value || '').replace(/\D/g, '');
@@ -2329,10 +2331,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Ao menos 1 dia selecionado
       const dias = getSelectedDays();
-      if (dias.length === 0) {
-        daysGroup?.classList.add('vaga-days--error');
-        if (!firstError) firstError = daysGroup;
-      }
+      if (dias.length === 0) markError(daysGroup, 'vaga-days--error');
 
       if (firstError) {
         // Rola SÓ o corpo da gaveta (nunca ancestrais — scrollIntoView puxaria o feed
@@ -2342,7 +2341,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const cr = firstError.getBoundingClientRect(), kr = sc.getBoundingClientRect();
           animateScrollTo(sc, sc.scrollTop + (cr.top - kr.top) - (kr.height - cr.height) / 2);
         }
-        await customAlert('Preencha os campos obrigatórios destacados em vermelho para publicar a vaga.', 'Vaga incompleta', 'edit_note');
+        await customAlert(window.MSG_REQUIRED_FIELDS + ' para publicar a vaga.', 'Vaga incompleta', 'edit_note');
         return;
       }
 
@@ -3311,7 +3310,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-pedido-publish')?.addEventListener('click', async () => {
     const text = inpPedidoText?.value.trim() || '';
     if (text.length < 10) {
-      inpPedidoText?.classList.add('input-text--error');
+      window.markFieldError(inpPedidoText);
       await customAlert('Descreva seu pedido com pelo menos 10 caracteres para os profissionais entenderem o que você precisa.', 'Pedido incompleto', 'edit_note');
       return;
     }

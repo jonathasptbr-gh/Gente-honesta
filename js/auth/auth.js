@@ -198,7 +198,7 @@ window.verifyOTP = async function() {
   if (!window.appState.confirmationResult) {
     return await customAlert(
       "Sua sessão de verificação expirou. Volte e solicite um novo código por SMS.",
-      "Sessão Expirada",
+      "Sessão expirada",
       "schedule"
     );
   }
