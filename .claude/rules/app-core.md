@@ -95,7 +95,10 @@ o 2º "voltar" saía do app em vez de fechar a 2ª camada. Empilhar histórico D
 - `push(id, fecharFn)` — ao ABRIR a camada; `id` único; `fecharFn` = o MESMO fechamento da UI.
 - `remove(id)` — no início da função de FECHAR pela UI (tap-outside/botão). No-op se o `id` não
   está na pilha (pode ser chamado preventivamente, ex.: `closeFiltersSheet` nas trocas de aba).
-- `reset()` — usado só pelo `showView` na troca real de tela (ver acima).
+- `reset()` — usado só pelo `showView` na troca real de tela (ver acima). **FECHA as camadas
+  de verdade** (chama a `fecharFn` de cada uma, topo→base, sob a guarda `handlingPop`) — camadas
+  são `position:fixed` e sobrevivem à troca de `.screen`; só esvaziar a pilha deixava uma gaveta
+  aberta (ex.: perfil no logout) visível sobre a tela seguinte.
 - `has(id)` / `depth()` — consulta.
 
 Quando o "voltar" real fecha uma camada, ele chama a `fecharFn` registrada; o `remove` dentro dela

@@ -532,9 +532,23 @@ window.backNav = (function () {
     scheduleReconcile();
   }
 
-  // Troca de tela principal: as camadas pertencem à tela que está saindo.
+  // Troca de tela principal: as camadas pertencem à tela que está saindo —
+  // e precisam FECHAR de verdade, não só sair da pilha: gavetas/overlays são
+  // position:fixed e sobrevivem à troca de .screen (uma gaveta aberta no
+  // logout ficava visível SOBRE a tela de login). Fecha do topo para a base,
+  // como o "voltar" real; handlingPop torna o remove() interno de cada close
+  // um no-op (mesma guarda do popstate).
   function reset() {
-    if (stack.length) stack.length = 0;
+    if (stack.length) {
+      handlingPop = true;
+      try {
+        while (stack.length) {
+          const layer = stack.pop();
+          try { layer.close(); }
+          catch (e) { console.warn('[backNav] close no reset falhou:', layer.id, e); }
+        }
+      } finally { handlingPop = false; }
+    }
     scheduleReconcile();
   }
 

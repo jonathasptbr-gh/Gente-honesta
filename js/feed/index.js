@@ -3528,6 +3528,10 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     if (!confirmouLogout) return;
 
+    // Fecha a gaveta de perfil ANTES do loader/signOut: ela é position:fixed e
+    // sobreviveria à troca de tela (o backNav.reset do showView também fecha as
+    // camadas — isto aqui só garante o fechamento imediato, sem depender dele).
+    closeProfileSheet();
     document.getElementById('loader-global')?.classList.remove('u-hidden');
     try {
       window.appState.photoBlob = null;
