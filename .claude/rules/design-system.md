@@ -233,12 +233,12 @@ O badge de IC do feed é o **escudo com o número dentro** (`icBarHTML(ic, size)
 `feed/templates.js`, `.ic-bar` em `components/surfaces.css`). O `size` escala ao contexto (o badge
 deve ficar condizente com os vizinhos da linha): **padrão** (sem modificador) p/ cards com avatar
 grande (lista de pedidos, popup de indicados); **`--sm`** (1.3rem) p/ linhas compactas (comentários,
-divulgador de vaga, card de ajudante); **`--lg`** (2.15rem, nº um degrau maior) só no cabeçalho do
+card de ajudante); **`--lg`** (2.15rem, nº um degrau maior) só no cabeçalho do
 card de profissional (canto superior direito). Ao criar um novo uso, escolha o `size` pelo tamanho
 dos vizinhos — não deixe o padrão em linha compacta. O **fundo semitransparente** do escudo (cor do
 tier a 14%) vem do CSS (`.ic-bar__frame path { fill: currentColor; fill-opacity: 0.14 }`) — fonte
-única que vence o `fill="none"` do markup, então todo `.ic-bar` (inclusive os escudos hardcoded da
-lista de pedidos) fica no padrão. Na assinatura de comentário o **IC vem ANTES do nome** (à
+única que vence o `fill="none"` do markup, então todo `.ic-bar` fica no padrão. Na assinatura de
+comentário o **IC vem ANTES do nome** (à
 esquerda); nos demais contextos (pedido, vaga, ajudante) o IC segue DEPOIS do nome.
 
 > O **card do IC** no cadastro (`.ic-card`) tem detalhamento próprio em

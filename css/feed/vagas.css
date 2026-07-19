@@ -269,7 +269,15 @@
    sobre corpo cinza" do cadastro). Antes o container inteiro virava branco e
    sumia contra o fundo branco do verso do card. */
 .candid-req-obs[open] > .candid-req-obs-input {
-  animation: commentFadeIn 0.22s ease forwards;
+  animation: commentFadeIn 0.22s var(--ease) forwards;
+}
+
+/* Fade do textarea ao abrir a observação. (O keyframes não existia — a animação
+   nunca rodava e o campo aparecia seco; só fade, sem deslocamento, porque a
+   ALTURA do details já é animada em JS.) */
+@keyframes commentFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .candid-req-obs-label {

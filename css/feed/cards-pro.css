@@ -295,7 +295,7 @@
   flex: 1;
   padding: 10px var(--space-sm);
   background: var(--bg-soft);
-  color: var(--t-main);
+  color: var(--t-sub);   /* receita padrão de dispensa-sobre-claro (--bg-soft + --t-sub), igual aos irmãos --back/--share */
 }
 
 .agenda-list--indicate-mode .pro-card__back-btn--confirm-indicate {

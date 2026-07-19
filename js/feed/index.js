@@ -2410,6 +2410,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const writeHelperJSON = (key, val) => {
       try { localStorage.setItem(key, JSON.stringify(val)); } catch { /* storage indisponível */ }
     };
+    const removeHelperKey = (key) => {
+      try { localStorage.removeItem(key); } catch { /* storage indisponível */ }
+    };
 
     // ---- Sheet: abrir / fechar (as duas funções ficam sempre visíveis) ----
     const ajudanteSheet = document.getElementById('ajudante-sheet');
@@ -2523,7 +2526,7 @@ document.addEventListener('DOMContentLoaded', () => {
       list.innerHTML = '';
       result.classList.add('u-hidden');
       cancelBtn?.classList.add('u-hidden');
-      localStorage.removeItem(LS_HELPER_DRAW);
+      removeHelperKey(LS_HELPER_DRAW);
       form.classList.remove('u-hidden');
     };
 
@@ -2560,7 +2563,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'Cancelar pedido', 'help'
       );
       if (!ok) return;
-      localStorage.removeItem(LS_HELPER_DRAW);
+      removeHelperKey(LS_HELPER_DRAW);
       renderHelperCall();
     });
 

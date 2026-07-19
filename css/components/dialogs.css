@@ -40,6 +40,7 @@
   padding: var(--space-lg);
   background: var(--overlay);
   backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));   /* WebKit (iOS/Samsung Internet) exige o prefixo */
 }
 
 .dialog-box {

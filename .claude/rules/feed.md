@@ -112,7 +112,7 @@ arredondados, slide-down "gaveta", backdrop que dim SÓ o feed abaixo da barra. 
 próprio abridor da action bar vira botão de fechar (ícone `close` + "Fechar") via `.action-close-mode`
 (`feed/navigation.css`: fundo `--on-green-soft` + texto/ícone `--t-light`, `!important` para vencer o fundo de
 cada botão). Setters em `feed/index.js`: `setMyPedidoButton(mode)` e `setHistoricoButton(mode)` (3 estados
-`'natural'`/`'close'`/`'conclude'`), `setCriarVagaClose`/`setAjudanteClose` (via `innerHTML`), e o
+`'natural'`/`'close'`/`'conclude'`), `setVagaOpenerClose`/`setAjudanteClose` (via `innerHTML`), e o
 `#btn-toggle-filters` (ícone `tune`↔`close`). Como o container (z-300) cobre a barra, tocar no
 "Fechar" dispara o tap-outside do container → fecha. Todos os sheets têm tap-outside
 (`if (!closest('.…__panel')) close…`).
@@ -506,7 +506,7 @@ Contratar/WhatsApp/Compartilhar dão alerta; pedido/histórico/candidatura sem p
 - **Delegação de clique do flip PENDENTE:** o builder já é único (`buildProCard`), mas a delegação
   existe 2× (`bindProCardFlip` p/ popup/detalhe e o handler de `#agenda-list` com pin + modo
   indicação). Unificá-la exige parametrizar pin/indicação.
-- **Avatar SVG inline:** o mesmo data-URI aparece 7× em `index.html` (5 cinza + 2 branco); em
+- **Avatar SVG inline:** o mesmo data-URI aparece 10× em `index.html` (todos cinza); em
   `feed/index.js` já é a const `avatarSvg`. Dedup do HTML exigiria converter `<img>`→background (perde o
   swap de `src` do `#top-bar-avatar`) → dívida deliberada.
 - **Mock keyed por id:** `mockIndicatedByPost` redeclara objetos que já existem em `mockProfessionals`

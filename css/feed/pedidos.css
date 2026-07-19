@@ -239,9 +239,11 @@
 }
 
 /* Botão "Fechar" do popup de indicados — compõe .btn .btn--close (HTML); aqui só a
-   cor sobre o verde do sheet. */
+   cor sobre o verde do sheet (receita padrão de fechar-sobre-verde: --on-green-soft,
+   igual ao .action-close-mode — antes usava --on-green-faint e ficava mais apagado
+   que todos os outros botões de fechar). */
 .agenda-indicated__cancel {
-  background: var(--on-green-faint);
+  background: var(--on-green-soft);
   color: var(--t-light);
   font-size: var(--fs-5);
   padding: 9px var(--space-sm);

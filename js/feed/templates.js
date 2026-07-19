@@ -16,7 +16,7 @@ import { PEDIDO_STATUS, URGENCY } from '../core/domain.js';
 export const IC_SHIELD_SVG = `<svg class="ic-bar__frame" viewBox="0 0 24 26" aria-hidden="true"><path d="M12 1.6 L21.4 5.4 V12 C21.4 18.1 17.3 23.3 12 24.7 C6.7 23.3 2.6 18.1 2.6 12 V5.4 Z"/></svg>`;
 
 // `size` opcional escala o badge ao contexto (compartilha a linha com outros
-// elementos): 'sm' (compacto: comentários, divulgador de vaga, ajudante),
+// elementos): 'sm' (compacto: comentários, card de ajudante),
 // 'lg' (destaque: cabeçalho do card de profissional). Sem size = padrão (cards
 // com avatar grande: lista de pedidos, popup de indicados).
 export const icBarHTML = (ic, size) => {
