@@ -1982,41 +1982,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (backComments) backComments.scrollTop = 0;
   }
 
-  // Enquanto um card de profissional está ABERTO, TRAVA o scroll do container-mãe
-  // (lista de pros / popup de indicados / overlay de indicação). Sem isso, o scroll
-  // INTERNO dos comentários disputava o 1º gesto com o overscroll da lista mãe (o
-  // navegador roteava o pan inicial p/ o scroller ancestral): o overscroll da mãe
-  // acontecia ANTES de rolar os comentários. Com a mãe travada, o único scroller
-  // sob o dedo é a caixa de comentários. O card aberto cabe na viewport (settle já
-  // o trouxe à vista), então travar a mãe não esconde nada.
-  // Trava SÓ depois do settle (a fase que usa scrollableAncestor p/ achar a mãe);
-  // destrava ao começar a fechar / resetar.
-  let _lockedProScroller = null;
-  const unlockProScroller = () => {
-    if (_lockedProScroller) { _lockedProScroller.style.overflowY = ''; _lockedProScroller = null; }
-  };
-  const lockProScroller = (card) => {
-    unlockProScroller();
-    const sc = scrollableAncestor(card);   // null se a mãe nem rola (sem disputa)
-    if (sc) { sc.style.overflowY = 'hidden'; _lockedProScroller = sc; }
-  };
-
-  function proCardFlipToBack(card) {
-    const tl = flipCardToBack(card, PRO_CARD_CFG);
-    // Trava a mãe só quando o card assenta (e se ele seguir aberto — um accordion
-    // pode tê-lo resetado antes do settle resolver).
-    tl.promise.then(() => { if (card.classList.contains('pro-card--expanded')) lockProScroller(card); });
-    return tl;
-  }
+  function proCardFlipToBack(card)               { return flipCardToBack(card, PRO_CARD_CFG); }
   function proCardFlipToFront(card, onComplete)  {
-    unlockProScroller();   // libera a mãe antes de fechar
     return flipCardToFront(card, PRO_CARD_CFG, () => {
       resetProCardBack(card);
       if (onComplete) onComplete();
     });
   }
   const proCardForceReset = (card) => {
-    unlockProScroller();
     card.classList.remove('pro-card--selected');
     flipCardForceReset(card, PRO_CARD_CFG);
   };
@@ -3064,6 +3037,11 @@ document.addEventListener('DOMContentLoaded', () => {
       pulling = false;
     }, { passive: true });
     el.addEventListener('touchmove', (e) => {
+      // Guarda: o toque começou DENTRO de um scroller aninhado (comentários do verso
+      // do card). Não sequestra o gesto — o `preventDefault` do estique ROUBAVA o
+      // scroll interno dos comentários quando a lista mãe estava no topo (scrollTop 0):
+      // o overscroll disparava antes de rolar os comentários. Deixa o nested rolar nativo.
+      if (e.target.closest?.('.pro-card__back-comments')) return;
       // Guarda: só age se o elemento é DE FATO o scroller (conteúdo transborda).
       // No modo indicação #agenda-list vira overflow:visible (quem rola é o wrapper)
       // e seu scrollTop fica sempre 0 — sem esta guarda, o handler achava que estava

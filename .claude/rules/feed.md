@@ -360,14 +360,15 @@ o MESMO sistema de sombras do resto do app (ver `app-core.md`). A caixa de scrol
 card (quebra o padding lateral do `.pro-card__back` por margem negativa, respiro só por dentro) e usa
 `overscroll-behavior: contain`. `resetProCardBack(card)` só volta o `scrollTop` ao topo;
 `proCardFlipToFront` o chama no `onComplete` (verso já oculto, sem flash).
-**Trava do scroll da mãe enquanto o card está aberto:** `overscroll-behavior` sozinho NÃO resolve a
-disputa de gesto — o navegador roteia o 1º pan para o scroller ANCESTRAL (a lista de pros), então o
-overscroll da mãe acontecia antes de rolar os comentários. `proCardFlipToBack` trava o
-`scrollableAncestor(card)` (`overflowY:hidden`) DEPOIS do settle (a fase que precisa achá-lo); o card
-aberto cabe na viewport, então travar a mãe não esconde nada. `proCardFlipToFront`/`proCardForceReset`
-destravam. Um só `_lockedProScroller` por vez (só um card abre por vez; o accordion destrava um e
-trava o próximo). Vale p/ lista, popup de indicados e overlay de indicação (todos passam por esses
-wrappers).
+**Overscroll do topo NÃO rouba o scroll dos comentários:** `attachTopOverscroll` (estique elástico no
+topo dos 3 feeds) tem um `touchmove` `passive:false` que dá `preventDefault` quando a lista está no
+topo (`scrollTop<=0`) e o dedo arrasta p/ baixo. Como os comentários ficam DENTRO de `#agenda-list`, o
+touchmove deles borbulhava até esse handler e — com a lista no topo — o `preventDefault` MATAVA o
+scroll nativo dos comentários (o overscroll disparava antes de rolar os comentários; só depois de rolar
+e voltar é que passava). Guarda: `attachTopOverscroll` dá `return` cedo se `e.target.closest('.pro-card__back-comments')`
+— deixa o scroller aninhado rolar nativo; o estique da lista só age quando o toque começa FORA de um
+card. (Travar o scroll ancestral foi tentado e descartado: impede comparar rolando a lista com um card
+aberto.)
 **Delegação de flip é DUPLICADA (dívida aberta):** `bindProCardFlip` (popup/detalhe) e o handler de
 `#agenda-list` (com pin + modo indicação). Stubs de WhatsApp/Compartilhar centralizados em
 `comingSoon(label, title, icon)`.
