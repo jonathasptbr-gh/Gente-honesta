@@ -32,7 +32,9 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
 `window.resetAuthFlow()` (limpa auth + OTP + delega a `resetOnboardingForm`).
 
 **onboarding/onboarding.js:** `window.finishRegistration()`, `window.resetOnboardingForm()`,
-`window.startOnboardingTutorial()`.
+`window.startOnboardingTutorial()`, `window.enterProfileEdit()` (abre o form em modo edição —
+liga o modo, popula, snapshot, `showView`), `window.setOnboardingEditMode(on)`,
+`window.populateOnboardingFromState()`, `window.exitOnboardingEdit(restore)`.
 
 **install/install.js:** `window.deferredInstallPrompt`, `window.isStandalone()`,
 `window.prepareInstallView()`.
@@ -52,6 +54,8 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
   de `pro.pay.card`, nunca combinação). **`cash` nasce `true`** (Dinheiro pré-selecionado).
 - `profilePublic` — boolean, default `false` (o check pressupõe os dados profissionais
   preenchidos).
+- `editingProfile` — boolean; `true` enquanto o formulário do onboarding roda em MODO EDIÇÃO
+  (aberto pela gaveta de perfil, não no cadastro inicial). Ver "Modo edição" em `onboarding.md`.
 
 ## Roteamento SPA
 

@@ -229,7 +229,6 @@ abrir ao público.
 
 ## Próximas Features Previstas
 
-- Edição de perfil (reaproveitar formulário do onboarding).
 - Persistência de profissionais no Firestore.
 - Firebase Cloud Messaging (notificações push).
 - Persistência do pedido e da candidatura em vagas no Firestore (UI já existe — falta backend).

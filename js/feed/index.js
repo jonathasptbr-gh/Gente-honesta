@@ -3712,8 +3712,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.closest('.historico-sheet__panel')) closeProfileSheet();
   });
   document.getElementById('btn-profile-logout')?.addEventListener('click', doLogout);
-  document.getElementById('btn-profile-edit')?.addEventListener('click',
-    () => comingSoon('Editar perfil', 'Edição de perfil', 'edit'));
+  // Editar → reabre o formulário do onboarding em MODO EDIÇÃO, já preenchido com
+  // os dados do perfil (perfil e cadastro compartilham o mesmo appState).
+  // enterProfileEdit (onboarding.js) liga o modo, popula, tira o snapshot p/
+  // desfazer e abre o formulário.
+  document.getElementById('btn-profile-edit')?.addEventListener('click', () => {
+    closeProfileSheet();
+    if (typeof window.enterProfileEdit === 'function') window.enterProfileEdit();
+  });
   document.getElementById('btn-profile-share')?.addEventListener('click', shareProfile);
 
 });

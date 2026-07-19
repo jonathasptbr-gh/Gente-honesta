@@ -245,6 +245,15 @@ window.finishRegistration = async function() {
     // updateProfile não dispara onAuthStateChanged — removemos o loader manualmente aqui
     document.getElementById('loader-global')?.classList.add('u-hidden');
 
+    // EDIÇÃO DE PERFIL: salvou → volta DIRETO ao feed (sem a tela-guia de
+    // instalação, que só faz sentido no primeiro cadastro). As mudanças já estão
+    // no appState; exitOnboardingEdit(false) descarta o snapshot e limpa o modo.
+    if (window.appState.editingProfile) {
+      if (typeof window.exitOnboardingEdit === 'function') window.exitOnboardingEdit(false);
+      else if (typeof showView === 'function') showView('view-feed');
+      return;
+    }
+
     // PÓS-CADASTRO: se o app já roda como PWA instalado, vai direto ao feed.
     // Caso contrário, exibe (uma única vez, aqui) a tela-guia de instalação.
     if (typeof showView === 'function') {
@@ -385,6 +394,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // INTERAÇÕES DO DOM - TELA - ONBOARDING - Botão cancelar: faz logout e reset completo
   document.getElementById('btn-onboarding-cancel')?.addEventListener('click', async () => {
+    // MODO EDIÇÃO: "Cancelar" DESCARTA as mudanças e volta ao feed — NÃO encerra
+    // a sessão (o logout só vale no cadastro inicial).
+    if (window.appState.editingProfile) {
+      window.exitOnboardingEdit(true);
+      return;
+    }
     const confirmed = await customConfirm(
       "Ao voltar, sua sessão será encerrada e você precisará confirmar seu número novamente.",
       "Sair do cadastro?",
@@ -921,5 +936,143 @@ Importante: essa é só uma escolha inicial. Com o tempo, as avaliações que vo
     chkProfilePublic.setAttribute('aria-pressed', String(on));
     window.appState.profilePublic = on;
   });
+
+  // =========================================================================
+  // MODO EDIÇÃO DE PERFIL — reaproveita ESTE formulário (aberto pelo botão
+  // "Editar" da gaveta de perfil, em feed/index.js). O perfil e o cadastro
+  // compartilham o MESMO window.appState, então "levar os dados" é sobretudo
+  // refletir o estado nos widgets do form. Diferenças do modo edição:
+  //   • título "Editar Perfil" + botão "Salvar alterações";
+  //   • "Cancelar" volta ao feed e DESCARTA as mudanças (não faz logout);
+  //   • ao salvar, volta direto ao feed (finishRegistration acima).
+  // Definido AQUI dentro para capturar os helpers do closure (renderSelectedTags,
+  // applyServiceCard, setPaymentChipActive, serviceCards).
+  // =========================================================================
+  let editSnapshot = null;
+
+  const snapshotProfileState = () => {
+    const st = window.appState;
+    editSnapshot = {
+      photoBlob: st.photoBlob,
+      selectedTags: [...(st.selectedTags || [])],
+      locationConfirmed: st.locationConfirmed,
+      serviceProfile: { ...st.serviceProfile },
+      paymentMethods: { ...st.paymentMethods },
+      profilePublic: st.profilePublic,
+      name: document.getElementById('inp-name')?.value || '',
+      surname: document.getElementById('inp-surname')?.value || '',
+      bio: document.getElementById('inp-bio')?.value || '',
+    };
+  };
+
+  const restoreProfileState = () => {
+    if (!editSnapshot) return;
+    const st = window.appState;
+    st.photoBlob = editSnapshot.photoBlob;
+    st.selectedTags = [...editSnapshot.selectedTags];
+    st.locationConfirmed = editSnapshot.locationConfirmed;
+    st.serviceProfile = { ...editSnapshot.serviceProfile };
+    st.paymentMethods = { ...editSnapshot.paymentMethods };
+    st.profilePublic = editSnapshot.profilePublic;
+    const n = document.getElementById('inp-name');    if (n) n.value = editSnapshot.name;
+    const s = document.getElementById('inp-surname'); if (s) s.value = editSnapshot.surname;
+    const b = document.getElementById('inp-bio');     if (b) b.value = editSnapshot.bio;
+    editSnapshot = null;
+  };
+
+  // Liga/desliga o modo edição (título + rótulo do botão + flag).
+  window.setOnboardingEditMode = (on) => {
+    window.appState.editingProfile = on;
+    const title = document.querySelector('#view-onboarding .screen__title');
+    if (title) title.textContent = on ? 'Editar Perfil' : 'Complete seu Perfil';
+    const finishBtn = document.getElementById('btn-finish-onboarding');
+    if (finishBtn) finishBtn.textContent = on ? 'Salvar alterações' : 'Concluir Cadastro';
+  };
+
+  // Ponto de entrada da edição (chamado pelo botão "Editar" da gaveta de perfil):
+  // liga o modo, reflete o estado nos campos e SÓ ENTÃO tira o snapshot (para o
+  // Cancelar desfazer a partir do estado JÁ populado), e abre o formulário.
+  window.enterProfileEdit = () => {
+    window.setOnboardingEditMode(true);
+    window.populateOnboardingFromState();
+    snapshotProfileState();
+    if (typeof showView === 'function') showView('view-onboarding');
+  };
+
+  // Sai da edição para o feed. `restore` = desfaz as mudanças (Cancelar);
+  // sem restore = mantém (salvou).
+  window.exitOnboardingEdit = (restore) => {
+    if (restore) restoreProfileState(); else editSnapshot = null;
+    window.setOnboardingEditMode(false);
+    if (typeof showView === 'function') showView('view-feed');
+    if (typeof window.syncProfileAvatar === 'function') window.syncProfileAvatar();
+  };
+
+  // Reflete o appState atual (+ displayName) nos campos do formulário, para o
+  // usuário editar já vendo seus dados. Idempotente sobre o appState.
+  window.populateOnboardingFromState = () => {
+    const st = window.appState;
+
+    // Nome/sobrenome: reconstrói do displayName SÓ se os inputs estiverem vazios
+    // (após um reload o DOM some, mas o displayName persiste no Firebase; dentro
+    // da sessão preserva a divisão exata já digitada).
+    const dn = (window.auth?.currentUser?.displayName || '').trim();
+    const nameEl = document.getElementById('inp-name');
+    const surEl  = document.getElementById('inp-surname');
+    if (dn && nameEl && surEl && !nameEl.value.trim() && !surEl.value.trim()) {
+      const parts = dn.split(/\s+/);
+      nameEl.value = parts.shift();
+      surEl.value  = parts.join(' ');
+    }
+
+    // Foto (mesma pintura da confirmação da câmera).
+    const preview = document.getElementById('media-preview');
+    const placeholder = document.getElementById('media-placeholder');
+    if (preview && st.photoBlob) {
+      preview.style.backgroundImage = `url(${st.photoBlob})`;
+      preview.classList.add('media-capture__display--captured');
+      preview.classList.remove('media-capture__display--error');
+      placeholder?.classList.add('u-hidden');
+    }
+
+    // Áreas de atuação (tags).
+    renderSelectedTags();
+
+    // Localização confirmada.
+    if (st.locationConfirmed) {
+      const locBtn  = document.getElementById('btn-register-location');
+      const locIcon = document.getElementById('icon-location-status');
+      const locText = document.getElementById('text-location-status');
+      locBtn?.classList.remove('location-check--error', 'location-check--error-validation');
+      locBtn?.classList.add('location-check--confirmed');
+      if (locIcon) window.setIcon(locIcon, 'check_circle');
+      if (locText) locText.innerText = 'Região registrada com sucesso.';
+    }
+
+    // Padrão de serviço: o card cujo q/a/v casa com o estado (fallback "Padrão").
+    const sp = st.serviceProfile || {};
+    const card = [...serviceCards].find(c =>
+      Number(c.dataset.q) === sp.quality &&
+      Number(c.dataset.a) === sp.agility &&
+      Number(c.dataset.v) === sp.price
+    ) || document.querySelector('#container-service-choice [data-service="padrao"]');
+    if (card) applyServiceCard(card);
+
+    // Métodos de pagamento.
+    const pm = st.paymentMethods || {};
+    document.querySelectorAll('#container-payment-methods .chip, #container-payment-nf .chip')
+      .forEach(chip => setPaymentChipActive(chip, !!pm[chip.dataset.payment]));
+    document.querySelectorAll('#container-payment-card .chip').forEach(chip => {
+      const val = chip.dataset.card === 'debit' ? 'debit' : Number(chip.dataset.card);
+      setPaymentChipActive(chip, pm.card === val);
+    });
+
+    // Perfil público.
+    document.getElementById('chk-profile-public')?.setAttribute('aria-pressed', String(!!st.profilePublic));
+
+    // Abre a seção de detalhes profissionais se houver dados a mostrar/editar.
+    const hasProData = (st.selectedTags?.length > 0) || !!document.getElementById('inp-bio')?.value.trim();
+    setProDetailsOpen(hasProData, false);
+  };
 
 });

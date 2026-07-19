@@ -85,6 +85,21 @@ sinaliza a seleção com `.chip__check` à direita (`radio_button_unchecked`↔`
 `--info-blue`, sem borda), igual às `.tag-pill`. Estado em `window.appState.paymentMethods`
 (`{cash, pix, card, nf}`; `cash` nasce `true`), resetado em `resetOnboardingForm`.
 
+## Modo edição (reaproveita o formulário)
+
+O botão "Editar" da gaveta de perfil (`#profile-sheet`, em `feed/index.js`) reabre ESTE formulário em
+**modo edição** via `window.enterProfileEdit()` (`onboarding/onboarding.js`): liga o modo
+(`setOnboardingEditMode(true)` → título "Editar Perfil" + botão "Salvar alterações" +
+`appState.editingProfile=true`), reflete o estado nos campos (`populateOnboardingFromState` — nome/
+sobrenome do `displayName`, foto, tags, localização, padrão de serviço, pagamento, perfil público),
+tira um **snapshot** e abre `#view-onboarding`. Como perfil e cadastro compartilham o MESMO
+`appState`, "levar os dados" é sobretudo refletir o estado nos widgets. **Cancelar** em modo edição
+NÃO faz logout: `exitOnboardingEdit(true)` DESFAZ as mudanças (restaura o snapshot) e volta ao feed;
+**Salvar** (`finishRegistration`) faz `updateProfile` e, se `editingProfile`, volta direto ao feed
+(`exitOnboardingEdit(false)`, sem a tela-guia de instalação). Limitação do período de testes: foto/
+tags/bio/localização não persistem (sem Firestore), então após um reload só o `displayName` sobrevive
+— editar depois de recarregar pede repreencher o restante.
+
 ## Check "perfil público"
 
 Ao final do painel, `#chk-profile-public` (`.profile-public-check`, botão-card `card card--shadow` com
