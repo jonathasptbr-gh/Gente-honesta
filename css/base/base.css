@@ -166,6 +166,43 @@
      fade). Fonte única; antes 0.22s (abas) e 0.25s (perfil) divergiam. */
   --fade-bar-zone: 0.22s;
 
+  /* Fade ÚNICO dos backdrops (véus das gavetas/popups) — antes 0.45s cru 4×. */
+  --fade-backdrop: 0.45s;
+
+  /* Métricas de controle — antes literais repetidos (o acoplamento era por
+     coincidência de número, não por token):
+     --control-h  = altura/lado padrão dos CONTROLES COMPACTOS (botões/avatar/X
+                    da action bar, busca, inputs de filtro, X de remover linha);
+     --touch-min  = alvo de toque mínimo (padrão do .btn--icon e das abas). */
+  --control-h: 40px;
+  --touch-min: 44px;
+
+  /* Barra de rolagem fina "sempre visível" (regra 9): largura + raio do thumb.
+     A COR do thumb segue por contexto (--scroll-thumb-dark no claro,
+     --on-green-muted no verde). */
+  --scrollbar-w: 5px;
+  --scrollbar-thumb-r: 4px;
+
+  /* Respiro do fim das listas do feed p/ o conteúdo passar ACIMA dos controles
+     flutuantes da bottom-bar — antes 100px cru 4×. */
+  --bottombar-clearance: 100px;
+
+  /* Raio dos cards-balão (pedido/histórico; um canto fica quase reto p/ o
+     "rabinho" — o lado do canto varia por contexto). */
+  --radius-balloon: 18px;
+
+  /* ESCALA DE CAMADAS (z-index) — hierarquia macro nomeada; empilhamento
+     INTERNO de componente (0/1/2/3) segue local. O loader do CSS crítico
+     inline no <head> mantém 9999 cru (roda antes desta folha carregar). */
+  --z-bar: 25;          /* bottom-bar flutuante do feed */
+  --z-dropdown: 50;     /* autocomplete de área (onboarding) */
+  --z-indicate: 200;    /* overlay do modo indicação */
+  --z-sheet: 300;       /* gavetas/sheets/popup de indicados */
+  --z-tutorial: 9500;   /* véu do tutorial (+1 p/ o balão) */
+  --z-dialog: 9999;     /* véu dos diálogos (par do loader crítico) */
+  --z-banner: 10000;    /* banner de atualização do PWA */
+  --z-block: 99999;     /* bloqueios desktop/paisagem */
+
   /* Espaçamento */
   --space-xs: 8px;
   --space-sm: 12px;

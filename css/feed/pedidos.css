@@ -15,7 +15,7 @@
 
 .pedido-item {
   padding: 14px;
-  border-radius: 18px 18px 18px 4px;
+  border-radius: var(--radius-balloon) var(--radius-balloon) var(--radius-balloon) 4px;   /* balão: canto inferior ESQUERDO quase reto */
   /* Padrão dos demais cards: fundo BRANCO + sombra (era o único feed com fill
      translúcido --card-on-green sobre o verde). */
   background: var(--bg-white);
@@ -238,13 +238,9 @@
   flex-shrink: 0;
 }
 
-/* Botão "Fechar" do popup de indicados — compõe .btn .btn--close (HTML); aqui só a
-   cor sobre o verde do sheet (receita padrão de fechar-sobre-verde: --on-green-soft,
-   igual ao .action-close-mode — antes usava --on-green-faint e ficava mais apagado
-   que todos os outros botões de fechar). */
+/* Botão "Fechar" do popup de indicados — compõe .btn .btn--close e a receita
+   única .btn--close-on-green (HTML); aqui só a métrica compacta. */
 .agenda-indicated__cancel {
-  background: var(--on-green-soft);
-  color: var(--t-light);
   font-size: var(--fs-5);
   padding: 9px var(--space-sm);
   flex-shrink: 0;
@@ -259,7 +255,7 @@
 .indicate-overlay {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: var(--z-indicate);
   display: flex;
   flex-direction: column;
 }
@@ -273,7 +269,7 @@
   backdrop-filter: blur(var(--blur-sm));
   -webkit-backdrop-filter: blur(var(--blur-sm));
   opacity: 0;
-  transition: opacity 0.45s ease;   /* duração única de fade dos backdrops (padrão) */
+  transition: opacity var(--fade-backdrop) var(--ease);   /* duração única de fade dos backdrops (padrão) */
 }
 
 .indicate-overlay--open .indicate-overlay__backdrop {
@@ -331,15 +327,13 @@
 .indicate-overlay__bar .agenda-filters__search-wrap { order: 0; }
 .indicate-overlay__close { order: 1; }
 
-/* Fechar: quadrado translúcido 40px — MESMO padrão do botão de contratos da
-   barra (retângulo padrão radius-md + fade no toque). */
+/* Fechar: quadrado de controle — a COR vem da receita única .btn--close-on-green
+   (buttons.css, composta no HTML); aqui só o formato + fade no toque. */
 .indicate-overlay__close {
-  width: 40px;
-  height: 40px;
+  width: var(--control-h);
+  height: var(--control-h);
   flex-shrink: 0;
   border-radius: var(--radius-md);
-  background: var(--on-green-soft);
-  color: var(--t-light);
 }
 .indicate-overlay__close:active { transform: none; opacity: 0.6; }
 
@@ -373,14 +367,14 @@
 .indicated-popup {
   position: fixed;
   inset: 0;
-  z-index: 300;
+  z-index: var(--z-sheet);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   pointer-events: none;
   visibility: hidden;
   /* Mantém visível durante a animação de fechamento (acompanha a duração do slide) */
-  transition: visibility 0s linear var(--indicated-sheet-dur, 0.45s);
+  transition: visibility 0s linear var(--indicated-sheet-dur, var(--fade-backdrop));
 }
 
 .indicated-popup--open {
@@ -396,7 +390,7 @@
   backdrop-filter: blur(var(--blur-sm));
   -webkit-backdrop-filter: blur(var(--blur-sm));
   opacity: 0;
-  transition: opacity 0.45s ease;   /* duração única de fade dos backdrops */
+  transition: opacity var(--fade-backdrop) var(--ease);   /* duração única de fade dos backdrops */
 }
 
 .indicated-popup--open .indicated-popup__backdrop {
@@ -415,7 +409,7 @@
   max-height: calc(var(--app-height, 100dvh) * 0.92);
   overflow: hidden;
   transform: translateY(100%);
-  transition: transform var(--indicated-sheet-dur, 0.45s) var(--sheet-ease);
+  transition: transform var(--indicated-sheet-dur, var(--fade-backdrop)) var(--sheet-ease);
 }
 
 .indicated-popup--open .indicated-popup__sheet {
@@ -449,8 +443,8 @@
 }
 
 /* Barra SEMPRE visível (não overlay): scrollbar estilizado do WebKit é persistente. */
-.indicated-popup__scroll::-webkit-scrollbar { width: 5px; }
-.indicated-popup__scroll::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
+.indicated-popup__scroll::-webkit-scrollbar { width: var(--scrollbar-w); }
+.indicated-popup__scroll::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: var(--scrollbar-thumb-r); }
 
 .indicated-popup__list {
   display: flex;

@@ -60,7 +60,21 @@ DIRECIONAL: `MOVE_SPEED_OPEN` (1.1, abertura suave) ≠ `MOVE_SPEED_CLOSE` (1.5,
 (sobre verde usa-se `--on-green-muted`).
 
 **Blur:** `--blur-sm` (5px, backdrops), `--blur-lg` (14px, faixa da bottom-bar). O tutorial
-mantém `blur(1.5px)` próprio.
+mantém `blur(1.5px)` próprio. `backdrop-filter` SEMPRE em par com `-webkit-backdrop-filter`.
+
+**Fades nomeados:** `--fade-backdrop` (0.45s, véus das gavetas/popups) e `--fade-bar-zone`
+(0.22s, crossfade da zona do meio da action bar + overlay Sair/Editar — é o MESMO fade).
+
+**Métricas de controle:** `--control-h` (40px — botões/avatar/X da action bar, busca, inputs de
+filtro, X de remover linha) e `--touch-min` (44px — `.btn--icon`, abas). **Scrollbar fina:**
+`--scrollbar-w` (5px) + `--scrollbar-thumb-r` (4px). **Feed:** `--bottombar-clearance` (100px, o
+respiro do fim das listas sob a bottom-bar). **Balões:** `--radius-balloon` (18px, cards de
+pedido/histórico; o canto "quase reto" de 4px varia de lado por contexto).
+
+**Escala de camadas (`--z-*`):** `--z-bar` (25) < `--z-dropdown` (50) < `--z-indicate` (200) <
+`--z-sheet` (300) < `--z-tutorial` (9500) < `--z-dialog` (9999) < `--z-banner` (10000) <
+`--z-block` (99999). Camada nova = degrau da escala, nunca número solto; empilhamento INTERNO de
+componente (0–3) segue local. (O loader do CSS crítico inline no `<head>` mantém 9999 cru.)
 
 **Toque (`:active`):** `--press-scale` (0.97, padrão do `.btn` e maioria); `--press-scale-subtle`
 (0.99, alvos GRANDES: cards/linhas). Alvos minúsculos mantêm scales próprios (0.85 do ícone de
@@ -163,8 +177,14 @@ Regra de ouro: **"card" = SUPERFÍCIE (contêiner); "botão" = AÇÃO.** Se o el
    `.location-check`, `.service-choice__card`).
 2. **Botão / Ação (`.btn` + variantes)** — executa uma ação. `<button>` (ou `<a>` se navega).
    TODO botão de ação herda `.btn` (sem borda, flex-center, cursor, transição, `:active`).
-   Estilo: `--primary/--accent/--outline/--white/--danger/--text`. Estrutura:
-   `--large/--pill/--close/--icon` (`--icon` = quadrado só-ícone 44px).
+   Estilo: `--primary/--accent/--outline/--text/--close-on-green`. Estrutura:
+   `--large/--pill/--close/--icon` (`--icon` = quadrado só-ícone `--touch-min`).
+   **`--close-on-green`** = receita ÚNICA de fechar/dispensar sobre VERDE (fill
+   `--on-green-soft` + claro); os fechos DINÂMICOS (`.action-close-mode`,
+   `.agenda-filters__icon-btn--active`, Cancelar do diálogo) são ESPELHOS dela com
+   `!important`/especificidade — mudou a receita, mude os 4 juntos. **`--outline`** =
+   dispensa/ação secundária sobre CLARO (`--bg-soft` + `--t-sub`): composta nos botões de
+   verso dos cards (voltar/compartilhar/cancelar-indicação) e nos mini-botões de contrato.
 3. **Token / Pílula (`.chip` + `--sm/--md`)** — item selecionável/filtro/toggle. `<button>`.
    Estado ativo SEMPRE azul (par de contraste do contexto).
 4. **Campo (`.input-text`)** — entrada de texto. `<input>`/`<textarea>`; sem borda, foco por

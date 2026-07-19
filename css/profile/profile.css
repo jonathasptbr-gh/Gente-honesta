@@ -28,8 +28,8 @@
   scrollbar-width: thin;
   scrollbar-color: var(--on-green-muted) transparent;
 }
-.profile-sheet__panel::-webkit-scrollbar { width: 5px; }
-.profile-sheet__panel::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
+.profile-sheet__panel::-webkit-scrollbar { width: var(--scrollbar-w); }
+.profile-sheet__panel::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: var(--scrollbar-thumb-r); }
 
 /* ── Ações do perfil NA ACTION BAR (Sair/Editar) ─────────────────────────
    OVERLAY sobre a ZONA DO MEIO enquanto a gaveta está aberta — cobre o
@@ -65,7 +65,7 @@
 .agenda-filters__profile-btn {
   flex: 1;
   min-width: 0;
-  height: 40px;              /* casa com o avatar (40px) e o par de Vagas */
+  height: var(--control-h);              /* casa com o avatar (40px) e o par de Vagas */
   padding: 0;                /* zera o padding 16px do .btn */
   gap: 4px;   /* vão ícone↔texto compacto (<= margem lateral), igual aos demais botões do topo */
   font-size: var(--fs-6);
@@ -137,16 +137,14 @@
 }
 
 /* ── Avatar da action bar vira o botão de FECHAR (X), no MESMO lugar ──────
-   Enquanto a gaveta está aberta: esconde a foto e mostra o X (círculo no
-   padrão de fechar sobre verde: fill --on-green-soft + ícone claro). O Fechar
-   é o ÚNICO botão do perfil que segue redondo (exceção pedida). */
+   Enquanto a gaveta está aberta: esconde a foto e mostra o X (a COR vem da
+   receita única .btn--close-on-green, composta no HTML). O Fechar é o ÚNICO
+   botão do perfil que segue redondo (exceção pedida). */
 .agenda-filters__profile-close {
   display: none;
-  width: 40px;
-  height: 40px;
+  width: var(--control-h);
+  height: var(--control-h);
   border-radius: 50%;
-  background: var(--on-green-soft);
-  color: var(--t-light);
   align-items: center;
   justify-content: center;
 }

@@ -8,7 +8,7 @@
 .tutorial-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9500;
+  z-index: var(--z-tutorial);
   pointer-events: none;
 }
 
@@ -47,7 +47,7 @@
      o balão nasce sem top/left definidos e "pisca" no canto padrão da tela
      por um instante antes de saltar pro lugar certo. */
   visibility: hidden;
-  z-index: 9501;
+  z-index: calc(var(--z-tutorial) + 1);
   pointer-events: auto;
   width: min(320px, calc(100% - 48px));
   background: var(--bg-white);

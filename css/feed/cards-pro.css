@@ -43,7 +43,7 @@
 .pro-card__flipper {
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.5s var(--ease);
 }
 
 .pro-card--flipped .pro-card__flipper {
@@ -188,8 +188,8 @@
 
 /* Barra SEMPRE visível — verso do card de profissional expandido (comentários).
    Fundo claro → thumb escuro translúcido. */
-.pro-card__back-comments::-webkit-scrollbar { width: 5px; }
-.pro-card__back-comments::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
+.pro-card__back-comments::-webkit-scrollbar { width: var(--scrollbar-w); }
+.pro-card__back-comments::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: var(--scrollbar-thumb-r); }
 
 .pro-card__comments-list {
   display: flex;
@@ -263,17 +263,8 @@
   color: var(--t-light);
 }
 
-/* tamanho quadrado 44px vem de .btn--icon (HTML) */
-.pro-card__back-btn--back {
-  background: var(--bg-soft);
-  color: var(--t-sub);
-}
-
-/* tamanho quadrado 44px vem de .btn--icon (HTML) */
-.pro-card__back-btn--share {
-  background: var(--bg-soft);
-  color: var(--t-sub);
-}
+/* Voltar/Compartilhar: tamanho quadrado vem de .btn--icon e a COR da primitiva
+   .btn--outline (ambos compostos no template) — sem bloco de cor próprio. */
 
 /* Botões de modo indicação — ocultos por padrão, visíveis quando o card está em modo indicação */
 .pro-card__back-btn--cancel-indicate,
@@ -294,8 +285,7 @@
   display: inline-flex;
   flex: 1;
   padding: 10px var(--space-sm);
-  background: var(--bg-soft);
-  color: var(--t-sub);   /* receita padrão de dispensa-sobre-claro (--bg-soft + --t-sub), igual aos irmãos --back/--share */
+  /* cor: primitiva .btn--outline (composta no template), igual aos irmãos --back/--share */
 }
 
 .agenda-list--indicate-mode .pro-card__back-btn--confirm-indicate {

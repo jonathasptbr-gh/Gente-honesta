@@ -6,7 +6,7 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: var(--space-sm) var(--space-md);
-  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--bottombar-clearance) + env(safe-area-inset-bottom, 0px));
   background: var(--bg-canvas);
   scrollbar-width: none;
 }
@@ -41,7 +41,7 @@
 .vaga-card__flipper {
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.55s var(--ease);
 }
 
 .vaga-card--flipped .vaga-card__flipper {
@@ -107,8 +107,8 @@
 }
 
 /* Barra SEMPRE visível — formulário de candidatura no verso do card de vaga. */
-.vaga-card__back-form::-webkit-scrollbar { width: 5px; }
-.vaga-card__back-form::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
+.vaga-card__back-form::-webkit-scrollbar { width: var(--scrollbar-w); }
+.vaga-card__back-form::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: var(--scrollbar-thumb-r); }
 
 /* Footer: botão voltar + botão enviar lado a lado */
 .vaga-card__back-footer {
@@ -121,13 +121,16 @@
   box-shadow: var(--shadow-up);
 }
 
-/* Botão voltar no footer — quadrado, mesmo height que o submit */
+/* Botão voltar no footer — quadrado, mesmo height que o submit. ESPELHO da
+   receita de dispensa-sobre-claro (.btn--outline: --bg-soft + --t-sub); bloco
+   próprio porque a altura ESTICA com o rodapé (compor .btn--icon travaria 44px)
+   e o :active troca o fundo em vez de escalar. */
 .vaga-card__btn-back {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 44px;
+  width: var(--touch-min);
   background: var(--bg-soft);
   border-radius: var(--radius-md);
   cursor: pointer;

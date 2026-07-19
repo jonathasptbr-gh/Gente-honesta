@@ -10,7 +10,7 @@
 html.is-desktop .desktop-block {
   position: fixed;
   inset: 0;
-  z-index: 99999;
+  z-index: var(--z-block);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -67,7 +67,7 @@ html.is-desktop .overlay-dialog {
 html.is-landscape:not(.is-desktop) .rotate-block {
   position: fixed;
   inset: 0;
-  z-index: 99999;
+  z-index: var(--z-block);
   display: flex;
   flex-direction: column;
   align-items: center;

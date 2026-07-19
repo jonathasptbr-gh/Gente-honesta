@@ -5,7 +5,7 @@
 .pedido-sheet {
   position: fixed;
   inset: 0;
-  z-index: 300;
+  z-index: var(--z-sheet);
   pointer-events: none;
   visibility: hidden;
   /* Container = APENAS captador de toques edge-to-edge (inset:0) para rotear o
@@ -16,7 +16,9 @@
      fim do fechamento (o layer do painel des-compositava e a máscara não era
      aplicada por 1 quadro). overflow:hidden num wrapper real não tem esse
      artefato. */
-  transition: visibility 0s linear 0.5s;
+  /* Linger = a MESMA duração do slide de saída do painel (--sheet-close-dur,
+     setada no container pelo anchorBelowActionBar) — antes era 0.5s congelado. */
+  transition: visibility 0s linear var(--sheet-close-dur, 0.5s);
 }
 
 .pedido-sheet--open {
@@ -49,7 +51,7 @@
   bottom: 0;
   background: var(--overlay);
   opacity: 0;
-  transition: opacity 0.45s ease;
+  transition: opacity var(--fade-backdrop) var(--ease);
 }
 
 .pedido-sheet--open .pedido-sheet__backdrop { opacity: 1; }
@@ -129,8 +131,8 @@
 
 /* Barra SEMPRE visível (formulários criar pedido/vaga, detalhe do pedido).
    Thumb ESCURO: o painel agora é claro. */
-.pedido-sheet__body::-webkit-scrollbar { width: 5px; }
-.pedido-sheet__body::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
+.pedido-sheet__body::-webkit-scrollbar { width: var(--scrollbar-w); }
+.pedido-sheet__body::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: var(--scrollbar-thumb-r); }
 
 .pedido-sheet__state {
   display: flex;
@@ -347,8 +349,8 @@
 /* Botão de remover linha (X) — discreto, card branco sobre o corpo cinza */
 .vaga-dyn-remove {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: var(--control-h);
+  height: var(--control-h);
   display: flex;
   align-items: center;
   justify-content: center;

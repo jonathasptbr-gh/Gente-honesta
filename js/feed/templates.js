@@ -11,8 +11,8 @@ import { PEDIDO_STATUS, URGENCY } from '../core/domain.js';
 // currentColor + número herdam a cor do container .ic-bar--<tier>). O mesmo
 // formato de escudo usado no app. Fonte única do SVG:
 // Só o path do escudo; sem stroke/fill no markup — preenchimento sólido (tom
-// claro do tier) e sombra forte de contorno vêm do CSS (.ic-bar__frame[ path]),
-// fonte única que aplica igual aos escudos hardcoded da lista de pedidos.
+// claro do tier) e sombra forte de contorno vêm do CSS (.ic-bar__frame path),
+// fonte única para todo .ic-bar.
 export const IC_SHIELD_SVG = `<svg class="ic-bar__frame" viewBox="0 0 24 26" aria-hidden="true"><path d="M12 1.6 L21.4 5.4 V12 C21.4 18.1 17.3 23.3 12 24.7 C6.7 23.3 2.6 18.1 2.6 12 V5.4 Z"/></svg>`;
 
 // `size` opcional escala o badge ao contexto (compartilha a linha com outros
@@ -75,16 +75,16 @@ export const proBackHTML = () => {
         <div class="pro-card__comments-list">${commentsHTML}</div>
       </div>
       <div class="pro-card__back-actions">
-        <button type="button" class="btn btn--icon pro-card__back-btn pro-card__back-btn--back" aria-label="Voltar">
+        <button type="button" class="btn btn--icon btn--outline pro-card__back-btn pro-card__back-btn--back" aria-label="Voltar">
           <svg class="icon" aria-hidden="true"><use href="#ic-arrow_back"></use></svg>
         </button>
         <button type="button" class="btn pro-card__back-btn pro-card__back-btn--whatsapp">
           <svg class="icon" aria-hidden="true"><use href="#ic-chat"></use></svg>Conversar no WhatsApp
         </button>
-        <button type="button" class="btn btn--icon pro-card__back-btn pro-card__back-btn--share" aria-label="Compartilhar">
+        <button type="button" class="btn btn--icon btn--outline pro-card__back-btn pro-card__back-btn--share" aria-label="Compartilhar">
           <svg class="icon" aria-hidden="true"><use href="#ic-share"></use></svg>
         </button>
-        <button type="button" class="btn pro-card__back-btn pro-card__back-btn--cancel-indicate">Cancelar</button>
+        <button type="button" class="btn btn--outline pro-card__back-btn pro-card__back-btn--cancel-indicate">Cancelar</button>
         <button type="button" class="btn pro-card__back-btn pro-card__back-btn--confirm-indicate">
           <svg class="icon" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar
         </button>

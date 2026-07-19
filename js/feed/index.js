@@ -52,9 +52,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const panel = el && el.querySelector('.pedido-sheet__panel, .historico-sheet__panel');
     if (panel && window.moveMs) {
       const h = panel.offsetHeight;
-      panel.style.setProperty('--sheet-open-dur',  `${window.moveMs(h, window.MOVE_SPEED_OPEN)}ms`);
-      panel.style.setProperty('--sheet-close-dur', `${window.moveMs(h, window.MOVE_SPEED_CLOSE)}ms`);
+      // Setados no CONTAINER (el), não no painel: o painel HERDA os vars, e o
+      // linger de visibility do próprio container (que segura a camada visível
+      // durante o fecho) também os enxerga — var não sobe de filho p/ pai.
+      el.style.setProperty('--sheet-open-dur',  `${window.moveMs(h, window.MOVE_SPEED_OPEN)}ms`);
+      el.style.setProperty('--sheet-close-dur', `${window.moveMs(h, window.MOVE_SPEED_CLOSE)}ms`);
     }
+  }
+
+  // A11y única dos ABRIDORES de gaveta: todo setter de modo sincroniza
+  // aria-expanded (aberto = botão em modo Fechar/Concluir). function hoistada;
+  // chamada por TODOS os setters de abridor (contratos, vaga, diárias, pedido,
+  // histórico; o avatar de perfil seta direto em setProfileAvatarClose).
+  function syncOpenerAria(btn, isOpen) {
+    btn?.setAttribute('aria-expanded', String(isOpen));
   }
 
   // Abridor vira "fechar" (X) enquanto a gaveta está aberta — verde sólido,
@@ -63,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnOpenContracts?.classList.toggle('agenda-filters__icon-btn--active', on);
     const icon = btnOpenContracts?.querySelector('.icon');
     if (icon) window.setIcon(icon, on ? 'close' : 'contract');
+    syncOpenerAria(btnOpenContracts, on);
   }
 
   // Revela/oculta a gaveta de contratos pendentes (collapse via grid-rows no
@@ -2167,6 +2179,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!btnCriarVaga) return;
       btnCriarVaga.classList.toggle('action-close-mode', isClose);
       btnCriarVaga.innerHTML = isClose ? FECHAR_VAGA_HTML : naturalVagaHTML();
+      syncOpenerAria(btnCriarVaga, isClose);
     };
 
     const openVagaSheet = () => {
@@ -2425,6 +2438,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!btnAjudante) return;
       btnAjudante.classList.toggle('action-close-mode', isClose);
       btnAjudante.innerHTML = isClose ? FECHAR_AJUDANTE_HTML : AJUDANTE_HTML;
+      syncOpenerAria(btnAjudante, isClose);
     };
 
     const openAjudanteSheet = () => {
@@ -2691,6 +2705,16 @@ document.addEventListener('DOMContentLoaded', () => {
     applyContractsFilters();
   }
 
+  // Toggle de inclusão (whitelist) num Set de filtro + estado visual do chip —
+  // receita ÚNICA dos 3 grupos múltiplos (IC / disponibilidade / pagamento);
+  // antes o mesmo bloco estava copiado 3× (só mudava o Set e o data-*).
+  const toggleSetChip = (set, val, chip) => {
+    const on = !set.has(val);
+    if (on) set.add(val); else set.delete(val);
+    chip.classList.toggle('chip--active', on);
+    chip.setAttribute('aria-pressed', String(on));
+  };
+
   // Ordenação (dentro do painel) e filtros: um único handler delegado.
   document.getElementById('panel-agenda-filters')?.addEventListener('click', e => {
     const chip = e.target.closest('.chip');
@@ -2718,32 +2742,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Confiança (IC): toggle inclusão (whitelist)
-    if (chip.dataset.filterIc) {
-      const val = chip.dataset.filterIc;
-      if (filterState.includeIc.has(val)) { filterState.includeIc.delete(val); chip.classList.remove('chip--active'); chip.setAttribute('aria-pressed', 'false'); }
-      else                                { filterState.includeIc.add(val);    chip.classList.add('chip--active');    chip.setAttribute('aria-pressed', 'true');  }
-      renderAgendaList();
-      return;
-    }
-
-    // Disponibilidade: toggle inclusão (whitelist)
-    if (chip.dataset.filterAvail) {
-      const val = chip.dataset.filterAvail;
-      if (filterState.includeAvail.has(val)) { filterState.includeAvail.delete(val); chip.classList.remove('chip--active'); chip.setAttribute('aria-pressed', 'false'); }
-      else                                   { filterState.includeAvail.add(val);    chip.classList.add('chip--active');    chip.setAttribute('aria-pressed', 'true');  }
-      renderAgendaList();
-      return;
-    }
-
-    // Pagamento: toggle inclusão (whitelist)
-    if (chip.dataset.filterPay) {
-      const val = chip.dataset.filterPay;
-      if (filterState.includePay.has(val)) { filterState.includePay.delete(val); chip.classList.remove('chip--active'); chip.setAttribute('aria-pressed', 'false'); }
-      else                                 { filterState.includePay.add(val);    chip.classList.add('chip--active');    chip.setAttribute('aria-pressed', 'true');  }
-      renderAgendaList();
-      return;
-    }
+    // Grupos de INCLUSÃO (whitelist, toggle múltiplo): IC / disponibilidade /
+    // pagamento — mesma mecânica via toggleSetChip (fonte única).
+    if (chip.dataset.filterIc)    { toggleSetChip(filterState.includeIc,    chip.dataset.filterIc,    chip); renderAgendaList(); return; }
+    if (chip.dataset.filterAvail) { toggleSetChip(filterState.includeAvail, chip.dataset.filterAvail, chip); renderAgendaList(); return; }
+    if (chip.dataset.filterPay)   { toggleSetChip(filterState.includePay,   chip.dataset.filterPay,   chip); renderAgendaList(); return; }
   });
 
 
@@ -3038,6 +3041,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const setMyPedidoButton = (mode) => {
     btnMyPedido?.classList.toggle('action-close-mode', mode === 'close');
     btnMyPedido?.classList.toggle('action-conclude-mode', mode === 'conclude');
+    syncOpenerAria(btnMyPedido, mode !== 'natural');
     if (mode === 'conclude') {
       if (btnMyPedidoIcon)  window.setIcon(btnMyPedidoIcon, 'check_circle');
       if (btnMyPedidoLabel) btnMyPedidoLabel.innerText = 'Concluir pedido';
@@ -3058,6 +3062,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const label = btnHistorico?.querySelector('[data-btn-label]');
     btnHistorico?.classList.toggle('action-close-mode', mode === 'close');
     btnHistorico?.classList.toggle('action-conclude-mode', mode === 'conclude');
+    syncOpenerAria(btnHistorico, mode !== 'natural');
     if (mode === 'conclude') {
       if (icon)  window.setIcon(icon, 'check_circle');
       if (label) label.textContent = 'Concluir pedido';

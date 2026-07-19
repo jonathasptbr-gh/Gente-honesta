@@ -171,15 +171,12 @@
   flex-shrink: 0;
 }
 
-/* Editar/compartilhar: MESMO padrão dos botões-ícone de ação dos cards de
-   profissional (.btn.btn--icon .pro-card__back-btn--share/--back): fill claro
-   --bg-soft + ícone --t-sub. Compõe .btn (fundação: flex-center, radius, :active).
-   Só reduz a métrica de 44px para caber na linha compacta do minicontrato. */
+/* Editar/compartilhar: a COR vem da primitiva .btn--outline (composta no HTML,
+   mesmo padrão dos botões-ícone do verso dos cards). Aqui só a métrica reduzida
+   p/ caber na linha compacta do minicontrato. */
 .contract-mini__btn {
   width: 36px;
   height: 36px;
-  background: var(--bg-soft);
-  color: var(--t-sub);
 }
 
 .contract-mini__btn .icon {
@@ -215,7 +212,7 @@
 
 .contracts-filters__input {
   width: 100%;
-  height: 40px;
+  height: var(--control-h);
   padding: 0 10px;
   border-radius: var(--radius-md);
   background: var(--bg-white);   /* card branco sobre o corpo --bg-soft */
@@ -463,7 +460,7 @@
   background: var(--bg-canvas);
   /* Default: mostra o painel central (Profissionais) */
   transform: translateX(-33.3333%);
-  transition: transform var(--panel-slide-dur, 0.5s) cubic-bezier(0.4, 0, 0.2, 1);   /* fallback igual ao do slider das abas (navigation.css) */
+  transition: transform var(--panel-slide-dur, 0.5s) var(--ease);   /* fallback igual ao do slider das abas (navigation.css) */
 }
 
 /* Slide para a esquerda: mostra o painel de Vagas */
@@ -492,7 +489,7 @@
   -webkit-overflow-scrolling: touch;
   background: var(--bg-canvas);
   padding: var(--space-md);
-  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--bottombar-clearance) + env(safe-area-inset-bottom, 0px));
   scrollbar-width: none;
 }
 

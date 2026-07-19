@@ -10,13 +10,15 @@
 .historico-sheet {
   position: fixed;
   inset: 0;
-  z-index: 300;
+  z-index: var(--z-sheet);
   pointer-events: none;
   visibility: hidden;
   /* Container = só captador de toques (ver .pedido-sheet). O recorte da gaveta
      fica no wrapper .historico-sheet__clip (overflow:hidden), não em mask/
      clip-path — evita o flash de 1 frame sobre o cabeçalho no fechamento. */
-  transition: visibility 0s linear 0.5s; /* mantém visível durante o fecho */
+  /* Linger = a MESMA duração do slide de saída do painel (--sheet-close-dur,
+     setada no container pelo anchorBelowActionBar) — antes era 0.5s congelado. */
+  transition: visibility 0s linear var(--sheet-close-dur, 0.5s);
 }
 
 .historico-sheet--open {
@@ -44,7 +46,7 @@
   bottom: 0;
   background: var(--overlay);
   opacity: 0;
-  transition: opacity 0.45s ease;
+  transition: opacity var(--fade-backdrop) var(--ease);
 }
 
 .historico-sheet--open .historico-sheet__backdrop { opacity: 1; }
@@ -111,8 +113,8 @@
 
 /* Barra SEMPRE visível (histórico de pedidos e painel de filtros).
    Thumb ESCURO: o painel agora é claro. */
-.historico-sheet__scroll::-webkit-scrollbar { width: 5px; }
-.historico-sheet__scroll::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
+.historico-sheet__scroll::-webkit-scrollbar { width: var(--scrollbar-w); }
+.historico-sheet__scroll::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: var(--scrollbar-thumb-r); }
 
 .historico-list {
   display: flex;
@@ -136,7 +138,7 @@
   flex-direction: column;
   gap: 10px;
   padding: 14px;
-  border-radius: 18px 18px 4px 18px;
+  border-radius: var(--radius-balloon) var(--radius-balloon) 4px var(--radius-balloon);   /* balão espelhado: canto inferior DIREITO quase reto */
   background: var(--bg-white);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
@@ -380,7 +382,7 @@
    translúcido --on-green-solid, que lavava os tints das pílulas internas) */
 .agenda-filters__search {
   width: 100%;
-  height: 40px;
+  height: var(--control-h);
   padding: 0 54px 0 36px;   /* direita: espaço para o botão de filtro (pílula) */
   border-radius: var(--radius-md);   /* retângulo padrão do app (cantos pouco curvos) */
   background: var(--bg-white);
@@ -398,8 +400,8 @@
    sobre o verde. Ícone PRETO normal (--t-main) em repouso; abridor não tem estado
    "em uso" azul (ao abrir a gaveta vira "Fechar" via --active, verde+X claro). */
 .agenda-filters__icon-btn {
-  width: 40px;
-  height: 40px;
+  width: var(--control-h);
+  height: var(--control-h);
   flex-shrink: 0;   /* fixo à direita da barra (não encolhe com a zona do meio) */
   border-radius: var(--radius-md);   /* retângulo padrão do app (quadrado de cantos pouco curvos) */
   background: var(--bg-white);
@@ -421,10 +423,9 @@
   animation: contractsNotifyBlink 1.1s ease-in-out infinite;
 }
 
-/* Gaveta de contratos aberta: o abridor vira "Fechar" no MESMO padrão dos
-   demais abridores da barra (.action-close-mode): fill branco translúcido
-   sobre o verde da action bar + X claro. (O verde sólido anterior destoava
-   do padrão de fechar do app.) */
+/* Gaveta de contratos aberta: o abridor vira "Fechar" — ESPELHO da receita
+   única .btn--close-on-green (buttons.css); bloco próprio p/ vencer o fundo
+   branco do repouso. Mudou a receita lá? Mude aqui junto. */
 .agenda-filters__icon-btn--active {
   background: var(--on-green-soft);
   color: var(--t-light);
@@ -446,8 +447,8 @@
    permitida pelo design sem contorno) — mesmo tamanho (40px) do botão de
    contratos do outro lado. */
 .agenda-filters__profile-img {
-  width: 40px;
-  height: 40px;
+  width: var(--control-h);
+  height: var(--control-h);
   border-radius: 50%;
   border: 2px solid var(--t-light);
   object-fit: cover;
@@ -629,7 +630,7 @@
    por cima — reserva espaço no fim para o último card não ficar coberto.
    Fundo verde-escuro (--bg-canvas) dá o mesmo contraste do popup: topo branco x lista. */
 #view-feed .agenda-list {
-  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--bottombar-clearance) + env(safe-area-inset-bottom, 0px));
   background: var(--bg-canvas);
   scrollbar-width: none;
 }

@@ -81,6 +81,21 @@
   opacity: 0.7;
 }
 
+/* FECHAR/DISPENSAR sobre superfície VERDE — receita ÚNICA do app: fill branco
+   translúcido (--on-green-soft) + glifo/texto claros. Composta no HTML pelos
+   fechos ESTÁTICOS (Cancelar do onboarding, X do modo indicação, Fechar do
+   popup de indicados, X do avatar de perfil). Os fechos DINÂMICOS usam a MESMA
+   receita em blocos próprios porque precisam vencer o fill do botão por baixo:
+   .action-close-mode (!important, navigation.css) e
+   .agenda-filters__icon-btn--active (historico.css); o Cancelar do diálogo
+   idem, por especificidade (#dialog-global .btn--outline, dialogs.css).
+   Mudou a receita? Mude AQUI + esses 3 espelhos. */
+.btn--close-on-green {
+  background: var(--on-green-soft);
+  color: var(--t-light);
+}
+.btn--close-on-green .icon { color: var(--t-light); }
+
 /* Botão "Fechar" / dispensar — caixa compacta para cabeçalhos de painéis */
 .btn--close {
   padding: 7px 12px;
@@ -109,8 +124,8 @@
 /* Botão SÓ-ÍCONE: quadrado, sem padding lateral. Categoria canônica das ações
    de ícone em cards (voltar, compartilhar, pin). Combine com uma cor/bg. */
 .btn--icon {
-  width: 44px;
-  height: 44px;
+  width: var(--touch-min);
+  height: var(--touch-min);
   padding: 0;
   flex-shrink: 0;
 }
