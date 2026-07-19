@@ -124,8 +124,9 @@ css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; N
   feed/cards-pro.css       — flip + cards de profissional
   feed/vagas.css           — painel + card de vaga
   feed/ajudantes.css       — sheet "Serviço de ajudantes"
-  profile/profile.css      — tela de perfil do próprio usuário (#view-profile); carregada por último
-                             (reusa .qav/.avail/.ic-bar/.service-choice/.pro-card__comments-*)
+  profile/profile.css      — tela de perfil do próprio usuário (#view-profile); carregada por último.
+                             Dados principais = card de profissional real (buildProCard + bindProCardFlip);
+                             CSS próprio só p/ top bar, scroll e a seção de Avaliações (QR + compartilhar)
 
 js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
   core/app.js       — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW,

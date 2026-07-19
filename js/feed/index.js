@@ -3571,87 +3571,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // =========================================================================
   // TELA - PERFIL (#view-profile) — visão do próprio profissional.
-  // Aberta pelo AVATAR da action bar (#btn-open-profile). Reusa os primitivos
-  // do feed/cadastro para renderizar: icBarHTML (escudo IC), qavHTML (barras
-  // Q/A/V), availHTML/availabilityMeta (disponibilidade), buildCommentHTML
-  // (comentários mock). Sair, Editar e Fechar vivem na top bar da própria tela.
-  // Registrada no backNav p/ o "voltar" do celular fechá-la de volta ao feed.
+  // Aberta pelo AVATAR da action bar (#btn-open-profile). Os DADOS PRINCIPAIS
+  // são o MESMO card de profissional do feed (buildProCard + bindProCardFlip):
+  // foto, QAV, escudo de IC, tags, disponibilidade, pagamento e — no flip — os
+  // comentários. Abaixo, a seção de AVALIAÇÃO (QR + compartilhar). Sair, Editar
+  // e Fechar vivem na top bar. Registrada no backNav p/ o "voltar" fechá-la.
   // =========================================================================
 
   // IC do próprio perfil (mock — a persistência da reputação é feature futura).
   const PROFILE_IC = 78;
+  // Disponibilidade exibida no card (passiva, como em qualquer card do feed).
+  const PROFILE_AVAIL = 'available';
 
-  // Disponibilidade do próprio perfil (mock, só sessão): o botão cicla os 3 estados.
-  const AVAIL_CYCLE = ['available', 'full', 'unavailable'];
-  let profileAvail = 'available';
-
-  // Padrão de serviço → rótulo/ícone/subtítulo, casando os q/a/v dos 4 cards do
-  // cadastro (mesma fonte de valores). Fallback = "Padrão" (último da lista).
-  const SERVICE_PATTERNS = [
-    { q: 8, a: 5, v: 7, title: 'Premium',         sub: 'Alta qualidade', icon: 'workspace_premium' },
-    { q: 5, a: 8, v: 6, title: 'Rápido',          sub: 'Alta agilidade', icon: 'bolt' },
-    { q: 4, a: 4, v: 3, title: 'Custo-benefício', sub: 'Econômico',      icon: 'savings' },
-    { q: 5, a: 5, v: 5, title: 'Padrão',          sub: 'Equilibrado',    icon: 'balance' },
-  ];
-  const matchServicePattern = (sp) =>
-    SERVICE_PATTERNS.find(p => p.q === sp.quality && p.a === sp.agility && p.v === sp.price)
-    || SERVICE_PATTERNS[SERVICE_PATTERNS.length - 1];
-
-  // Reflete o estado atual na pílula (mutação in-place p/ preservar o id/nó).
-  const renderProfileAvail = () => {
-    const pill = document.getElementById('profile-avail-pill');
-    if (!pill) return;
-    const meta = availabilityMeta[profileAvail] || availabilityMeta.available;
-    pill.className = `avail avail--${meta.cls}`;
-    pill.innerHTML = `<span class="avail__dot" aria-hidden="true"></span>${meta.label}`;
-  };
-
-  // Popula a tela a partir do estado vivo (appState + Firebase). O que ainda é
-  // mock (IC, comentários) usa as mesmas fontes do feed — trocar por Firestore
-  // depois não muda este arranjo.
-  function populateProfile() {
+  // Deriva um "pro" (contrato de models.js) do estado vivo (appState + Firebase)
+  // para alimentar buildProCard — o MESMO builder dos cards do feed. O que ainda
+  // é mock (IC, comentários via proBackHTML) sai das mesmas fontes do feed.
+  /** @returns {import('../core/models.js').Professional} */
+  function buildSelfPro() {
     const st = window.appState || {};
-    const img = document.getElementById('profile-photo-img');
-    if (img) img.src = st.photoBlob || avatarSvg;
-
-    const nameEl = document.getElementById('profile-name');
-    if (nameEl) nameEl.textContent = window.auth?.currentUser?.displayName || 'Seu Nome';
-
     const tags = Array.isArray(st.selectedTags) ? st.selectedTags.filter(Boolean) : [];
-    const profEl = document.getElementById('profile-profession');
-    if (profEl) profEl.textContent = tags.length ? tags.join(', ') : 'Adicione sua profissão';
-
-    const icEl = document.getElementById('profile-ic');
-    if (icEl) icEl.innerHTML = icBarHTML(PROFILE_IC, 'lg');
-
-    renderProfileAvail();
-
-    // Resumo (qualidades e limitações) = habilidades preenchidas no cadastro.
-    const bio = document.getElementById('inp-bio')?.value.trim();
-    const sumEl = document.getElementById('profile-summary');
-    if (sumEl) sumEl.textContent = bio || 'Conte suas qualidades e limitações para os clientes.';
-
-    // Padrão de serviços + tabela QAV (mesmos valores do card de profissional).
     const sp = st.serviceProfile || { quality: 5, agility: 5, price: 5 };
-    const pat = matchServicePattern(sp);
-    const titleEl = document.getElementById('profile-service-title');
-    if (titleEl) titleEl.textContent = pat.title;
-    const subEl = document.getElementById('profile-service-sub');
-    if (subEl) subEl.textContent = pat.sub;
-    const patIcon = document.getElementById('profile-service-icon');
-    if (patIcon) window.setIcon?.(patIcon, pat.icon);
-    const qavEl = document.getElementById('profile-qav');
-    if (qavEl) qavEl.innerHTML = qavHTML(sp.quality, sp.agility, sp.price);
+    const pm = st.paymentMethods || {};
+    const bio = document.getElementById('inp-bio')?.value.trim();
+    return {
+      id: 'self',
+      name: window.auth?.currentUser?.displayName || 'Seu Nome',
+      tags: tags.length ? tags.join(', ') : 'Adicione sua profissão',
+      ic: PROFILE_IC,
+      q: sp.quality, a: sp.agility, v: sp.price,
+      avail: PROFILE_AVAIL,
+      pay: { cash: !!pm.cash, pix: !!pm.pix, card: pm.card ?? 0 },
+      nf: !!pm.nf,
+      bio: bio || 'Conte suas qualidades e limitações para os clientes.',
+    };
+  }
 
-    // Comentários (mock, mesma fonte do verso do card de profissional).
-    const listEl = document.getElementById('profile-comments-list');
-    if (listEl) {
-      const comments = getComments();
-      listEl.innerHTML = comments.length
-        ? comments.map(buildCommentHTML).join('')
-        : '<span class="profile-comments__empty">Nenhum comentário ainda.</span>';
-    }
-    window.watchScrollShadows?.(document.getElementById('profile-comments-scroll'));
+  // Monta o card real no host e liga a delegação de flip UMA vez (o listener
+  // fica no host e sobrevive à troca de innerHTML dos re-renders).
+  let profileFlipBound = false;
+  function populateProfile() {
+    const host = document.getElementById('profile-pro-card');
+    if (!host) return;
+    host.innerHTML = '';
+    host.appendChild(buildProCard(buildSelfPro(), { showPin: true }));
+    if (!profileFlipBound) { bindProCardFlip(host); profileFlipBound = true; }
+    // A foto do card é o avatar genérico por padrão; troca pela foto capturada.
+    const img = host.querySelector('.pro-card__avatar');
+    if (img && window.appState?.photoBlob) img.src = window.appState.photoBlob;
   }
 
   function openProfile() {
@@ -3690,16 +3656,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Compartilhar o perfil (para pedir avaliações). Web Share API no celular;
+  // fallback copiando o link (mesmo padrão do sharePedidoExternal).
+  async function shareProfile() {
+    const url = 'https://gentehonesta.com.br';
+    const msg = `Veja meu perfil no Gente Honesta e avalie meu trabalho: ${url}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Meu perfil no Gente Honesta', text: msg, url }); }
+      catch (err) { /* usuário cancelou — silencioso */ }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(msg);
+      await customAlert('Link do seu perfil copiado! Cole no WhatsApp (ou onde quiser) para pedir uma avaliação.', 'Compartilhar perfil', 'ios_share');
+    } catch {
+      comingSoon('Compartilhar perfil', 'Compartilhar perfil', 'ios_share');
+    }
+  }
+
   // Avatar da action bar → abre o perfil (antes disparava o logout direto).
   document.getElementById('btn-open-profile')?.addEventListener('click', openProfile);
   document.getElementById('btn-profile-close')?.addEventListener('click', closeProfile);
   document.getElementById('btn-profile-logout')?.addEventListener('click', doLogout);
   document.getElementById('btn-profile-edit')?.addEventListener('click',
     () => comingSoon('Editar perfil', 'Edição de perfil', 'edit'));
-  document.getElementById('btn-profile-avail')?.addEventListener('click', () => {
-    const i = AVAIL_CYCLE.indexOf(profileAvail);
-    profileAvail = AVAIL_CYCLE[(i + 1) % AVAIL_CYCLE.length];
-    renderProfileAvail();
-  });
+  document.getElementById('btn-profile-share')?.addEventListener('click', shareProfile);
 
 });
