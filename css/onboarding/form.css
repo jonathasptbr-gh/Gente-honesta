@@ -32,7 +32,7 @@
   padding: 0 var(--space-md);
   background: var(--on-green-soft);
   color: var(--t-light);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);   /* retângulo padrão do app (como os demais botões do topo) */
   font-size: var(--fs-6);
 }
 #view-onboarding #btn-onboarding-cancel:active { transform: none; opacity: 0.6; }

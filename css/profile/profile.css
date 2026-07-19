@@ -68,7 +68,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-sm);
-  border-radius: var(--radius-pill);   /* arredondado como a caixa de busca */
+  border-radius: var(--radius-md);   /* retângulo padrão do app */
   font-size: var(--fs-6);
   font-weight: var(--fw-bold);
   cursor: pointer;

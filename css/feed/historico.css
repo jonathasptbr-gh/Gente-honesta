@@ -382,7 +382,7 @@
   width: 100%;
   height: 40px;
   padding: 0 54px 0 36px;   /* direita: espaço para o botão de filtro (pílula) */
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);   /* retângulo padrão do app (cantos pouco curvos) */
   background: var(--bg-white);
   font-size: var(--fs-6);
   color: var(--t-main);
@@ -401,7 +401,7 @@
   width: 40px;
   height: 40px;
   flex-shrink: 0;   /* fixo à direita da barra (não encolhe com a zona do meio) */
-  border-radius: var(--radius-pill);   /* arredondado como a caixa de busca (círculo no 40px) */
+  border-radius: var(--radius-md);   /* retângulo padrão do app (quadrado de cantos pouco curvos) */
   background: var(--bg-white);
   color: var(--t-main);
   position: relative;
@@ -470,7 +470,7 @@
   justify-content: center;
   gap: 5px;
   padding: 0 12px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);   /* pílula do filtro dentro do campo: cantos suaves proporcionais aos 30px */
   background: var(--bg-white);
   color: var(--t-main);
   box-shadow: var(--shadow-sm);

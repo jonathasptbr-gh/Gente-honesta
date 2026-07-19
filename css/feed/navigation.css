@@ -68,7 +68,7 @@
   justify-content: center;
   gap: var(--space-sm);   /* espaço ícone↔texto, igual aos botões padrão (add/close não colam no rótulo) */
   border: none;
-  border-radius: var(--radius-pill);   /* arredondado como a caixa de busca */
+  border-radius: var(--radius-md);   /* retângulo padrão do app (cantos pouco curvos) */
   font-size: var(--fs-6);
   font-weight: var(--fw-bold);
   cursor: pointer;
@@ -234,7 +234,7 @@
   gap: var(--space-sm);
   font-size: var(--fs-6);
   white-space: nowrap;
-  border-radius: var(--radius-pill);   /* arredondado como a caixa de busca */
+  border-radius: var(--radius-md);   /* retângulo padrão do app */
 }
 
 /* ── PADRONIZAÇÃO dos botões do topo (action bar) ─────────────────────────
