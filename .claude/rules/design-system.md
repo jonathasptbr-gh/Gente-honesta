@@ -116,7 +116,7 @@ fonte (960 p/ Material Symbols, 24 p/ o set `ic`). **Ao adicionar um ícone**, r
   deliberada** (texto AZUL `--info-blue`, não dourado): `.vaga-add-btn` ("Adicionar requisito/
   benefício"), para casar com o azul de seleção da própria gaveta. **Exceção deliberada:** o slider da bottom bar
   (`.feed-tabs-pill__slider`) é dourado — é navegação/ação principal, não seletor. Os steppers
-  +/- do Criar vaga têm glifo AZUL (`--info-blue`, wght 600) sobre o trilho branco (padrão do
+  +/- do Criar vaga têm glifo AZUL (`--info-blue`) sobre o trilho branco (padrão do
   botão interativo sobre fundo branco), e o botão "Adicionar requisito/benefício" (`.vaga-add-btn`)
   usa o MESMO `--info-blue` — nenhum dourado na gaveta, para não competir com o CTA "Publicar vaga".
 - **AZUL (`--info-blue`) é a cor de SELEÇÃO/estado ativo em TODOS os formulários e seletores**,
@@ -174,8 +174,8 @@ Regra de ouro: **"card" = SUPERFÍCIE (contêiner); "botão" = AÇÃO.** Se o el
    `"family-name"` + `name`), p/ o navegador preencher os dois juntos.
 
 **Ainda bespoke (migrar ao mexer):** `.pedido-chip`, `.vaga-day`, `.vaga-benefit-pill`,
-`.helper-toggle` → candidatos a `.chip`; `.pro-card__load-more`, `.contract-mini__btn` →
-candidatos a `.btn`. (Salvar profissional e denunciar pedido deixaram de ser botões — agora são
+`.helper-toggle` → candidatos a `.chip`; `.contract-mini__btn` →
+candidato a `.btn`. (Salvar profissional e denunciar pedido deixaram de ser botões — agora são
 pressionar-longo do card, `attachLongPress`.) Bespoke DE PROPÓSITO
 (estruturalmente distintos): `.agenda-filters__vagas-btn` (par de altura fixa 40px),
 `.ajudante-cancel-btn` (pílula danger).

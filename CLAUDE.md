@@ -98,7 +98,9 @@ icon*.svg / *.png   — arte do ícone/PWA (quadrado full-bleed p/ maskable; arr
 fonts/              — Inter (woff2, subset latin+latin-ext) SELF-HOSTED — sem Google Fonts online;
                       @font-face em css/base/fonts.css. Ícones = sprite SVG inline (NÃO é fonte).
 scripts/            — tooling de ícones: icon-usage.mjs (deriva a lista do uso), gen-icon-sprite.mjs
-                      (reescreve o sprite no index.html), check-icons.mjs (guardrail, roda no CI)
+                      (reescreve o sprite no index.html; ASSA um stroke por rampa de cobertura p/
+                      engrossar os ícones de linha sem inchar os sólidos), check-icons.mjs (guardrail,
+                      roda no CI), icon-coverage.json (cobertura de tinta % por ícone; alimenta a rampa)
 
 css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; NÃO reordenar)
   base/base.css            — design tokens (:root), roteamento de telas, utilitários, animações

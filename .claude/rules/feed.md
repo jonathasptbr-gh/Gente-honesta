@@ -262,8 +262,14 @@ trocar de aba no meio; flip + outra coisa), o cleanup TARDIO de um clobbava o ou
 via `accelerate` (flip: `makeFlipTimeline`/`accelerateActiveFlips`; carrossel: `carouselAccelerate`). A trava
 solta na CONCLUSÃO REAL da animação — `play` devolve uma PROMISE (flip: `tl.promise`; carrossel: `transitionend`
 do `#feed-panels`), então acelerar só faz resolver ANTES e a trava nunca solta no meio (nem no aparelho, onde
-uma versão que estimava a metade do tempo atropelava). Indicação devolve número/`est` e roda cheia em curso.
-Ver `app-core.md`.
+uma versão que estimava a metade do tempo atropelava). Ver `app-core.md`.
+- **Indicação:** a ENTRADA devolve número/`est` e roda cheia em curso; a SAÍDA é ACELERÁVEL — `doExitIndicate`
+  monta uma timeline não-card `makeMoveTL([morphedSourceCard, indicateProsBox])` (mesma API do flip: `after`/
+  `dur`/`finish`/`accelerate`/`promise`) guardada em `indicateTL`, e `exitIndicateMode` passa
+  `() => indicateTL.accelerate()` ao gate. **Swipe passa através no fechamento:** o `#indicate-overlay`
+  (`position:fixed inset:0`) cobria o `#feed-panels` e engolia o gesto de arrastar p/ a aba Profissionais;
+  `doExitIndicate` seta `indicateOverlay.style.pointerEvents='none'` durante a saída (limpo no
+  `finalizeIndicateNow`) p/ o swipe alcançar o feed atrás.
 - `doSwitchToTab`: se `indicateMode`, faz snap síncrono da indicação (`backNav.remove` + `finalizeIndicateNow`)
   ANTES de deslizar — senão o carrossel passaria por cima do `#agenda-list` reparentado e a aba Profissionais
   ficaria vazia. Devolve `--panel-slide-dur`.

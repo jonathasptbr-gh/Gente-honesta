@@ -169,8 +169,13 @@ número (duração) → usa só o timer.
 
 **Movimentos hoje na trava** (`feed/index.js`): carrossel de abas (`switchToTab`→`doSwitchToTab`, devolve
 uma PROMISE que resolve no `transitionend` do `#feed-panels`; `accelerate`=`carouselAccelerate`), modo
-indicação (`enter/exitIndicateMode`→`doEnter/doExitIndicate`, devolvem um NÚMERO/`est` e SEM `accelerate` —
-roda cheio em curso), e os FLIPS de card (pro e vaga — o toggle inteiro, incl. "fecha os outros" do accordion,
+indicação (`enter/exitIndicateMode`→`doEnter/doExitIndicate`, devolvem um NÚMERO/`est`; a ENTRADA roda
+cheia, a SAÍDA é acelerável — `doExitIndicate` monta uma **timeline não-card** `makeMoveTL([card, prosBox])`
+guardada em `indicateTL`, e `exitIndicateMode` passa `() => indicateTL.accelerate()` ao gate; o overlay
+recebe `pointerEvents='none'` no fechamento p/ o swipe alcançar o feed atrás), a **reordenação da lista de
+pros** (`reorderAgendaListAnimated`, pin/unpin — `moveGate.run('agenda-reorder', …)`, FLIP com duração por
+`moveMs` do maior deslocamento, promise resolve no fim; enfileirado nasce 2× via `MOVE_ACCEL`), e os FLIPS
+de card (pro e vaga — o toggle inteiro, incl. "fecha os outros" do accordion,
 e o FECHAR pelo botão "Voltar"/verso via `gateCloseProCard`/`gateVagaFlip*`; devolvem `tl.promise`;
 `accelerate`=`accelerateActiveFlips`). O flip roda numa **timeline** (`makeFlipTimeline`, `tl.promise` resolve
 no fim): nasce em `speed`=`MOVE_ACCEL` (2× se enfileirado); a rotação (CSS) casa via duração inline no `flipper`
