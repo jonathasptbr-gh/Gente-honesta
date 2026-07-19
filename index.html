@@ -286,7 +286,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v424</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v425</span>
     </div>
 
     <!-- =====================================================================
@@ -1506,56 +1506,68 @@
              A barra inferior flutua por cima. -->
         <main class="feed-body">
 
-            <!-- Barra de busca / ação — muda de estado conforme a aba ativa -->
+            <!-- Action bar — PERFIL (esq.) e CONTRATOS (dir.) SEMPRE visíveis em
+                 qualquer aba; só a ZONA DO MEIO muda de estado conforme a aba. -->
             <div class="agenda-filters" id="feed-action-bar">
-                <!-- Slot que RECORTA (overflow) o trilho deslizante. As 3 linhas ficam
-                     lado a lado (vagas | busca | pedidos, na MESMA ordem das abas) e o
-                     trilho desliza por translateX igual ao feed (carrossel sincronizado). -->
+
+                <!-- Perfil: SEMPRE visível à esquerda. Abre a gaveta de perfil;
+                     com ela aberta, o próprio avatar vira o botão de FECHAR (X) no
+                     mesmo lugar (.agenda-filters__profile--close). -->
+                <button type="button" id="btn-open-profile" class="agenda-filters__profile" aria-label="Perfil">
+                    <img id="top-bar-avatar" class="agenda-filters__profile-img" alt="" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>">
+                    <span class="agenda-filters__profile-close" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg></span>
+                </button>
+
+                <!-- ZONA DO MEIO (muda por aba): RECORTA (overflow) o trilho
+                     deslizante. As 3 linhas ficam lado a lado (vagas | busca |
+                     pedidos) e o trilho desliza por translateX igual ao feed. -->
                 <div class="agenda-filters__action-row">
-                <div class="agenda-filters__track">
-                <!-- Vagas (esquerda) -->
-                <div class="agenda-filters__vagas-row" id="bar-vagas-state">
-                    <button type="button" id="btn-criar-vaga" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--criar">
-                        <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>
-                        Criar vaga
-                    </button>
-                    <button type="button" id="btn-chamar-ajudante" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--ajudante">
-                        Serviço de ajudantes
-                    </button>
-                </div>
-                <!-- Busca / Profissionais (centro). Consolidou o antigo top bar:
-                     PERFIL à esquerda; dentro da busca, o novo botão de FILTRO
-                     (pílula branca) à direita; e o antigo botão de filtros virou
-                     o botão de CONTRATOS à direita. -->
-                <div class="agenda-filters__search-row" id="bar-search-state">
-                    <!-- Perfil (movido do top bar) — avatar REDONDO com moldura branca.
-                         Com a gaveta de perfil aberta, o próprio avatar vira o botão de
-                         FECHAR (X) no MESMO lugar (.agenda-filters__profile--close). -->
-                    <button type="button" id="btn-open-profile" class="agenda-filters__profile" aria-label="Perfil">
-                        <img id="top-bar-avatar" class="agenda-filters__profile-img" alt="" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>">
-                        <span class="agenda-filters__profile-close" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg></span>
-                    </button>
+                    <div class="agenda-filters__track">
+                        <!-- Vagas (esquerda) -->
+                        <div class="agenda-filters__vagas-row" id="bar-vagas-state">
+                            <button type="button" id="btn-criar-vaga" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--criar">
+                                <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>
+                                Criar vaga
+                            </button>
+                            <button type="button" id="btn-chamar-ajudante" class="agenda-filters__vagas-btn agenda-filters__vagas-btn--ajudante">
+                                Diárias
+                            </button>
+                        </div>
+                        <!-- Busca / Profissionais (centro) -->
+                        <div class="agenda-filters__search-row" id="bar-search-state">
+                            <div class="agenda-filters__search-wrap">
+                                <!-- Lupa/limpar: vira X clicável quando há texto (limpa o campo) -->
+                                <button type="button" id="btn-search-clear" class="agenda-filters__search-icon" aria-label="Limpar busca" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#ic-search"></use></svg></button>
+                                <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar no Gente Honesta...">
+                                <!-- Botão de filtro: pílula branca DENTRO da busca, à direita.
+                                     Estados (syncFilterPillIcon): repouso = tune → abre a gaveta;
+                                     gaveta aberta = seta p/ baixo → fecha; COM FILTRO ATIVO e a
+                                     gaveta FECHADA = filter_alt + contagem + X (tint azul) e tocar
+                                     LIMPA todos os filtros (volta ao tune). -->
+                                <button type="button" id="btn-toggle-filters" class="agenda-filters__filter-pill" aria-label="Filtrar" aria-expanded="false">
+                                    <svg class="icon" aria-hidden="true"><use href="#ic-tune"></use></svg>
+                                    <span id="filter-count" class="agenda-filters__filter-count u-hidden">0</span>
+                                    <svg class="icon agenda-filters__filter-clear-x u-hidden" aria-hidden="true"><use href="#ic-close"></use></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Pedidos (direita) -->
+                        <div class="agenda-filters__pedidos-row" id="bar-pedidos-state">
+                            <button type="button" id="btn-historico-pedidos" class="btn btn--white pedido-action__btn">
+                                <svg class="icon pedido-action__icon" aria-hidden="true"><use href="#ic-history"></use></svg>
+                                <span data-btn-label>Histórico</span>
+                            </button>
+                            <button type="button" id="btn-my-pedido" class="btn btn--accent pedido-action__btn">
+                                <svg class="icon pedido-action__icon" aria-hidden="true"><use href="#ic-add"></use></svg>
+                                <span id="btn-my-pedido-label">Fazer pedido</span>
+                            </button>
+                        </div>
+                    </div><!-- /.agenda-filters__track -->
 
-                    <div class="agenda-filters__search-wrap">
-                        <!-- Lupa/limpar: vira X clicável quando há texto (limpa o campo) -->
-                        <button type="button" id="btn-search-clear" class="agenda-filters__search-icon" aria-label="Limpar busca" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#ic-search"></use></svg></button>
-                        <input type="text" id="inp-agenda-search" class="agenda-filters__search" placeholder="Buscar no Gente Honesta...">
-                        <!-- Botão de filtro: pílula branca DENTRO da busca, à direita.
-                             Estados (syncFilterPillIcon): repouso = tune → abre a gaveta;
-                             gaveta aberta = seta p/ baixo → fecha; COM FILTRO ATIVO e a
-                             gaveta FECHADA = filter_alt + contagem + X (tint azul) e tocar
-                             LIMPA todos os filtros (volta ao tune). -->
-                        <button type="button" id="btn-toggle-filters" class="agenda-filters__filter-pill" aria-label="Filtrar" aria-expanded="false">
-                            <svg class="icon" aria-hidden="true"><use href="#ic-tune"></use></svg>
-                            <span id="filter-count" class="agenda-filters__filter-count u-hidden">0</span>
-                            <svg class="icon agenda-filters__filter-clear-x u-hidden" aria-hidden="true"><use href="#ic-close"></use></svg>
-                        </button>
-                    </div>
-
-                    <!-- Ações do PERFIL: ocupam o lugar da busca enquanto a gaveta de
-                         perfil está aberta (JS: classe --profile na search-row). Assim
-                         os botões de "navegação" da gaveta vivem na action bar, como nos
-                         outros sheets. Mesma métrica do par de botões de Vagas. -->
+                    <!-- Ações do PERFIL: OVERLAY sobre a zona do meio enquanto a
+                         gaveta de perfil está aberta (JS: classe --profile na barra),
+                         cobrindo o conteúdo da aba com fundo verde — assim funciona em
+                         QUALQUER aba. O Fechar é o avatar; Sair/Editar aqui. -->
                     <div class="agenda-filters__profile-actions" id="bar-profile-actions">
                         <button type="button" id="btn-profile-logout" class="agenda-filters__profile-btn agenda-filters__profile-btn--logout">
                             <svg class="icon" aria-hidden="true"><use href="#ic-logout"></use></svg>Sair
@@ -1564,28 +1576,13 @@
                             <svg class="icon" aria-hidden="true"><use href="#ic-edit"></use></svg>Editar
                         </button>
                     </div>
-
-                    <!-- Antigo botão de filtros → agora abre CONTRATOS. Notificação =
-                         fundo piscando branco↔azul (classe --notify), removida ao abrir. -->
-                    <button type="button" id="btn-open-contracts" class="btn btn--icon agenda-filters__icon-btn agenda-filters__icon-btn--notify" aria-label="Contratos">
-                        <svg class="icon" aria-hidden="true"><use href="#ic-contract"></use></svg>
-                    </button>
-                </div>
-                <!-- Pedidos (direita) -->
-                <div class="agenda-filters__pedidos-row" id="bar-pedidos-state">
-                    <button type="button" id="btn-historico-pedidos" class="btn btn--white pedido-action__btn">
-                        <svg class="icon pedido-action__icon" aria-hidden="true"><use href="#ic-history"></use></svg>
-                        <span data-btn-label>Histórico</span>
-                    </button>
-                    <button type="button" id="btn-my-pedido" class="btn btn--accent pedido-action__btn">
-                        <svg class="icon pedido-action__icon" aria-hidden="true"><use href="#ic-add"></use></svg>
-                        <span id="btn-my-pedido-label">Fazer pedido</span>
-                    </button>
-                </div>
-                </div><!-- /.agenda-filters__track -->
                 </div><!-- /.agenda-filters__action-row -->
-                <!-- Painel de filtros movido para o #filters-sheet (dropdown top-level,
-                     mesmo padrão de submenu do histórico/fazer pedido). -->
+
+                <!-- Contratos: SEMPRE visível à direita. Notificação = fundo piscando
+                     branco↔amarelo (classe --notify), removida ao abrir. -->
+                <button type="button" id="btn-open-contracts" class="btn btn--icon agenda-filters__icon-btn agenda-filters__icon-btn--notify" aria-label="Contratos">
+                    <svg class="icon" aria-hidden="true"><use href="#ic-contract"></use></svg>
+                </button>
             </div>
 
             <!-- Painéis deslizantes: Vagas (esq.) ↔ Profissionais (centro) ↔ Pedidos (dir.) -->

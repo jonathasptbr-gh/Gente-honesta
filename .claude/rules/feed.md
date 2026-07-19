@@ -50,20 +50,29 @@ action bar.
 seta `--panel-slide-dur` = `moveMs(nº de painéis atravessados × largura da viewport)`, e os três usam
 esse var no CSS (ficam SINCRONIZADOS; salto de 2 abas dura o dobro). Ver `app-core.md`.
 
-## Action bar (carrossel sincronizado)
+## Action bar (perfil/contratos fixos + carrossel no meio)
 
-`#feed-action-bar` (`.agenda-filters`) fica abaixo da top; muda de estado conforme a aba. As 3
-linhas ficam LADO A LADO num trilho `.agenda-filters__track` (width 300%, cada `flex: 0 0 33.3333%`),
-recortado por `.agenda-filters__action-row` (`overflow:hidden`), e deslizam por `translateX` com a
-MESMA curva/duração do `.feed-panels`. Estados: `#bar-vagas-state` (**Criar vaga** à esquerda +
-**Serviço de ajudantes** à direita), `#bar-search-state` (busca + filtros, default centro),
+`#feed-action-bar` (`.agenda-filters`) é uma LINHA `[perfil] [zona do meio] [contratos]`: o
+**avatar de perfil** (`#btn-open-profile`, esq.) e o **botão de contratos** (`#btn-open-contracts`,
+dir.) ficam SEMPRE visíveis, em QUALQUER aba (`flex-shrink:0` nas pontas). Só a **zona do meio**
+(`.agenda-filters__action-row`, `flex:1; overflow:hidden`) muda de estado conforme a aba: dentro dela,
+as 3 linhas ficam LADO A LADO num trilho `.agenda-filters__track` (width 300%, cada `flex: 0 0 33.3333%`)
+e deslizam por `translateX` com a MESMA curva/duração do `.feed-panels`. Estados (só a zona do meio):
+`#bar-vagas-state` (**Criar vaga** + **Diárias**), `#bar-search-state` (busca + filtros, default centro),
 `#bar-pedidos-state` (Histórico + Fazer pedido/Pedido atual). Classes `.agenda-filters--vagas`/`--pedidos`
 no `#feed-action-bar` controlam a posição. Não usar `opacity`/`display:none` p/ alternar linhas — quem
 esconde é o `overflow:hidden` + `translateX`.
 
+> **Overlay de perfil:** com a gaveta de perfil aberta (`.agenda-filters--profile` no bar), o
+> `#bar-profile-actions` (Sair/Editar) vira um OVERLAY `position:absolute; inset:0` sobre a zona do
+> meio (fundo `--p-green` que mascara o conteúdo da aba) — assim funciona em qualquer aba. O avatar
+> vira o Fechar (X) e os contratos seguem visíveis à direita.
+
 > **Estado vagas — ordem/cor dos botões:** ESQUERDA = **Criar vaga** (`#btn-criar-vaga`, DOURADO
-> `--a-gold`, AÇÃO principal); DIREITA = **Serviço de ajudantes** (`#btn-chamar-ajudante`, pílula
-> BRANCA, secundário). Classes função-nomeadas `--criar` (dourado) / `--ajudante` (branco).
+> `--a-gold`, AÇÃO principal); DIREITA = **Diárias** (`#btn-chamar-ajudante`, pílula BRANCA,
+> secundário; novo nome da seção antes chamada "Serviço de ajudantes" — só o rótulo mudou, o sheet
+> `#ajudante-sheet` e a lógica seguem "ajudante"). Classes função-nomeadas `--criar` (dourado) /
+> `--ajudante` (branco).
 
 ## Submenus dropdown (gavetas) + botão-abridor que vira "Fechar"
 

@@ -317,8 +317,13 @@
   background: var(--p-green);
   flex-shrink: 0;
   position: relative; /* ancora o painel absoluto */
+  /* LINHA horizontal: [perfil] [zona do meio (carrossel)] [contratos]. Perfil e
+     contratos ficam FIXOS nas pontas (sempre visíveis, em qualquer aba); só a
+     zona do meio muda de estado. */
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-xs);
   z-index: 30;   /* pinta a sombra de elevação SOBRE os painéis do feed */
   transition: box-shadow 0.25s ease;
 }
@@ -395,6 +400,7 @@
 .agenda-filters__icon-btn {
   width: 40px;
   height: 40px;
+  flex-shrink: 0;   /* fixo à direita da barra (não encolhe com a zona do meio) */
   background: var(--bg-white);
   color: var(--t-main);
   position: relative;

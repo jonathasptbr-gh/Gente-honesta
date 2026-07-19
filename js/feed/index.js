@@ -113,7 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function openContractsSheet() {
-    closeFiltersSheet();   // filtros de profissionais, se abertos
+    closeFiltersSheet();     // filtros de profissionais, se abertos
+    closeProfileSheet?.();   // perfil, se aberto (contratos segue sempre visível)
     anchorBelowActionBar(contractsSheet);
     contractsSheet?.classList.add('historico-sheet--open');
     window.backNav?.push('contracts-sheet', closeContractsSheet);
@@ -549,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const agendaList = document.getElementById('agenda-list');
     agendaList?.classList.remove('agenda-list--indicate-mode');
     if (agendaList && prosPanelHost && agendaList.parentElement !== prosPanelHost) prosPanelHost.appendChild(agendaList);
-    if (searchWrap && barSearchState && searchWrap.parentElement !== barSearchState) barSearchState.insertBefore(searchWrap, btnOpenContracts);
+    if (searchWrap && barSearchState && searchWrap.parentElement !== barSearchState) barSearchState.appendChild(searchWrap);
     if (feedBottomBar && barHomeParent && feedBottomBar.parentElement !== barHomeParent) {
       if (barHomeNext && barHomeNext.parentElement === barHomeParent) barHomeParent.insertBefore(feedBottomBar, barHomeNext);
       else barHomeParent.appendChild(feedBottomBar);
@@ -781,8 +782,8 @@ document.addEventListener('DOMContentLoaded', () => {
           const agendaList = document.getElementById('agenda-list');
           agendaList?.classList.remove('agenda-list--indicate-mode');
           if (agendaList && prosPanelHost) prosPanelHost.appendChild(agendaList);
-          // Barra de busca volta para a linha de busca da action bar, antes do contratos.
-          if (searchWrap && barSearchState) barSearchState.insertBefore(searchWrap, btnOpenContracts);
+          // Barra de busca volta para a search-row da action bar (único filho dela).
+          if (searchWrap && barSearchState) barSearchState.appendChild(searchWrap);
           resetAgendaList();
 
           // Devolve a bottom bar para a casa ANTES de esconder o overlay (senão sumiria
@@ -2336,7 +2337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // manipulado aqui direto por ID (o setter próprio dele vive no bloco de
     // ajudantes; o rótulo natural "Serviço de ajudantes" é o mesmo dos dois lados).
     const btnAjudanteBar = document.getElementById('btn-chamar-ajudante');
-    const AJUDANTE_NATURAL_HTML = 'Serviço de ajudantes';
+    const AJUDANTE_NATURAL_HTML = 'Diárias';
     const CONCLUIR_VAGA_HTML = '<svg class="icon" aria-hidden="true"><use href="#ic-check_circle"></use></svg>Concluir vaga';
     const setAjudanteConcludeVaga = (isConclude) => {
       if (!btnAjudanteBar) return;
@@ -2537,9 +2538,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---- Sheet: abrir / fechar (as duas funções ficam sempre visíveis) ----
     const ajudanteSheet = document.getElementById('ajudante-sheet');
 
-    // O botão "Serviço de ajudantes" vira botão de fechar (X) enquanto o sheet abre.
+    // O botão "Diárias" vira botão de fechar (X) enquanto o sheet abre.
     const btnAjudante = document.getElementById('btn-chamar-ajudante');
-    const AJUDANTE_HTML = 'Serviço de ajudantes';
+    const AJUDANTE_HTML = 'Diárias';
     const FECHAR_AJUDANTE_HTML = '<svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>Fechar';
     const setAjudanteClose = (isClose) => {
       if (!btnAjudante) return;
@@ -3638,9 +3639,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btn?.setAttribute('aria-label', on ? 'Fechar perfil' : 'Perfil');
   }
 
-  // Troca a busca pelas ações Sair/Editar na action bar (só enquanto a gaveta abre).
+  // Overlay Sair/Editar sobre a zona do meio da action bar (só com a gaveta
+  // aberta). Classe na BARRA (não na search-row) → funciona em qualquer aba.
   function setProfileBarActions(on) {
-    document.getElementById('bar-search-state')?.classList.toggle('agenda-filters__search-row--profile', on);
+    document.getElementById('feed-action-bar')?.classList.toggle('agenda-filters--profile', on);
   }
 
   function openProfileSheet() {

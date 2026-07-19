@@ -32,21 +32,22 @@
 .profile-sheet__panel::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
 
 /* ── Ações do perfil NA ACTION BAR (Sair/Editar) ─────────────────────────
-   Ocupam o lugar da busca enquanto a gaveta está aberta — os botões de
-   "navegação" da gaveta vivem na barra, como nos outros sheets. O Fechar é o
-   avatar (única exceção redonda). Mesma métrica retangular do par de Vagas. */
+   OVERLAY sobre a ZONA DO MEIO enquanto a gaveta está aberta — cobre o
+   conteúdo da aba (com fundo verde) para funcionar em QUALQUER aba. O Fechar é
+   o avatar (fixo à esquerda) e o Contratos segue visível (fixo à direita).
+   Mesma métrica retangular do par de Vagas. */
 .agenda-filters__profile-actions {
+  position: absolute;    /* dentro da .agenda-filters__action-row (position:relative) */
+  inset: 0;
+  z-index: 1;            /* acima do trilho */
   display: none;         /* só aparece com a gaveta aberta (classe --profile) */
-  flex: 1;
-  min-width: 0;
   align-items: center;
   gap: var(--space-xs);
+  background: var(--p-green);   /* mascara o conteúdo da aba atrás */
 }
 
-/* Com a gaveta aberta: as ações substituem a busca + o botão de contratos. */
-.agenda-filters__search-row--profile .agenda-filters__profile-actions { display: flex; }
-.agenda-filters__search-row--profile .agenda-filters__search-wrap,
-.agenda-filters__search-row--profile #btn-open-contracts { display: none; }
+/* Com a gaveta aberta: o overlay de ações cobre a zona do meio. */
+.agenda-filters--profile .agenda-filters__profile-actions { display: flex; }
 
 .agenda-filters__profile-btn {
   height: 40px;              /* casa com o avatar (40px) e o par de Vagas */
