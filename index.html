@@ -286,7 +286,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v421</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v422</span>
     </div>
 
     <!-- =====================================================================
@@ -1528,9 +1528,12 @@
                      (pílula branca) à direita; e o antigo botão de filtros virou
                      o botão de CONTRATOS à direita. -->
                 <div class="agenda-filters__search-row" id="bar-search-state">
-                    <!-- Perfil (movido do top bar) — avatar REDONDO com moldura branca. -->
+                    <!-- Perfil (movido do top bar) — avatar REDONDO com moldura branca.
+                         Com a gaveta de perfil aberta, o próprio avatar vira o botão de
+                         FECHAR (X) no MESMO lugar (.agenda-filters__profile--close). -->
                     <button type="button" id="btn-open-profile" class="agenda-filters__profile" aria-label="Perfil">
                         <img id="top-bar-avatar" class="agenda-filters__profile-img" alt="" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>">
+                        <span class="agenda-filters__profile-close" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg></span>
                     </button>
 
                     <div class="agenda-filters__search-wrap">
@@ -1697,58 +1700,52 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════════════════════
-         TELA DE PERFIL (#view-profile) — visão do próprio profissional.
-         Aberta pelo avatar da action bar (#btn-open-profile). Segue o padrão
-         das telas verdes (fundo --bg-canvas, top bar fixa --p-green, corpo
-         com scroll interno .js-scroll-shadows), com os DADOS dentro de um
-         card cinza (.card--soft) e as informações em sub-cards brancos —
-         baseado no desenho do card de profissional do feed (foto 3×4, QAV,
-         escudo de IC, disponibilidade, comentários).
+         GAVETA DE PERFIL (#profile-sheet) — visão do próprio profissional.
+         Gaveta slide-down no MESMO padrão das outras (reusa .historico-sheet*
+         + variante --bar-clear: a action bar segue viva e o AVATAR que abre
+         (#btn-open-profile) vira o botão de FECHAR, no mesmo lugar). O painel é
+         TRANSPARENTE (.profile-sheet__panel): os dados são um card de
+         profissional REAL flutuante (buildProCard) + o card de Avaliações logo
+         abaixo — sem panel-card extra ao redor. Backdrop com blur. Sair/Editar
+         (retangulares arredondados) no topo do painel; o Fechar é o avatar.
          ═══════════════════════════════════════════════════════════════════ -->
-    <section id="view-profile" class="screen">
+    <div id="profile-sheet" class="historico-sheet historico-sheet--bar-clear profile-sheet" role="dialog" aria-modal="true">
+        <div class="historico-sheet__backdrop" id="profile-sheet-backdrop"></div>
+        <div class="historico-sheet__clip">
+            <div class="historico-sheet__panel profile-sheet__panel">
 
-        <!-- Barra do TOPO fixa: da esquerda → Sair · Editar · (à direita) Fechar. -->
-        <header class="screen__header profile-topbar">
-            <div class="profile-topbar__nav">
-                <button type="button" id="btn-profile-logout" class="btn profile-topbar__btn" aria-label="Sair do app">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-logout"></use></svg>
-                </button>
-                <button type="button" id="btn-profile-edit" class="btn profile-topbar__btn" aria-label="Editar perfil">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-edit"></use></svg>
-                </button>
-                <button type="button" id="btn-profile-close" class="btn profile-topbar__btn profile-topbar__btn--close" aria-label="Fechar perfil">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>
-                </button>
-            </div>
-        </header>
-
-        <!-- Corpo rolável (js-scroll-shadows): as shades colam na linha da top bar. -->
-        <div class="profile-scroll js-scroll-shadows">
-
-            <!-- ── Dados principais: o MESMO card de profissional do feed ──────
-                 Montado via buildProCard (foto 3×4, QAV, escudo de IC, tags,
-                 disponibilidade, métodos de pagamento; flip → comentários), a
-                 partir de um "pro" derivado do appState/Firebase. -->
-            <div id="profile-pro-card" class="profile-pro-card"></div>
-
-            <!-- ── Seção de avaliação: QR do perfil + compartilhar ────────────
-                 Preenche o resto da tela. O QR aponta hoje para a URL do app
-                 (placeholder do período de testes; vira a URL própria do perfil
-                 quando a persistência entrar). -->
-            <section class="card card--soft card--shadow profile-review">
-                <span class="eyebrow">Avaliações</span>
-                <p class="profile-review__text">Mostre este código ou compartilhe seu perfil para receber avaliações de quem você já atendeu.</p>
-                <div class="profile-review__qr" role="img" aria-label="QR code do seu perfil">
-                    <svg class="profile-review__qr-svg" viewBox="0 0 29 29" shape-rendering="crispEdges" aria-hidden="true"><path stroke="currentColor" d="M0 0.5h7m2 0h2m3 0h1m2 0h3m2 0h7M0 1.5h1m5 0h1m1 0h1m2 0h3m4 0h3m1 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m2 0h1m1 0h1m3 0h1m3 0h2m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m2 0h1m3 0h1m2 0h1m1 0h2m2 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h3m2 0h1m2 0h4m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m2 0h1m4 0h6m2 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 7.5h4m2 0h1m1 0h2m1 0h1M0 8.5h1m1 0h1m1 0h1m3 0h2m4 0h5m3 0h1m2 0h1M0 9.5h4m3 0h2m1 0h1m1 0h2m1 0h2m4 0h2m2 0h1m2 0h1M0 10.5h2m1 0h1m2 0h1m4 0h2m1 0h4m3 0h2m1 0h1m1 0h3M0 11.5h2m2 0h2m1 0h1m1 0h6m1 0h2m1 0h1m7 0h1M0 12.5h2m2 0h3m3 0h1m3 0h2m1 0h1m2 0h4m1 0h1m1 0h2M3 13.5h1m4 0h1m5 0h2m1 0h1m2 0h3m2 0h1m2 0h1M0 14.5h2m2 0h4m3 0h1m1 0h1m3 0h2m1 0h1m4 0h1m1 0h2M0 15.5h3m1 0h1m6 0h1m3 0h1m1 0h1m1 0h3m2 0h2m1 0h1M0 16.5h1m3 0h3m2 0h1m1 0h2m3 0h2m3 0h2m2 0h1m1 0h2M1 17.5h1m3 0h1m2 0h1m4 0h1m1 0h4m1 0h3m2 0h2m1 0h1M0 18.5h1m3 0h1m1 0h2m1 0h1m1 0h2m1 0h5m2 0h1m1 0h2m2 0h2M1 19.5h5m4 0h1m2 0h2m1 0h2m4 0h1m2 0h1m1 0h1M0 20.5h1m1 0h1m3 0h2m1 0h3m2 0h2m2 0h1m1 0h5M8 21.5h1m5 0h2m4 0h1m3 0h1m1 0h3M0 22.5h7m2 0h1m2 0h2m3 0h1m1 0h2m1 0h1m1 0h2m1 0h2M0 23.5h1m5 0h1m2 0h2m4 0h1m4 0h1m3 0h2m2 0h1M0 24.5h1m1 0h3m1 0h1m1 0h1m1 0h1m5 0h1m3 0h5M0 25.5h1m1 0h3m1 0h1m5 0h2m1 0h3m5 0h2m1 0h1M0 26.5h1m1 0h3m1 0h1m1 0h1m2 0h3m1 0h2m1 0h3m2 0h3m2 0h1M0 27.5h1m5 0h1m2 0h3m1 0h1m2 0h5m1 0h1m1 0h1m2 0h1M0 28.5h7m1 0h2m2 0h2m1 0h1m2 0h3m2 0h2m2 0h2"/></svg>
+                <!-- Ações (exceto Fechar): retangulares com bordas arredondadas. -->
+                <div class="profile-sheet__actions">
+                    <button type="button" id="btn-profile-logout" class="btn profile-sheet__btn">
+                        <svg class="icon" aria-hidden="true"><use href="#ic-logout"></use></svg>Sair
+                    </button>
+                    <button type="button" id="btn-profile-edit" class="btn profile-sheet__btn">
+                        <svg class="icon" aria-hidden="true"><use href="#ic-edit"></use></svg>Editar perfil
+                    </button>
                 </div>
-                <button type="button" id="btn-profile-share" class="btn btn--accent profile-review__share">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-share"></use></svg>Compartilhar perfil
-                </button>
-            </section>
 
-        </div><!-- /.profile-scroll -->
+                <!-- Dados principais: card de profissional REAL flutuante
+                     (buildProCard: foto, QAV, escudo de IC, tags, disponibilidade,
+                     pagamento; flip → comentários), derivado do appState/Firebase. -->
+                <div id="profile-pro-card" class="profile-pro-card"></div>
 
-    </section>
+                <!-- Card de Avaliações: QR do perfil + compartilhar. O QR aponta
+                     hoje para a URL do app (placeholder do período de testes; vira
+                     a URL própria do perfil quando a persistência entrar). -->
+                <section class="card card--soft card--shadow profile-review">
+                    <span class="eyebrow">Avaliações</span>
+                    <p class="profile-review__text">Mostre este código ou compartilhe seu perfil para receber avaliações de quem você já atendeu.</p>
+                    <div class="profile-review__qr" role="img" aria-label="QR code do seu perfil">
+                        <svg class="profile-review__qr-svg" viewBox="0 0 29 29" shape-rendering="crispEdges" aria-hidden="true"><path stroke="currentColor" d="M0 0.5h7m2 0h2m3 0h1m2 0h3m2 0h7M0 1.5h1m5 0h1m1 0h1m2 0h3m4 0h3m1 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m2 0h1m1 0h1m3 0h1m3 0h2m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m2 0h1m3 0h1m2 0h1m1 0h2m2 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h3m2 0h1m2 0h4m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m2 0h1m4 0h6m2 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 7.5h4m2 0h1m1 0h2m1 0h1M0 8.5h1m1 0h1m1 0h1m3 0h2m4 0h5m3 0h1m2 0h1M0 9.5h4m3 0h2m1 0h1m1 0h2m1 0h2m4 0h2m2 0h1m2 0h1M0 10.5h2m1 0h1m2 0h1m4 0h2m1 0h4m3 0h2m1 0h1m1 0h3M0 11.5h2m2 0h2m1 0h1m1 0h6m1 0h2m1 0h1m7 0h1M0 12.5h2m2 0h3m3 0h1m3 0h2m1 0h1m2 0h4m1 0h1m1 0h2M3 13.5h1m4 0h1m5 0h2m1 0h1m2 0h3m2 0h1m2 0h1M0 14.5h2m2 0h4m3 0h1m1 0h1m3 0h2m1 0h1m4 0h1m1 0h2M0 15.5h3m1 0h1m6 0h1m3 0h1m1 0h1m1 0h3m2 0h2m1 0h1M0 16.5h1m3 0h3m2 0h1m1 0h2m3 0h2m3 0h2m2 0h1m1 0h2M1 17.5h1m3 0h1m2 0h1m4 0h1m1 0h4m1 0h3m2 0h2m1 0h1M0 18.5h1m3 0h1m1 0h2m1 0h1m1 0h2m1 0h5m2 0h1m1 0h2m2 0h2M1 19.5h5m4 0h1m2 0h2m1 0h2m4 0h1m2 0h1m1 0h1M0 20.5h1m1 0h1m3 0h2m1 0h3m2 0h2m2 0h1m1 0h5M8 21.5h1m5 0h2m4 0h1m3 0h1m1 0h3M0 22.5h7m2 0h1m2 0h2m3 0h1m1 0h2m1 0h1m1 0h2m1 0h2M0 23.5h1m5 0h1m2 0h2m4 0h1m4 0h1m3 0h2m2 0h1M0 24.5h1m1 0h3m1 0h1m1 0h1m1 0h1m5 0h1m3 0h5M0 25.5h1m1 0h3m1 0h1m5 0h2m1 0h3m5 0h2m1 0h1M0 26.5h1m1 0h3m1 0h1m1 0h1m2 0h3m1 0h2m1 0h3m2 0h3m2 0h1M0 27.5h1m5 0h1m2 0h3m1 0h1m2 0h5m1 0h1m1 0h1m2 0h1M0 28.5h7m1 0h2m2 0h2m1 0h1m2 0h3m2 0h2m2 0h2"/></svg>
+                    </div>
+                    <button type="button" id="btn-profile-share" class="btn btn--accent profile-review__share">
+                        <svg class="icon" aria-hidden="true"><use href="#ic-share"></use></svg>Compartilhar perfil
+                    </button>
+                </section>
+
+            </div><!-- /.profile-sheet__panel -->
+        </div><!-- /.historico-sheet__clip -->
+    </div><!-- /#profile-sheet -->
 
     <!-- Confirmação de indicação — dock fixo na base durante o modo indicação (na home) -->
     <div id="agenda-indicate-confirm" class="agenda-confirm u-hidden">

@@ -1,92 +1,79 @@
 /* =========================================================================
-   TELA DE PERFIL (#view-profile) — visão do próprio profissional.
-   Tela verde (--bg-canvas) no padrão do #view-onboarding: top bar fixa
-   --p-green + corpo com scroll interno. Os DADOS PRINCIPAIS são o MESMO card
-   de profissional do feed (montado por buildProCard) — este arquivo só faz o
-   ARRANJO da tela e a seção de AVALIAÇÃO (QR + compartilhar). Carregado por
-   ÚLTIMO para os ajustes de escopo vencerem as classes reusadas.
+   GAVETA DE PERFIL (#profile-sheet) — visão do próprio profissional.
+   Gaveta slide-down no MESMO padrão das outras: reusa o scaffolding
+   .historico-sheet* (container/clip/painel/slide/durações) + a variante
+   --bar-clear (a action bar segue viva; o AVATAR que abre vira o Fechar).
+   Diferenças próprias, aqui: backdrop com BLUR, painel TRANSPARENTE (cards
+   flutuantes, sem panel-card ao redor) e os botões Sair/Editar retangulares.
+   Carregado por ÚLTIMO para vencer as classes reusadas.
    ========================================================================= */
 
-/* Fundo verde escuro, sanduíche de barra fixa + scroll (igual ao cadastro):
-   a .screen não rola; quem rola é o .profile-scroll. */
-#view-profile.screen {
-  background: var(--bg-canvas);
-  overflow: hidden;
-  padding: 0;
+/* Backdrop: além do dim padrão (--overlay), ganha BLUR (como o modo indicação). */
+.profile-sheet .historico-sheet__backdrop {
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
 }
 
-/* ── Barra do TOPO fixa ─────────────────────────────────────────────────
-   Verde --p-green (mesmo tom da barra de status), fora do scroll, carrega
-   a safe-area superior. */
-.profile-topbar {
-  flex-shrink: 0;
-  margin: 0;
-  padding: calc(var(--space-sm) + env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
-  background: var(--p-green);
-}
-
-.profile-topbar__nav {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-/* Botões da top bar no padrão de FECHAR sobre verde: fill branco translúcido
-   + ícone claro, sem contorno (mesma receita do #btn-onboarding-cancel e do
-   .action-close-mode). Só-ícone quadrado. */
-.profile-topbar__btn {
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border-radius: var(--radius-pill);
-  background: var(--on-green-soft);
-  color: var(--t-light);
-}
-
-.profile-topbar__btn .icon {
-  font-size: 1.35rem;
-}
-
-/* "Fechar" empurrado para a direita, separando-o do par Sair/Editar. */
-.profile-topbar__btn--close {
-  margin-left: auto;
-}
-
-/* ── Corpo rolável ──────────────────────────────────────────────────────
-   Coluna flex: o card real toma a altura natural; a seção de avaliação
-   preenche o que sobra. Só padding lateral; o respiro vertical vem das
-   margens dos blocos (as shades sticky não sobem acima da caixa do pai). */
-.profile-scroll {
-  flex: 1;
-  min-height: 0;
+/* Painel TRANSPARENTE: mantém o slide/posição do .historico-sheet__panel, mas
+   sem o "card" (fundo/sombra/padding/raio) — os cards internos é que flutuam.
+   Rola por dentro quando o conteúdo passa da altura (o card pode abrir o flip). */
+.profile-sheet__panel {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: var(--space-sm) 0 calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+  gap: var(--space-sm);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--on-green-muted) transparent;
+}
+.profile-sheet__panel::-webkit-scrollbar { width: 5px; }
+.profile-sheet__panel::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
+
+/* ── Ações (exceto Fechar): retangulares com bordas arredondadas ─────────
+   Cards brancos lado a lado sobre o feed borrado; base flex-center/press vem
+   de .btn. */
+.profile-sheet__actions {
   display: flex;
-  flex-direction: column;
-  padding: 0 var(--space-md);
+  gap: var(--space-xs);
+  flex-shrink: 0;
 }
 
-/* Barra fina sempre visível (fundo verde → thumb claro translúcido). */
-.profile-scroll::-webkit-scrollbar { width: 5px; }
-.profile-scroll::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
-.profile-scroll { scrollbar-width: thin; scrollbar-color: var(--on-green-muted) transparent; }
+.profile-sheet__btn {
+  flex: 1;
+  gap: 6px;
+  padding: 10px var(--space-sm);
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  color: var(--t-main);
+  box-shadow: var(--shadow-sm);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+}
 
-/* ── Dados principais: o card de profissional do feed ───────────────────
-   O .pro-card já traz seu próprio visual/sombra; aqui só o respiro do topo.
-   (O .pro-card carrega margin-bottom próprio.) */
+.profile-sheet__btn .icon {
+  font-size: 1.2rem;
+  color: var(--p-green);
+}
+
+/* Card de profissional flutuante: o .pro-card já traz sombra/raio próprios; só
+   zera a margem inferior dele (o respiro vem do gap do painel). */
 .profile-pro-card {
-  margin-top: var(--space-md);
+  flex-shrink: 0;
+}
+.profile-pro-card .pro-card {
+  margin-bottom: 0;
 }
 
-/* ── Seção de avaliação (QR + compartilhar) ─────────────────────────────
-   Card cinza que preenche o resto da tela; conteúdo centralizado. */
+/* ── Card de Avaliações (QR + compartilhar) — card cinza flutuante ────────── */
 .profile-review {
-  flex: 1 0 auto;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-md);
-  margin-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
 }
 
 .profile-review .eyebrow {
@@ -105,7 +92,7 @@
    fundo branco vem daqui (contraste p/ leitura). Quadrado, centralizado. */
 .profile-review__qr {
   margin: var(--space-xs) 0;
-  width: min(58vw, 200px);
+  width: min(52vw, 190px);
   aspect-ratio: 1;
   padding: var(--space-sm);
   background: var(--bg-white);
@@ -125,6 +112,24 @@
 
 .profile-review__share {
   align-self: stretch;
-  margin-top: auto;   /* empurra o botão para a base da seção */
   gap: 6px;
 }
+
+/* ── Avatar da action bar vira o botão de FECHAR (X), no MESMO lugar ──────
+   Enquanto a gaveta está aberta: esconde a foto e mostra o X (círculo no
+   padrão de fechar sobre verde: fill --on-green-soft + ícone claro). O Fechar
+   é o ÚNICO botão do perfil que segue redondo (exceção pedida). */
+.agenda-filters__profile-close {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--on-green-soft);
+  color: var(--t-light);
+  align-items: center;
+  justify-content: center;
+}
+.agenda-filters__profile-close .icon { font-size: 1.3rem; }
+
+.agenda-filters__profile--close .agenda-filters__profile-img { display: none; }
+.agenda-filters__profile--close .agenda-filters__profile-close { display: inline-flex; }

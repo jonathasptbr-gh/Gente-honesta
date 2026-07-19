@@ -64,7 +64,9 @@ navigateTo('form-otp')      // troca sub-passo dentro de #view-auth (u-hidden)
 | `#view-onboarding` | autenticado, sem `displayName` |
 | `#view-install` | pós-cadastro, fora do modo standalone |
 | `#view-feed` | autenticado com perfil completo |
-| `#view-profile` | perfil do próprio usuário (aberto pelo avatar da action bar; Sair/Editar/Fechar na top bar) |
+
+Perfil do próprio usuário = **gaveta** `#profile-sheet` (não é `.screen`): slide-down aberto pelo avatar
+da action bar (que vira o Fechar, no mesmo lugar) — reusa `.historico-sheet*` + `--bar-clear`.
 
 **Sub-passos de auth** (dentro de `#view-auth`): `step-intro` → `form-phone` → `form-otp`.
 
@@ -124,9 +126,11 @@ css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; N
   feed/cards-pro.css       — flip + cards de profissional
   feed/vagas.css           — painel + card de vaga
   feed/ajudantes.css       — sheet "Serviço de ajudantes"
-  profile/profile.css      — tela de perfil do próprio usuário (#view-profile); carregada por último.
-                             Dados principais = card de profissional real (buildProCard + bindProCardFlip);
-                             CSS próprio só p/ top bar, scroll e a seção de Avaliações (QR + compartilhar)
+  profile/profile.css      — gaveta de perfil do próprio usuário (#profile-sheet); carregada por último.
+                             Reusa .historico-sheet* + --bar-clear (o avatar vira o Fechar); painel
+                             TRANSPARENTE com o card de profissional real (buildProCard) flutuante + o
+                             card de Avaliações (QR + compartilhar). CSS próprio: backdrop-blur, painel
+                             sem-card, botões Sair/Editar retangulares e o avatar-fecha
 
 js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
   core/app.js       — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW,

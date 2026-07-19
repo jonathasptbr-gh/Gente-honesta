@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
     feedActionBar?.classList.remove('agenda-filters--pedidos');
     closeFiltersSheet();
     closeContractsSheet();
+    closeProfileSheet();
   };
 
   const showPedidosPanel = () => {
@@ -313,9 +314,10 @@ document.addEventListener('DOMContentLoaded', () => {
     feedPanels?.classList.add('feed-panels--pedidos');
     feedActionBar?.classList.remove('agenda-filters--vagas');
     feedActionBar?.classList.add('agenda-filters--pedidos');
-    // fecha painel de filtros / gaveta de contratos se estiverem abertos
+    // fecha painel de filtros / gaveta de contratos / perfil se estiverem abertos
     closeFiltersSheet();
     closeContractsSheet();
+    closeProfileSheet();
   };
 
   const showProsPanel = () => {
@@ -3570,12 +3572,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
 
   // =========================================================================
-  // TELA - PERFIL (#view-profile) — visão do próprio profissional.
-  // Aberta pelo AVATAR da action bar (#btn-open-profile). Os DADOS PRINCIPAIS
-  // são o MESMO card de profissional do feed (buildProCard + bindProCardFlip):
-  // foto, QAV, escudo de IC, tags, disponibilidade, pagamento e — no flip — os
-  // comentários. Abaixo, a seção de AVALIAÇÃO (QR + compartilhar). Sair, Editar
-  // e Fechar vivem na top bar. Registrada no backNav p/ o "voltar" fechá-la.
+  // GAVETA - PERFIL (#profile-sheet) — visão do próprio profissional.
+  // Gaveta slide-down (reusa .historico-sheet* + --bar-clear), aberta pelo
+  // AVATAR da action bar (que vira o Fechar, no mesmo lugar). Os DADOS
+  // PRINCIPAIS são o MESMO card de profissional do feed (buildProCard +
+  // bindProCardFlip): foto, QAV, escudo de IC, tags, disponibilidade, pagamento
+  // e — no flip — os comentários. Abaixo, o card de AVALIAÇÃO (QR + compartilhar).
+  // Sair/Editar vivem no topo do painel. Registrada no backNav p/ o "voltar".
   // =========================================================================
 
   // IC do próprio perfil (mock — a persistência da reputação é feature futura).
@@ -3620,15 +3623,39 @@ document.addEventListener('DOMContentLoaded', () => {
     if (img && window.appState?.photoBlob) img.src = window.appState.photoBlob;
   }
 
-  function openProfile() {
-    window.showView('view-profile');   // troca de tela → zera as camadas do feed
-    populateProfile();                 // popula com a tela já ativa (medidas corretas)
-    window.backNav?.push('view-profile', closeProfile);
+  // Gaveta de perfil: mesmo maquinário das outras (--bar-clear = barra viva).
+  // O AVATAR que abre vira o botão de FECHAR (X) no mesmo lugar. function
+  // declarations (hoistadas) — showVagasPanel/showPedidosPanel as chamam.
+  function isProfileSheetOpen() {
+    return !!document.getElementById('profile-sheet')?.classList.contains('historico-sheet--open');
   }
 
-  function closeProfile() {
-    window.backNav?.remove('view-profile');
-    window.showView('view-feed');
+  // Avatar ↔ X de fechar (mantém a posição). Sem trocar de tela: a gaveta
+  // flutua sobre o feed, como as outras.
+  function setProfileAvatarClose(on) {
+    const btn = document.getElementById('btn-open-profile');
+    btn?.classList.toggle('agenda-filters__profile--close', on);
+    btn?.setAttribute('aria-label', on ? 'Fechar perfil' : 'Perfil');
+  }
+
+  function openProfileSheet() {
+    const sheet = document.getElementById('profile-sheet');
+    if (!sheet) return;
+    closeFiltersSheet();
+    closeContractsSheet();
+    populateProfile();                 // constrói o card ANTES de medir a altura do painel
+    anchorBelowActionBar(sheet);       // --sheet-top + durações derivadas da altura
+    sheet.classList.add('historico-sheet--open');
+    window.backNav?.push('profile-sheet', closeProfileSheet);
+    setProfileAvatarClose(true);
+  }
+
+  function closeProfileSheet() {
+    const sheet = document.getElementById('profile-sheet');
+    if (!sheet?.classList.contains('historico-sheet--open')) return;
+    window.backNav?.remove('profile-sheet');
+    sheet.classList.remove('historico-sheet--open');
+    setProfileAvatarClose(false);
   }
 
   // Logout (movido do avatar para o botão "Sair" da top bar do perfil).
@@ -3674,9 +3701,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Avatar da action bar → abre o perfil (antes disparava o logout direto).
-  document.getElementById('btn-open-profile')?.addEventListener('click', openProfile);
-  document.getElementById('btn-profile-close')?.addEventListener('click', closeProfile);
+  // Avatar da action bar → abre/fecha a gaveta de perfil (o avatar É o abridor
+  // e o fechador, no mesmo lugar). Antes disparava o logout direto.
+  document.getElementById('btn-open-profile')?.addEventListener('click', () => {
+    if (isProfileSheetOpen()) closeProfileSheet(); else openProfileSheet();
+  });
+  // Tap-outside do painel fecha (container --bar-clear começa abaixo da barra,
+  // então o toque no avatar chega ao handler acima; aqui só o resto da gaveta).
+  document.getElementById('profile-sheet')?.addEventListener('click', (e) => {
+    if (!e.target.closest('.historico-sheet__panel')) closeProfileSheet();
+  });
   document.getElementById('btn-profile-logout')?.addEventListener('click', doLogout);
   document.getElementById('btn-profile-edit')?.addEventListener('click',
     () => comingSoon('Editar perfil', 'Edição de perfil', 'edit'));
