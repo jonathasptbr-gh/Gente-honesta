@@ -44,35 +44,50 @@ const IC_ROUND = {
 const symInner = (file) => readFileSync(`${SYM}/${file}`, 'utf8').match(/<svg[^>]*>([\s\S]*?)<\/svg>/)[1].trim();
 const fillFile = (n) => (existsSync(`${SYM}/${n}-fill.svg`) ? `${n}-fill.svg` : `${n}.svg`);
 
-// ENGROSSAMENTO DO TRAÇO ("bold"): o SVG estático não tem o eixo GRAD que a fonte
-// usava (`GRAD 25`), e o eixo wght sozinho quase não muda o traço em tamanhos de UI
-// (16–24px). Então assamos um STROKE da MESMA cor (currentColor) SOB o fill
-// (paint-order) — fattens cada glifo além do desenho base. A largura é PROPORCIONAL
-// ao viewBox de cada fonte: Material Symbols vivem no grid 960, o "ic" no grid 24
-// (é POR ISSO que um valor único não serve p/ os dois — o "padrão" que faltava).
-const STROKE_MS = 44;                       // Material Symbols (grid 960) ≈ 4.6%
-const STROKE_IC = +(STROKE_MS * 24 / 960).toFixed(2);   // "ic" (grid 24) — mesma proporção (~1.1)
-const thicken = (inner, sw) =>
-  `<g fill="currentColor" stroke="currentColor" stroke-width="${sw}" paint-order="stroke" ` +
-  `stroke-linejoin="round" stroke-linecap="round">${inner}</g>`;
+// ENGROSSAMENTO DO TRAÇO ("bold"), PROPORCIONAL À "magreza" do ícone:
+// O SVG estático não tem o eixo GRAD da fonte antiga (`GRAD 25`), e o `wght` sozinho
+// quase não muda o traço em tamanhos de UI. Então assamos um STROKE da MESMA cor sob
+// o fill (paint-order) p/ engrossar. MAS um stroke ÚNICO deforma: ícones de LINHA
+// (seta, +, x, lupa) eram finos e precisavam do reforço, enquanto ícones SÓLIDOS
+// (maleta, view_agenda, contrato) já eram "grossos" e incharam/deformaram. Esse é o
+// PADRÃO: o reforço tem que ser INVERSAMENTE proporcional à COBERTURA DE TINTA do
+// glifo. `scripts/icon-coverage.json` traz a cobertura (% de pixels preenchidos,
+// medida por rasterização) de cada ícone; daqui sai o stroke por rampa:
+//   cobertura ≤ COV_LO  → stroke cheio (ícone de linha, bem fino)
+//   cobertura ≥ COV_HI  → stroke ZERO  (ícone sólido, não mexe)
+// A largura ainda é escalada pelo viewBox de cada fonte (960 p/ Material Symbols,
+// 24 p/ o set "ic").
+const COVERAGE = JSON.parse(readFileSync('./scripts/icon-coverage.json', 'utf8'));
+const COV_LO = 14, COV_HI = 34, STROKE_BASE = 46;   // grid 960 (Material Symbols)
+const strokeMS = (name) => {
+  const cov = COVERAGE[name];
+  if (cov == null) { console.warn(`[icons] '${name}' sem cobertura em icon-coverage.json — sem reforço (remeça o JSON ao adicionar ícones).`); return 0; }
+  const factor = Math.max(0, Math.min(1, (COV_HI - cov) / (COV_HI - COV_LO)));
+  return +(STROKE_BASE * factor).toFixed(1);
+};
+// Envolve o conteúdo num grupo que pinta o stroke SOB o fill. sw=0 → sem grupo (sólido).
+const wrap = (inner, sw) => sw > 0
+  ? `<g fill="currentColor" stroke="currentColor" stroke-width="${sw}" paint-order="stroke" stroke-linejoin="round" stroke-linecap="round">${inner}</g>`
+  : inner;
 
 function fillSymbol(name) {
   if (IC_ROUND[name]) {
     const ic = IC.icons[IC_ROUND[name]];
     if (!ic) throw new Error(`IC_ROUND aponta p/ '${IC_ROUND[name]}' inexistente no set ic`);
-    return `<symbol id="ic-${name}" viewBox="0 0 ${ic.width || IC.width || 24} ${ic.height || IC.height || 24}">${thicken(ic.body, STROKE_IC)}</symbol>`;
+    const swIC = +(strokeMS(name) * 24 / 960).toFixed(2);   // reescala p/ o grid 24
+    return `<symbol id="ic-${name}" viewBox="0 0 ${ic.width || IC.width || 24} ${ic.height || IC.height || 24}">${wrap(ic.body, swIC)}</symbol>`;
   }
   if (!existsSync(`${SYM}/${name}-fill.svg`) && !existsSync(`${SYM}/${name}.svg`)) {
     throw new Error(`Ícone usado '${name}' não é um Material Symbol (nem está em IC_ROUND). ` +
       `Typo no código, ou precisa ser adicionado ao IC_ROUND?`);
   }
-  return `<symbol id="ic-${name}" viewBox="0 -960 960 960">${thicken(symInner(fillFile(name)), STROKE_MS)}</symbol>`;
+  return `<symbol id="ic-${name}" viewBox="0 -960 960 960">${wrap(symInner(fillFile(name)), strokeMS(name))}</symbol>`;
 }
 
 const { used } = collectUsedIcons(ROOT);   // <- lista DERIVADA do uso
 const symbols = [
   ...used.map(fillSymbol),
-  ...OUTLINE.map((n) => `<symbol id="ic-${n}-o" viewBox="0 -960 960 960">${thicken(symInner(`${n}.svg`), STROKE_MS)}</symbol>`),
+  ...OUTLINE.map((n) => `<symbol id="ic-${n}-o" viewBox="0 -960 960 960">${wrap(symInner(`${n}.svg`), strokeMS(n))}</symbol>`),
 ];
 
 const sprite =

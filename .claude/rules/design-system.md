@@ -87,13 +87,17 @@ sem esperar download e SEM rede (offline-safe — a fonte cross-origin nunca era
 A classe é `.icon` (num `<svg>`): a base em `base.css` a faz medir `1em×1em` e usar
 `fill: currentColor`, então as regras seguem dimensionando por `font-size` e colorindo por `color`.
 NÃO use `font-variation-settings` (SVG ignora) — peso/preenchimento já vêm assados no símbolo (wght
-**700**, FILL 1, via `@material-symbols/svg-700`). **Traço "bold":** a fonte antiga usava `wght 500 +
-GRAD 25` (grade), e o SVG não tem o eixo GRAD; o wght sozinho quase não muda o traço em 16–24px. Então
-o gerador ASSA um `stroke` da MESMA cor sob o `fill` (`paint-order`) em cada símbolo (`thicken()` em
-`gen-icon-sprite.mjs`), engrossando o glifo de forma visível e uniforme. A largura do stroke é
-PROPORCIONAL ao viewBox de cada fonte (960 p/ Material Symbols, 24 p/ o set `ic` — por isso um valor
-único não serve p/ os dois). Variante CONTORNO: símbolos `#ic-NOME-o` (meta-items dos cards Pro/vaga e
-botões `?`).
+**700**, FILL 1, via `@material-symbols/svg-700`). **Traço "bold" por RAMPA de cobertura:** a fonte
+antiga usava `wght 500 + GRAD 25` (grade), e o SVG não tem GRAD; o wght sozinho quase não muda o traço
+em 16–24px. O gerador ASSA um `stroke` da MESMA cor sob o `fill` (`paint-order`) p/ engrossar — MAS um
+stroke ÚNICO deforma: ícones de LINHA (seta, `+`, `x`, lupa) eram finos e precisavam do reforço, os
+SÓLIDOS (maleta, `view_agenda`, contrato) já eram grossos e INCHAVAM. O reforço é então INVERSAMENTE
+proporcional à **cobertura de tinta** do glifo (`scripts/icon-coverage.json`, % de pixels preenchidos
+por rasterização): cobertura baixa → stroke cheio; cobertura alta → stroke zero (`strokeMS()` em
+`gen-icon-sprite.mjs`, rampa `COV_LO=14`→`COV_HI=34`). A largura ainda é escalada pelo viewBox de cada
+fonte (960 p/ Material Symbols, 24 p/ o set `ic`). **Ao adicionar um ícone**, regere o `icon-coverage.json`
+(rasterização) — sem entrada, o ícone sai sem reforço (aviso no gerador). Variante CONTORNO: símbolos
+`#ic-NOME-o` (meta-items dos cards Pro/vaga e botões `?`).
 - **Gerar HTML de ícone em JS:** `window.icon(nome, classeExtra?)`. **Trocar ícone em runtime:**
   `window.setIcon(elIcone, nome)` (era `elemento.textContent = nome`).
 - **Adicionar um ícone novo = só USAR** (via `#ic-NOME`, `window.icon`, `setIcon`, `customAlert`/
