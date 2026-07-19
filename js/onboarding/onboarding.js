@@ -501,12 +501,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const setButtonsCapture = () => {
     if (btnSnap) {
       btnSnap.className = 'btn btn--outline camera-view__action-btn';
-      btnSnap.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#ic-photo_camera"></use></svg>Tirar foto';
+      btnSnap.innerHTML = window.icon('photo_camera') + 'Tirar foto';
       btnSnap.setAttribute('aria-label', 'Tirar foto');
     }
     if (btnCameraCancel) {
       btnCameraCancel.className = 'btn camera-view__action-btn camera-view__action-btn--cancel';
-      btnCameraCancel.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>Cancelar';
+      btnCameraCancel.innerHTML = window.icon('close') + 'Cancelar';
       btnCameraCancel.setAttribute('aria-label', 'Cancelar');
     }
   };
@@ -515,12 +515,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const setButtonsReview = () => {
     if (btnSnap) {
       btnSnap.className = 'btn btn--outline camera-view__action-btn';
-      btnSnap.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#ic-replay"></use></svg>Outra foto';
+      btnSnap.innerHTML = window.icon('replay') + 'Outra foto';
       btnSnap.setAttribute('aria-label', 'Tirar outra foto');
     }
     if (btnCameraCancel) {
       btnCameraCancel.className = 'btn camera-view__action-btn camera-view__action-btn--confirm';
-      btnCameraCancel.innerHTML = '<svg class="icon" aria-hidden="true"><use href="#ic-check"></use></svg>Usar foto';
+      btnCameraCancel.innerHTML = window.icon('check') + 'Usar foto';
       btnCameraCancel.setAttribute('aria-label', 'Confirmar foto');
     }
   };

@@ -51,7 +51,7 @@ function setButtonLoading(btn, label) {
   btn.disabled = true;
   // Spinner via classe .btn__spinner (components.css) — antes o estilo era
   // inline e duplicado aqui e no handler de reenvio.
-  btn.innerHTML = `<svg class="icon btn__spinner" aria-hidden="true"><use href="#ic-autorenew"></use></svg> ${label}`;
+  btn.innerHTML = `${window.icon('autorenew', 'btn__spinner')} ${label}`;
 }
 
 function restoreButton(btn, html) {
@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Feedback visual — muda o texto do link para "Enviando..." e desabilita
     const originalHTML = btnResend.innerHTML;
     btnResend.disabled = true;
-    btnResend.innerHTML = '<svg class="icon btn__spinner btn__spinner--sm" aria-hidden="true"><use href="#ic-autorenew"></use></svg>Enviando...';
+    btnResend.innerHTML = window.icon('autorenew', 'btn__spinner btn__spinner--sm') + 'Enviando...';
 
     // Chama sendOTP em modo reenvio — não navega, não pisca, retorna Promise real
     const result = await sendOTP(true);

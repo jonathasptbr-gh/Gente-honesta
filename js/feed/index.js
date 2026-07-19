@@ -1281,10 +1281,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // desliza p/ a aba de pedidos → abre a gaveta de fazer pedido).
   const AGENDA_CTA_PEDIDO_HTML = `
     <div class="agenda-cta-pedido">
-      <svg class="icon agenda-cta-pedido__icon" aria-hidden="true"><use href="#ic-person_search"></use></svg>
+      ${window.icon('person_search', 'agenda-cta-pedido__icon')}
       <p class="agenda-cta-pedido__text">Não está conseguindo achar o profissional que procura? Faça um pedido público por indicações.</p>
       <button type="button" class="btn btn--accent agenda-cta-pedido__btn" id="btn-agenda-cta-pedido">
-        <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>Fazer pedido
+        ${window.icon('add')}Fazer pedido
       </button>
     </div>`;
 
@@ -1293,10 +1293,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // da plataforma (um conhecido ainda não cadastrado). Botão #btn-agenda-cta-share.
   const AGENDA_CTA_SHARE_HTML = `
     <div class="agenda-cta-pedido agenda-cta-pedido--share">
-      <svg class="icon agenda-cta-pedido__icon" aria-hidden="true"><use href="#ic-ios_share"></use></svg>
+      ${window.icon('ios_share', 'agenda-cta-pedido__icon')}
       <p class="agenda-cta-pedido__text">Não encontrou quem indicar aqui? Compartilhe este pedido com alguém de fora da plataforma — leve a um conhecido de confiança que ainda não se cadastrou.</p>
       <button type="button" class="btn btn--accent agenda-cta-pedido__btn" id="btn-agenda-cta-share">
-        <svg class="icon" aria-hidden="true"><use href="#ic-share"></use></svg>Compartilhar pedido
+        ${window.icon('share')}Compartilhar pedido
       </button>
     </div>`;
 
@@ -1509,7 +1509,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   Me candidatar
                 </button>
                 <button type="button" class="btn vaga-card__btn-share" aria-label="Compartilhar vaga">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-share"></use></svg>
+                  ${window.icon('share')}
                 </button>
               </div>`;
 
@@ -1599,7 +1599,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div><!-- /back-form -->
             <div class="vaga-card__back-footer">
               <button type="button" class="btn vaga-card__btn-back" aria-label="Voltar para a vaga">
-                <svg class="icon" aria-hidden="true"><use href="#ic-arrow_back"></use></svg>
+                ${window.icon('arrow_back')}
               </button>
               <button type="button" class="btn btn--primary vaga-card__btn-submit" data-vaga="${vaga.id}">
                 Confirmar
@@ -2100,7 +2100,7 @@ document.addEventListener('DOMContentLoaded', () => {
       row.innerHTML = `
         <input type="text" class="input-text vaga-dyn-input" maxlength="80" placeholder="${placeholder}">
         <button type="button" class="vaga-dyn-remove" aria-label="Remover">
-          <svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>
+          ${window.icon('close')}
         </button>
       `;
       const input = row.querySelector('.vaga-dyn-input');
@@ -2171,9 +2171,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // O abridor da action bar vira "Fechar" (X) enquanto QUALQUER gaveta de vaga
     // está aberta. O rótulo NATURAL depende do estado: "Criar vaga" antes de
     // publicar, "Ver vaga" depois (myVagaId setado).
-    const CRIAR_VAGA_HTML  = '<svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>Criar vaga';
-    const VER_VAGA_HTML    = '<svg class="icon" aria-hidden="true"><use href="#ic-visibility"></use></svg>Ver vaga';
-    const FECHAR_VAGA_HTML = '<svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>Fechar';
+    const CRIAR_VAGA_HTML  = window.icon('add') + 'Criar vaga';
+    const VER_VAGA_HTML    = window.icon('visibility') + 'Ver vaga';
+    const FECHAR_VAGA_HTML = window.icon('close') + 'Fechar';
     const naturalVagaHTML  = () => (myVagaId ? VER_VAGA_HTML : CRIAR_VAGA_HTML);
     const setVagaOpenerClose = (isClose) => {
       if (!btnCriarVaga) return;
@@ -2211,11 +2211,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ${vagaContentHTML(vaga)}
         <div class="vaga-detail__actions">
           <button type="button" class="btn btn--accent vaga-detail__analyze-btn">
-            <svg class="icon" aria-hidden="true"><use href="#ic-group_search"></use></svg>Analisar candidatos
+            ${window.icon('group_search')}Analisar candidatos
           </button>
           <button type="button" class="vaga-detail__count" aria-label="${taken} de ${MAX_CANDIDATOS} candidatos inscritos, ver candidatos">
             <span class="vaga-detail__count-value">${taken}/${MAX_CANDIDATOS}</span>
-            <svg class="icon" aria-hidden="true"><use href="#ic-groups"></use></svg>
+            ${window.icon('groups')}
           </button>
         </div>`;
     };
@@ -2226,7 +2226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ajudantes; o rótulo natural "Serviço de ajudantes" é o mesmo dos dois lados).
     const btnAjudanteBar = document.getElementById('btn-chamar-ajudante');
     const AJUDANTE_NATURAL_HTML = 'Diárias';
-    const CONCLUIR_VAGA_HTML = '<svg class="icon" aria-hidden="true"><use href="#ic-check_circle"></use></svg>Concluir vaga';
+    const CONCLUIR_VAGA_HTML = window.icon('check_circle') + 'Concluir vaga';
     const setAjudanteConcludeVaga = (isConclude) => {
       if (!btnAjudanteBar) return;
       btnAjudanteBar.classList.toggle('action-conclude-mode', isConclude);
@@ -2433,7 +2433,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // O botão "Diárias" vira botão de fechar (X) enquanto o sheet abre.
     const btnAjudante = document.getElementById('btn-chamar-ajudante');
     const AJUDANTE_HTML = 'Diárias';
-    const FECHAR_AJUDANTE_HTML = '<svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>Fechar';
+    const FECHAR_AJUDANTE_HTML = window.icon('close') + 'Fechar';
     const setAjudanteClose = (isClose) => {
       if (!btnAjudante) return;
       btnAjudante.classList.toggle('action-close-mode', isClose);

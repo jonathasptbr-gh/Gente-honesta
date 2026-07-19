@@ -59,15 +59,15 @@ export const proBackHTML = () => {
     <div class="pro-card__back">
       <div class="pro-card__comments-header">
         <span class="pro-card__comments-title">
-          <svg class="icon" aria-hidden="true"><use href="#ic-chat_bubble"></use></svg>
+          ${window.icon('chat_bubble')}
           Comentários
         </span>
         <div class="pro-card__comments-sort" role="group" aria-label="Ordenar comentários">
           <button type="button" class="pro-card__sort-btn is-active" data-sort="recent" aria-pressed="true" aria-label="Ordenar por mais recentes">
-            <svg class="icon" aria-hidden="true"><use href="#ic-schedule"></use></svg>
+            ${window.icon('schedule')}
           </button>
           <button type="button" class="pro-card__sort-btn" data-sort="ic" aria-pressed="false" aria-label="Ordenar por índice de confiança">
-            <svg class="icon" aria-hidden="true"><use href="#ic-verified_user"></use></svg>
+            ${window.icon('verified_user')}
           </button>
         </div>
       </div>
@@ -76,17 +76,17 @@ export const proBackHTML = () => {
       </div>
       <div class="pro-card__back-actions">
         <button type="button" class="btn btn--icon btn--outline pro-card__back-btn pro-card__back-btn--back" aria-label="Voltar">
-          <svg class="icon" aria-hidden="true"><use href="#ic-arrow_back"></use></svg>
+          ${window.icon('arrow_back')}
         </button>
         <button type="button" class="btn pro-card__back-btn pro-card__back-btn--whatsapp">
-          <svg class="icon" aria-hidden="true"><use href="#ic-chat"></use></svg>Conversar no WhatsApp
+          ${window.icon('chat')}Conversar no WhatsApp
         </button>
         <button type="button" class="btn btn--icon btn--outline pro-card__back-btn pro-card__back-btn--share" aria-label="Compartilhar">
-          <svg class="icon" aria-hidden="true"><use href="#ic-share"></use></svg>
+          ${window.icon('share')}
         </button>
         <button type="button" class="btn btn--outline pro-card__back-btn pro-card__back-btn--cancel-indicate">Cancelar</button>
         <button type="button" class="btn pro-card__back-btn pro-card__back-btn--confirm-indicate">
-          <svg class="icon" aria-hidden="true"><use href="#ic-person_add"></use></svg>Indicar
+          ${window.icon('person_add')}Indicar
         </button>
       </div>
     </div>
@@ -104,6 +104,9 @@ export const proFooterHTML = (pro) => {
     : hasCard ? `até ${pro.pay.card}x`
     : 'Cartão';
   const cls = active => `pro-card__meta-item${active ? '' : ' pro-card__meta-item--inactive'}`;
+  // NÃO migrar p/ window.icon: o scanner do sprite (scripts/icon-usage.mjs) só
+  // detecta a variante CONTORNO pelo literal `#ic-X-o` — trocar por helper
+  // apagaria os símbolos -o do sprite (idem os demais usos com -o/interpolação).
   const item = (active, icon, label) =>
     `<span class="${cls(active)}"><svg class="icon" aria-hidden="true"><use href="#ic-${icon}-o"></use></svg><span class="pro-card__meta-item__label">${label}</span></span>`;
   return `<div class="pro-card__meta">
@@ -119,24 +122,24 @@ export function historicoItemHTML(p) {
   const active = p.status === PEDIDO_STATUS.ACTIVE;
   const statusCls = active ? 'historico-item__status--active' : 'historico-item__status--done';
   const statusInner = active
-    ? `<svg class="icon" aria-hidden="true"><use href="#ic-bolt"></use></svg>Ativo · ${pedidoHoursLeft(p) > 0 ? pedidoHoursLeft(p) + 'h' : 'Expirado'}`
-    : `<svg class="icon" aria-hidden="true"><use href="#ic-check_circle"></use></svg>Concluído`;
+    ? `${window.icon('bolt')}Ativo · ${pedidoHoursLeft(p) > 0 ? pedidoHoursLeft(p) + 'h' : 'Expirado'}`
+    : `${window.icon('check_circle')}Concluído`;
   const urgentBadge = p.urgency === URGENCY.URGENT
-    ? `<span class="pedido-item__urgent-badge" aria-label="Urgente"><svg class="icon" aria-hidden="true"><use href="#ic-bolt"></use></svg>Urgente</span>`
+    ? `<span class="pedido-item__urgent-badge" aria-label="Urgente">${window.icon('bolt')}Urgente</span>`
     : '';
   return `
     <article class="historico-item" data-pedido-id="${p.id}" role="button" tabindex="0">
       <div class="historico-item__top">
         <span class="historico-item__date">${formatPedidoDate(p.createdAt)}</span>
         <button type="button" class="historico-item__delete" data-delete-id="${p.id}" aria-label="Excluir pedido">
-          <svg class="icon" aria-hidden="true"><use href="#ic-delete"></use></svg>
+          ${window.icon('delete')}
         </button>
       </div>
       <p class="historico-item__text">${urgentBadge}${p.text}</p>
       <div class="historico-item__footer">
         <span class="historico-item__status ${statusCls}">${statusInner}</span>
         <span class="historico-item__count">
-          <svg class="icon" aria-hidden="true"><use href="#ic-groups"></use></svg>${p.indicated.length}/3 indicações
+          ${window.icon('groups')}${p.indicated.length}/3 indicações
         </span>
       </div>
     </article>`;
@@ -187,7 +190,7 @@ export const proCardHTML = (pro, showPin = true) => {
 /** @param {import('../core/models.js').Vaga} vaga */
 export function vagaContentHTML(vaga, bodyTailHTML = '') {
   const reqHTML = vaga.requisitos.map(r =>
-    `<li class="vaga-card__req"><svg class="icon" aria-hidden="true"><use href="#ic-check_small"></use></svg>${r}</li>`
+    `<li class="vaga-card__req">${window.icon('check_small')}${r}</li>`
   ).join('');
 
   const benefitHTML = vaga.beneficios.map(b =>
@@ -212,11 +215,11 @@ export function vagaContentHTML(vaga, bodyTailHTML = '') {
   const companyName = vaga.empresa || (vaga.cnpj ? `CNPJ ${vaga.cnpj}` : '');
   const addressHTML = vaga.endereco
     ? `<a class="vaga-card__company-address" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver no Google Maps: ${vaga.endereco}">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-location_on"></use></svg>
+                  ${window.icon('location_on')}
                   ${vaga.endereco}
                 </a>`
     : `<span class="vaga-card__company-address vaga-card__company-address--pending">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-hourglass_top"></use></svg>
+                  ${window.icon('hourglass_top')}
                   Dados da empresa em verificação
                 </span>`;
 
@@ -224,14 +227,14 @@ export function vagaContentHTML(vaga, bodyTailHTML = '') {
   // só quando há endereço oficial (vaga por CNPJ pendente não tem mapa ainda).
   const mapsAffordanceHTML = vaga.endereco
     ? `<a class="vaga-card__company-maps" href="${mapsUrl}" target="_blank" rel="noopener" aria-label="Ver endereço no mapa">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-map"></use></svg>
-                  <svg class="icon vaga-card__company-maps-arrow" aria-hidden="true"><use href="#ic-chevron_right"></use></svg>
+                  ${window.icon('map')}
+                  ${window.icon('chevron_right', 'vaga-card__company-maps-arrow')}
                 </a>`
     : '';
 
   return `
             <div class="vaga-card__company-strip">
-              <svg class="icon vaga-card__company-icon" aria-hidden="true"><use href="#ic-domain"></use></svg>
+              ${window.icon('domain', 'vaga-card__company-icon')}
               <div class="vaga-card__company-info">
                 <span class="vaga-card__company-name">${companyName}</span>
                 ${addressHTML}
@@ -242,7 +245,7 @@ export function vagaContentHTML(vaga, bodyTailHTML = '') {
               <div class="vaga-card__role-row">
                 <h3 class="vaga-card__role">${vaga.cargo}</h3>
                 <span class="vaga-card__vacancies">
-                  <svg class="icon" aria-hidden="true"><use href="#ic-groups"></use></svg>
+                  ${window.icon('groups')}
                   ${vagasLabel}
                 </span>
               </div>
@@ -258,7 +261,7 @@ export function vagaContentHTML(vaga, bodyTailHTML = '') {
                     ${vaga.cargaHoraria}
                   </span>
                   <span class="vaga-card__meta-item vaga-card__salary">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-payments"></use></svg>
+                    ${window.icon('payments')}
                     ${vaga.salario}
                   </span>
                 </div>
@@ -290,7 +293,7 @@ export const helperPersonHTML = (h) => `
           <a class="btn pro-card__back-btn pro-card__back-btn--whatsapp helper-wa"
              href="https://wa.me/${h.phone}" target="_blank" rel="noopener"
              aria-label="Conversar com ${h.first} no WhatsApp">
-            <svg class="icon" aria-hidden="true"><use href="#ic-chat"></use></svg>Conversar no WhatsApp
+            ${window.icon('chat')}Conversar no WhatsApp
           </a>
         </div>
       </div>`;
