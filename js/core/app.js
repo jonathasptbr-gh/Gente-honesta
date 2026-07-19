@@ -278,25 +278,15 @@ if ('serviceWorker' in navigator && window.IS_MOBILE) {
 
         const banner = document.getElementById('pwa-update-banner');
         const btnUpdate = document.getElementById('btn-pwa-update');
+        // Versão da PÁGINA em execução (o selo do loader; bumpado JUNTO com o
+        // CACHE_NAME por regra do projeto — mesmo formato "v###" do APP_VERSION).
+        const pageVersion = (document.getElementById('version-badge')?.textContent || '').trim();
 
-        const showUpdateBanner = (worker) => {
+        const showUpdateBanner = (worker, version) => {
           if (!banner || !btnUpdate || !worker) return;
           banner.classList.remove('u-hidden');
-
-          // Pergunta ao NOVO worker qual a versão dele e exibe no banner, para o
-          // usuário saber qual atualização está disponível. Via MessageChannel:
-          // a resposta chega na port1. Se o worker for de uma versão antiga (sem
-          // o handler GET_VERSION), o texto padrão permanece.
-          try {
-            const textEl = document.getElementById('pwa-update-text');
-            const channel = new MessageChannel();
-            channel.port1.onmessage = (e) => {
-              const v = e.data && e.data.version;
-              if (v && textEl) textEl.textContent = `Nova versão disponível (${v}).`;
-            };
-            worker.postMessage({ type: 'GET_VERSION' }, [channel.port2]);
-          } catch (_) { /* sem versão: mantém o texto padrão */ }
-
+          const textEl = document.getElementById('pwa-update-text');
+          if (version && textEl) textEl.textContent = `Nova versão disponível (${version}).`;
           btnUpdate.onclick = () => {
             btnUpdate.disabled = true;
             btnUpdate.textContent = 'Atualizando...';
@@ -305,10 +295,43 @@ if ('serviceWorker' in navigator && window.IS_MOBILE) {
           };
         };
 
+        // Decide a UX da atualização pelo confronto de versões (worker novo vs
+        // PÁGINA em execução). Com o fetch Network-First (cache:'no-cache'), um
+        // cold start pós-deploy já carrega os ARQUIVOS novos com o worker velho
+        // ainda no controle — o worker novo instala e oferecia a MESMA versão
+        // que a tela já mostrava (banner absurdo p/ o usuário). Regra:
+        //  - worker == página → só o worker/cache offline está atrasado: ativa
+        //    SILENCIOSAMENTE (SKIP_WAITING sem banner; sem updateRequested o
+        //    controllerchange do claim NÃO recarrega — guarda abaixo).
+        //  - worker != página (ou sem resposta ao GET_VERSION) → atualização
+        //    real surgiu com o app aberto: banner, como sempre.
+        const maybeOfferUpdate = (worker) => {
+          if (!worker) return;
+          let settled = false;
+          const showBanner = (v) => { if (!settled) { settled = true; showUpdateBanner(worker, v); } };
+          try {
+            const channel = new MessageChannel();
+            channel.port1.onmessage = (e) => {
+              const v = e.data && e.data.version;
+              if (settled) return;
+              if (v && pageVersion && v === pageVersion) {
+                settled = true;
+                worker.postMessage({ type: 'SKIP_WAITING' });   // ativação silenciosa
+              } else {
+                showBanner(v);
+              }
+            };
+            worker.postMessage({ type: 'GET_VERSION' }, [channel.port2]);
+            // Worker antigo sem o handler GET_VERSION (ou resposta perdida):
+            // após a folga, cai no banner com o texto padrão.
+            setTimeout(() => showBanner(null), 1500);
+          } catch (_) { showBanner(null); }
+        };
+
         // Já existe uma versão nova pronta (instalada em segundo plano antes
         // desta checagem, ex.: enquanto o app estava em background)
         if (registration.waiting && navigator.serviceWorker.controller) {
-          showUpdateBanner(registration.waiting);
+          maybeOfferUpdate(registration.waiting);
         }
 
         // Uma nova versão começou a instalar agora — acompanha até ficar pronta
@@ -317,7 +340,7 @@ if ('serviceWorker' in navigator && window.IS_MOBILE) {
           if (!newWorker) return;
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              showUpdateBanner(newWorker);
+              maybeOfferUpdate(newWorker);
             }
           });
         });

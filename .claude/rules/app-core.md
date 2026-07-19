@@ -306,9 +306,14 @@ confirmar:
 1. `core/app.js` chama `registration.update()` no `window.load` e a cada `visibilitychange → visible`
    (detecção rápida, sem depender da checagem automática do navegador de até 24h).
 2. Ao detectar worker novo instalado (`updatefound` → `statechange` → `'installed'`, SÓ quando já
-   existe `navigator.serviceWorker.controller`), exibe `#pwa-update-banner`. A página pergunta a
-   versão ao novo worker via `MessageChannel` (`{type:'GET_VERSION'}` → SW responde `APP_VERSION`
-   derivado do `CACHE_NAME`) e atualiza `#pwa-update-text`.
+   existe `navigator.serviceWorker.controller`; idem `registration.waiting` pré-existente no load),
+   a página pergunta a versão ao novo worker via `MessageChannel` (`{type:'GET_VERSION'}` → SW
+   responde `APP_VERSION` derivado do `CACHE_NAME`) e CONFRONTA com a versão da PRÓPRIA página
+   (`#version-badge` — bumpados juntos por regra). **Worker == página** → cold start pós-deploy: o
+   Network-First já entregou os arquivos novos e só o worker/cache offline está atrasado → ativa
+   SILENCIOSAMENTE (`SKIP_WAITING` sem banner; sem `updateRequested` o `controllerchange` do claim
+   não recarrega). **Worker != página** (ou sem resposta em 1,5s — worker antigo sem o handler) →
+   atualização real com o app aberto: exibe `#pwa-update-banner` com a versão em `#pwa-update-text`.
 3. Clique em "Atualizar" → `postMessage({type:'SKIP_WAITING'})` → SW chama `self.skipWaiting()` →
    `clients.claim()` no `activate`.
 4. `oncontrollerchange` dispara `location.reload()` — **mas só se** o clique pediu a troca (flag
