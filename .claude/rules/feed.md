@@ -358,7 +358,13 @@ de ALTURA MÁXIMA fixa (`.pro-card--expanded .pro-card__back-comments`: `max-hei
 `buildProCard` chama `window.watchScrollShadows(...)` nela para injetar as shades de borda (topo/base),
 o MESMO sistema de sombras do resto do app (ver `app-core.md`). A caixa de scroll é de LADO A LADO do
 card (quebra o padding lateral do `.pro-card__back` por margem negativa, respiro só por dentro) e usa
-`overscroll-behavior: contain`. `resetProCardBack(card)` só volta o `scrollTop` ao topo;
+`overscroll-behavior: contain`. **Cabeçalho** (`.pro-card__comments-header`, space-between): título
+`.pro-card__comments-title` à esquerda + **ordenação** `.pro-card__comments-sort` à direita — par de
+botões-ícone (`schedule` = mais recentes / `verified_user` = maior IC) com seleção em tint AZUL
+(`.is-active`). `sortProComments(btn)` (hoisted) reescreve SÓ a lista do card tocado
+(`getComments()` na ordem natural, ou `sort((a,b)=>b.ic-a.ic)`) e volta o scroll ao topo; é
+interceptado ANTES do catch-all `.pro-card__back` (que fecha) nos DOIS handlers de flip (`bindProCardFlip`
+e o de `#agenda-list`). `resetProCardBack(card)` só volta o `scrollTop` ao topo;
 `proCardFlipToFront` o chama no `onComplete` (verso já oculto, sem flash).
 **Overscroll do topo NÃO rouba o scroll dos comentários:** `attachTopOverscroll` (estique elástico no
 topo dos 3 feeds) tem um `touchmove` `passive:false` que dá `preventDefault` quando a lista está no

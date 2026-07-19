@@ -1055,6 +1055,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function bindProCardFlip(containerEl) {
     if (!containerEl) return;
     containerEl.addEventListener('click', (e) => {
+      // Botão de ordenação dos comentários — ANTES do catch-all do verso (que fecha).
+      const sortBtn = e.target.closest('.pro-card__sort-btn');
+      if (sortBtn) { sortProComments(sortBtn); return; }
       if (e.target.closest('.pro-card__back-btn--whatsapp')) {
         comingSoon('Abrir WhatsApp', 'WhatsApp', 'chat');
         return;
@@ -1203,6 +1206,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Se um pressionar-longo acabou de salvar/dessalvar o card, engole o clique
     // que segue o touchend (senão o card flipava logo após salvar).
     if (longPressConsumed) { longPressConsumed = false; return; }
+
+    // Botão de ordenação dos comentários — ANTES do catch-all do verso (que fecha).
+    const sortBtn = e.target.closest('.pro-card__sort-btn');
+    if (sortBtn) { sortProComments(sortBtn); return; }
 
     // Botão Cancelar (modo indicação) → desflipa sem sair do modo.
     // Os botões são controlados pela classe da LISTA, então o card volta à
@@ -1980,6 +1987,28 @@ document.addEventListener('DOMContentLoaded', () => {
   function resetProCardBack(card) {
     const backComments = card.querySelector('.pro-card__back-comments');
     if (backComments) backComments.scrollTop = 0;
+  }
+
+  // Ordenação dos comentários do verso — alterna entre 'recent' (ordem natural do
+  // repositório = mais recentes) e 'ic' (maior Índice de Confiança primeiro). A
+  // seleção ativa fica em azul (padrão de seleção). Reescreve SÓ a lista do card
+  // tocado e volta o scroll ao topo p/ ver o começo da nova ordem. (hoisted)
+  function sortProComments(btn) {
+    if (btn.getAttribute('aria-pressed') === 'true') return;   // já é a ordem atual
+    const card  = btn.closest('.pro-card');
+    const group = btn.closest('.pro-card__comments-sort');
+    const list  = card?.querySelector('.pro-card__comments-list');
+    if (!card || !group || !list) return;
+    group.querySelectorAll('.pro-card__sort-btn').forEach(b => {
+      const on = b === btn;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    const comments = [...getComments()];
+    const ordered  = btn.dataset.sort === 'ic' ? comments.sort((a, b) => b.ic - a.ic) : comments;
+    list.innerHTML = ordered.map(buildCommentHTML).join('');
+    const cc = card.querySelector('.pro-card__back-comments');
+    if (cc) cc.scrollTop = 0;
   }
 
   function proCardFlipToBack(card)               { return flipCardToBack(card, PRO_CARD_CFG); }

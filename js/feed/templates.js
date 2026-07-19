@@ -57,8 +57,18 @@ export const proBackHTML = () => {
   _proBackHTML = `
     <div class="pro-card__back">
       <div class="pro-card__comments-header">
-        <svg class="icon" aria-hidden="true"><use href="#ic-chat_bubble"></use></svg>
-        Comentários
+        <span class="pro-card__comments-title">
+          <svg class="icon" aria-hidden="true"><use href="#ic-chat_bubble"></use></svg>
+          Comentários
+        </span>
+        <div class="pro-card__comments-sort" role="group" aria-label="Ordenar comentários">
+          <button type="button" class="pro-card__sort-btn is-active" data-sort="recent" aria-pressed="true" aria-label="Ordenar por mais recentes">
+            <svg class="icon" aria-hidden="true"><use href="#ic-schedule"></use></svg>
+          </button>
+          <button type="button" class="pro-card__sort-btn" data-sort="ic" aria-pressed="false" aria-label="Ordenar por índice de confiança">
+            <svg class="icon" aria-hidden="true"><use href="#ic-verified_user"></use></svg>
+          </button>
+        </div>
       </div>
       <div class="pro-card__back-comments js-scroll-shadows">
         <div class="pro-card__comments-list">${commentsHTML}</div>

@@ -113,9 +113,17 @@
   overflow: hidden;
 }
 
-/* Cabeçalho da seção de comentários */
+/* Cabeçalho da seção de comentários: título à esquerda + ordenação à direita */
 .pro-card__comments-header {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
+  flex-shrink: 0;
+}
+.pro-card__comments-title {
+  display: inline-flex;
   align-items: center;
   gap: 5px;
   font-size: var(--fs-2);
@@ -123,11 +131,38 @@
   color: var(--p-green);
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  margin-bottom: var(--space-xs);
+}
+.pro-card__comments-title .icon {
+  font-size: 0.9rem;
+}
+
+/* Ordenação dos comentários: par de botões-ícone (data ↔ Índice de Confiança).
+   Seleção = tint AZUL preenchido (padrão de seleção do app); inativo cinza, sem
+   contorno. Alterna a ordem da lista abaixo. */
+.pro-card__comments-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   flex-shrink: 0;
 }
-.pro-card__comments-header .icon {
-  font-size: 0.9rem;
+.pro-card__sort-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--t-sub);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.pro-card__sort-btn .icon {
+  font-size: 1rem;
+}
+.pro-card__sort-btn.is-active {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
 }
 
 /* Área de comentários */
