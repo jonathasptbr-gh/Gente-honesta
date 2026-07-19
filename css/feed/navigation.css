@@ -228,6 +228,11 @@
   flex: 1;
   min-width: 0;   /* largura ESTÁVEL 50/50: sem isso min-width:auto faz o botão
                      crescer com o texto (ex.: "Concluir pedido") e empurrar o vizinho */
+  height: 40px;
+  padding: 0;     /* zera o padding 16px herdado do .btn — casa com Vagas/Perfil
+                     (que têm padding 0); a altura vem do height 40px, o respiro
+                     interno do justify-center + gap. Sem isso o espaçamento
+                     ficava desregulado (vertical apertado + inset lateral maior). */
   display: flex;
   align-items: center;
   justify-content: center;
