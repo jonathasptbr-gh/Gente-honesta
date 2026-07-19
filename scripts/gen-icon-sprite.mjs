@@ -12,9 +12,11 @@
 //
 // Fonte dos desenhos: Material Symbols Rounded wght 700 (variante -fill = FILL 1);
 // 9 ícones ausentes do pacote vêm do Material Icons "round" (IC_ROUND).
-// wght 700 (o mais grosso do pacote) restaura o traço "bold" que a fonte antiga
-// tinha com wght 500 + GRAD 25; o SVG estático não reproduz o GRAD, então subimos
-// o próprio peso até o topo.
+// PESO "bold": a fonte antiga usava wght 500 + GRAD 25 (grade), e o SVG estático não
+// tem o eixo GRAD; o eixo wght sozinho quase não muda o traço em tamanhos de UI. Por
+// isso, além do wght 700, ASSAMOS um stroke da mesma cor sob o fill (paint-order) —
+// ver `thicken()` — que engrossa cada glifo de forma visível e uniforme. A largura é
+// proporcional ao viewBox de cada fonte (960 p/ Material Symbols, 24 p/ o "ic").
 // =========================================================================
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { collectUsedIcons } from './icon-usage.mjs';
@@ -42,23 +44,35 @@ const IC_ROUND = {
 const symInner = (file) => readFileSync(`${SYM}/${file}`, 'utf8').match(/<svg[^>]*>([\s\S]*?)<\/svg>/)[1].trim();
 const fillFile = (n) => (existsSync(`${SYM}/${n}-fill.svg`) ? `${n}-fill.svg` : `${n}.svg`);
 
+// ENGROSSAMENTO DO TRAÇO ("bold"): o SVG estático não tem o eixo GRAD que a fonte
+// usava (`GRAD 25`), e o eixo wght sozinho quase não muda o traço em tamanhos de UI
+// (16–24px). Então assamos um STROKE da MESMA cor (currentColor) SOB o fill
+// (paint-order) — fattens cada glifo além do desenho base. A largura é PROPORCIONAL
+// ao viewBox de cada fonte: Material Symbols vivem no grid 960, o "ic" no grid 24
+// (é POR ISSO que um valor único não serve p/ os dois — o "padrão" que faltava).
+const STROKE_MS = 44;                       // Material Symbols (grid 960) ≈ 4.6%
+const STROKE_IC = +(STROKE_MS * 24 / 960).toFixed(2);   // "ic" (grid 24) — mesma proporção (~1.1)
+const thicken = (inner, sw) =>
+  `<g fill="currentColor" stroke="currentColor" stroke-width="${sw}" paint-order="stroke" ` +
+  `stroke-linejoin="round" stroke-linecap="round">${inner}</g>`;
+
 function fillSymbol(name) {
   if (IC_ROUND[name]) {
     const ic = IC.icons[IC_ROUND[name]];
     if (!ic) throw new Error(`IC_ROUND aponta p/ '${IC_ROUND[name]}' inexistente no set ic`);
-    return `<symbol id="ic-${name}" viewBox="0 0 ${ic.width || IC.width || 24} ${ic.height || IC.height || 24}">${ic.body}</symbol>`;
+    return `<symbol id="ic-${name}" viewBox="0 0 ${ic.width || IC.width || 24} ${ic.height || IC.height || 24}">${thicken(ic.body, STROKE_IC)}</symbol>`;
   }
   if (!existsSync(`${SYM}/${name}-fill.svg`) && !existsSync(`${SYM}/${name}.svg`)) {
     throw new Error(`Ícone usado '${name}' não é um Material Symbol (nem está em IC_ROUND). ` +
       `Typo no código, ou precisa ser adicionado ao IC_ROUND?`);
   }
-  return `<symbol id="ic-${name}" viewBox="0 -960 960 960">${symInner(fillFile(name))}</symbol>`;
+  return `<symbol id="ic-${name}" viewBox="0 -960 960 960">${thicken(symInner(fillFile(name)), STROKE_MS)}</symbol>`;
 }
 
 const { used } = collectUsedIcons(ROOT);   // <- lista DERIVADA do uso
 const symbols = [
   ...used.map(fillSymbol),
-  ...OUTLINE.map((n) => `<symbol id="ic-${n}-o" viewBox="0 -960 960 960">${symInner(`${n}.svg`)}</symbol>`),
+  ...OUTLINE.map((n) => `<symbol id="ic-${n}-o" viewBox="0 -960 960 960">${thicken(symInner(`${n}.svg`), STROKE_MS)}</symbol>`),
 ];
 
 const sprite =

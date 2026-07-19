@@ -87,10 +87,13 @@ sem esperar download e SEM rede (offline-safe — a fonte cross-origin nunca era
 A classe é `.icon` (num `<svg>`): a base em `base.css` a faz medir `1em×1em` e usar
 `fill: currentColor`, então as regras seguem dimensionando por `font-size` e colorindo por `color`.
 NÃO use `font-variation-settings` (SVG ignora) — peso/preenchimento já vêm assados no símbolo (wght
-**700**, FILL 1; o gerador usa `@material-symbols/svg-700` — wght 700, o mais grosso do pacote,
-restaura o traço "bold" que a fonte antiga tinha com `wght 500 + GRAD 25`; o SVG estático não
-reproduz o GRAD, então subimos o próprio peso até o topo). Variante CONTORNO:
-símbolos `#ic-NOME-o` (meta-items dos cards Pro/vaga e botões `?`).
+**700**, FILL 1, via `@material-symbols/svg-700`). **Traço "bold":** a fonte antiga usava `wght 500 +
+GRAD 25` (grade), e o SVG não tem o eixo GRAD; o wght sozinho quase não muda o traço em 16–24px. Então
+o gerador ASSA um `stroke` da MESMA cor sob o `fill` (`paint-order`) em cada símbolo (`thicken()` em
+`gen-icon-sprite.mjs`), engrossando o glifo de forma visível e uniforme. A largura do stroke é
+PROPORCIONAL ao viewBox de cada fonte (960 p/ Material Symbols, 24 p/ o set `ic` — por isso um valor
+único não serve p/ os dois). Variante CONTORNO: símbolos `#ic-NOME-o` (meta-items dos cards Pro/vaga e
+botões `?`).
 - **Gerar HTML de ícone em JS:** `window.icon(nome, classeExtra?)`. **Trocar ícone em runtime:**
   `window.setIcon(elIcone, nome)` (era `elemento.textContent = nome`).
 - **Adicionar um ícone novo = só USAR** (via `#ic-NOME`, `window.icon`, `setIcon`, `customAlert`/
