@@ -95,6 +95,8 @@
     <link rel="stylesheet" href="css/feed/vagas.css">
     <link rel="stylesheet" href="css/feed/ajudantes.css">
 
+    <link rel="stylesheet" href="css/profile/profile.css">
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js" defer></script>
@@ -284,7 +286,7 @@
         <div class="overlay-loader__spinner"></div>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy).
              Vive na tela de loading, junto do spinner. -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v420</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v421</span>
     </div>
 
     <!-- =====================================================================
@@ -1691,6 +1693,94 @@
                 </button>
             </nav>
         </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         TELA DE PERFIL (#view-profile) — visão do próprio profissional.
+         Aberta pelo avatar da action bar (#btn-open-profile). Segue o padrão
+         das telas verdes (fundo --bg-canvas, top bar fixa --p-green, corpo
+         com scroll interno .js-scroll-shadows), com os DADOS dentro de um
+         card cinza (.card--soft) e as informações em sub-cards brancos —
+         baseado no desenho do card de profissional do feed (foto 3×4, QAV,
+         escudo de IC, disponibilidade, comentários).
+         ═══════════════════════════════════════════════════════════════════ -->
+    <section id="view-profile" class="screen">
+
+        <!-- Barra do TOPO fixa: da esquerda → Sair · Editar · (à direita) Fechar. -->
+        <header class="screen__header profile-topbar">
+            <div class="profile-topbar__nav">
+                <button type="button" id="btn-profile-logout" class="btn profile-topbar__btn" aria-label="Sair do app">
+                    <svg class="icon" aria-hidden="true"><use href="#ic-logout"></use></svg>
+                </button>
+                <button type="button" id="btn-profile-edit" class="btn profile-topbar__btn" aria-label="Editar perfil">
+                    <svg class="icon" aria-hidden="true"><use href="#ic-edit"></use></svg>
+                </button>
+                <button type="button" id="btn-profile-close" class="btn profile-topbar__btn profile-topbar__btn--close" aria-label="Fechar perfil">
+                    <svg class="icon" aria-hidden="true"><use href="#ic-close"></use></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Corpo rolável (js-scroll-shadows): as shades colam na linha da top bar. -->
+        <div class="profile-scroll js-scroll-shadows">
+            <div class="card card--soft card--shadow profile-card">
+
+                <!-- ── Cabeçalho: foto 3×4 + nome/profissão/disponibilidade + IC ── -->
+                <div class="profile-identity">
+                    <div class="profile-identity__photo">
+                        <img id="profile-photo-img" class="profile-identity__photo-img" alt="Foto de perfil" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555555'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>">
+                    </div>
+                    <div class="profile-identity__info">
+                        <div class="profile-identity__head">
+                            <div class="profile-identity__text">
+                                <h1 id="profile-name" class="profile-identity__name">Seu Nome</h1>
+                                <p id="profile-profession" class="profile-identity__profession">Adicione sua profissão</p>
+                            </div>
+                            <div id="profile-ic" class="profile-identity__ic"></div>
+                        </div>
+                        <!-- Disponibilidade: botão que cicla Disponível → Agenda cheia →
+                             Indisponível (cores do .avail). O chevron sinaliza que é seletor. -->
+                        <button type="button" id="btn-profile-avail" class="profile-avail" aria-label="Alterar disponibilidade">
+                            <span id="profile-avail-pill" class="avail avail--available">
+                                <span class="avail__dot" aria-hidden="true"></span>Disponível
+                            </span>
+                            <svg class="icon profile-avail__chevron" aria-hidden="true"><use href="#ic-expand_more"></use></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ── Resumo: qualidades e limitações ── -->
+                <div class="card card--shadow profile-summary">
+                    <span class="eyebrow profile-summary__label">Qualidades e limitações</span>
+                    <p id="profile-summary" class="profile-summary__text">Conte suas qualidades e limitações para os clientes.</p>
+                </div>
+
+                <!-- ── Padrão de serviços (esquerda) + tabela QAV (direita) ── -->
+                <div class="profile-service">
+                    <div id="profile-service-pattern" class="service-choice__card profile-service__pattern">
+                        <svg id="profile-service-icon" class="icon service-choice__icon" aria-hidden="true"><use href="#ic-balance"></use></svg>
+                        <span id="profile-service-title" class="service-choice__title">Padrão</span>
+                        <span id="profile-service-sub" class="service-choice__sub">Equilibrado</span>
+                    </div>
+                    <div id="profile-qav" class="service-choice-display profile-service__qav"></div>
+                </div>
+
+                <!-- ── Comentários (scroll interno ~meia tela) ── -->
+                <div class="profile-comments">
+                    <div class="pro-card__comments-header">
+                        <span class="pro-card__comments-title">
+                            <svg class="icon" aria-hidden="true"><use href="#ic-chat_bubble"></use></svg>
+                            Comentários
+                        </span>
+                    </div>
+                    <div id="profile-comments-scroll" class="profile-comments__scroll js-scroll-shadows">
+                        <div id="profile-comments-list" class="pro-card__comments-list"></div>
+                    </div>
+                </div>
+
+            </div><!-- /.profile-card -->
+        </div><!-- /.profile-scroll -->
 
     </section>
 

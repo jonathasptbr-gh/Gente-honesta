@@ -1,0 +1,266 @@
+/* =========================================================================
+   TELA DE PERFIL (#view-profile) — visão do próprio profissional.
+   Tela verde (--bg-canvas) no padrão do #view-onboarding: top bar fixa
+   --p-green + corpo com scroll interno. Os dados vivem num card cinza
+   (.card--soft) e as informações em sub-cards brancos. Reaproveita os
+   primitivos do feed/cadastro (.qav, .avail, .ic-bar, .service-choice__card,
+   .pro-card__comments-*, .eyebrow) — este arquivo só faz o ARRANJO da tela.
+   Carregado por ÚLTIMO para os ajustes de escopo vencerem as classes reusadas.
+   ========================================================================= */
+
+/* Fundo verde escuro, sanduíche de barra fixa + scroll (igual ao cadastro):
+   a .screen não rola; quem rola é o .profile-scroll. */
+#view-profile.screen {
+  background: var(--bg-canvas);
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ── Barra do TOPO fixa ─────────────────────────────────────────────────
+   Verde --p-green (mesmo tom da barra de status), fora do scroll, carrega
+   a safe-area superior. */
+.profile-topbar {
+  flex-shrink: 0;
+  margin: 0;
+  padding: calc(var(--space-sm) + env(safe-area-inset-top, 0px)) var(--space-md) var(--space-sm);
+  background: var(--p-green);
+}
+
+.profile-topbar__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* Botões da top bar no padrão de FECHAR sobre verde: fill branco translúcido
+   + ícone claro, sem contorno (mesma receita do #btn-onboarding-cancel e do
+   .action-close-mode). Só-ícone quadrado. */
+.profile-topbar__btn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-pill);
+  background: var(--on-green-soft);
+  color: var(--t-light);
+}
+
+.profile-topbar__btn .icon {
+  font-size: 1.35rem;
+}
+
+/* "Fechar" empurrado para a direita, separando-o do par Sair/Editar. */
+.profile-topbar__btn--close {
+  margin-left: auto;
+}
+
+/* ── Corpo rolável ──────────────────────────────────────────────────────
+   Só padding lateral; o respiro vertical vem do próprio card (as shades
+   sticky do js-scroll-shadows não sobem acima da caixa de conteúdo do pai). */
+.profile-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--space-md);
+}
+
+/* Barra fina sempre visível (fundo verde → thumb claro translúcido). */
+.profile-scroll::-webkit-scrollbar { width: 5px; }
+.profile-scroll::-webkit-scrollbar-thumb { background: var(--on-green-muted); border-radius: 4px; }
+.profile-scroll { scrollbar-width: thin; scrollbar-color: var(--on-green-muted) transparent; }
+
+/* Card CINZA que agrupa tudo (a definição vem do fill claro sobre o verde). */
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: var(--space-md) 0 calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  padding: var(--space-md);
+}
+
+/* ── Cabeçalho: foto 3×4 + nome/profissão/disponibilidade + IC ──────────── */
+.profile-identity {
+  display: flex;
+  gap: var(--space-md);
+  align-items: stretch;
+}
+
+/* Foto RETANGULAR 3×4 (mesma proporção do avatar do card de profissional,
+   ampliada). Fundo claro contrasta sozinho; sombra para descolar do cinza. */
+.profile-identity__photo {
+  flex-shrink: 0;
+  width: 96px;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-input);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-identity__photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-identity__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Nome/profissão à esquerda, escudo de IC ancorado no canto superior direito. */
+.profile-identity__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.profile-identity__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-identity__name {
+  margin: 0;
+  font-size: var(--fs-9);
+  font-weight: var(--fw-bold);
+  color: var(--t-main);
+  line-height: 1.15;
+}
+
+.profile-identity__profession {
+  margin: 2px 0 0;
+  font-size: var(--fs-4);
+  color: var(--t-sub);
+}
+
+.profile-identity__ic {
+  flex-shrink: 0;
+}
+
+/* O escudo do cabeçalho acompanha o desenho do card de profissional (--lg). */
+.profile-identity__ic .ic-bar--lg {
+  font-size: 2.15rem;
+}
+
+/* Disponibilidade: botão-seletor que cicla os estados. Casca clara discreta
+   (sub-superfície sobre o cinza) + a pílula .avail dentro; o chevron sinaliza
+   que é selecionável. Ancorado à base do bloco (mt-auto) p/ alinhar com a foto. */
+.profile-avail {
+  align-self: flex-start;
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px var(--space-sm);
+  border-radius: var(--radius-pill);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-avail:active {
+  transform: scale(var(--press-scale));
+}
+
+.profile-avail .avail {
+  align-self: auto;
+}
+
+.profile-avail__chevron {
+  font-size: 1.1rem;
+  color: var(--t-sub);
+  flex-shrink: 0;
+}
+
+/* ── Resumo: qualidades e limitações (sub-card branco) ──────────────────── */
+.profile-summary {
+  padding: var(--space-sm) 14px var(--space-sm);
+}
+
+.profile-summary__label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.profile-summary__text {
+  margin: 0;
+  font-size: var(--fs-4);
+  line-height: 1.4;
+  color: var(--t-sub);
+  white-space: pre-wrap;
+}
+
+/* ── Padrão de serviços (esquerda) + tabela QAV (direita) ────────────────
+   Uma linha: mini-card do padrão (largura de conteúdo) + o display de barras
+   ocupando o resto. Ambos brancos (sub-cards). */
+.profile-service {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: stretch;
+}
+
+/* O mini-card do padrão reusa .service-choice__card, mas aqui é ESTÁTICO
+   (não é seletor): sem cursor/press e sem o check de rádio. */
+.profile-service__pattern {
+  flex: 0 0 40%;
+  justify-content: center;
+  cursor: default;
+}
+
+.profile-service__pattern:active {
+  transform: none;
+}
+
+/* O display de barras (reusa .service-choice-display) preenche o resto e
+   centraliza verticalmente ao lado do mini-card. */
+.profile-service__qav {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ── Comentários: cabeçalho + área de scroll ~meia tela ──────────────────
+   Reusa o cabeçalho e a lista do verso do card de profissional. A área rola
+   internamente (altura fixa relativa à viewport) com as shades de borda. */
+.profile-comments {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.profile-comments .pro-card__comments-header {
+  margin-bottom: var(--space-xs);
+}
+
+.profile-comments__scroll {
+  height: 50vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Sub-card branco com a lista; caixa de scroll edge-to-edge para as shades
+     e a barra alcançarem as bordas (respiro devolvido por dentro). */
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 2px var(--space-sm);
+  --shade-bleed: var(--space-sm);
+}
+
+.profile-comments__scroll::-webkit-scrollbar { width: 5px; }
+.profile-comments__scroll::-webkit-scrollbar-thumb { background: var(--scroll-thumb-dark); border-radius: 4px; }
+.profile-comments__scroll { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb-dark) transparent; }
+
+/* Estado vazio (sem comentários ainda) centralizado na área. */
+.profile-comments__empty {
+  display: block;
+  padding: var(--space-lg) var(--space-sm);
+  text-align: center;
+  font-size: var(--fs-3);
+  color: var(--t-sub);
+}

@@ -28,7 +28,7 @@ Repositório: jonathasptbr-gh/gente-honesta
   de ícones) — não é build do site.
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v420**.
+  bump.) Versão atual: **v421**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**
@@ -64,6 +64,7 @@ navigateTo('form-otp')      // troca sub-passo dentro de #view-auth (u-hidden)
 | `#view-onboarding` | autenticado, sem `displayName` |
 | `#view-install` | pós-cadastro, fora do modo standalone |
 | `#view-feed` | autenticado com perfil completo |
+| `#view-profile` | perfil do próprio usuário (aberto pelo avatar da action bar; Sair/Editar/Fechar na top bar) |
 
 **Sub-passos de auth** (dentro de `#view-auth`): `step-intro` → `form-phone` → `form-otp`.
 
@@ -123,6 +124,8 @@ css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; N
   feed/cards-pro.css       — flip + cards de profissional
   feed/vagas.css           — painel + card de vaga
   feed/ajudantes.css       — sheet "Serviço de ajudantes"
+  profile/profile.css      — tela de perfil do próprio usuário (#view-profile); carregada por último
+                             (reusa .qav/.avail/.ic-bar/.service-choice/.pro-card__comments-*)
 
 js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
   core/app.js       — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW,
