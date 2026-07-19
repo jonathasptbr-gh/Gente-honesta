@@ -15,34 +15,41 @@
   overflow: hidden;
 }
 
-/* Trilho: as 3 linhas ficam LADO A LADO (300%) e o trilho desliza por translateX,
-   igual ao .feed-panels (mesma curva/duração), então a barra "acompanha" a aba em
-   carrossel. Default = busca (Profissionais) no centro → translateX(-33.3333%). */
+/* Trilho: agora só um CONTÊINER posicionado (as 3 linhas ficam EMPILHADAS e
+   fazem CROSSFADE). NÃO desliza mais — a troca de aba na barra é FADE in/out
+   (os painéis do feed e o slider das abas seguem deslizando por --panel-slide-dur). */
 .agenda-filters__track {
-  display: flex;
-  width: 300%;
-  height: 100%;
-  transform: translateX(-33.3333%);
-  transition: transform var(--panel-slide-dur, 0.55s) cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  inset: 0;
 }
 
-/* Modo vagas → mostra a linha da esquerda; modo pedidos → a da direita. */
-.agenda-filters--vagas .agenda-filters__track { transform: translateX(0); }
-.agenda-filters--pedidos .agenda-filters__track { transform: translateX(-66.6667%); }
-
-/* Cada linha ocupa 1/3 do trilho (= largura visível da barra). Ordem no DOM:
-   vagas | busca | pedidos (mesma ordem das abas). */
+/* Cada linha ocupa a zona do meio INTEIRA (empilhada). A ativa (por aba) aparece
+   com FADE; as demais somem. Ordem no DOM: vagas | busca | pedidos. */
 .agenda-filters__search-row,
 .agenda-filters__vagas-row,
 .agenda-filters__pedidos-row {
-  flex: 0 0 33.3333%;
+  position: absolute;
+  inset: 0;
   min-width: 0;
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  /* Sem padding lateral: cada linha preenche a zona do meio (o respiro das
-     pontas da barra vem do padding da .agenda-filters + o gap entre perfil/
-     meio/contratos). */
+  /* Troca de visualização = FADE (opacity). visibility atrasada mantém a linha
+     interativa enquanto aparece e a tira do hit-test após o fade de saída. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.22s var(--ease), visibility 0s linear 0.22s;
+}
+
+/* Linha ATIVA por aba: default = busca (sem classe de estado); --vagas / --pedidos. */
+.agenda-filters:not(.agenda-filters--vagas):not(.agenda-filters--pedidos) .agenda-filters__search-row,
+.agenda-filters--vagas .agenda-filters__vagas-row,
+.agenda-filters--pedidos .agenda-filters__pedidos-row {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.22s var(--ease);
 }
 
 /* A linha de pedidos estica os botões à altura toda e usa gap um pouco maior */

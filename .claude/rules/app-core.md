@@ -125,10 +125,11 @@ Aplicação (mede a distância no gesto, seta a duração inline ou via CSS var)
   assimétrica**: o estado BASE do painel usa `--sheet-close-dur` (saída) e o estado `.--open`
   sobrescreve com `--sheet-open-dur` (entrada) — assim entrada e saída têm durações distintas SEM
   tocar cada função de fechar (`pedido-sheet.css`/`historico.css`).
-- **Carrossel de painéis + trilho da action bar + slider das abas** (UM gesto, NEUTRO): `switchToTab`
-  seta `--panel-slide-dur` = `moveMs(nº de painéis × largura da viewport)` (velocidade neutra); os 3
-  elementos usam esse var no CSS (SINCRONIZADOS; salto de 2 abas dobra). Default do var em
-  `setViewportVars` (`core/app.js`, recalculado no resize).
+- **Carrossel de painéis + slider das abas** (UM gesto, NEUTRO): `switchToTab` seta `--panel-slide-dur`
+  = `moveMs(nº de painéis × largura da viewport)` (velocidade neutra); os DOIS usam esse var no CSS
+  (SINCRONIZADOS; salto de 2 abas dobra). Default do var em `setViewportVars` (`core/app.js`, recalculado
+  no resize). **A action bar NÃO desliza mais junto** — a troca de conteúdo dela é um FADE curto (0.22s),
+  independente do slide (ver `feed.md`).
 - **Modo indicação** (`feed/index.js`): ENTRADA (voo do card + slide da seção) por `MOVE_SPEED_OPEN`;
   SAÍDA por `MOVE_SPEED_CLOSE`. **Bottom sheet de indicados**: `--indicated-sheet-dur` = OPEN na
   abertura, CLOSE no fechamento (o mesmo var alimenta o slide E o atraso de visibilidade da saída).

@@ -2941,7 +2941,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // é single-fase (só transições CSS), então dobrar o playbackRate cobre tudo e é
   // seguro a trava soltar na metade. Passado ao moveGate como callback de aceleração.
   const carouselAccelerate = () => {
-    ['#feed-panels', '.agenda-filters__track', '.feed-tabs-pill__slider'].forEach(sel => {
+    // A barra NÃO desliza mais (troca de aba = fade curto, independente); só o
+    // painel do feed e o slider das abas deslizam por --panel-slide-dur.
+    ['#feed-panels', '.feed-tabs-pill__slider'].forEach(sel => {
       document.querySelector(sel)?.getAnimations?.().forEach(a => { try { a.playbackRate = 2; } catch (_) {} });
     });
   };
@@ -3666,6 +3668,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setProfileAvatarClose(false);
     setProfileBarActions(false);       // devolve a busca
   }
+
+  // Exposto p/ o onboarding reabrir a gaveta ao sair da EDIÇÃO (Cancelar/Salvar
+  // voltam para o perfil, não para o feed nu).
+  window.openProfileSheet = openProfileSheet;
 
   // Logout (movido do avatar para o botão "Sair" da top bar do perfil).
   async function doLogout() {

@@ -1022,6 +1022,8 @@ Importante: essa é só uma escolha inicial. Com o tempo, as avaliações que vo
       window.setOnboardingEditMode(false);
       if (typeof showView === 'function') showView('view-feed');
       if (typeof window.syncProfileAvatar === 'function') window.syncProfileAvatar();
+      // Volta para a GAVETA de perfil (de onde a edição foi aberta), não o feed nu.
+      if (typeof window.openProfileSheet === 'function') window.openProfileSheet();
     };
     if (screen) {
       screen.classList.remove('view-edit-in');
