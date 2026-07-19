@@ -997,15 +997,41 @@ Importante: essa é só uma escolha inicial. Com o tempo, as avaliações que vo
     window.populateOnboardingFromState();
     snapshotProfileState();
     if (typeof showView === 'function') showView('view-onboarding');
+    // Abertura ANIMADA (modal que sobe + fade). Reinicia a animação de forma
+    // idempotente (reflow) e limpa a classe no fim.
+    const screen = document.getElementById('view-onboarding');
+    if (screen) {
+      screen.classList.remove('view-edit-out', 'view-edit-in');
+      void screen.offsetWidth;
+      screen.classList.add('view-edit-in');
+      screen.addEventListener('animationend', () => screen.classList.remove('view-edit-in'), { once: true });
+    }
   };
 
   // Sai da edição para o feed. `restore` = desfaz as mudanças (Cancelar);
-  // sem restore = mantém (salvou).
+  // sem restore = mantém (salvou). Fechamento ANIMADO (desce + fade) e SÓ ENTÃO
+  // troca para o feed — o finish é idempotente (animationend + fallback).
   window.exitOnboardingEdit = (restore) => {
     if (restore) restoreProfileState(); else editSnapshot = null;
-    window.setOnboardingEditMode(false);
-    if (typeof showView === 'function') showView('view-feed');
-    if (typeof window.syncProfileAvatar === 'function') window.syncProfileAvatar();
+    const screen = document.getElementById('view-onboarding');
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      screen?.classList.remove('view-edit-out');
+      window.setOnboardingEditMode(false);
+      if (typeof showView === 'function') showView('view-feed');
+      if (typeof window.syncProfileAvatar === 'function') window.syncProfileAvatar();
+    };
+    if (screen) {
+      screen.classList.remove('view-edit-in');
+      void screen.offsetWidth;
+      screen.classList.add('view-edit-out');
+      screen.addEventListener('animationend', finish, { once: true });
+      setTimeout(finish, 440);   // fallback anti-deadlock
+    } else {
+      finish();
+    }
   };
 
   // Reflete o appState atual (+ displayName) nos campos do formulário, para o

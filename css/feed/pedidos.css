@@ -329,14 +329,17 @@
 .indicate-overlay__bar .agenda-filters__search-wrap { order: 0; }
 .indicate-overlay__close { order: 1; }
 
-/* Fechar: pílula translúcida 40px (mesma métrica do botão de contratos da barra). */
+/* Fechar: círculo translúcido 40px — MESMO padrão atualizado do botão de
+   contratos/avatar da barra (radius-pill + fade no toque). */
 .indicate-overlay__close {
   width: 40px;
   height: 40px;
   flex-shrink: 0;
+  border-radius: var(--radius-pill);
   background: var(--on-green-soft);
   color: var(--t-light);
 }
+.indicate-overlay__close:active { transform: none; opacity: 0.6; }
 
 /* Wrapper de scroll da seção: rola AQUI (as sombras de corte .js-scroll-shadows
    vivem neste wrapper e sobrevivem ao re-render do #agenda-list). */

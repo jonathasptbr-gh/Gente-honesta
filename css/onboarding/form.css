@@ -25,13 +25,31 @@
 /* "Cancelar" no padrão dos botões de FECHAR do app (.action-close-mode):
    fill branco translúcido + texto claro sobre a barra verde do topo
    (substitui o antigo texto dourado solto). */
+/* Cancelar no padrão dos botões da top bar: pílula (radius-pill), altura 40px,
+   fill translúcido de fechar (--on-green-soft) + texto claro, e fade no toque. */
 #view-onboarding #btn-onboarding-cancel {
+  height: 40px;
+  padding: 0 var(--space-md);
   background: var(--on-green-soft);
   color: var(--t-light);
-  padding: 8px 14px;
-  border-radius: var(--radius-md);
-  font-size: var(--fs-5);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-6);
 }
+#view-onboarding #btn-onboarding-cancel:active { transform: none; opacity: 0.6; }
+
+/* ── Transição da EDIÇÃO de perfil (abre/fecha como um modal: sobe/desce + fade)
+   Só no fluxo de edição — as classes são aplicadas em JS (enterProfileEdit/
+   exitOnboardingEdit). O cadastro normal segue sem animação (fade do loader). */
+@keyframes editProfileIn {
+  from { opacity: 0; transform: translateY(5%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes editProfileOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(5%); }
+}
+#view-onboarding.view-edit-in  { animation: editProfileIn  0.4s var(--ease) both; }
+#view-onboarding.view-edit-out { animation: editProfileOut 0.32s var(--ease) both; }
 
 .onboarding-form {
   display: flex;

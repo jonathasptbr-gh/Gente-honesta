@@ -40,14 +40,25 @@
   position: absolute;    /* dentro da .agenda-filters__action-row (position:relative) */
   inset: 0;
   z-index: 1;            /* acima do trilho */
-  display: none;         /* só aparece com a gaveta aberta (classe --profile) */
+  display: flex;         /* sempre no fluxo; a visibilidade é por opacity/visibility */
   align-items: center;
   gap: var(--space-xs);
   background: var(--p-green);   /* mascara o conteúdo da aba atrás */
+  /* Troca de visualização = FADE (crossfade sobre o conteúdo da aba). visibility
+     atrasada mantém interativo enquanto aparece e some após o fade de saída. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease), visibility 0s linear 0.25s;
 }
 
-/* Com a gaveta aberta: o overlay de ações cobre a zona do meio. */
-.agenda-filters--profile .agenda-filters__profile-actions { display: flex; }
+/* Com a gaveta aberta: o overlay de ações aparece (fade in) sobre a zona do meio. */
+.agenda-filters--profile .agenda-filters__profile-actions {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.25s var(--ease);
+}
 
 .agenda-filters__profile-btn {
   height: 40px;              /* casa com o avatar (40px) e o par de Vagas */
