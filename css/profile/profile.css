@@ -67,7 +67,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-sm);
+  gap: 4px;   /* vão ícone↔texto compacto (<= margem lateral), igual aos demais botões do topo */
   border-radius: var(--radius-md);   /* retângulo padrão do app */
   font-size: var(--fs-6);
   font-weight: var(--fw-bold);

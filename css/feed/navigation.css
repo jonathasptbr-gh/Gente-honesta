@@ -66,7 +66,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-sm);   /* espaço ícone↔texto, igual aos botões padrão (add/close não colam no rótulo) */
+  gap: 4px;   /* vão ícone↔texto compacto: fica <= à margem lateral mesmo no botão mais cheio (Fazer pedido) */
   border: none;
   border-radius: var(--radius-md);   /* retângulo padrão do app (cantos pouco curvos) */
   font-size: var(--fs-6);
@@ -236,7 +236,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-sm);
+  gap: 4px;   /* vão ícone↔texto compacto (<= margem lateral mesmo cheio) */
   font-size: var(--fs-6);
   white-space: nowrap;
   border-radius: var(--radius-md);   /* retângulo padrão do app */
