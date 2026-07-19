@@ -307,6 +307,10 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  /* Verde do feed ATRÁS de toda a zona de pros (barra + scroll): o buraco do
+     overscroll elástico da lista revela ESTE verde, não o blur do backdrop —
+     o rubber-band do webview expõe o pai, não o fundo do próprio scroller. */
+  background: var(--bg-canvas);
 }
 
 /* Barra de busca flutuante — MESMO verde da barra real (--p-green). A

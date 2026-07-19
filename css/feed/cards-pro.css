@@ -135,10 +135,20 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  /* O scroll interno NÃO encadeia p/ a lista de pros atrás: sem isso, ao subir
+     ao topo dos comentários o gesto era roubado pelo overscroll do #agenda-list
+     e o scroll interno travava. */
+  overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: var(--scroll-thumb-dark) transparent;
-  padding-bottom: var(--space-xs);
-  padding-right: 4px;
+  /* Caixa de scroll de LADO A LADO do card: quebra o padding lateral do
+     .pro-card__back (margem negativa) e recoloca o respiro DENTRO (padding) —
+     a barra e as sombras alcançam as bordas do card; os comentários ficam
+     recuados só por dentro. SEM padding-bottom: a sombra de baixo assenta
+     rente à linha divisória (o respiro do fim vem do .comment). */
+  margin: 0 calc(-1 * var(--space-sm));
+  padding: 0 var(--space-sm);
+  --shade-bleed: var(--space-sm);
 }
 
 /* Barra SEMPRE visível — verso do card de profissional expandido (comentários).
