@@ -351,7 +351,12 @@ reputação, num eixo que nenhuma outra ação preenche (ver zonas, regra 5).
    certo, não só o ato de palpitar.
 2. **Crescimento por herança de IC.** Você pode indicar alguém **sem cadastro completo**; ao entrar, essa
    pessoa **herda o IC de quem a indicou** como ponto de partida. É o laço viral do produto — gente de
-   confiança trazendo gente de confiança.
+   confiança trazendo gente de confiança. **Fórmula (decidida):** o IC de partida = **média entre 70 e o IC
+   de quem indicou**. O 70 é o **ponto de gravidade**: um indicador excelente (90) gera um novato em 80 (não
+   em 90 → "o novato não é o melhor"); um indicador ruim (40) puxa alguém que seria bom para 55 (não para 40
+   → "o bom não é arrastado ao fundo"). Como a faixa "ok/confiável" começa em 75, o novato-padrão nasce em
+   **"warn"**; para nascer já confiável é preciso ser indicado por quem tem **IC ≥ 80** — um filtro natural.
+   *(Cold start SEM indicação — quem entra sozinho — segue o piso baixo + salto na verificação, D3.)*
 3. **Verificados puxam confiança.** Profissionais **verificados** têm o IC ajustado (piso mais alto); ao
    indicarem, trazem para a plataforma pessoas com confiança **igual ou semelhante** à deles.
 4. **Indicar mal custa caro (você é fiador).** As **primeiras avaliações** do indicado caem também na conta
@@ -370,7 +375,9 @@ reputação, num eixo que nenhuma outra ação preenche (ver zonas, regra 5).
   não um presente: pela alta sensibilidade inicial (D3), ele **flutua rápido para o desempenho próprio** do
   indicado. O **vínculo indicador↔indicado** — tanto a herança quanto a fiança das primeiras avaliações —
   fica ativo por **alguns dias, ~1 semana**; depois solta, e o indicado anda com as próprias pernas. Isso já
-  mata a "fábrica de contas": o IC emprestado não fixa, e ninguém empresta mais confiança do que tem.
+  mata a "fábrica de contas": o IC emprestado não fixa, e ninguém empresta mais confiança do que tem. *(Ponta
+  de borda resolvida: se a semana acaba SEM nenhum trabalho, não há crash — sem eventos, o índice
+  simplesmente permanece perto da partida ancorada em 70; ele só "flutua" quando há atividade real.)*
 - **Indicar é uma APOSTA de reputação — e é isso que auto-regula o crescimento (D8 DECIDIDA).** Fica só a
   **responsabilidade retroativa** (regra 4), sem stake explícito por ora — porque a fiança **já é** a
   aposta: indicar qualquer um arrisca um revés no seu próprio índice, então **não compensa indicar no
@@ -404,6 +411,82 @@ reputação, num eixo que nenhuma outra ação preenche (ver zonas, regra 5).
 zona exclusiva), **começa a preencher D2** (as *zonas* são a espinha dos fatores do IC) e **reforça D3** (a
 herança é o mecanismo de cold start). Abre D8 (stake) e D9 (prazo da fiança).
 
+### 10.2 O motor do IC — inventário de zonas candidatas (menu a podar)
+
+O IC é a **soma de zonas com contribuição reservada** (teto E piso por zona; ver §10.1, regra 5). Antes de
+escolher os pesos (D2), aqui está o **cardápio completo** de zonas possíveis, agrupadas por família. É um
+menu para PODAR: nem tudo entra no v1; marcamos abaixo uma sugestão de núcleo enxuto.
+
+**Família 1 — Qualidade (resultado do trabalho)** · sinal `+`
+| Zona candidata | Mede |
+|---|---|
+| Média das avaliações | qualidade percebida do serviço |
+| Consistência | variância baixa = previsível (bom sempre, não às vezes) |
+| Recontratação | o mesmo cliente volta = confiança forte |
+| Avaliação por critério | pontualidade / capricho / preço justo / comunicação, separados |
+
+**Família 2 — Rede / Indicação (capital social)** · sinal `+`
+| Zona candidata | Mede |
+|---|---|
+| Indicações feitas | participação na rede |
+| Indicações aceitas | o seu palpite foi o escolhido |
+| Qualidade dos indicados | seus indicados se saem bem = você é bom curador |
+| Quem/quantos te indicam | teia de confiança; diversidade de indicadores > um só repetido |
+
+**Família 3 — Volume / Histórico (track record real)** · sinal `+`
+| Zona candidata | Mede |
+|---|---|
+| Acordos fechados | volume de trabalho concreto |
+| Taxa de conclusão | fecha o que começa (vs abandona) |
+| Tempo de casa | antiguidade na plataforma |
+| Constância | ativo recorrente vs sumido |
+
+**Família 4 — Confiabilidade operacional (comportamento)** · sinal `+/–`
+| Zona candidata | Mede |
+|---|---|
+| Comparecimento | no-show em diárias/combinados |
+| Pontualidade / prazo | cumpre o combinado no tempo |
+| Cancelamentos | frequência e "em cima da hora" |
+| Tempo de resposta | responde rápido a pedidos/mensagens |
+| Honrar o valor | preço final = combinado (sem surpresa no fim) |
+
+**Família 5 — Verificação (piso de confiança)** · sinal `+` (salto único)
+| Zona candidata | Mede |
+|---|---|
+| Identidade | documento/selfie confirmados |
+| Ofício / formalidade | MEI, emite NF, certificado onde aplicável |
+| Região confirmada | endereço/bairro validado |
+
+**Família 6 — Conduta / Integridade (a zona NEGATIVA — a que leva ao fundo)** · sinal `–` (sem teto)
+| Zona candidata | Mede |
+|---|---|
+| Denúncias procedentes | peso negativo forte |
+| Golpe / fraude confirmada | catastrófico |
+| Fraude no próprio IC | conluio / auto-indicação detectada |
+| Reclamações não resolvidas | pendências abertas |
+
+**Família 7 — Bom cidadão / o OUTRO lado (conta única: cliente = profissional)** · sinal `+/–`
+| Zona candidata | Mede |
+|---|---|
+| Completude do perfil | foto, bio, tags, formas de pagamento preenchidas |
+| Comportamento como CLIENTE | paga em dia, avalia com justiça, não dá calote no profissional |
+
+**Como as zonas se combinam (estrutura proposta):**
+- **Zonas `+` têm TETO:** cada uma contribui até um máximo. Encheu uma e parou de mexer nas outras → estagna
+  (é a mecânica da regra 5). É o que obriga a participar da rede inteira, não só de um eixo.
+- **Verificação é um PISO/salto único:** dá um degrau de partida, não cresce com o tempo.
+- **Conduta é a zona `–` SEM teto:** é a única que fura os pisos das demais e leva ao fundo (perto de 0).
+  Por isso "avaliação ruim não zera; má-fé zera".
+- **A ponderação por volume (D3) atua POR CIMA da soma:** com pouco histórico o índice se move rápido; com
+  muito, consolida.
+
+**`[DECISÃO D2]` — Núcleo v1 sugerido (a confirmar):** começar enxuto com **5 zonas** e evoluir:
+1. **Qualidade** — média das avaliações (com lastro em contrato). 2. **Indicação** — feitas + aceitas.
+3. **Acordos** — contratos concluídos. 4. **Conduta** — denúncias/golpes/fraudes (a zona negativa).
+5. **Verificação** — identidade (o piso). As famílias 4 e 7 (operacional e o lado-cliente) e os refinamentos
+das famílias 1–3 (consistência, recontratação, curadoria) entram como **fast-followers**, quando houver
+sinal suficiente para medi-los. **A decidir:** o PESO/TETO de cada zona e quais candidatas promover ao v1.
+
 ---
 
 ## 11. Changelog do conceito
@@ -424,3 +507,9 @@ herança é o mecanismo de cold start). Abre D8 (stake) e D9 (prazo da fiança).
   ~1 semana). Novo refinamento das zonas do IC: cada zona tem **teto E piso**; avaliação ruim sozinha não
   zera o IC — o **fundo é reservado a ações de má-fé** (denúncias/golpes/fraudes). Restam D2 (pesos/tetos
   das zonas), D4, D5, D6.
+- **(revisão 4)** — **fórmula do IC herdado decidida**: média entre 70 e o IC do indicador (70 = ponto de
+  gravidade; estabiliza novato e protege o bom arrastado por indicador ruim; nascer "ok" exige indicador
+  ≥80). Ponta de borda da semana sem trabalho resolvida (sem crash — permanece na partida ancorada). Novo
+  **§10.2 — inventário de zonas candidatas do IC** (7 famílias, ~28 sinais), com estrutura de combinação
+  (teto nas `+`, verificação como piso, conduta `–` sem teto) e um **núcleo v1 sugerido de 5 zonas** para
+  D2. Falta calibrar pesos/tetos e promover candidatas ao v1.
