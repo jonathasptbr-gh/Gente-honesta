@@ -45,7 +45,7 @@
    #contracts-filters-sheet. Aqui ficam só os estilos do CONTEÚDO.
    ======================================== */
 
-/* ── Rodapé do painel: CTA "Criar minicontrato" + botão de pendentes ──
+/* ── Rodapé do painel: CTA "Criar Acordo" + botão de pendentes ──
    Linha fixa na base (fora do scroll). O CTA estica; o botão de pendentes é
    só-ícone e casa a altura pelo align-items:stretch. */
 .contracts-footer {
@@ -54,7 +54,7 @@
   gap: var(--space-sm);
 }
 
-/* CTA "Criar minicontrato": ocupa o espaço restante ao lado do botão de
+/* CTA "Criar Acordo": ocupa o espaço restante ao lado do botão de
    pendentes. */
 .contracts-create__btn {
   flex: 1;
@@ -110,7 +110,7 @@
   min-height: 0;
 }
 
-/* Bandeja CINZA (dentro do clip): agrupa os minicontratos em cards BRANCOS. O
+/* Bandeja CINZA (dentro do clip): agrupa os Acordos em cards BRANCOS. O
    padding vive AQUI, não no clip. */
 .contracts-pending__tray {
   display: flex;
@@ -127,7 +127,7 @@
   padding: 2px 2px;
 }
 
-/* Minicontrato: card BRANCO sobre a bandeja cinza (--shadow-sm o define). */
+/* Acordo: card BRANCO sobre a bandeja cinza (--shadow-sm o define). */
 .contract-mini {
   display: flex;
   align-items: center;
@@ -173,7 +173,7 @@
 
 /* Editar/compartilhar: a COR vem da primitiva .btn--outline (composta no HTML,
    mesmo padrão dos botões-ícone do verso dos cards). Aqui só a métrica reduzida
-   p/ caber na linha compacta do minicontrato. */
+   p/ caber na linha compacta do Acordo. */
 .contract-mini__btn {
   width: 36px;
   height: 36px;

@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // Pendentes: bandeja separada, revelada pelo botão do rodapé. Só faz sentido
     // sob "Todos" (não são um status filtrável) — com status específico, oculta
-    // o botão-abridor e recolhe a gaveta. O texto da busca filtra os minicontratos.
+    // o botão-abridor e recolhe a gaveta. O texto da busca filtra os Acordos.
     const showPending = contractsFilter.status === CONTRACT_STATUS.ALL;
     btnTogglePending?.classList.toggle('u-hidden', !showPending);
     if (!showPending) setPendingOpen(false);

@@ -141,7 +141,7 @@ cards via `applyContractsFilters`), o `#btn-toggle-filters` abre `#contracts-fil
 status Todos/Ativo/Concluído/Cancelado + valor mín/máx + mês/ano — status e texto filtram de verdade;
 valor/mês são visuais), e `#btn-open-contracts` vira "Fechar" (`.agenda-filters__icon-btn--active`,
 receita do `.action-close-mode`). O `#contracts-filters-sheet` vem DEPOIS no DOM (renderiza por cima,
-mesmo z-index). O CTA "Criar minicontrato" fica fixo na BASE do painel; lista em ordem normal
+mesmo z-index). O CTA "Criar Acordo" fica fixo na BASE do painel; lista em ordem normal
 (pendentes → ativos → concluído → cancelado). `closeContractsSheet` tem guarda de early-return
 (evita TDZ de `renderAgendaList`) e é chamado por `showVagasPanel`/`showPedidosPanel`.
 

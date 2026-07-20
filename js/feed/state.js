@@ -35,5 +35,5 @@ export const myPedido = { text: '', urgency: URGENCY.NORMAL, duration: DURATION.
 
 // --- Contratos ---
 // Filtro combinado (texto da busca + chip de status) sobre os cards mockados.
-// Minicontratos pendentes não têm status próprio: aparecem só em "Todos".
+// Acordos pendentes não têm status próprio: aparecem só em "Todos".
 export const contractsFilter = { query: '', status: CONTRACT_STATUS.ALL };
