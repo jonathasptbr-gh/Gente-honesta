@@ -127,7 +127,7 @@ e difícil de fraudar (a refinar):
 
 | Fator | Direção | Racional |
 |---|---|---|
-| Avaliação recebida após um serviço | ↑ / ↓ | O sinal central. Só conta se atrelada a um **minicontrato concluído** (evita review falso). |
+| Avaliação recebida após um serviço | ↑ / ↓ | O sinal central. Peso alto se atrelada a um **Acordo concluído** (vira comentário); peso baixo se avaliação de perfil aberta. Ver §10.2. |
 | Contrato concluído sem incidente | ↑ | Volume de trabalho entregue constrói reputação. |
 | No-show / cancelamento tardio / abandono | ↓ | Puno o que quebra a confiança operacional. |
 | Denúncia procedente | ↓↓ | Freio forte contra golpe/má conduta. |
@@ -222,7 +222,7 @@ uma casca já muito bem construída.
 - **Descoberta geográfica**: modelo de "região" (bairro/cidade) + consulta por proximidade.
 
 **Lacunas de produto (o que dá SENTIDO ao conceito):**
-- **Fechar o ciclo:** um caminho real de **contratar → registrar minicontrato → concluir → avaliar → mover IC**.
+- **Fechar o ciclo:** um caminho real de **conectar → registrar Acordo (opcional) → concluir → avaliar → mover IC**.
   Sem isso, IC e avaliações são decorativos.
 - **Onboarding do profissional** com **verificação de identidade** (piso de confiança / anti-golpe).
 - **Moderação e denúncia** de verdade (fila, critério, efeito no IC, contraditório).
@@ -284,7 +284,7 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
   - **Avaliação real em duas classes:** direta de perfil (peso baixo, sem comentário) e de Acordo concluído
     (peso alto, vira comentário). Ver §10.2.
   - **Motor do IC v1** (`[DECISÃO D2/D3/D4]`): eventos → recálculo → faixa; histórico explicável ao dono.
-- **Critério de pronto:** concluir um minicontrato → avaliar → o IF/IC do profissional muda de forma
+- **Critério de pronto:** concluir um Acordo → avaliar → o IC do profissional muda de forma
   visível e explicável.
 - **Dependências:** Fase 1; decisões D2–D4 fechadas.
 
@@ -337,7 +337,7 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
 
 > Aprofundamento de cada mecânica, uma por vez, começando pela base. Cada deep-dive separa as **regras
 > decididas** (o que já é rumo firmado) das **propostas/defesas** (o que ainda pede escolha, marcado
-> `[DECISÃO]`). Próximos previstos: o motor do IC (as zonas e seus tetos), o minicontrato, a avaliação.
+> `[DECISÃO]`). Próximos previstos: o motor do IC (as zonas e seus tetos), o Acordo, a avaliação.
 
 ### 10.1 Indicação — a mecânica-base
 
