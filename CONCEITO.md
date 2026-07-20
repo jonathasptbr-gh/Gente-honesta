@@ -75,7 +75,7 @@ conceito ganha força quando elas são lidas como **estágios de um único ciclo
         ┌───────────────────────────────────────────────────────┐
         │                                                       ▼
    [1] DESCOBERTA  ──►  [2] ACORDO  ──►  [3] ENTREGA  ──►  [4] AVALIAÇÃO
-   (achar quem)        (minicontrato)   (o serviço)        (feedback)
+   (achar quem)        (o Acordo)       (o serviço)        (feedback)
         ▲                                                       │
         │                                                       ▼
         └──────────────  [5] IC atualizado  ◄────────────────────
@@ -88,7 +88,7 @@ Cada superfície atual é um **modo** dentro desse ciclo:
 |---|---|---|
 | **1. Descoberta direta** | aba **Profissionais** | Busca/filtro — para quem já sabe o que procura. |
 | **1. Descoberta social** | aba **Pedidos** + **modo Indicação** | Referral — a rede indica quem você não acharia sozinho. É o coração do "Indicações". |
-| **2. Acordo** | **Contratos / minicontrato** | O registro do combinado (escopo, valor). É o que dá lastro à avaliação e ao IC. |
+| **2. Acordo** | **Acordo** (ex-"minicontrato") | O registro OPCIONAL do combinado (escopo, valor, prazo). É o que dá lastro à avaliação (vira comentário) e à zona de qualidade do IC. |
 | **3. Entrega** | *(fora do app)* | O serviço acontece no mundo real. |
 | **4. Avaliação** | **comentários/avaliações** do card | O feedback que alimenta a reputação. |
 | **5. Reputação** | **IC (Índice de Confiança)** | A moeda que resume tudo e realimenta a descoberta. |
@@ -279,8 +279,10 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
 ### Fase 2 — Fechar o ciclo de confiança *(a fase que dá sentido à marca)*
 - **Objetivo:** *"Contratar, avaliar e a reputação MEXER de verdade."*
 - **Entregáveis:**
-  - **Minicontrato real:** criar/registrar o combinado (escopo, valor, partes) — o lastro da avaliação.
-  - **Avaliação real** atrelada a um contrato concluído.
+  - **Acordo real** (ex-"minicontrato"): criar/registrar o combinado OPCIONAL (escopo, valor, prazo, partes)
+    — a fonte (B) dos dados ricos e o lastro dos comentários do perfil.
+  - **Avaliação real em duas classes:** direta de perfil (peso baixo, sem comentário) e de Acordo concluído
+    (peso alto, vira comentário). Ver §10.2.
   - **Motor do IC v1** (`[DECISÃO D2/D3/D4]`): eventos → recálculo → faixa; histórico explicável ao dono.
 - **Critério de pronto:** concluir um minicontrato → avaliar → o IF/IC do profissional muda de forma
   visível e explicável.
@@ -415,7 +417,42 @@ herança é o mecanismo de cold start). Abre D8 (stake) e D9 (prazo da fiança).
 
 O IC é a **soma de zonas com contribuição reservada** (teto E piso por zona; ver §10.1, regra 5). Antes de
 escolher os pesos (D2), aqui está o **cardápio completo** de zonas possíveis, agrupadas por família. É um
-menu para PODAR: nem tudo entra no v1; marcamos abaixo uma sugestão de núcleo enxuto.
+menu para PODAR: nem tudo entra no v1; marcamos abaixo uma sugestão de núcleo enxuto. **Mas antes,
+o pé no chão** — nem toda zona deste cardápio é mensurável; leia a proveniência a seguir.
+
+**Pé no chão — de onde vem cada dado (e o que NÃO temos).** A plataforma **não media a relação**: ela
+**conecta contatos** e oferece uma **ferramenta OPCIONAL, o Acordo** (nome de trabalho; ex-"minicontrato").
+O serviço, a conversa e o dinheiro acontecem FORA (WhatsApp, presencial). Logo, quase nada é telemetria
+automática — é **declarado** pelas partes ou **reportado** por pessoas. Antes de pesar zonas, é preciso
+saber a PROCEDÊNCIA e a confiabilidade de cada sinal:
+
+- **(A) Observado pelo app — alta integridade (o app é a testemunha).** Indicações feitas/aceitas,
+  verificação, denúncias registradas, tempo de casa, completude do perfil, detecção de conluio, e a
+  EXISTÊNCIA de um Acordo. Sempre disponível, difícil de forjar. **É a espinha dorsal do IC.**
+- **(B) Declarado no Acordo — média-alta integridade (os DOIS lados registram).** Valores, prazos, atrasos,
+  confirmações, reclamações, conclusão, e a **avaliação com lastro** que vira **comentário no perfil**. Rico
+  e valioso, MAS **esparso** (nem todo serviço gera Acordo: cliente confia na palavra, acha o serviço simples
+  demais, ou é recorrente e nem busca no app) e **declarado, não observado**. É a camada PREMIUM, porém rara.
+- **(C) Avaliação de perfil aberta — baixa integridade.** Qualquer um com o contato, na mesma região, pode
+  avaliar. Barata e manipulável → **peso baixo** e **não gera comentário** (só um empurrãozinho no número).
+- **(D) Cego — não temos.** O conteúdo do WhatsApp, se o dinheiro trocou de mãos e quanto, se o profissional
+  chegou no horário de fato. Só sabemos o que alguém DECLARA (num Acordo) ou REPORTA (numa denúncia).
+
+**Três consequências de desenho, decididas:**
+1. **Duas classes de avaliação.** (i) *Direta de perfil* = baixo peso, sem comentário (fonte C). (ii)
+   *De Acordo concluído* = alto peso e **vira o comentário do perfil** (fonte B). Os comentários no card do
+   profissional só nascem de Acordos — é o que dá lastro à reputação visível.
+2. **A família 4 (operacional) NÃO é zona independente.** Atraso, reclamação, confirmação, no-show não são
+   medições automáticas — são **campos declarados dentro de um Acordo** (fonte B). Entram como facetas das
+   zonas Acordo/Qualidade, não como eixos próprios.
+3. **O IC se apoia no que SEMPRE existe (A), com o prêmio do que às vezes existe (B).** Como o Acordo é
+   esparso, a BASE do índice são os sinais observados pelo app (indicação, verificação, conduta, tempo de
+   casa); a qualidade-via-Acordo é uma zona de **alto valor e baixa cobertura**. O índice PRECISA fazer
+   sentido para quem tem poucos Acordos — senão pune quem atende cliente que "confia na palavra".
+
+**Por que o profissional QUER Acordos (o incentivo certo):** o Acordo é a única fonte de dados ricos — gera
+os comentários do perfil e alimenta a zona de qualidade de alto peso. É opcional para o cliente, mas
+**incentivado pelo profissional**, que ganha reputação de melhor lastro ao formalizar.
 
 **Família 1 — Qualidade (resultado do trabalho)** · sinal `+`
 | Zona candidata | Mede |
@@ -441,7 +478,9 @@ menu para PODAR: nem tudo entra no v1; marcamos abaixo uma sugestão de núcleo 
 | Tempo de casa | antiguidade na plataforma |
 | Constância | ativo recorrente vs sumido |
 
-**Família 4 — Confiabilidade operacional (comportamento)** · sinal `+/–`
+**Família 4 — Confiabilidade operacional (comportamento)** · sinal `+/–` · ⚠️ **fonte B — só existe DENTRO
+de um Acordo** (campos declarados, não medição automática; entram como facetas da zona Acordo, não como zona
+independente — ver "pé no chão" acima)
 | Zona candidata | Mede |
 |---|---|
 | Comparecimento | no-show em diárias/combinados |
@@ -480,12 +519,22 @@ menu para PODAR: nem tudo entra no v1; marcamos abaixo uma sugestão de núcleo 
 - **A ponderação por volume (D3) atua POR CIMA da soma:** com pouco histórico o índice se move rápido; com
   muito, consolida.
 
-**`[DECISÃO D2]` — Núcleo v1 sugerido (a confirmar):** começar enxuto com **5 zonas** e evoluir:
-1. **Qualidade** — média das avaliações (com lastro em contrato). 2. **Indicação** — feitas + aceitas.
-3. **Acordos** — contratos concluídos. 4. **Conduta** — denúncias/golpes/fraudes (a zona negativa).
-5. **Verificação** — identidade (o piso). As famílias 4 e 7 (operacional e o lado-cliente) e os refinamentos
-das famílias 1–3 (consistência, recontratação, curadoria) entram como **fast-followers**, quando houver
-sinal suficiente para medi-los. **A decidir:** o PESO/TETO de cada zona e quais candidatas promover ao v1.
+**`[DECISÃO D2]` — Núcleo v1 sugerido (aterrado na proveniência):** organizado por CONFIABILIDADE da fonte,
+não por "seria legal medir".
+
+- **Espinha dorsal — fonte A (sempre disponível, observada pelo app):**
+  1. **Indicação** — feitas + aceitas.
+  2. **Verificação** — identidade (o piso de partida).
+  3. **Conduta** — denúncias/golpes/fraudes (a zona negativa, sem teto).
+  4. **Tempo de casa / atividade** — antiguidade + constância.
+- **Prêmio — fonte B (alto valor, baixa cobertura, via Acordo):**
+  5. **Qualidade via Acordo** — avaliação com lastro (→ vira comentário) + os campos do Acordo (conclusão,
+     atraso, reclamação, volume de Acordos concluídos). É aqui que a família 4 mora, como faceta.
+- **Tempero — fonte C (peso baixo):** avaliação de perfil direta — um empurrãozinho, **sem comentário**.
+
+O lado-cliente (família 7) e os refinamentos das famílias 1–3 (consistência, recontratação, curadoria)
+entram como **fast-followers**, quando houver sinal para medi-los. **A decidir:** o PESO/TETO de cada zona
+(quanto dos 100 pontos cada uma vale) e quais candidatas promover ao v1.
 
 ---
 
@@ -513,3 +562,10 @@ sinal suficiente para medi-los. **A decidir:** o PESO/TETO de cada zona e quais 
   **§10.2 — inventário de zonas candidatas do IC** (7 famílias, ~28 sinais), com estrutura de combinação
   (teto nas `+`, verificação como piso, conduta `–` sem teto) e um **núcleo v1 sugerido de 5 zonas** para
   D2. Falta calibrar pesos/tetos e promover candidatas ao v1.
+- **(revisão 5)** — **pé no chão / proveniência dos dados** (§10.2): a plataforma não media a relação (só
+  conecta contatos + Acordo opcional via WhatsApp), então quase tudo é declarado/reportado, não automático.
+  Sinais classificados em (A) observado pelo app = espinha dorsal, (B) declarado no Acordo = premium mas
+  esparso, (C) avaliação de perfil aberta = peso baixo, (D) cego. Decidido: **duas classes de avaliação**
+  (direta sem comentário × de Acordo que vira comentário); a **família 4 (operacional) não é zona** (são
+  campos do Acordo); o IC apoia-se em (A) com (B) como prêmio. Núcleo v1 reorganizado por confiabilidade da
+  fonte. **Renomeação de trabalho: "minicontrato" → "Acordo"** (§3, §8).
