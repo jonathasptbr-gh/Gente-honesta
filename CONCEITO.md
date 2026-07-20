@@ -134,6 +134,11 @@ e difícil de fraudar (a refinar):
 | Verificação de identidade / documento | ↑ (uma vez) | Piso de confiança para quem se identifica. |
 | Tempo de casa + constância | ↑ (lento) | Recompensa histórico longo, resiste a manipulação rápida. |
 
+> **Estrutura por zonas (ver §10.1):** esses fatores **não somam livremente** — cada eixo vive numa **zona
+> com teto próprio**. Você preenche uma zona até o limite dela e ali **estagna**; para subir mais, precisa
+> preencher AS OUTRAS (ser muito bem avaliado não compensa não ter indicado ninguém nem fechado acordos).
+> Isso força participação em toda a rede, não só em um eixo. O detalhamento está no deep-dive da Indicação.
+
 **`[DECISÃO D3]` — Curva de sensibilidade (DECIDIDA):** o IC **não se move de forma linear** — quanto ele
 reage a cada evento depende de quanto histórico a pessoa já tem. A regra de rumo é:
 
@@ -313,19 +318,99 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
 | ID | Decisão | Padrão assumido enquanto não decidido | Quando precisa ser decidida |
 |---|---|---|---|
 | **D1** | ✅ **DECIDIDA** — Vagas/Diárias são núcleo (peso igual ao ciclo principal). | — | Fechada. |
-| **D2** | Quais fatores movem o IC e com que peso? | Modelo v1 da seção 4 (avaliação com lastro + contratos + penalidades). | Início da Fase 2. |
+| **D2** | Quais fatores movem o IC e com que peso? (agora enquadrado como **zonas com teto** — ver §10.1) | Zonas: avaliações, indicações, acordos, conduta, verificação; pesos/tetos a definir. | Início da Fase 2. |
 | **D3** | ✅ **DECIDIDA** — Curva de sensibilidade: forma rápido, consolida devagar, nunca congela (ponderada por volume). | — | Fechada. |
 | **D4** | Quanto do cálculo do IC é transparente ao usuário? | Princípios + histórico pessoal; fórmula/pesos não expostos. | Início da Fase 2. |
 | **D5** | Modelo de monetização? | Indefinido; restrição: nada compra IC. | Antes da Fase 5 (idealmente esboçado antes). |
 | **D6** | Conta única (cliente=profissional) ou perfis separados? | **Conta única**, "virar profissional" = completar dados + verificar. | Antes da Fase 1 (afeta modelagem). |
-| **D7** | Qual o incentivo para o usuário INDICAR alguém? | Indefinido (reputação social / reciprocidade / gamificação leve). | Antes/durante a Fase 2. |
+| **D7** | 🔶 **ENCAMINHADA** — incentivo a indicar = ganho de IC (indicar rende; aceita rende mais) + zona exclusiva (§10.1). Falta calibrar os ganhos. | Ganhos/valores a calibrar com D2. | Início da Fase 2. |
+| **D8** | Indicar custa uma APOSTA (stake) de IC, ou só responsabilidade retroativa? | Começar por responsabilidade retroativa; stake se houver abuso. | Início da Fase 2. |
+| **D9** | Por quanto tempo / quantas avaliações o fiador responde pelo indicado? | N primeiras avaliações OU X dias, depois desliga. | Início da Fase 2. |
 
 ---
 
-## 10. Changelog do conceito
+## 10. Detalhamento dos conceitos (deep-dives)
+
+> Aprofundamento de cada mecânica, uma por vez, começando pela base. Cada deep-dive separa as **regras
+> decididas** (o que já é rumo firmado) das **propostas/defesas** (o que ainda pede escolha, marcado
+> `[DECISÃO]`). Próximos previstos: o motor do IC (as zonas e seus tetos), o minicontrato, a avaliação.
+
+### 10.1 Indicação — a mecânica-base
+
+A indicação é, ao mesmo tempo, o **método de descoberta**, o **motor de crescimento orgânico** e a
+**primeira fonte de IC**. É onde os pilares "Indicações" e "Confiança" se tocam. Também é o que responde à
+pergunta que mais me preocupava: *por que alguém gastaria esforço para indicar?* — porque indicar constrói
+reputação, num eixo que nenhuma outra ação preenche (ver zonas, regra 5).
+
+**Regras decididas:**
+
+1. **Indicar rende IC; a indicação ACEITA rende mais.** Fazer uma indicação já contribui para o seu IC. Se
+   a sua for a **escolhida** (uma das 3 de um pedido é aceita), o ganho é maior — o sistema premia o palpite
+   certo, não só o ato de palpitar.
+2. **Crescimento por herança de IC.** Você pode indicar alguém **sem cadastro completo**; ao entrar, essa
+   pessoa **herda o IC de quem a indicou** como ponto de partida. É o laço viral do produto — gente de
+   confiança trazendo gente de confiança.
+3. **Verificados puxam confiança.** Profissionais **verificados** têm o IC ajustado (piso mais alto); ao
+   indicarem, trazem para a plataforma pessoas com confiança **igual ou semelhante** à deles.
+4. **Indicar mal custa caro (você é fiador).** As **primeiras avaliações** do indicado caem também na conta
+   de quem o indicou — um vouch ruim machuca o SEU IC, não só o do indicado. Skin in the game.
+5. **IC por zonas com teto.** O IC é a soma de **zonas de contribuição reservada**. Por mais bem avaliado
+   que seja, se você não indicou ninguém, não fechou acordos, etc., o índice sobe **até o teto daquela zona
+   e estagna**; para subir mais, é preciso **preencher outras zonas**. A reputação é multidimensional de
+   propósito — recompensa quem participa da rede inteira, não quem otimiza um só eixo.
+6. **A indicação toca os dois lados.** Mesmo um profissional **já cadastrado** é afetado pelo IC de quem o
+   indicou; e um profissional **de fora** é obrigado a **se cadastrar** para constar na lista de indicados
+   (não existe "indicado fantasma" — todo indicado é uma conta real).
+
+**Propostas, defesas e pontos a decidir** (contribuição para fechar o desenho):
+
+- **A herança de IC precisa ser PROVISÓRIA, senão vira fábrica de contas.** `[risco]` Se o IC herdado fosse
+  permanente, um usuário de IC alto poderia "cunhar" contas confiáveis (vender indicações, criar laranjas).
+  Proposta: o IC herdado é um **empréstimo/partida provisória** que, pela alta sensibilidade inicial (D3),
+  **flutua rápido para o desempenho próprio** do indicado nos primeiros trabalhos. É uma ponte, não um
+  presente — e ninguém empresta mais confiança do que a que tem.
+- **`[DECISÃO D8]` — Indicar custa uma APOSTA (stake) de IC?** Duas formas de dar corpo à regra 4:
+  (a) **só responsabilidade retroativa** (as primeiras avaliações do indicado batem no seu IC — como está);
+  (b) **stake explícito:** indicar imobiliza um pouco do seu IC, devolvido com bônus se der certo, perdido
+  se der errado. O stake torna o risco tangível e **freia naturalmente o spam de indicação** (não dá para
+  indicar infinitamente sem se expor). Sugestão: começar por (a), simples; considerar (b) se houver abuso.
+- **`[DECISÃO D9]` — A responsabilidade do fiador tem PRAZO.** A regra 4 diz "as primeiras avaliações caem
+  na sua conta" — por quanto tempo/quantas? Sem limite, você fica preso para sempre a alguém que decai anos
+  depois. Sugestão: **as N primeiras avaliações OU os primeiros X dias** do indicado; depois ele anda com as
+  próprias pernas e o fiador se desliga.
+- **Dois tipos de indicação — distinguir.** (a) **Responsiva:** indicar dentro de um **pedido** (matchmaking;
+  tem o evento "aceita"). (b) **De entrada / fundadora:** **trazer alguém novo** para a plataforma, fora de
+  qualquer pedido (puro crescimento). Podem render diferente e ter validações diferentes (a de entrada é a
+  que dispara a herança de IC + convite). Vale nomear os dois no motor do IC.
+- **O laço viral precisa do CONVITE explícito.** Quando você indica um outsider, ele recebe o gancho:
+  *"Fulano te indicou no Gente Honesta — complete seu cadastro e comece com IC X."* O IC herdado é a isca. É
+  isto que transforma indicação em canal de aquisição (liga-se a notificações, Fase 3, e a como o
+  outsider "entra" via convite).
+- **Defesa contra conluio / auto-indicação.** `[risco]` O abuso óbvio é o **anel de indicação mútua** (A e B
+  se inflam) e a **conta-laranja** (indico a mim mesmo por outra conta). As zonas com teto + fiança + stake
+  ajudam, mas o desenho já deve prever **detecção de reciprocidade/circularidade** e limites por par de
+  usuários. Entra no anti-fraude (Fase 5), mas nasce aqui como requisito.
+- **O efeito sobre o profissional já estabelecido deve ser LIMITADO.** A regra 6 (o já-cadastrado também é
+  tocado pelo IC de quem o indicou) é boa — cria uma **teia de confiança** —, mas precisa de teto: um
+  indicador ruim **não pode derrubar** quem tem histórico longo. Pela ponderação por volume (D3), o histórico
+  próprio já domina; o efeito da indicação é **um empurrão pequeno**, não uma alavanca.
+
+**Impacto nas decisões abertas:** este deep-dive **encaminha D7** (o incentivo a indicar = ganho de IC +
+zona exclusiva), **começa a preencher D2** (as *zonas* são a espinha dos fatores do IC) e **reforça D3** (a
+herança é o mecanismo de cold start). Abre D8 (stake) e D9 (prazo da fiança).
+
+---
+
+## 11. Changelog do conceito
 
 - **(criação)** — primeira versão do registro de conceito: tese, dois lados, flywheel, análise do IC,
   inventário do estado atual, lacunas, visão e roadmap em 6 fases. Sete decisões em aberto (D1–D7).
 - **(revisão 1)** — fechadas **D1** (Vagas/Diárias são núcleo, não satélite → Fase 4 interfolia, IC
   atravessa as três portas) e **D3** (curva de sensibilidade do IC: forma rápido / consolida devagar /
   nunca congela, ponderada por volume). Restam em aberto D2, D4, D5, D6, D7.
+- **(revisão 2)** — primeiro deep-dive: **§10.1 Indicação** (nova seção 10; changelog vira 11). Regras
+  decididas: indicar rende IC / aceita rende mais, herança de IC no crescimento, verificados puxam
+  confiança, fiança do indicador, IC por zonas com teto, indicado é sempre conta real. **D7 encaminhada**
+  (incentivo = IC), **D2 reenquadrada** como zonas com teto. Abertas **D8** (stake ao indicar) e **D9**
+  (prazo da fiança). Riscos registrados: herança precisa ser provisória; conluio/auto-indicação; efeito
+  limitado sobre o já-estabelecido.
