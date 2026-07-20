@@ -132,11 +132,16 @@ de conteúdo do pai). `padding-bottom: 0` no body (a faixa do rodapé carrega a 
 `.pedido-sheet__actions--footer` (só a vaga usa) ganha `margin-top: -var(--space-sm)` e
 `padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom))`.
 
-## Contratos — gaveta com a BARRA VIVA (`--bar-clear`)
+## Acordos (ex-"Contratos") — gaveta com a BARRA VIVA (`--bar-clear`)
+
+> **Rótulo visível = "Acordos"** (aria-labels, "Acordos pendentes", "Buscar Acordos", "Criar Acordo"); só o
+> RÓTULO mudou — os IDs/classes/enum internos seguem `contract`/`CONTRACT_STATUS`/`#contracts-sheet`/
+> `.contract-*` (mesmo padrão do rename "Serviço de ajudantes" → "Diárias"). Um "Acordo" é o registro
+> bilateral de um combinado — conceito em `CONCEITO.md` §10.3.
 
 `#contracts-sheet` (reusa `.historico-sheet*`) com a variante `.historico-sheet--bar-clear`: o
 container começa em `--sheet-top` e NÃO cobre a action bar → a barra segue interativa (sem
-`tapHitsButton`). Aberta: a busca vira "Buscar contratos..." (`openContractsSheet`; o texto filtra os
+`tapHitsButton`). Aberta: a busca vira "Buscar Acordos..." (`openContractsSheet`; o texto filtra os
 cards via `applyContractsFilters`), o `#btn-toggle-filters` abre `#contracts-filters-sheet` (chips de
 status Todos/Ativo/Concluído/Cancelado + valor mín/máx + mês/ano — status e texto filtram de verdade;
 valor/mês são visuais), e `#btn-open-contracts` vira "Fechar" (`.agenda-filters__icon-btn--active`,

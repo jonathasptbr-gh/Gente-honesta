@@ -4,7 +4,7 @@
 // =========================================================================
 
 export const SEARCH_PLACEHOLDER_PROS      = 'Buscar no Gente Honesta...';
-export const SEARCH_PLACEHOLDER_CONTRACTS = 'Buscar contratos...';
+export const SEARCH_PLACEHOLDER_CONTRACTS = 'Buscar Acordos...';
 
 // Curva de easing padrão (= token CSS --ease) usada nas transições montadas
 // em JS — fonte única para não desincronizar da curva do CSS.

@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // TELA - PRINCIPAL (FEED) - CONTRATOS — gaveta abaixo da action bar
   // (padrão claro; scaffolding .historico-sheet* + variante --bar-clear: a
   // action bar segue VIVA com a gaveta aberta). A busca de profissionais vira
-  // "Buscar contratos" enquanto aberta, e o botão de filtros abre o
+  // "Buscar Acordos" enquanto aberta, e o botão de filtros abre o
   // #contracts-filters-sheet (roteado no listener do #btn-toggle-filters).
   // Texto + chip de status filtram os cards mockados; valor/mês são visuais.
   // =========================================================================

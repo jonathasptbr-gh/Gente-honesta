@@ -1294,11 +1294,11 @@
         <!-- ── Gaveta de Contratos (dropdown abaixo da action bar, padrão claro) ──
              Reusa o scaffolding .historico-sheet* + a variante --bar-clear (o
              container começa em --sheet-top e NÃO cobre a action bar: a busca de
-             profissionais segue VIVA e vira "Buscar contratos"; o botão de filtros
+             profissionais segue VIVA e vira "Buscar Acordos"; o botão de filtros
              abre o #contracts-filters-sheet — roteamento em feed.js). A antiga
              busca/filtros interna foi removida. Visibilidade: .historico-sheet--open
              (js: openContractsSheet). -->
-        <div id="contracts-sheet" class="historico-sheet historico-sheet--bar-clear" role="dialog" aria-modal="true" aria-label="Contratos">
+        <div id="contracts-sheet" class="historico-sheet historico-sheet--bar-clear" role="dialog" aria-modal="true" aria-label="Acordos">
             <div class="historico-sheet__backdrop"></div>
             <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
@@ -1431,7 +1431,7 @@
                         <svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg>
                         Criar Acordo
                     </button>
-                    <button type="button" id="btn-toggle-pending" class="btn btn--icon contracts-pending-toggle" aria-label="Contratos pendentes" aria-expanded="false" aria-controls="contracts-pending">
+                    <button type="button" id="btn-toggle-pending" class="btn btn--icon contracts-pending-toggle" aria-label="Acordos pendentes" aria-expanded="false" aria-controls="contracts-pending">
                         <svg class="icon" aria-hidden="true"><use href="#ic-pending_actions"></use></svg>
                     </button>
                 </div>
@@ -1442,10 +1442,10 @@
                 <div id="contracts-pending" class="contracts-pending">
                     <div class="contracts-pending__clip">
                     <div class="contracts-pending__tray">
-                        <h3 class="contracts-pending__label eyebrow">Contratos pendentes</h3>
+                        <h3 class="contracts-pending__label eyebrow">Acordos pendentes</h3>
 
                         <div class="contract-mini">
-                            <button type="button" class="contract-mini__open" aria-label="Abrir contrato">
+                            <button type="button" class="contract-mini__open" aria-label="Abrir Acordo">
                                 <span class="contract-mini__summary">Montagem de móveis · R$ 320</span>
                             </button>
                             <div class="contract-mini__actions">
@@ -1455,7 +1455,7 @@
                         </div>
 
                         <div class="contract-mini">
-                            <button type="button" class="contract-mini__open" aria-label="Abrir contrato">
+                            <button type="button" class="contract-mini__open" aria-label="Abrir Acordo">
                                 <span class="contract-mini__summary">Pintura de sala · R$ 850</span>
                             </button>
                             <div class="contract-mini__actions">
@@ -1476,7 +1476,7 @@
              + --bar-clear (a barra segue viva). Vem DEPOIS do #contracts-sheet
              no DOM para renderizar POR CIMA dele (mesmo z-index). Opções vindas
              do antigo painel de busca interno dos contratos. -->
-        <div id="contracts-filters-sheet" class="historico-sheet historico-sheet--bar-clear" role="dialog" aria-modal="true" aria-label="Filtros de contratos">
+        <div id="contracts-filters-sheet" class="historico-sheet historico-sheet--bar-clear" role="dialog" aria-modal="true" aria-label="Filtros de Acordos">
             <div class="historico-sheet__backdrop"></div>
             <div class="historico-sheet__clip">
             <div class="historico-sheet__panel">
@@ -1596,7 +1596,7 @@
 
                 <!-- Contratos: SEMPRE visível à direita. Notificação = fundo piscando
                      branco↔amarelo (classe --notify), removida ao abrir. -->
-                <button type="button" id="btn-open-contracts" class="btn btn--icon agenda-filters__icon-btn agenda-filters__icon-btn--notify" aria-label="Contratos" aria-expanded="false">
+                <button type="button" id="btn-open-contracts" class="btn btn--icon agenda-filters__icon-btn agenda-filters__icon-btn--notify" aria-label="Acordos" aria-expanded="false">
                     <svg class="icon" aria-hidden="true"><use href="#ic-contract"></use></svg>
                 </button>
             </div>
