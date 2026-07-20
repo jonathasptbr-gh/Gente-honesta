@@ -286,12 +286,16 @@ O app tem **dois** loaders distintos, com papéis separados:
 
 **1. Vitrine de ENTRADA — `#loader-global.entry`** (CSS `css/entry/entry.css`; controle
 `window.entryLoader` em `core/app.js`). É a **ÚNICA** tela de entrada (cold start) e substituiu a
-antiga marca animada do ícone. Um **anúncio de exemplo** (mock no `index.html`): fachada de loja
-física — letreiro (nome), vitrines laterais (Produtos/Serviços = "o que oferece"), mini-mapa
-estilizado + endereço (offline, sem Google Maps), botão WhatsApp (verde `--whatsapp`, link `wa.me`) e
-uma **barra de progresso que enche em 3s (CSS `entryFill`) e vira o botão "Entrar"**. A arte da
-fachada (toldo, letreiro, porta) é ilustração decorativa (vars `--fac-*` no escopo `.entry`, fora da
-escala de UI — como o ícone do app); os controles seguem tokens.
+antiga marca animada do ícone. Um **anúncio de exemplo** (mock no `index.html`): **card branco no topo**
+(nome + subtítulo), no **centro a IMAGEM da fachada** (`<img>` placeholder trocável — como a foto de
+perfil, `object-fit:cover`) e, **por cima da imagem**, o **mapa do Google** (quadrado — embed real
+`maps.google.com/...&output=embed`, `<a>` por cima abre o Maps; **offline** o JS `setupEntryMap` deixa o
+**mock** estilizado, classe `.entry__map--online` faz o swap), o **botão WhatsApp** (ícone chat +
+"WhatsApp" + seta, verde `--whatsapp`, link `wa.me`) e um **card ESCURO semi-transparente** com o que a
+loja oferece + endereço. Na base, a **barra de progresso, no MESMO molde do botão** (pílula full-width
+sobreposta ao `#btn-entry`), enche em 3s (CSS `entryFill`) e **vira o "Entrar"** (crossfade: a barra some,
+o botão aparece — o botão fica no fluxo definindo a altura do slot). A **imagem da fachada** é a única
+"arte" (placeholder neutro, swappable); todo o resto segue tokens.
 - **Fluxo:** `entryLoader` libera o "Entrar" quando **AMBOS** passam: os 3s (timer) E o app resolveu a
   tela de destino (`auth/session.js` chama `window.entryLoader.markReady()` na 1ª resolução do
   `onAuthStateChanged`). O clique em "Entrar" faz o fade-out (`.u-fade-out`) e revela a tela por baixo.

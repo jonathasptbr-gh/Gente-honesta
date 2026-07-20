@@ -1,34 +1,30 @@
 /* =========================================================================
    PAINEL DE ENTRADA (VITRINE) — #loader-global.entry
    =========================================================================
-   Única tela de entrada do app (cold start). Substitui a antiga marca animada
-   do loader (o ícone com o reflexo dos óculos). A barra de progresso enche em
-   3s e se transforma no botão "Entrar" — o controle de tempo/estado vive em
-   `window.entryLoader` (js/core/app.js); o fade-out no clique reusa `.u-fade-out`.
+   Única tela de entrada do app (cold start). Substituiu a antiga marca animada
+   do loader. A barra de progresso (no MESMO molde do botão) enche em 3s e vira
+   o botão "Entrar" — controle de tempo/estado em `window.entryLoader`
+   (js/core/app.js); o fade-out no clique reusa `.u-fade-out`.
 
-   NÃO é reusada como bloqueio interno (login/salvar/sair) — isso agora é o
+   NÃO é reusada como bloqueio interno (login/salvar/sair) — isso é o
    blur + spinner (.block-loader, components/dialogs.css).
 
-   Conteúdo = ANÚNCIO DE EXEMPLO (mock, no index.html): a vitrine de uma loja
-   física — letreiro com o nome, o que oferece nas laterais (vitrines), mini-mapa
-   + endereço embaixo à esquerda, botão WhatsApp à direita e a barra/Entrar na base.
+   Layout (anúncio de exemplo, mock no index.html):
+   - card BRANCO no topo: nome + subtítulo da loja;
+   - CENTRO: a IMAGEM da fachada (placeholder trocável, como a foto de perfil);
+     SOBRE ela ficam o mapa do Google (quadrado), o botão WhatsApp e um card
+     ESCURO semi-transparente com o que a loja oferece;
+   - BASE: a barra de progresso → "Entrar".
 
-   ARTE vs UI: a FACHADA (toldo, letreiro, porta, mapa) é ilustração decorativa —
-   como o ícone do app, tem paleta própria (vars `--fac-*` abaixo), fora da escala
-   de UI. Os CONTROLES sobre ela (botões, barra, textos, chips) seguem os tokens.
+   O mapa é um embed real do Google Maps (toca → abre o Maps real); offline, o
+   JS troca para um mock estilizado (setupEntryMap, app.js).
    ========================================================================= */
 
 .overlay-loader.entry {
-  /* paleta da ILUSTRAÇÃO da fachada (arte — centralizada aqui, não espalhada) */
-  --fac-wall:   #f6efe1;   /* parede creme */
-  --fac-wall-2: #ece1cd;   /* base da parede (sombreado) */
-  --fac-glass:  #21402a;   /* vidro escuro das vitrines/porta */
-  --fac-shade:  #16301d;   /* sombra interna das vitrines */
-
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: stretch;
-  gap: var(--space-md);
+  gap: var(--space-sm);
   padding:
     calc(env(safe-area-inset-top, 0px) + var(--space-md))
     var(--space-md)
@@ -36,54 +32,15 @@
   overflow: hidden;
 }
 
-/* ── CENA / FACHADA ─────────────────────────────────────────────────────── */
-.entry__scene {
-  flex: 1 1 auto;
-  min-height: 0;
-  min-width: 0;   /* deixa a fachada encolher abaixo do min-content (evita vazar à direita) */
-  display: flex;
-}
-
-.entry__building {
-  flex: 1 1 auto;
-  min-height: 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
+/* ── TOPO: card branco com nome + subtítulo ─────────────────────────────── */
+.entry__header {
+  flex: none;
+  padding: var(--space-md);
   border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: linear-gradient(180deg, var(--fac-wall) 0%, var(--fac-wall-2) 100%);
-  box-shadow: var(--shadow-lg);
-}
-
-/* Toldo listrado (verde/dourado) com babado recortado na base. */
-.entry__awning {
-  position: relative;
-  height: clamp(24px, 6.5vw, 38px);
-  flex: none;
-  background: repeating-linear-gradient(90deg,
-    var(--p-green) 0 22px, var(--a-gold) 22px 44px);
-}
-.entry__awning::after {   /* babado (bolinhas) pendurado na base do toldo */
-  content: "";
-  position: absolute;
-  left: 0; right: 0; top: 100%;
-  height: 11px;
-  background: radial-gradient(circle at 11px 0, var(--p-green) 0 9px, transparent 10px) repeat-x;
-  background-size: 22px 11px;
-}
-
-/* Letreiro com o nome da loja (placa creme montada na parede). */
-.entry__sign {
-  flex: none;
-  margin: clamp(18px, 5vw, 26px) var(--space-md) var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
   background: var(--bg-white);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-lg);
   text-align: center;
 }
-/* "Anúncio" — honesto sobre o que é a tela, discreto acima do nome. */
 .entry__eyebrow {
   display: block;
   margin-bottom: 2px;
@@ -95,9 +52,9 @@
 }
 .entry__name {
   margin: 0;
-  font-size: clamp(1.25rem, 6.2vw, 1.75rem);
+  font-size: clamp(1.25rem, 6vw, 1.7rem);
   font-weight: var(--fw-heavy);
-  line-height: 1.1;
+  line-height: 1.12;
   color: var(--p-green);
 }
 .entry__tagline {
@@ -107,126 +64,106 @@
   color: var(--t-sub);
 }
 
-/* Frente da loja: vitrines nas laterais + porta ao centro. */
-.entry__front {
+/* ── CENTRO: imagem da fachada + overlays ───────────────────────────────── */
+.entry__stage {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: stretch;
-  gap: var(--space-sm);
-  padding: 0 var(--space-md) var(--space-md);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-soft);
+  box-shadow: var(--shadow-lg);
+}
+.entry__facade-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* Vitrines = colunas de vidro escuro: título em cima, ofertas no meio,
-   "+ muito mais" embaixo (preenche a altura sem parecer vazio). */
-.entry__window {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-sm);
-  border-radius: var(--radius-sm);
-  background: linear-gradient(160deg, var(--fac-glass) 0%, var(--fac-shade) 100%);
-  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.35);
+/* Card ESCURO semi-transparente com o que a loja oferece (topo da imagem). */
+.entry__offers-card {
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  right: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background: rgba(var(--overlay-rgb), 0.62);
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+  color: var(--t-light);
 }
-.entry__window-title {
-  text-align: center;
+.entry__offers-title {
+  display: block;
+  margin-bottom: var(--space-xs);
   font-size: var(--fs-2);
   font-weight: var(--fw-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--on-green-med);
 }
-.entry__window-more {
-  text-align: center;
-  font-size: var(--fs-2);
-  font-weight: var(--fw-medium);
-  color: var(--on-green-muted);
-}
 .entry__offers {
   list-style: none;
   margin: 0;
-  min-width: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--space-xs);
+  flex-wrap: wrap;
+  gap: 6px;
 }
 .entry__offers li {
-  padding: 8px 6px;
-  border-radius: var(--radius-xs);
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
   background: var(--on-green-soft);
   color: var(--t-light);
-  font-size: var(--fs-4);
+  font-size: var(--fs-3);
   font-weight: var(--fw-bold);
-  text-align: center;
-  letter-spacing: 0.01em;
 }
-
-/* Porta de vidro escuro com maçaneta dourada e um brilho de "luzes acesas". */
-.entry__door {
-  position: relative;
-  width: clamp(58px, 17vw, 84px);
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  background: linear-gradient(180deg, var(--fac-glass) 0%, var(--fac-shade) 100%);
-  box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
-}
-.entry__door::before {   /* brilho quente vindo de dentro da loja */
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(120% 60% at 50% 108%,
-    rgba(var(--a-gold-rgb), 0.55) 0%, transparent 65%);
-  animation: entryDoorGlow 3.2s ease-in-out infinite;
-}
-.entry__door-handle {
-  position: absolute;
-  top: 50%;
-  right: 9px;
-  width: 4px;
-  height: 34px;
-  transform: translateY(-50%);
-  border-radius: var(--radius-pill);
-  background: var(--a-gold);
-}
-@keyframes entryDoorGlow {
-  0%, 100% { opacity: 0.55; }
-  50%      { opacity: 1; }
-}
-
-/* ── RODAPÉ: mapa + WhatsApp + barra/Entrar ─────────────────────────────── */
-.entry__footer {
-  flex: none;
-  min-width: 0;
+.entry__addr {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin-top: var(--space-sm);
+  font-size: var(--fs-3);
+  font-weight: var(--fw-medium);
+  color: var(--on-green-strong);
+}
+.entry__addr .icon { font-size: 1.05rem; color: var(--a-gold); flex: none; }
+
+/* SOBRE a imagem (base): mapa quadrado (esq.) + WhatsApp (dir.). */
+.entry__actions {
+  position: absolute;
+  left: var(--space-sm);
+  right: var(--space-sm);
+  bottom: var(--space-sm);
+  display: flex;
+  align-items: flex-end;
   gap: var(--space-sm);
 }
 
-.entry__footer-row {
-  display: flex;
-  align-items: stretch;
-  gap: var(--space-sm);
-  min-width: 0;
-}
-
-/* Mini-mapa estilizado (offline) + endereço — embaixo à esquerda. */
+/* Mapa QUADRADO do Google Maps. iframe = visual (sem toque); o <a> por cima
+   abre o Maps real. Offline → .entry__map--offline mostra o mock. */
 .entry__map {
   position: relative;
-  flex: 1 1 0;
-  min-width: 0;
-  min-height: 78px;
-  padding: 0;
+  flex: none;
+  width: clamp(92px, 27vw, 120px);
+  aspect-ratio: 1 / 1;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--bg-white);
   box-shadow: var(--shadow-sm);
 }
-.entry__map-canvas {
+.entry__map-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;   /* o toque vai para o <a> por cima (abre o Maps real) */
+  display: none;          /* default = mock; JS mostra o iframe quando online */
+}
+.entry__map-mock {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -234,57 +171,55 @@
 }
 .entry__map-pin {
   position: absolute;
-  top: 34%;
+  top: 42%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 1.9rem;
+  font-size: 1.7rem;
   color: var(--danger);
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
 }
-.entry__address {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding: 5px 8px;
-  background: rgba(var(--overlay-rgb), 0.62);
-  color: var(--t-light);
-  font-size: var(--fs-2);
-  font-weight: var(--fw-medium);
-  line-height: 1.25;
-}
+.entry__map-link { position: absolute; inset: 0; z-index: 1; }
+/* Online: mostra o mapa real (que já traz o próprio marcador) e esconde o mock. */
+.entry__map--online .entry__map-frame { display: block; }
+.entry__map--online .entry__map-mock,
+.entry__map--online .entry__map-pin { display: none; }
 
-/* Botão WhatsApp (verde oficial) — à direita, acima da barra. */
+/* WhatsApp: ícone de chat + "WhatsApp" + seta; verde oficial. */
 .entry__wa.btn {
-  flex: 0 0 42%;
-  flex-direction: row;
+  flex: 1 1 0;
+  min-width: 0;
   gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-sm);
+  padding: 14px var(--space-md);
   border-radius: var(--radius-md);
   background: var(--whatsapp);
   color: var(--t-light);
-  font-size: var(--fs-5);
+  font-size: var(--fs-7);
   font-weight: var(--fw-bold);
-  line-height: 1.15;
-  text-align: left;
   box-shadow: var(--shadow-sm);
 }
-.entry__wa.btn .icon { font-size: 1.5rem; flex: none; }
+.entry__wa-chat { font-size: 1.5rem; flex: none; }
+.entry__wa-arrow { font-size: 1.4rem; flex: none; margin-left: auto; }
 
-/* Barra de progresso → botão "Entrar" (mesmo slot, crossfade). */
+/* ── BASE: barra de progresso (MESMO molde do botão) → "Entrar" ─────────── */
 .entry__enter-slot {
   position: relative;
-  min-height: var(--touch-min);
-  display: flex;
-  align-items: center;
+  flex: none;
 }
+/* Barra sobreposta ao botão (que define a altura) → mesmo molde: pílula, largura
+   total, mesma altura. Some (fade) quando o "Entrar" libera. */
 .entry__progress {
-  width: 100%;
-  height: 10px;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   border-radius: var(--radius-pill);
   background: var(--on-green-soft);
   overflow: hidden;
   transition: opacity 0.3s var(--ease);
 }
-.entry__progress.is-hidden { opacity: 0; }
+.entry__progress.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
 .entry__progress-fill {
   display: block;
   width: 0%;
@@ -298,34 +233,30 @@
   from { width: 0%; }
   to   { width: 100%; }
 }
-
+/* O botão fica no fluxo (define a altura do slot); invisível até liberar. */
 .entry__enter.btn {
-  position: absolute;
-  inset: 0;
-  width: 100%;
+  position: relative;
   opacity: 0;
-  transform: scale(0.98);
-  transition: opacity 0.3s var(--ease), transform 0.3s var(--sheet-ease);
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease);
 }
 .entry__enter.btn.is-shown {
   opacity: 1;
-  transform: scale(1);
+  pointer-events: auto;
 }
 
-/* Selo de versão discreto (canto inferior). */
+/* Selo de versão discreto (no fluxo, abaixo do botão). */
 .entry__version {
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
+  flex: none;
+  text-align: center;
+  margin-top: 2px;
   font-size: var(--fs-1);
   font-weight: var(--fw-bold);
   letter-spacing: 0.05em;
   color: var(--on-green-muted);
 }
 
-/* Telas MUITO baixas (teclado/dispositivos pequenos): compacta a fachada. */
+/* Telas MUITO baixas (teclado/dispositivos pequenos): compacta o topo. */
 @media (max-height: 620px) {
   .entry__tagline { display: none; }
-  .entry__sign { margin-top: var(--space-sm); }
 }

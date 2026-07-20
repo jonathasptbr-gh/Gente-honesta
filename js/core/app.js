@@ -774,10 +774,23 @@ window.entryLoader = (function () {
     const prog = loader.querySelector('.entry__progress');
     const btn = document.getElementById('btn-entry');
     if (prog) prog.classList.add('is-hidden');
-    if (btn) {
-      btn.classList.remove('u-hidden');
-      requestAnimationFrame(() => btn.classList.add('is-shown'));
-    }
+    if (btn) btn.classList.add('is-shown');   // botão no fluxo, revela por opacity
+  }
+
+  // Mapa da vitrine: embed real do Google Maps quando online; offline mostra o
+  // mock estilizado (default no HTML). O <a> por cima abre o Maps real.
+  function setupEntryMap() {
+    const map = document.querySelector('.entry__map');
+    if (!map) return;
+    const frame = map.querySelector('.entry__map-frame');
+    const embed = map.getAttribute('data-embed');
+    const goOnline = () => {
+      if (map.classList.contains('entry__map--online')) return;
+      if (frame && embed && !frame.getAttribute('src')) frame.setAttribute('src', embed);
+      map.classList.add('entry__map--online');
+    };
+    if (navigator.onLine) goOnline();
+    else window.addEventListener('online', goOnline, { once: true });
   }
   function maybeReveal() {
     if (timeUp && authReady && !entered) revealEnter();
@@ -801,6 +814,7 @@ window.entryLoader = (function () {
 
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-entry')?.addEventListener('click', enter);
+    setupEntryMap();
     setTimeout(() => { timeUp = true; maybeReveal(); }, READY_MIN);
   });
 

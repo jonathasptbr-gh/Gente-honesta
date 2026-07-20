@@ -452,8 +452,7 @@ button, input, textarea {
 @media (prefers-reduced-motion: reduce) {
   .agenda-filters__icon-btn--notify,   /* pisca do botão de contratos */
   .ic-meter__pin-tag,                  /* pulso do pino do IC (cadastro) */
-  .tutorial-highlight,                 /* pulso do destaque do tutorial */
-  .entry__door::before {               /* brilho pulsante da porta da vitrine */
+  .tutorial-highlight {                /* pulso do destaque do tutorial */
     animation: none !important;
   }
   /* A barra de progresso da entrada (entryFill) FICA: é feedback dos 3s até o

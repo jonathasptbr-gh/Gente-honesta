@@ -28,7 +28,7 @@ Repositório: jonathasptbr-gh/gente-honesta
   de ícones) — não é build do site.
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v444**.
+  bump.) Versão atual: **v445**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**
@@ -154,11 +154,13 @@ css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; N
                              (OVERLAY sobre a zona do meio via classe .agenda-filters--profile), não no
                              painel; CSS próprio: backdrop-blur, painel sem-card, overlay de ações e avatar-fecha
   entry/entry.css          — PAINEL DE ENTRADA (vitrine): #loader-global.entry, a ÚNICA tela de entrada
-                             (cold start). Substitui a antiga marca animada do loader. É um ANÚNCIO de
-                             exemplo (mock no index.html): fachada de loja física — letreiro (nome),
-                             vitrines laterais (Produtos/Serviços), mini-mapa + endereço, botão WhatsApp,
-                             e barra de progresso (3s) que vira "Entrar". Carregada DEPOIS de dialogs.css
-                             (p/ .overlay-loader.entry vencer). Arte da fachada = ilustração (vars --fac-*).
+                             (cold start). Substitui a antiga marca animada do loader. ANÚNCIO de exemplo
+                             (mock no index.html): card BRANCO no topo (nome+subtítulo) + IMAGEM da fachada
+                             (placeholder <img> trocável, como a foto de perfil) com, POR CIMA, o mapa do
+                             Google (quadrado, embed real → abre o Maps; offline vira mock via
+                             setupEntryMap), o botão WhatsApp (chat+seta, verde --whatsapp) e um card ESCURO
+                             semi-transparente com o que a loja oferece + endereço. Base: barra de progresso
+                             (3s, MESMO molde do botão) → "Entrar". Carregada DEPOIS de dialogs.css.
 
 js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
   core/app.js       — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW,
