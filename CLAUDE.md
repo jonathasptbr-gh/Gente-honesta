@@ -28,7 +28,7 @@ Repositório: jonathasptbr-gh/gente-honesta
   de ícones) — não é build do site.
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v442**.
+  bump.) Versão atual: **v443**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**
@@ -114,7 +114,9 @@ package.json        — ferramenta de DEV (não é build do site): `npm run icon
 CONVENTIONS.md      — convenções portáveis (nomenclatura/estrutura/teoria); ver prosa acima
 AUDITORIA-DESIGN-v260.md — snapshot histórico de auditoria de design (v260); referência, não é código ativo
 icon*.svg / *.png   — arte do ícone/PWA (quadrado full-bleed p/ maskable; arredondado p/ "any";
-                      transparente e "intro" p/ usos internos). Fundo verde --p-green
+                      transparente e "intro" p/ usos internos). Fundo verde --p-green. PNGs em
+                      192/512/1024 (o 1024 = splash nítida em telas de DPI alto; rasterizados dos
+                      SVGs-mestre icon.svg[maskable]/icon-rounded.svg[any])
 fonts/              — Inter (woff2, subset latin+latin-ext) SELF-HOSTED — sem Google Fonts online;
                       @font-face em css/base/fonts.css. Ícones = sprite SVG inline (NÃO é fonte).
 scripts/            — tooling de ícones: icon-usage.mjs (deriva a lista do uso), gen-icon-sprite.mjs
