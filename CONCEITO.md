@@ -137,7 +137,9 @@ e difícil de fraudar (a refinar):
 > **Estrutura por zonas (ver §10.1):** esses fatores **não somam livremente** — cada eixo vive numa **zona
 > com teto próprio**. Você preenche uma zona até o limite dela e ali **estagna**; para subir mais, precisa
 > preencher AS OUTRAS (ser muito bem avaliado não compensa não ter indicado ninguém nem fechado acordos).
-> Isso força participação em toda a rede, não só em um eixo. O detalhamento está no deep-dive da Indicação.
+> Isso força participação em toda a rede, não só em um eixo. Cada zona tem também um **piso**: avaliação ruim
+> sozinha leva a "warn/alert", não a "bad" — o **fundo (perto de 0) é reservado a ações de má-fé**
+> (denúncias/golpes/fraudes), não a quem é apenas mal avaliado. O detalhamento está no deep-dive da Indicação.
 
 **`[DECISÃO D3]` — Curva de sensibilidade (DECIDIDA):** o IC **não se move de forma linear** — quanto ele
 reage a cada evento depende de quanto histórico a pessoa já tem. A regra de rumo é:
@@ -324,8 +326,8 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
 | **D5** | Modelo de monetização? | Indefinido; restrição: nada compra IC. | Antes da Fase 5 (idealmente esboçado antes). |
 | **D6** | Conta única (cliente=profissional) ou perfis separados? | **Conta única**, "virar profissional" = completar dados + verificar. | Antes da Fase 1 (afeta modelagem). |
 | **D7** | 🔶 **ENCAMINHADA** — incentivo a indicar = ganho de IC (indicar rende; aceita rende mais) + zona exclusiva (§10.1). Falta calibrar os ganhos. | Ganhos/valores a calibrar com D2. | Início da Fase 2. |
-| **D8** | Indicar custa uma APOSTA (stake) de IC, ou só responsabilidade retroativa? | Começar por responsabilidade retroativa; stake se houver abuso. | Início da Fase 2. |
-| **D9** | Por quanto tempo / quantas avaliações o fiador responde pelo indicado? | N primeiras avaliações OU X dias, depois desliga. | Início da Fase 2. |
+| **D8** | ✅ **DECIDIDA** — só responsabilidade retroativa; a fiança já É a aposta e auto-regula o crescimento. Stake explícito guardado p/ abuso. | — | Fechada. |
+| **D9** | ✅ **DECIDIDA** — vínculo indicador↔indicado (herança + fiança) dura ~1 semana, depois solta. | — | Fechada. |
 
 ---
 
@@ -364,20 +366,23 @@ reputação, num eixo que nenhuma outra ação preenche (ver zonas, regra 5).
 
 **Propostas, defesas e pontos a decidir** (contribuição para fechar o desenho):
 
-- **A herança de IC precisa ser PROVISÓRIA, senão vira fábrica de contas.** `[risco]` Se o IC herdado fosse
-  permanente, um usuário de IC alto poderia "cunhar" contas confiáveis (vender indicações, criar laranjas).
-  Proposta: o IC herdado é um **empréstimo/partida provisória** que, pela alta sensibilidade inicial (D3),
-  **flutua rápido para o desempenho próprio** do indicado nos primeiros trabalhos. É uma ponte, não um
-  presente — e ninguém empresta mais confiança do que a que tem.
-- **`[DECISÃO D8]` — Indicar custa uma APOSTA (stake) de IC?** Duas formas de dar corpo à regra 4:
-  (a) **só responsabilidade retroativa** (as primeiras avaliações do indicado batem no seu IC — como está);
-  (b) **stake explícito:** indicar imobiliza um pouco do seu IC, devolvido com bônus se der certo, perdido
-  se der errado. O stake torna o risco tangível e **freia naturalmente o spam de indicação** (não dá para
-  indicar infinitamente sem se expor). Sugestão: começar por (a), simples; considerar (b) se houver abuso.
-- **`[DECISÃO D9]` — A responsabilidade do fiador tem PRAZO.** A regra 4 diz "as primeiras avaliações caem
-  na sua conta" — por quanto tempo/quantas? Sem limite, você fica preso para sempre a alguém que decai anos
-  depois. Sugestão: **as N primeiras avaliações OU os primeiros X dias** do indicado; depois ele anda com as
-  próprias pernas e o fiador se desliga.
+- **Herança provisória, vínculo de ~1 semana (D9 DECIDIDA).** O IC herdado é um **empréstimo de partida**,
+  não um presente: pela alta sensibilidade inicial (D3), ele **flutua rápido para o desempenho próprio** do
+  indicado. O **vínculo indicador↔indicado** — tanto a herança quanto a fiança das primeiras avaliações —
+  fica ativo por **alguns dias, ~1 semana**; depois solta, e o indicado anda com as próprias pernas. Isso já
+  mata a "fábrica de contas": o IC emprestado não fixa, e ninguém empresta mais confiança do que tem.
+- **Indicar é uma APOSTA de reputação — e é isso que auto-regula o crescimento (D8 DECIDIDA).** Fica só a
+  **responsabilidade retroativa** (regra 4), sem stake explícito por ora — porque a fiança **já é** a
+  aposta: indicar qualquer um arrisca um revés no seu próprio índice, então **não compensa indicar no
+  escuro**. Indicar vários bons (que não te atrapalham) é bom pra você E pra plataforma. Efeito de desenho,
+  poderoso: **a rede só cresce tão rápido quanto gente confiável se dispõe a se expor vouchando** — o
+  crescimento é *quality-gated* por construção. (Stake explícito fica na gaveta, caso surja abuso.)
+- **Teto E piso por zona — só a má-fé chega ao fundo.** Refinamento da regra 5: cada zona tem não só um
+  **teto** (você estagna sem preencher as outras) como um **piso**. Avaliação ruim, sozinha, te derruba
+  DENTRO da zona de avaliação — leva a "warn/alert", não a "bad". **Chegar perto de IC 0 é reservado a quem
+  acumula AÇÕES de má-fé** (denúncias procedentes, golpes, fraudes), numa zona de conduta de peso negativo
+  forte. Um profissional medíocre não é destruído por umas notas baixas; o fundo do poço é para quem é
+  *perigoso*, não para quem é *fraco* — o que preserva a leitura do índice ("IC baixo = cuidado real").
 - **Dois tipos de indicação — distinguir.** (a) **Responsiva:** indicar dentro de um **pedido** (matchmaking;
   tem o evento "aceita"). (b) **De entrada / fundadora:** **trazer alguém novo** para a plataforma, fora de
   qualquer pedido (puro crescimento). Podem render diferente e ter validações diferentes (a de entrada é a
@@ -414,3 +419,8 @@ herança é o mecanismo de cold start). Abre D8 (stake) e D9 (prazo da fiança).
   (incentivo = IC), **D2 reenquadrada** como zonas com teto. Abertas **D8** (stake ao indicar) e **D9**
   (prazo da fiança). Riscos registrados: herança precisa ser provisória; conluio/auto-indicação; efeito
   limitado sobre o já-estabelecido.
+- **(revisão 3)** — fechadas **D8** (só responsabilidade retroativa: a fiança já é a aposta e torna o
+  crescimento *quality-gated*; sem stake explícito por ora) e **D9** (vínculo indicador↔indicado dura
+  ~1 semana). Novo refinamento das zonas do IC: cada zona tem **teto E piso**; avaliação ruim sozinha não
+  zera o IC — o **fundo é reservado a ações de má-fé** (denúncias/golpes/fraudes). Restam D2 (pesos/tetos
+  das zonas), D4, D5, D6.
