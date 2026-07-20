@@ -98,10 +98,12 @@ Cada superfície atual é um **modo** dentro desse ciclo:
 **não fecha** — não há um vínculo real entre contratar (2), entregar (3), avaliar (4) e mover o IC (5).
 Fechar esse loop é o que transforma um "catálogo bonito" em uma "rede de confiança viva". Ver seções 4 e 8.
 
-**`[DECISÃO D1]` — Vagas e Diárias: núcleo ou satélite?** Elas ampliam o público, mas têm um ciclo
-próprio (candidatura, contratação formal) que divide o foco. Sugestão: tratá-las como **satélites** —
-mantê-las funcionando, mas priorizar o fechamento do ciclo principal (descoberta→contrato→avaliação→IC)
-antes de investir backend nelas. Ver seção 9.
+**`[DECISÃO D1]` — Vagas e Diárias: núcleo (DECIDIDA).** São **tão centrais quanto o ciclo principal** —
+não satélites. São três portas de igual importância para a mesma rede de confiança: **serviço por projeto**
+(o ciclo principal), **emprego formal** (Vagas) e **mão-de-obra pontual** (Diárias). O IC atravessa as três
+(é a mesma pessoa e a mesma reputação em qualquer modo). Consequência para o roadmap: o backend de Vagas e
+Diárias **não é adiado para o fim** — entra em paralelo ao núcleo (ver Fase 4, que passa a interfoliar com
+as Fases 1–3), e o comportamento nelas (comparecer a uma diária, honrar uma vaga) também deve alimentar o IC.
 
 ---
 
@@ -132,10 +134,23 @@ e difícil de fraudar (a refinar):
 | Verificação de identidade / documento | ↑ (uma vez) | Piso de confiança para quem se identifica. |
 | Tempo de casa + constância | ↑ (lento) | Recompensa histórico longo, resiste a manipulação rápida. |
 
-**`[DECISÃO D3]` — Cold start:** com que IC um profissional novo (sem histórico) entra? Opções: (a) um
-valor neutro-baixo que ele precisa CONSTRUIR; (b) zero até o primeiro serviço; (c) um piso condicionado à
-verificação de identidade. Sugestão: **piso baixo + salto na verificação**, para que "ser verificado" já
-valha algo e o resto se ganhe trabalhando.
+**`[DECISÃO D3]` — Curva de sensibilidade (DECIDIDA):** o IC **não se move de forma linear** — quanto ele
+reage a cada evento depende de quanto histórico a pessoa já tem. A regra de rumo é:
+
+- **No início (pouco histórico): alta sensibilidade nas DUAS direções.** Com poucos dados, cada avaliação
+  pesa muito — sobe rápido e cai rápido. A reputação se forma depressa a partir dos primeiros serviços.
+- **No meio (histórico acumulado): inércia / amortecimento.** Já com track record, um evento isolado mexe
+  pouco; é preciso um PADRÃO consistente (vários sinais na mesma direção) para deslocar o índice. Aqui a
+  reputação fica estável e "cara" de mover — que é o prêmio por ter história.
+- **No topo (IC alto): lento para subir, mas ainda sensível e estável.** Chegar perto de 100 é difícil e
+  devagar (retornos decrescentes); porém o topo **não é blindado** — uma falha grave ou um padrão ruim
+  ainda registra. Ninguém fica "intocável".
+
+Em uma frase: **a confiança se forma rápido, se consolida devagar e nunca congela.** Tecnicamente isso é
+uma reputação **ponderada por confiança/volume** (a "taxa de aprendizado" de cada evento decai conforme o
+número de eventos cresce) + **retornos decrescentes perto de 100**. O cold start decorre daí: o profissional
+novo entra num **piso baixo** e, como a sensibilidade inicial é alta, constrói (ou perde) reputação rápido
+nos primeiros trabalhos; a **verificação de identidade** dá um salto de partida (ver princípios abaixo).
 
 **`[DECISÃO D4]` — Transparência vs. anti-gaming:** quanto do cálculo é mostrado? Mostrar demais convida
 a fraude; mostrar de menos parece arbitrário ("por que meu IC caiu?"). Sugestão: comunicar os **princípios**
@@ -145,9 +160,14 @@ os pesos.
 **Princípios inegociáveis do IC (independentemente dos pesos):**
 1. **Não se compra IC.** Nenhum plano pago ou destaque pode alterar o número.
 2. **Avaliação só com lastro.** Idealmente atrelada a um contrato/serviço registrado — não a um clique solto.
-3. **Simétrico com a honestidade:** sobe devagar (confiança se constrói), pode cair mais rápido (confiança
-   se quebra) — mas com defesa contra denúncia injusta (contraditório/moderação).
-4. **Explicável ao dono:** a pessoa consegue entender, no seu histórico, por que está onde está.
+3. **Ponderado por volume (ver D3):** com pouco histórico, cada evento pesa muito (forma rápido); com
+   muito histórico, só um padrão consistente move o índice (consolida devagar); no topo, sobe devagar mas
+   nunca congela. A confiança se forma rápido, se consolida devagar e nunca é blindada.
+4. **Com defesa contra injustiça:** denúncia/avaliação hostil tem contraditório e moderação — o índice pune
+   má-fé, não azar nem sabotagem.
+5. **Explicável ao dono:** a pessoa consegue entender, no seu histórico, por que está onde está.
+6. **Uma reputação, todos os modos:** o mesmo IC vale para serviço por projeto, Vagas e Diárias — comparecer,
+   honrar o combinado e ser bem avaliado em qualquer um deles conta.
 
 ---
 
@@ -267,12 +287,16 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
 - **Critério de pronto:** um pedido novo na região dispara notificação para profissionais elegíveis.
 - **Dependências:** Fase 1 (dados) + modelo de região.
 
-### Fase 4 — Superfícies adjacentes com backend *(`[DECISÃO D1]`)*
-- **Objetivo:** *"Vagas e Diárias deixam de ser demonstração."*
+### Fase 4 — Vagas e Diárias reais *(interfolia com as Fases 1–3 — são núcleo, D1)*
+- **Objetivo:** *"As três portas da rede — projeto, emprego e diária — funcionam de verdade."*
 - **Entregáveis:** persistência + candidatura real em Vagas; agendamento/confirmação real em Diárias;
-  ligação (ou não) do comportamento nelas ao IC.
-- **Critério de pronto:** candidatar-se a uma vaga e chamar uma diária geram registros reais e notificações.
-- **Dependências:** Fases 1–3; decisão sobre o peso dessas superfícies.
+  o comportamento nelas (comparecer, honrar o combinado, ser avaliado) **alimenta o mesmo IC**.
+- **Critério de pronto:** candidatar-se a uma vaga e chamar/atender uma diária geram registros reais,
+  notificações, e eventos que movem o IF/IC de quem participou.
+- **Nota de sequência:** por decisão D1, Vagas/Diárias têm o mesmo peso do ciclo principal, então esta fase
+  **não espera** as Fases 1–3 terminarem — a persistência (Fase 1) e o motor do IC (Fase 2) devem já nascer
+  cobrindo as três superfícies. Está numerada em separado só por clareza, não por prioridade menor.
+- **Dependências:** Fase 1 (persistência) e Fase 2 (motor do IC) desenhadas para abraçar as três portas.
 
 ### Fase 5 — Abertura ao público
 - **Objetivo:** *"Tirar a whitelist sem quebrar a confiança."*
@@ -288,9 +312,9 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
 
 | ID | Decisão | Padrão assumido enquanto não decidido | Quando precisa ser decidida |
 |---|---|---|---|
-| **D1** | Vagas/Diárias são núcleo ou satélite? | **Satélite** — funcionam, mas o ciclo principal tem prioridade. | Antes da Fase 4. |
+| **D1** | ✅ **DECIDIDA** — Vagas/Diárias são núcleo (peso igual ao ciclo principal). | — | Fechada. |
 | **D2** | Quais fatores movem o IC e com que peso? | Modelo v1 da seção 4 (avaliação com lastro + contratos + penalidades). | Início da Fase 2. |
-| **D3** | Com que IC entra um profissional novo (cold start)? | Piso baixo + salto na verificação de identidade. | Início da Fase 2. |
+| **D3** | ✅ **DECIDIDA** — Curva de sensibilidade: forma rápido, consolida devagar, nunca congela (ponderada por volume). | — | Fechada. |
 | **D4** | Quanto do cálculo do IC é transparente ao usuário? | Princípios + histórico pessoal; fórmula/pesos não expostos. | Início da Fase 2. |
 | **D5** | Modelo de monetização? | Indefinido; restrição: nada compra IC. | Antes da Fase 5 (idealmente esboçado antes). |
 | **D6** | Conta única (cliente=profissional) ou perfis separados? | **Conta única**, "virar profissional" = completar dados + verificar. | Antes da Fase 1 (afeta modelagem). |
@@ -302,3 +326,6 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
 
 - **(criação)** — primeira versão do registro de conceito: tese, dois lados, flywheel, análise do IC,
   inventário do estado atual, lacunas, visão e roadmap em 6 fases. Sete decisões em aberto (D1–D7).
+- **(revisão 1)** — fechadas **D1** (Vagas/Diárias são núcleo, não satélite → Fase 4 interfolia, IC
+  atravessa as três portas) e **D3** (curva de sensibilidade do IC: forma rápido / consolida devagar /
+  nunca congela, ponderada por volume). Restam em aberto D2, D4, D5, D6, D7.
