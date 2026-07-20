@@ -13,16 +13,15 @@
   // (CSS via html.is-desktop) cobre tudo e o monitor de sessão nem é registrado.
   if (!window.IS_MOBILE) return;
 
-  const MINIMUM_LOADER_TIME = 1000;
-  const startTime = Date.now();
+  // Primeira resolução = COLD START: a tela inicial é revelada pela VITRINE de
+  // entrada (window.entryLoader), não aqui. As resoluções SEGUINTES (login por
+  // OTP, logout) escondem o BLOQUEIO INTERNO (blur+spinner) que o disparador
+  // mostrou — a vitrine nunca reaparece nesses casos.
+  let firstResolve = true;
 
   // MONITOR DE SESSÃO CENTRALIZADO - Observador Ativo do Estado de Autenticação
   auth.onAuthStateChanged(async (user) => {
-    const loader = document.getElementById('loader-global');
-
-    const timeElapsed = Date.now() - startTime;
-    const remainingTime = Math.max(0, MINIMUM_LOADER_TIME - timeElapsed);
-    await new Promise(resolve => setTimeout(resolve, remainingTime));
+    let onboardingPath = false;
 
     if (user) {
       const lastSignInTimestamp = new Date(user.metadata.lastSignInTime).getTime();
@@ -38,11 +37,7 @@
       // MONITOR DE SESSÃO CENTRALIZADO - Redirecionamento para Perfil Incompleto (Onboarding)
       else {
         if (typeof showView === 'function') showView('view-onboarding');
-        // Tutorial guiado do cadastro (js/tutorial.js): aguarda a animação de
-        // entrada da tela e o fade do loader antes de destacar o primeiro campo.
-        if (typeof window.startOnboardingTutorial === 'function') {
-          setTimeout(window.startOnboardingTutorial, 600);
-        }
+        onboardingPath = true;
       }
     }
     // MONITOR DE SESSÃO CENTRALIZADO - Inicialização de Usuário Deslogado (Fallback)
@@ -56,13 +51,29 @@
       }
     }
 
-    // MONITOR DE SESSÃO CENTRALIZADO - Única responsável por esconder o loader após qualquer mudança de estado
-    if (loader) {
-      loader.classList.add('u-fade-out');
-      setTimeout(() => {
-        loader.classList.add('u-hidden');
-        loader.classList.remove('u-fade-out'); // limpa para que re-exibições posteriores sejam visíveis
-      }, 400);
+    // Tutorial guiado do cadastro (js/tutorial.js): destaca o 1º campo só depois
+    // que a tela do onboarding está de fato visível para o usuário.
+    const startTutorial = () => {
+      if (typeof window.startOnboardingTutorial === 'function') window.startOnboardingTutorial();
+    };
+
+    if (firstResolve) {
+      firstResolve = false;
+      // COLD START → entrega à vitrine: no cadastro, o tutorial começa só depois
+      // do "Entrar"; a vitrine é quem revela a tela (não escondemos loader aqui).
+      if (window.entryLoader) {
+        if (onboardingPath) window.entryLoader.onEnter(() => setTimeout(startTutorial, 300));
+        window.entryLoader.markReady();
+      } else {
+        // Fallback defensivo (core não carregou): esconde o loader direto.
+        if (typeof window.hideBlockingLoader === 'function') window.hideBlockingLoader();
+        document.getElementById('loader-global')?.classList.add('u-hidden');
+        if (onboardingPath) setTimeout(startTutorial, 600);
+      }
+    } else {
+      // Transição INTERNA (login/logout): esconde o blur+spinner; sem vitrine.
+      if (typeof window.hideBlockingLoader === 'function') window.hideBlockingLoader();
+      if (onboardingPath) setTimeout(startTutorial, 600);
     }
   });
 })();

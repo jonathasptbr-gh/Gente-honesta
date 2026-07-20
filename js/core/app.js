@@ -728,3 +728,87 @@ window.watchScrollShadows = function watchScrollShadows(el) {
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.js-scroll-shadows').forEach(window.watchScrollShadows);
 });
+
+
+// =========================================================================
+// BLOQUEIO INTERNO (blur + spinner) — #blocking-loader
+// Trava a tela em operações com espera (login por OTP, salvar cadastro, sair).
+// Substitui o reuso antigo do #loader-global — que agora é SÓ a vitrine de
+// entrada. Fade-out reusa a curva --ease do CSS; a classe é limpa no fim p/
+// reexibições futuras aparecerem.
+// =========================================================================
+window.showBlockingLoader = function () {
+  const el = document.getElementById('blocking-loader');
+  if (!el) return;
+  clearTimeout(el._hideT);
+  el.classList.remove('u-hidden', 'u-fade-out');
+};
+window.hideBlockingLoader = function () {
+  const el = document.getElementById('blocking-loader');
+  if (!el) return;
+  el.classList.add('u-fade-out');
+  el._hideT = setTimeout(() => {
+    el.classList.add('u-hidden');
+    el.classList.remove('u-fade-out');
+  }, 300);
+};
+
+
+// =========================================================================
+// PAINEL DE ENTRADA (VITRINE) — window.entryLoader
+// #loader-global.entry é a ÚNICA tela de entrada (cold start). A barra de
+// progresso enche em 3s (CSS: entryFill) e, quando o app TAMBÉM já resolveu a
+// tela de destino (auth/session.js chama markReady), a barra vira o botão
+// "Entrar". O clique faz o fade-out e revela a tela por baixo. NÃO reaparece
+// em login/logout posteriores (isso é bloqueio interno) — só na 1ª abertura.
+// =========================================================================
+window.entryLoader = (function () {
+  const READY_MIN = 3000;   // casa com a duração do entryFill (entry.css)
+  let timeUp = false, authReady = false, entered = false, onEnterCb = null;
+
+  const loaderEl = () => document.getElementById('loader-global');
+
+  function revealEnter() {
+    const loader = loaderEl();
+    if (!loader) return;
+    const prog = loader.querySelector('.entry__progress');
+    const btn = document.getElementById('btn-entry');
+    if (prog) prog.classList.add('is-hidden');
+    if (btn) {
+      btn.classList.remove('u-hidden');
+      requestAnimationFrame(() => btn.classList.add('is-shown'));
+    }
+  }
+  function maybeReveal() {
+    if (timeUp && authReady && !entered) revealEnter();
+  }
+  function enter() {
+    if (entered) return;
+    entered = true;
+    const loader = loaderEl();
+    if (loader) {
+      loader.classList.add('u-fade-out');
+      setTimeout(() => {
+        loader.classList.add('u-hidden');
+        loader.classList.remove('u-fade-out');
+      }, 400);
+    }
+    if (typeof onEnterCb === 'function') {
+      const cb = onEnterCb; onEnterCb = null;
+      setTimeout(cb, 300);   // deixa o fade começar antes do que vier depois (ex.: tutorial)
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btn-entry')?.addEventListener('click', enter);
+    setTimeout(() => { timeUp = true; maybeReveal(); }, READY_MIN);
+  });
+
+  return {
+    // app resolveu a tela de destino (auth/session.js) → libera o "Entrar" (após os 3s)
+    markReady() { authReady = true; maybeReveal(); },
+    // callback a rodar DEPOIS do usuário entrar (ex.: iniciar o tutorial do cadastro)
+    onEnter(cb) { onEnterCb = cb; },
+    hasEntered() { return entered; },
+  };
+})();

@@ -232,12 +232,12 @@ window.finishRegistration = async function() {
     // ficam públicos — sem persistência ainda; é o comportamento previsto).
   }
 
-  document.getElementById('loader-global')?.classList.remove('u-hidden');
+  window.showBlockingLoader?.();
 
   try {
     await user.updateProfile({ displayName: `${nome} ${sobrenome}` });
-    // updateProfile não dispara onAuthStateChanged — removemos o loader manualmente aqui
-    document.getElementById('loader-global')?.classList.add('u-hidden');
+    // updateProfile não dispara onAuthStateChanged — escondemos o bloqueio manualmente aqui
+    window.hideBlockingLoader?.();
 
     // EDIÇÃO DE PERFIL: salvou → volta DIRETO ao feed (sem a tela-guia de
     // instalação, que só faz sentido no primeiro cadastro). As mudanças já estão
@@ -261,7 +261,7 @@ window.finishRegistration = async function() {
     }
   } catch (err) {
     console.error(err);
-    document.getElementById('loader-global')?.classList.add('u-hidden');
+    window.hideBlockingLoader?.();
     await customAlert("Houve um erro técnico ao salvar as informações do seu perfil. Tente novamente.", "Erro ao Salvar", "database");
   }
 };
@@ -400,14 +400,14 @@ document.addEventListener('DOMContentLoaded', () => {
       "logout"
     );
     if (confirmed) {
-      document.getElementById('loader-global')?.classList.remove('u-hidden');
+      window.showBlockingLoader?.();
       try {
         await auth.signOut();
-        // onAuthStateChanged centraliza o reset (window.resetAuthFlow) e o
-        // redirecionamento para view-auth automaticamente.
+        // onAuthStateChanged centraliza o reset (window.resetAuthFlow), esconde o
+        // bloqueio e redireciona para view-auth automaticamente.
       } catch (err) {
         console.error("Erro ao sair do onboarding:", err);
-        document.getElementById('loader-global')?.classList.add('u-hidden');
+        window.hideBlockingLoader?.();
       }
     }
   });

@@ -220,17 +220,17 @@ window.verifyOTP = async function() {
   // TELA - PROCESSO DE AUTENTICAÇÃO - Verificação de Código OTP - Oculta teclado antes do carregamento
   document.activeElement?.blur();
 
-  document.getElementById('loader-global')?.classList.remove('u-hidden');
+  window.showBlockingLoader?.();
 
   window.appState.confirmationResult.confirm(code)
     .then(() => {
-      // Sucesso: onAuthStateChanged assume o controle do loader e do redirecionamento
+      // Sucesso: onAuthStateChanged esconde o bloqueio e faz o redirecionamento
       if (btnVerify) restoreButton(btnVerify, originalText);
     })
     .catch(async (err) => {
       console.error(err);
-      // Erro: estado de auth não muda, então removemos o loader manualmente
-      document.getElementById('loader-global')?.classList.add('u-hidden');
+      // Erro: estado de auth não muda, então escondemos o bloqueio manualmente
+      window.hideBlockingLoader?.();
       if (btnVerify) restoreButton(btnVerify, originalText);
       await customAlert("O código inserido é inválido ou já expirou. Peça um novo envio se necessário.", "Código Inválido", "cancel");
     });

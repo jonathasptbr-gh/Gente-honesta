@@ -4,7 +4,7 @@
 // CONFIGURAÇÃO DO SERVICE WORKER - Definições de Cache
 // =========================================================================
 
-const CACHE_NAME = "gentehonesta-v443";
+const CACHE_NAME = "gentehonesta-v444";
 // Versão legível derivada do CACHE_NAME (ex.: "v261") — enviada à página sob demanda
 // (mensagem GET_VERSION) para exibir no banner "Nova versão disponível".
 const APP_VERSION = CACHE_NAME.replace("gentehonesta-", "");
@@ -35,6 +35,7 @@ const urlsToCache = [
   "./css/feed/vagas.css",
   "./css/feed/ajudantes.css",
   "./css/profile/profile.css",
+  "./css/entry/entry.css",
   "./js/core/app.js",
   "./js/tutorial/tutorial.js",
   "./js/install/install.js",

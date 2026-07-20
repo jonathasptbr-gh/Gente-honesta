@@ -3532,14 +3532,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // sobreviveria à troca de tela (o backNav.reset do showView também fecha as
     // camadas — isto aqui só garante o fechamento imediato, sem depender dele).
     closeProfileSheet();
-    document.getElementById('loader-global')?.classList.remove('u-hidden');
+    window.showBlockingLoader?.();
     try {
       window.appState.photoBlob = null;
       await window.auth.signOut();
-      // Sucesso: onAuthStateChanged assume o controle do loader e do redirecionamento
+      // Sucesso: onAuthStateChanged esconde o bloqueio e faz o redirecionamento
     } catch (err) {
       console.error("Erro no processamento de logout do feed:", err);
-      document.getElementById('loader-global')?.classList.add('u-hidden');
+      window.hideBlockingLoader?.();
       await customAlert(
         "Não foi possível encerrar sua sessão de forma segura. Verifique sua conexão e tente novamente.",
         "Erro no Logout",

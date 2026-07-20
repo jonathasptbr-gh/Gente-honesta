@@ -15,6 +15,12 @@ Todos os tokens ficam em `css/base.css :root`. **Zero valores crus:** cor/tamanh
 sombra/espaçamento/peso/duração sempre vêm de token. Se o valor exato não existe na escala,
 use o degrau mais próximo — não invente um número.
 
+> **Exceção — ILUSTRAÇÃO decorativa (arte):** peças que são DESENHO, não UI, têm paleta própria fora
+> da escala de tokens — como o ícone do app (SVG com hex próprios) e a **fachada da vitrine de entrada**
+> (`css/entry/entry.css`, vars `--fac-*` no escopo `.entry`: parede creme, vidro, etc.). Os CONTROLES
+> sobre a ilustração (botões, barra, textos, chips, mapa-card) seguem os tokens normalmente. Não
+> espalhe hex de arte pelo CSS: centralize em vars escopadas ao componente da ilustração.
+
 ## Tokens
 
 **Cores principais:** `--p-green`, `--p-green-dark`, `--p-green-light` (verde e variações);

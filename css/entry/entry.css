@@ -1,0 +1,331 @@
+/* =========================================================================
+   PAINEL DE ENTRADA (VITRINE) — #loader-global.entry
+   =========================================================================
+   Única tela de entrada do app (cold start). Substitui a antiga marca animada
+   do loader (o ícone com o reflexo dos óculos). A barra de progresso enche em
+   3s e se transforma no botão "Entrar" — o controle de tempo/estado vive em
+   `window.entryLoader` (js/core/app.js); o fade-out no clique reusa `.u-fade-out`.
+
+   NÃO é reusada como bloqueio interno (login/salvar/sair) — isso agora é o
+   blur + spinner (.block-loader, components/dialogs.css).
+
+   Conteúdo = ANÚNCIO DE EXEMPLO (mock, no index.html): a vitrine de uma loja
+   física — letreiro com o nome, o que oferece nas laterais (vitrines), mini-mapa
+   + endereço embaixo à esquerda, botão WhatsApp à direita e a barra/Entrar na base.
+
+   ARTE vs UI: a FACHADA (toldo, letreiro, porta, mapa) é ilustração decorativa —
+   como o ícone do app, tem paleta própria (vars `--fac-*` abaixo), fora da escala
+   de UI. Os CONTROLES sobre ela (botões, barra, textos, chips) seguem os tokens.
+   ========================================================================= */
+
+.overlay-loader.entry {
+  /* paleta da ILUSTRAÇÃO da fachada (arte — centralizada aqui, não espalhada) */
+  --fac-wall:   #f6efe1;   /* parede creme */
+  --fac-wall-2: #ece1cd;   /* base da parede (sombreado) */
+  --fac-glass:  #21402a;   /* vidro escuro das vitrines/porta */
+  --fac-shade:  #16301d;   /* sombra interna das vitrines */
+
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: var(--space-md);
+  padding:
+    calc(env(safe-area-inset-top, 0px) + var(--space-md))
+    var(--space-md)
+    calc(env(safe-area-inset-bottom, 0px) + var(--space-md));
+  overflow: hidden;
+}
+
+/* ── CENA / FACHADA ─────────────────────────────────────────────────────── */
+.entry__scene {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;   /* deixa a fachada encolher abaixo do min-content (evita vazar à direita) */
+  display: flex;
+}
+
+.entry__building {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--fac-wall) 0%, var(--fac-wall-2) 100%);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Toldo listrado (verde/dourado) com babado recortado na base. */
+.entry__awning {
+  position: relative;
+  height: clamp(24px, 6.5vw, 38px);
+  flex: none;
+  background: repeating-linear-gradient(90deg,
+    var(--p-green) 0 22px, var(--a-gold) 22px 44px);
+}
+.entry__awning::after {   /* babado (bolinhas) pendurado na base do toldo */
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 100%;
+  height: 11px;
+  background: radial-gradient(circle at 11px 0, var(--p-green) 0 9px, transparent 10px) repeat-x;
+  background-size: 22px 11px;
+}
+
+/* Letreiro com o nome da loja (placa creme montada na parede). */
+.entry__sign {
+  flex: none;
+  margin: clamp(18px, 5vw, 26px) var(--space-md) var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+/* "Anúncio" — honesto sobre o que é a tela, discreto acima do nome. */
+.entry__eyebrow {
+  display: block;
+  margin-bottom: 2px;
+  font-size: var(--fs-1);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--a-gold-text);
+}
+.entry__name {
+  margin: 0;
+  font-size: clamp(1.25rem, 6.2vw, 1.75rem);
+  font-weight: var(--fw-heavy);
+  line-height: 1.1;
+  color: var(--p-green);
+}
+.entry__tagline {
+  margin: 6px 0 0;
+  font-size: var(--fs-4);
+  font-weight: var(--fw-medium);
+  color: var(--t-sub);
+}
+
+/* Frente da loja: vitrines nas laterais + porta ao centro. */
+.entry__front {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--space-sm);
+  padding: 0 var(--space-md) var(--space-md);
+}
+
+/* Vitrines = colunas de vidro escuro: título em cima, ofertas no meio,
+   "+ muito mais" embaixo (preenche a altura sem parecer vazio). */
+.entry__window {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(160deg, var(--fac-glass) 0%, var(--fac-shade) 100%);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+.entry__window-title {
+  text-align: center;
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--on-green-med);
+}
+.entry__window-more {
+  text-align: center;
+  font-size: var(--fs-2);
+  font-weight: var(--fw-medium);
+  color: var(--on-green-muted);
+}
+.entry__offers {
+  list-style: none;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+.entry__offers li {
+  padding: 8px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--on-green-soft);
+  color: var(--t-light);
+  font-size: var(--fs-4);
+  font-weight: var(--fw-bold);
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* Porta de vidro escuro com maçaneta dourada e um brilho de "luzes acesas". */
+.entry__door {
+  position: relative;
+  width: clamp(58px, 17vw, 84px);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: linear-gradient(180deg, var(--fac-glass) 0%, var(--fac-shade) 100%);
+  box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+.entry__door::before {   /* brilho quente vindo de dentro da loja */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 60% at 50% 108%,
+    rgba(var(--a-gold-rgb), 0.55) 0%, transparent 65%);
+  animation: entryDoorGlow 3.2s ease-in-out infinite;
+}
+.entry__door-handle {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  width: 4px;
+  height: 34px;
+  transform: translateY(-50%);
+  border-radius: var(--radius-pill);
+  background: var(--a-gold);
+}
+@keyframes entryDoorGlow {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+/* ── RODAPÉ: mapa + WhatsApp + barra/Entrar ─────────────────────────────── */
+.entry__footer {
+  flex: none;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.entry__footer-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+/* Mini-mapa estilizado (offline) + endereço — embaixo à esquerda. */
+.entry__map {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 78px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+}
+.entry__map-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.entry__map-pin {
+  position: absolute;
+  top: 34%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.9rem;
+  color: var(--danger);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+.entry__address {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 5px 8px;
+  background: rgba(var(--overlay-rgb), 0.62);
+  color: var(--t-light);
+  font-size: var(--fs-2);
+  font-weight: var(--fw-medium);
+  line-height: 1.25;
+}
+
+/* Botão WhatsApp (verde oficial) — à direita, acima da barra. */
+.entry__wa.btn {
+  flex: 0 0 42%;
+  flex-direction: row;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  background: var(--whatsapp);
+  color: var(--t-light);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-bold);
+  line-height: 1.15;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+.entry__wa.btn .icon { font-size: 1.5rem; flex: none; }
+
+/* Barra de progresso → botão "Entrar" (mesmo slot, crossfade). */
+.entry__enter-slot {
+  position: relative;
+  min-height: var(--touch-min);
+  display: flex;
+  align-items: center;
+}
+.entry__progress {
+  width: 100%;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--on-green-soft);
+  overflow: hidden;
+  transition: opacity 0.3s var(--ease);
+}
+.entry__progress.is-hidden { opacity: 0; }
+.entry__progress-fill {
+  display: block;
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--a-gold);
+  /* enche em 3s (o tempo mínimo da entrada; casa com o READY_MIN do JS) */
+  animation: entryFill 3s cubic-bezier(0.3, 0.9, 0.7, 1) forwards;
+}
+@keyframes entryFill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+.entry__enter.btn {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  transform: scale(0.98);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--sheet-ease);
+}
+.entry__enter.btn.is-shown {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Selo de versão discreto (canto inferior). */
+.entry__version {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--fs-1);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.05em;
+  color: var(--on-green-muted);
+}
+
+/* Telas MUITO baixas (teclado/dispositivos pequenos): compacta a fachada. */
+@media (max-height: 620px) {
+  .entry__tagline { display: none; }
+  .entry__sign { margin-top: var(--space-sm); }
+}

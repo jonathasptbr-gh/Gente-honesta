@@ -15,42 +15,29 @@
   background: var(--p-green);
   transition: opacity .4s ease;
 }
+/* O conteúdo da tela de entrada (vitrine) vive em css/entry/entry.css
+   (#loader-global.entry). Aqui fica só a cobertura verde + o fade-out. */
 
-/* ── Marca animada do loader (o ícone do app; SVG inline no #loader-global) ──
-   O ícone fica ESTÁTICO e completo; o único movimento é um REFLEXO diagonal
-   branco que cruza os óculos da esquerda p/ a direita, em loop de 2.4s (com um
-   respiro entre passagens). Frame 0 = ícone completo (o loader some rápido; não
-   pode aparecer "montando"). */
-.overlay-loader__mark {
-  width: clamp(96px, 30vw, 124px);
-  height: auto;
+/* ── BLOQUEIO INTERNO (blur + spinner) — #blocking-loader ──
+   Trava a tela durante operações com espera (login por OTP, salvar cadastro,
+   sair). NÃO mostra a vitrine — só escurece/borra o que está atrás e gira o
+   spinner. Controle: window.showBlockingLoader()/hideBlockingLoader (app.js). */
+.block-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-dialog);
+  background: var(--overlay);
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));   /* WebKit (iOS/Samsung Internet) exige o prefixo */
+  transition: opacity .3s var(--ease);
 }
-
-/* Cores por TOKEN (batem com o ícone; se a marca mudar, o loader acompanha). */
-.ldr-face    { fill: var(--t-light); }
-.ldr-glasses { fill: var(--info-blue); }
-.ldr-helmet  { fill: var(--a-gold); }
-.ldr-check   { fill: var(--p-green); }
-
-/* Reflexo: faixa branca diagonal cruza os óculos (clipada à forma da lente). */
-.overlay-loader__shine {
-  animation: loaderGlassGlint 2.4s ease-in-out infinite;
-}
-@keyframes loaderGlassGlint {
-  0%, 45%  { transform: translateX(0); }       /* parada à ESQUERDA das lentes (fora do clip) */
-  70%      { transform: translateX(560px); }    /* varre até passar a DIREITA */
-  100%     { transform: translateX(560px); }    /* fica fora à direita; reset invisível no wrap */
-}
-/* Selo de versão discreto no rodapé da tela de loading (spinner fica centrado). */
-.overlay-loader__version {
-  position: absolute;
-  bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: var(--fs-2);
-  font-weight: var(--fw-bold);
-  letter-spacing: 0.05em;
-  color: var(--on-green-med);
+.block-loader__spinner {
+  font-size: 2.6rem;
+  color: var(--t-light);
+  animation: spin .8s linear infinite;   /* @keyframes spin em base.css */
 }
 
 .overlay-dialog {

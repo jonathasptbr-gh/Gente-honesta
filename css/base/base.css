@@ -453,9 +453,9 @@ button, input, textarea {
   .agenda-filters__icon-btn--notify,   /* pisca do botão de contratos */
   .ic-meter__pin-tag,                  /* pulso do pino do IC (cadastro) */
   .tutorial-highlight,                 /* pulso do destaque do tutorial */
-  .overlay-loader__shine {             /* reflexo dos óculos no loader */
+  .entry__door::before {               /* brilho pulsante da porta da vitrine */
     animation: none !important;
   }
-  /* Loader em repouso: reflexo parado fora das lentes (invisível) → ícone
-     estático, limpo; a presença do ícone já sinaliza "carregando". */
+  /* A barra de progresso da entrada (entryFill) FICA: é feedback dos 3s até o
+     "Entrar", não decoração — mesma lógica do spin de loading. */
 }
