@@ -733,9 +733,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // =========================================================================
 // BLOQUEIO INTERNO (blur + spinner) — #blocking-loader
 // Trava a tela em operações com espera (login por OTP, salvar cadastro, sair).
-// Substitui o reuso antigo do #loader-global — que agora é SÓ a vitrine de
-// entrada. Fade-out reusa a curva --ease do CSS; a classe é limpa no fim p/
-// reexibições futuras aparecerem.
+// Substitui o reuso antigo do #loader-global — que agora é SÓ o spinner de
+// entrada (cold start). Fade-out reusa a curva --ease do CSS; a classe é limpa
+// no fim p/ reexibições futuras aparecerem.
 // =========================================================================
 window.showBlockingLoader = function () {
   const el = document.getElementById('blocking-loader');
@@ -752,77 +752,3 @@ window.hideBlockingLoader = function () {
     el.classList.remove('u-fade-out');
   }, 300);
 };
-
-
-// =========================================================================
-// PAINEL DE ENTRADA (VITRINE) — window.entryLoader
-// #loader-global.entry é a ÚNICA tela de entrada (cold start). A barra de
-// progresso enche em 3s (CSS: entryFill) e, quando o app TAMBÉM já resolveu a
-// tela de destino (auth/session.js chama markReady), a barra vira o botão
-// "Entrar". O clique faz o fade-out e revela a tela por baixo. NÃO reaparece
-// em login/logout posteriores (isso é bloqueio interno) — só na 1ª abertura.
-// =========================================================================
-window.entryLoader = (function () {
-  const READY_MIN = 3000;   // casa com a duração do entryFill (entry.css)
-  let timeUp = false, authReady = false, entered = false, onEnterCb = null;
-
-  const loaderEl = () => document.getElementById('loader-global');
-
-  function revealEnter() {
-    const loader = loaderEl();
-    if (!loader) return;
-    const prog = loader.querySelector('.entry__progress');
-    const btn = document.getElementById('btn-entry');
-    if (prog) prog.classList.add('is-hidden');
-    if (btn) btn.classList.add('is-shown');   // botão no fluxo, revela por opacity
-  }
-
-  // Mapa da vitrine: embed real do Google Maps quando online; offline mostra o
-  // mock estilizado (default no HTML). O <a> por cima abre o Maps real.
-  function setupEntryMap() {
-    const map = document.querySelector('.entry__map');
-    if (!map) return;
-    const frame = map.querySelector('.entry__map-frame');
-    const embed = map.getAttribute('data-embed');
-    const goOnline = () => {
-      if (map.classList.contains('entry__map--online')) return;
-      if (frame && embed && !frame.getAttribute('src')) frame.setAttribute('src', embed);
-      map.classList.add('entry__map--online');
-    };
-    if (navigator.onLine) goOnline();
-    else window.addEventListener('online', goOnline, { once: true });
-  }
-  function maybeReveal() {
-    if (timeUp && authReady && !entered) revealEnter();
-  }
-  function enter() {
-    if (entered) return;
-    entered = true;
-    const loader = loaderEl();
-    if (loader) {
-      loader.classList.add('u-fade-out');
-      setTimeout(() => {
-        loader.classList.add('u-hidden');
-        loader.classList.remove('u-fade-out');
-      }, 400);
-    }
-    if (typeof onEnterCb === 'function') {
-      const cb = onEnterCb; onEnterCb = null;
-      setTimeout(cb, 300);   // deixa o fade começar antes do que vier depois (ex.: tutorial)
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('btn-entry')?.addEventListener('click', enter);
-    setupEntryMap();
-    setTimeout(() => { timeUp = true; maybeReveal(); }, READY_MIN);
-  });
-
-  return {
-    // app resolveu a tela de destino (auth/session.js) → libera o "Entrar" (após os 3s)
-    markReady() { authReady = true; maybeReveal(); },
-    // callback a rodar DEPOIS do usuário entrar (ex.: iniciar o tutorial do cadastro)
-    onEnter(cb) { onEnterCb = cb; },
-    hasEntered() { return entered; },
-  };
-})();

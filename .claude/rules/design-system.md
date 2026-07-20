@@ -16,10 +16,9 @@ sombra/espaçamento/peso/duração sempre vêm de token. Se o valor exato não e
 use o degrau mais próximo — não invente um número.
 
 > **Exceção — IMAGEM/ILUSTRAÇÃO (arte):** peças que são FOTO/DESENHO, não UI, têm cores próprias fora
-> da escala de tokens — como o ícone do app (SVG com hex próprios), o **placeholder da fachada** da
-> vitrine de entrada (`<img>` data-URI neutro, swappable como a foto de perfil / `avatarSvg`) e o **mock
-> do mapa** offline (SVG estilizado). Os CONTROLES em volta (card branco, barra, botões, chips, textos)
-> seguem os tokens normalmente. Não espalhe hex de arte pelo CSS.
+> da escala de tokens — como o ícone do app (SVG com hex próprios) e o placeholder de foto de perfil
+> (`avatarSvg`, data-URI). Os CONTROLES em volta seguem os tokens normalmente; não espalhe hex de arte
+> pelo CSS.
 
 ## Tokens
 

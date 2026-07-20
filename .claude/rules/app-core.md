@@ -31,8 +31,7 @@ Cada JS expõe funções/objetos em `window` para acesso cross-module.
 `window.MSG_REQUIRED_FIELDS` (frase única da validação de obrigatórios; o complemento
 "para concluir/publicar…" é concatenado por chamador),
 `window.showBlockingLoader()`/`window.hideBlockingLoader()` (bloqueio interno blur+spinner —
-`#blocking-loader`; ver "Loaders"), `window.entryLoader` (`markReady()`/`onEnter(cb)`/`hasEntered()`
-— controla a vitrine de ENTRADA `#loader-global.entry`; ver "Loaders").
+`#blocking-loader`; ver "Loaders").
 
 **Ícones em JS = SEMPRE `window.icon()`** (nunca montar o `<svg><use>` à mão) — EXCETO usos com a
 variante contorno `-o` ou nome interpolado: o scanner do sprite (`scripts/icon-usage.mjs`) só
@@ -73,9 +72,9 @@ liga o modo, popula, snapshot, `showView`), `window.setOnboardingEditMode(on)`,
 
 `showView(viewId)` troca a tela principal (`.screen` → `.screen--active`); `navigateTo(stepId)`
 troca sub-passo dentro de `#view-auth` (`u-hidden`). Contrato: telas SÓ por `.screen--active`;
-sub-elementos SÓ por `u-hidden`; nunca `display` inline em `.screen`. No COLD START a tela inicial
-é revelada pela vitrine de entrada (`window.entryLoader`, no "Entrar"); nas transições seguintes
-(login/logout) o `onAuthStateChanged` (`auth/session.js`) esconde o BLOQUEIO interno (ver "Loaders").
+sub-elementos SÓ por `u-hidden`; nunca `display` inline em `.screen`. O `onAuthStateChanged`
+(`auth/session.js`) esconde o SPINNER de entrada no cold start e o BLOQUEIO interno nas transições
+seguintes (login/logout) — ver "Loaders".
 
 `showView` também limpa a pilha do `backNav` (abaixo) quando a tela REALMENTE muda — guard
 `_activeViewId`, então chamadas repetidas para a MESMA tela (o Firebase reemite
@@ -284,28 +283,18 @@ Todo o app é verde (`--p-green`), então a `meta[theme-color]` é verde em toda
 
 O app tem **dois** loaders distintos, com papéis separados:
 
-**1. Vitrine de ENTRADA — `#loader-global.entry`** (CSS `css/entry/entry.css`; controle
-`window.entryLoader` em `core/app.js`). É a **ÚNICA** tela de entrada (cold start) e substituiu a
-antiga marca animada do ícone. Um **anúncio de exemplo** (mock no `index.html`): **card branco no topo**
-(nome + subtítulo), no **centro a IMAGEM da fachada** (`<img>` placeholder trocável — como a foto de
-perfil, `object-fit:cover`) e, **por cima da imagem**, o **mapa do Google** (quadrado — embed real
-`maps.google.com/...&output=embed`, `<a>` por cima abre o Maps; **offline** o JS `setupEntryMap` deixa o
-**mock** estilizado, classe `.entry__map--online` faz o swap), o **botão WhatsApp** (ícone chat +
-"WhatsApp" + seta, verde `--whatsapp`, link `wa.me`) e um **card ESCURO semi-transparente** com o que a
-loja oferece + endereço. Na base, a **barra de progresso, no MESMO molde do botão** (pílula full-width
-sobreposta ao `#btn-entry`), enche em 3s (CSS `entryFill`) e **vira o "Entrar"** (crossfade: a barra some,
-o botão aparece — o botão fica no fluxo definindo a altura do slot). A **imagem da fachada** é a única
-"arte" (placeholder neutro, swappable); todo o resto segue tokens.
-- **Fluxo:** `entryLoader` libera o "Entrar" quando **AMBOS** passam: os 3s (timer) E o app resolveu a
-  tela de destino (`auth/session.js` chama `window.entryLoader.markReady()` na 1ª resolução do
-  `onAuthStateChanged`). O clique em "Entrar" faz o fade-out (`.u-fade-out`) e revela a tela por baixo.
-  No cadastro, o tutorial só começa DEPOIS do "Entrar" (`window.entryLoader.onEnter(cb)`).
-- **NÃO reaparece** em login/logout posteriores — só na 1ª abertura (`firstResolve` em `session.js`).
+**1. Spinner de ENTRADA — `#loader-global`** (CSS em `components/dialogs.css`). É a **ÚNICA** tela de
+entrada (cold start): fundo verde + glifo `autorenew` girando (`.overlay-loader__spinner`, motor
+`@keyframes spin`) + selo de versão (`#version-badge`). O `onAuthStateChanged` (`auth/session.js`) o
+esconde com fade (`.u-fade-out` → `u-hidden`) na 1ª resolução, respeitando um tempo mínimo
+(`MINIMUM_LOADER_TIME`, 1s) para não piscar. Nas resoluções SEGUINTES (login/logout) NÃO reaparece —
+essas usam o bloqueio interno (`firstResolve` em `session.js`). No cadastro, o tutorial começa ~600ms
+após a tela ficar visível.
 - **CSS crítico inline no `<head>`** pinta o `html` de verde e dá ao `.overlay-loader` a cobertura
   (`position:fixed; inset:0; background:#184e1b; z-index:9999`) — sem isso havia flash branco no fim do
   splash nativo. **Telas não têm animação de entrada** (`.screen` sem `animation`).
-- **Trocar o anúncio:** o conteúdo (nome/ofertas/endereço/número WhatsApp) é HTML estático no
-  `#loader-global`; vira dado real quando houver backend de anunciantes.
+- (Histórico: a marca animada do ícone e depois a "vitrine de anúncio" foram removidas; hoje é só o
+  spinner. O `@keyframes spin` serve ao spinner de entrada, ao `.btn__spinner` e ao `.block-loader`.)
 
 **2. BLOQUEIO interno — `#blocking-loader` (blur + spinner)** (CSS `.block-loader` em
 `components/dialogs.css`; controle `window.showBlockingLoader()`/`hideBlockingLoader()` em

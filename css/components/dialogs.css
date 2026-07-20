@@ -15,8 +15,26 @@
   background: var(--p-green);
   transition: opacity .4s ease;
 }
-/* O conteúdo da tela de entrada (vitrine) vive em css/entry/entry.css
-   (#loader-global.entry). Aqui fica só a cobertura verde + o fade-out. */
+
+/* Spinner da tela de ENTRADA (#loader-global) — glifo autorenew girando sobre
+   o verde (mesmo motor `spin` do .btn__spinner/.block-loader). */
+.overlay-loader__spinner {
+  font-size: 3rem;
+  color: var(--t-light);
+  animation: spin .8s linear infinite;   /* @keyframes spin em base.css */
+}
+
+/* Selo de versão discreto no rodapé da tela de loading. */
+.overlay-loader__version {
+  position: absolute;
+  bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--fs-2);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.05em;
+  color: var(--on-green-med);
+}
 
 /* ── BLOQUEIO INTERNO (blur + spinner) — #blocking-loader ──
    Trava a tela durante operações com espera (login por OTP, salvar cadastro,

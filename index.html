@@ -96,8 +96,6 @@
     <link rel="stylesheet" href="css/feed/ajudantes.css">
 
     <link rel="stylesheet" href="css/profile/profile.css">
-    <!-- painel de entrada (vitrine) — depois de dialogs.css p/ .overlay-loader.entry vencer -->
-    <link rel="stylesheet" href="css/entry/entry.css">
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" defer></script>
@@ -285,79 +283,15 @@
     <canvas id="media-canvas" class="u-hidden" width="500" height="667"></canvas>
 
     <!-- =====================================================================
-         PAINEL DE ENTRADA (VITRINE) — ÚNICA tela de entrada (cold start).
-         Substitui a antiga marca animada do loader. A barra (no MOLDE do botão
-         "Entrar") enche em 3s e vira "Entrar" (controle: window.entryLoader em
-         js/core/app.js). NÃO é reusada como bloqueio interno — para isso há o
-         blur+spinner (#blocking-loader). Conteúdo = ANÚNCIO DE EXEMPLO (mock):
-         card branco (nome/subtítulo) + IMAGEM da fachada (placeholder swappable,
-         como a foto de perfil) com o mapa do Google, o WhatsApp e um card escuro
-         de ofertas por cima. Trocar nome/foto/ofertas/endereço/número pelo
-         anunciante real quando houver backend. CSS: css/entry/entry.css.
+         TELA DE ENTRADA (cold start) — spinner simples sobre o verde. O
+         onAuthStateChanged (auth/session.js) a esconde quando resolve a tela
+         inicial. NÃO é reusada como bloqueio interno (login/salvar/sair) — isso
+         é o blur+spinner (#blocking-loader). CSS em components/dialogs.css.
          ===================================================================== -->
-    <div id="loader-global" class="overlay-loader entry" role="dialog" aria-label="Anúncio — bem-vindo à Gente Honesta">
-        <!-- TOPO: card branco com nome + subtítulo da loja -->
-        <div class="entry__header">
-            <span class="entry__eyebrow">Anúncio</span>
-            <h1 class="entry__name">Ferragens &amp; Tintas Progresso</h1>
-            <p class="entry__tagline">Tudo para sua obra — com quem é gente honesta.</p>
-        </div>
-
-        <!-- CENTRO: imagem da fachada (placeholder trocável) + overlays -->
-        <div class="entry__stage">
-            <img class="entry__facade-img" alt="Fachada da loja"
-                 src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 340'><rect width='400' height='340' fill='%23e8e5df'/><g fill='%23bcb6aa'><rect x='60' y='104' width='280' height='34'/><rect x='84' y='138' width='232' height='168'/></g><g fill='%23d3cdc1'><rect x='108' y='162' width='58' height='70'/><rect x='234' y='162' width='58' height='70'/><rect x='176' y='210' width='48' height='96'/></g></svg>">
-
-            <!-- card ESCURO semi-transparente: o que a loja oferece -->
-            <div class="entry__offers-card">
-                <span class="entry__offers-title">O que oferecemos</span>
-                <ul class="entry__offers" aria-label="Produtos e serviços">
-                    <li>Ferramentas</li>
-                    <li>Tintas</li>
-                    <li>Material elétrico</li>
-                    <li>Hidráulica</li>
-                    <li>Ferragens</li>
-                </ul>
-                <span class="entry__addr">
-                    <svg class="icon" aria-hidden="true"><use href="#ic-location_on"></use></svg>
-                    Av. Bento Gonçalves, 2450 · Porto Alegre/RS
-                </span>
-            </div>
-
-            <!-- SOBRE a imagem: mapa do Google (quadrado) + WhatsApp -->
-            <div class="entry__actions">
-                <!-- Mapa QUADRADO do Google Maps; toca → abre o Maps real. Offline:
-                     JS troca para o mock (.entry__map--offline). Ver setupEntryMap (app.js). -->
-                <div class="entry__map" data-embed="https://maps.google.com/maps?q=Av.%20Bento%20Gon%C3%A7alves%2C%202450%2C%20Porto%20Alegre%20RS&amp;z=15&amp;output=embed">
-                    <iframe class="entry__map-frame" title="Mapa da loja" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    <svg class="entry__map-mock" viewBox="0 0 100 100" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice">
-                        <rect width="100" height="100" fill="#e9efe6"/>
-                        <path d="M-5 30 H105 M-5 70 H105 M32 -5 V105 M70 -5 V105" stroke="#ffffff" stroke-width="7"/>
-                        <path d="M-5 50 H105 M50 -5 V105" stroke="#ffffff" stroke-width="4"/>
-                        <rect x="34" y="32" width="36" height="36" fill="#d7e2d1"/>
-                    </svg>
-                    <svg class="icon entry__map-pin" aria-hidden="true"><use href="#ic-location_on"></use></svg>
-                    <a class="entry__map-link" href="https://www.google.com/maps/search/?api=1&amp;query=Av.%20Bento%20Gon%C3%A7alves%2C%202450%2C%20Porto%20Alegre%20RS"
-                       target="_blank" rel="noopener" aria-label="Abrir o endereço no Google Maps"></a>
-                </div>
-                <!-- WhatsApp: ícone de chat + "WhatsApp" + seta; verde oficial (--whatsapp) -->
-                <a class="btn entry__wa" href="https://wa.me/5551991230000" target="_blank" rel="noopener"
-                   aria-label="Conversar no WhatsApp">
-                    <svg class="icon entry__wa-chat" aria-hidden="true"><use href="#ic-chat"></use></svg>
-                    <span>WhatsApp</span>
-                    <svg class="icon entry__wa-arrow" aria-hidden="true"><use href="#ic-chevron_right"></use></svg>
-                </a>
-            </div>
-        </div>
-
-        <!-- BASE: barra de progresso (MESMO molde do botão) → vira "Entrar" após 3s -->
-        <div class="entry__enter-slot">
-            <div class="entry__progress" role="progressbar" aria-label="Carregando"><span class="entry__progress-fill"></span></div>
-            <button type="button" id="btn-entry" class="btn btn--accent btn--large entry__enter">Entrar</button>
-        </div>
-
+    <div id="loader-global" class="overlay-loader">
+        <svg class="icon overlay-loader__spinner" aria-hidden="true"><use href="#ic-autorenew"></use></svg>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy). -->
-        <span id="version-badge" class="entry__version" aria-hidden="true">v445</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v446</span>
     </div>
 
     <!-- =====================================================================

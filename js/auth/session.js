@@ -13,15 +13,23 @@
   // (CSS via html.is-desktop) cobre tudo e o monitor de sessão nem é registrado.
   if (!window.IS_MOBILE) return;
 
-  // Primeira resolução = COLD START: a tela inicial é revelada pela VITRINE de
-  // entrada (window.entryLoader), não aqui. As resoluções SEGUINTES (login por
-  // OTP, logout) escondem o BLOQUEIO INTERNO (blur+spinner) que o disparador
-  // mostrou — a vitrine nunca reaparece nesses casos.
+  // COLD START: a tela de entrada é o SPINNER (#loader-global), escondido aqui na
+  // 1ª resolução (com um tempo mínimo p/ não piscar). As resoluções SEGUINTES
+  // (login por OTP, logout) escondem o BLOQUEIO INTERNO (blur+spinner) que o
+  // disparador mostrou — o spinner de entrada não reaparece nesses casos.
+  const MINIMUM_LOADER_TIME = 1000;
+  const startTime = Date.now();
   let firstResolve = true;
 
   // MONITOR DE SESSÃO CENTRALIZADO - Observador Ativo do Estado de Autenticação
   auth.onAuthStateChanged(async (user) => {
     let onboardingPath = false;
+
+    // No cold start, garante o tempo mínimo do spinner antes de decidir/esconder.
+    if (firstResolve) {
+      const remaining = Math.max(0, MINIMUM_LOADER_TIME - (Date.now() - startTime));
+      if (remaining) await new Promise(resolve => setTimeout(resolve, remaining));
+    }
 
     if (user) {
       const lastSignInTimestamp = new Date(user.metadata.lastSignInTime).getTime();
@@ -57,23 +65,22 @@
       if (typeof window.startOnboardingTutorial === 'function') window.startOnboardingTutorial();
     };
 
+    if (onboardingPath) setTimeout(startTutorial, 600);
+
     if (firstResolve) {
       firstResolve = false;
-      // COLD START → entrega à vitrine: no cadastro, o tutorial começa só depois
-      // do "Entrar"; a vitrine é quem revela a tela (não escondemos loader aqui).
-      if (window.entryLoader) {
-        if (onboardingPath) window.entryLoader.onEnter(() => setTimeout(startTutorial, 300));
-        window.entryLoader.markReady();
-      } else {
-        // Fallback defensivo (core não carregou): esconde o loader direto.
-        if (typeof window.hideBlockingLoader === 'function') window.hideBlockingLoader();
-        document.getElementById('loader-global')?.classList.add('u-hidden');
-        if (onboardingPath) setTimeout(startTutorial, 600);
+      // COLD START: esconde o SPINNER de entrada (#loader-global) com fade.
+      const loader = document.getElementById('loader-global');
+      if (loader) {
+        loader.classList.add('u-fade-out');
+        setTimeout(() => {
+          loader.classList.add('u-hidden');
+          loader.classList.remove('u-fade-out');   // limpa p/ reexibições futuras
+        }, 400);
       }
     } else {
-      // Transição INTERNA (login/logout): esconde o blur+spinner; sem vitrine.
+      // Transição INTERNA (login/logout): esconde o blur+spinner interno.
       if (typeof window.hideBlockingLoader === 'function') window.hideBlockingLoader();
-      if (onboardingPath) setTimeout(startTutorial, 600);
     }
   });
 })();

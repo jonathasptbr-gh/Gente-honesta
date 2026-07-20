@@ -28,7 +28,7 @@ Repositório: jonathasptbr-gh/gente-honesta
   de ícones) — não é build do site.
 - **A cada sessão com mudanças no APP:** bump de `CACHE_NAME` (`service-worker.js`) + `#version-badge`
   (`index.html`) JUNTOS, commit e deploy para `main`. (Mudanças só de documentação não precisam de
-  bump.) Versão atual: **v445**.
+  bump.) Versão atual: **v446**.
 
 O desenvolvedor usa https://gentehonesta.com.br diretamente como preview num Samsung S24 Ultra — não
 há staging. **Faça deploy ao final de cada sessão de alterações do app.**
@@ -153,22 +153,13 @@ css/   (PASTAS POR FEATURE; ordem dos <link> no index.html = ordem da cascata; N
                              card de Avaliações (QR + compartilhar). Sair/Editar vivem na ACTION BAR
                              (OVERLAY sobre a zona do meio via classe .agenda-filters--profile), não no
                              painel; CSS próprio: backdrop-blur, painel sem-card, overlay de ações e avatar-fecha
-  entry/entry.css          — PAINEL DE ENTRADA (vitrine): #loader-global.entry, a ÚNICA tela de entrada
-                             (cold start). Substitui a antiga marca animada do loader. ANÚNCIO de exemplo
-                             (mock no index.html): card BRANCO no topo (nome+subtítulo) + IMAGEM da fachada
-                             (placeholder <img> trocável, como a foto de perfil) com, POR CIMA, o mapa do
-                             Google (quadrado, embed real → abre o Maps; offline vira mock via
-                             setupEntryMap), o botão WhatsApp (chat+seta, verde --whatsapp) e um card ESCURO
-                             semi-transparente com o que a loja oferece + endereço. Base: barra de progresso
-                             (3s, MESMO molde do botão) → "Entrar". Carregada DEPOIS de dialogs.css.
-
 js/   (PASTAS POR FEATURE; a ordem de carga no index.html importa)
   core/app.js       — 1º. NÚCLEO: Firebase init, showView/navigateTo, openDialog, appState, SW,
                           backNav (botão "voltar" do sistema)
   tutorial/tutorial.js — 2º. Motor genérico de tour (window.startTutorial)
   install/install.js   — 3º. PWA: beforeinstallprompt, isStandalone, view-install
-  auth/session.js   — 4º. onAuthStateChanged: decide a tela inicial (cold start entrega à VITRINE
-                          via window.entryLoader; login/logout escondem o BLOQUEIO interno), resetAuthFlow, tutorial
+  auth/session.js   — 4º. onAuthStateChanged: decide a tela inicial (cold start esconde o SPINNER de
+                          entrada; login/logout escondem o BLOQUEIO interno), resetAuthFlow, tutorial
   auth/auth.js      — 5º. Login: sendOTP (whitelist), verifyOTP, cooldown, OTP, resetAuthFlow
   onboarding/onboarding.js — 6º. Cadastro: finishRegistration, câmera, tags, serviço, resetOnboardingForm
   core/models.js    — MODELO DE DOMÍNIO: @typedef JSDoc de todas as entidades (Professional/Pedido/
