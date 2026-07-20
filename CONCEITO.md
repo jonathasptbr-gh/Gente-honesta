@@ -330,6 +330,7 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
 | **D7** | 🔶 **ENCAMINHADA** — incentivo a indicar = ganho de IC (indicar rende; aceita rende mais) + zona exclusiva (§10.1). Falta calibrar os ganhos. | Ganhos/valores a calibrar com D2. | Início da Fase 2. |
 | **D8** | ✅ **DECIDIDA** — só responsabilidade retroativa; a fiança já É a aposta e auto-regula o crescimento. Stake explícito guardado p/ abuso. | — | Fechada. |
 | **D9** | ✅ **DECIDIDA** — vínculo indicador↔indicado (herança + fiança) dura ~1 semana, depois solta. | — | Fechada. |
+| **D10** | Acordo com cliente NÃO cadastrado: exige cadastro (vira growth) ou permite registro unilateral de baixa confiança? | Exigir cadastro — coerente com "indicado é conta real" + motor de crescimento. | Início da Fase 2. |
 
 ---
 
@@ -536,6 +537,73 @@ O lado-cliente (família 7) e os refinamentos das famílias 1–3 (consistência
 entram como **fast-followers**, quando houver sinal para medi-los. **A decidir:** o PESO/TETO de cada zona
 (quanto dos 100 pontos cada uma vale) e quais candidatas promover ao v1.
 
+### 10.3 O Acordo — a fonte rica de dados (ex-"minicontrato")
+
+**O que é.** Um registro **OPCIONAL, de DOIS LADOS e leve** do combinado entre cliente e profissional,
+criado dentro do app. Não é contrato legal — é o "combinado" que **ambos confirmam**. Seu valor: é a única
+fonte **estruturada e bilateral** de dados (fonte B), e é o que produz os **comentários do perfil** e o
+sinal de IC de **alto peso**. Opcional para o cliente, **incentivado pelo profissional**.
+
+**Como se conecta (nasce de uma conexão).** Depois que a descoberta acontece (busca, ou pedido/indicação) e
+os contatos se conectam, **qualquer uma das partes propõe** um Acordo. Ele **liga** um cliente a um
+profissional (a "conexão") e é a ponte do estágio 2 do flywheel (descoberta → **Acordo** → entrega →
+avaliação). Um Acordo concluído se liga ao **perfil** do profissional (a avaliação vira comentário) e ao
+**par** cliente↔pro (recontratação = Acordos repetidos entre os mesmos dois).
+
+**Ciclo de vida (estados) — casa com o `CONTRACT_STATUS` que já existe no código:**
+1. **Proposto / pendente** — uma parte cria com os termos (escopo, valor, prazo); aguarda o outro confirmar.
+   *(= pending; a gaveta "Contratos pendentes" de hoje.)*
+2. **Ativo** — o outro **CONFIRMA** os termos → o combinado vale, o serviço está em curso. *(= `active`.)*
+3. **Concluído** — o serviço terminou; a conclusão **DESTRAVA a avaliação com lastro** (→ comentário).
+   *(= `done`.)*
+4. **Cancelado** — uma parte encerra antes/durante; cancelamento tardio/abandono é **sinal negativo**.
+   *(= `cancelled`.)*
+5. **(Reclamação / disputa)** — transversal: uma parte registra reclamação → alimenta conduta / pode ir à
+   moderação.
+
+**O que ele registra (os campos = a matéria-prima do IC):** partes (cliente + profissional), escopo, **valor
+(DECLARADO)**, prazo/data combinada, datas (criado / confirmado / concluído / cancelado), **confirmações**
+(os dois toparam), **atrasos** (prazo × conclusão real declarada), **reclamações**, **avaliação final +
+comentário**.
+
+**Como é avaliado — DOIS LADOS (a chave da confiança).** Ao concluir, **cada lado avalia o outro** (a conta
+é única!):
+- **Cliente → profissional:** avaliação COM LASTRO → **vira comentário no perfil** + zona Qualidade (alto peso).
+- **Profissional → cliente:** contra-avaliação → alimenta o "bom cidadão / lado-cliente" (família 7).
+
+A bilateralidade é o que torna o Acordo **confiável** (ambos têm pele em jogo) e é o que torna a **família 7
+mensurável** (sem o Acordo, não haveria como medir o comportamento do cliente).
+
+**Regras de integridade e anti-fraude (decididas):**
+- **Só conta pro IC se CONFIRMADO pelos dois E CONCLUÍDO.** Um Acordo pendente/unilateral NÃO move o índice
+  (senão o profissional fabrica Acordos sozinho). A confirmação bilateral é o portão.
+- **Valor é DECLARADO, não verificado** (fonte D — o app não processa pagamento). Serve de informação/filtro,
+  nunca de prova.
+- **Conluio:** dois combinados podem fabricar Acordos para farmar avaliação. Defesas: a confirmação
+  bilateral já **exige um cúmplice**; muitos Acordos no MESMO par rendem cada vez menos (e acendem suspeita)
+  — mesma detecção do conluio de indicação (Fase 5).
+
+**`[DECISÃO D10]` — Acordo com cliente NÃO cadastrado.** Para ser bilateral, os dois precisam de conta. Se o
+cliente não está no app: (a) **exigir o cadastro dele para confirmar** → o Acordo vira **canal de
+crescimento** (o profissional puxa o cliente para o app, igual à indicação de outsider); ou (b) permitir um
+**registro unilateral de baixa confiança** (não vira comentário, peso mínimo). Sugestão: **(a)** — coerente
+com "todo indicado é conta real" e com o motor de crescimento.
+
+**Catálogo Acordo → IC (o que alimenta o quê — para aplicar nas zonas):**
+| Evento / campo do Acordo | Fonte | Efeito no IC |
+|---|:--:|---|
+| Acordo confirmado pelos dois | A + B | zona **Acordos** (volume), leve `+` |
+| Acordo concluído | B | zona **Acordos** (conclusão) `+` |
+| Avaliação cliente→pro (com lastro) | B | zona **Qualidade** (alto peso) `+` **+ comentário no perfil** |
+| Avaliação pro→cliente | B | zona **lado-cliente / família 7** (`+/–`) |
+| Atraso (prazo × conclusão) | B | faceta `–` na zona Acordo (operacional) |
+| Cancelamento tardio / abandono | B | penalidade `–` (operacional; grave → conduta) |
+| Reclamação procedente | B → moderação | zona **Conduta** `–` |
+| Recontratação (mesmo par, novo Acordo) | A (par observado) | sinal forte de confiança (fast-follower) |
+
+**Impacto:** consolida a fonte (B) do IC, dá o mapa para catalogar as zonas, e torna a **família 7
+(lado-cliente) mensurável** via a contra-avaliação. Abre **D10** (Acordo com cliente de fora).
+
 ---
 
 ## 11. Changelog do conceito
@@ -569,3 +637,9 @@ entram como **fast-followers**, quando houver sinal para medi-los. **A decidir:*
   (direta sem comentário × de Acordo que vira comentário); a **família 4 (operacional) não é zona** (são
   campos do Acordo); o IC apoia-se em (A) com (B) como prêmio. Núcleo v1 reorganizado por confiabilidade da
   fonte. **Renomeação de trabalho: "minicontrato" → "Acordo"** (§3, §8).
+- **(revisão 6)** — **§10.3 O Acordo** (deep-dive): registro opcional e bilateral, ciclo de vida (proposto →
+  ativo → concluído/cancelado, casando com `CONTRACT_STATUS`), campos registrados, **avaliação dos dois
+  lados** (pro↔cliente → torna a família 7 mensurável), regras de integridade (só conta no IC se confirmado
+  + concluído; valor é declarado), e o **catálogo Acordo → IC** para aplicar nas zonas. Abre **D10** (Acordo
+  com cliente não cadastrado). Rename "minicontrato"→"Acordo" aplicado também no CÓDIGO (botão + comentários
+  + feed.md).
