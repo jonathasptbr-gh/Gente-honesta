@@ -331,6 +331,8 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
 | **D8** | ✅ **DECIDIDA** — só responsabilidade retroativa; a fiança já É a aposta e auto-regula o crescimento. Stake explícito guardado p/ abuso. | — | Fechada. |
 | **D9** | ✅ **DECIDIDA** — vínculo indicador↔indicado (herança + fiança) dura ~1 semana, depois solta. | — | Fechada. |
 | **D10** | Acordo com cliente NÃO cadastrado: exige cadastro (vira growth) ou permite registro unilateral de baixa confiança? | Exigir cadastro — coerente com "indicado é conta real" + motor de crescimento. | Início da Fase 2. |
+| **D11** | Acordo reutilizável: um link gera um pendente POR cliente, ou uso único? | Toggle na criação (reutilizável = multi; senão queima no 1º aceite). | Ao construir as telas do Acordo (§11.1). |
+| **D12** | Prazo do Acordo: data específica, duração ("em N dias") ou os dois? | Os dois (o pro escolhe o modo). | Ao construir as telas do Acordo (§11.1). |
 
 ---
 
@@ -606,7 +608,96 @@ com "todo indicado é conta real" e com o motor de crescimento.
 
 ---
 
-## 11. Changelog do conceito
+## 11. Especificação de telas (design) — backlog de construção
+
+> Onde o conceito vira **ferramenta**: as telas a construir, aterradas no design system existente
+> (`.claude/rules/design-system.md` + `feed.md`). Regra de ouro do projeto: **reusar a primitiva, nunca
+> criar árvore paralela**. Cada tela abaixo mapeia para o que JÁ existe + o que é novo.
+
+### 11.1 O Acordo — fluxo e telas
+
+**O fluxo: HANDSHAKE DUPLO por link (decidido).** O profissional cria um Acordo **sem cliente dono**
+(reutilizável), gera um **link** e o envia (WhatsApp). O cliente abre o link **logado**, **aceita**
+(manifesta interesse) → o profissional é **notificado** ("Cliente X quer fechar") e **reconfirma com aquele
+cliente específico**. Só então o Acordo vale.
+
+```
+[PROFISSIONAL cria]          [CLIENTE abre link, logado]        [PROFISSIONAL]
+   MODELO (sem cliente,  ──link──►  aceita → PENDENTE      ──►    confirma → ATIVO
+   reutilizável)                    (vinculado ao cliente)        (par fechado)
+                                                                      │
+                                                    CONCLUÍDO ◄───────┤ (após o serviço → destrava avaliação)
+                                                    CANCELADO ◄───────┘
+```
+
+**Estados (o `CONTRACT_STATUS` interno ganha dois degraus):**
+| Estado | Quem vê / o que significa | Onde mora na UI |
+|---|---|---|
+| **Modelo** | Pro criou, link aberto, sem cliente. Reutilizável. | Bandeja "Acordos pendentes" (rows `contract-mini`, com editar/compartilhar). |
+| **Pendente** | Um cliente aceitou; aguarda o pro confirmar. | Mesma bandeja, **destacado** (carrega cliente + IC + CTA "Confirmar"). Cliente vê "aguardando confirmação". |
+| **Ativo** | Pro confirmou; serviço em curso. | Lista principal (`.contract-card--active`). |
+| **Concluído** | Serviço terminou; destrava avaliação dos dois lados. | Lista (`--done`, tint azul). |
+| **Cancelado** | Encerrado antes/durante. | Lista (`--cancelled`, tint vermelho). |
+
+**Um link reutilizável gera UM pendente POR cliente** (cada aceite é uma instância independente que o pro
+confirma separadamente; o modelo segue aberto). O toggle "reutilizável" liga/desliga isso (`[DECISÃO D11]`).
+
+**Os dados do Acordo (campos, por etapa):**
+| Campo | Quem preenche | Widget (reuso) |
+|---|---|---|
+| **Título do serviço** (obrigatório) | Pro (criação) | `.input-text` |
+| **Descrição / escopo** (o que inclui e o que NÃO inclui) | Pro | `<textarea>` (contador, como o pedido) |
+| **Valor** (R$, DECLARADO) | Pro | padrão do salário da vaga (`toLocaleString('pt-BR')`, `R$` externo) |
+| **Forma de pagamento** | Pro | chips `.chip--payment` (Dinheiro/Pix/Cartão) |
+| **Prazo** (data combinada ou "em N dias") | Pro | `[DECISÃO D12]` — data vs duração |
+| **Reutilizável?** | Pro | `.check-box` (toggle) |
+| **Cliente** (vínculo) | definido no **aceite** | — (auto: quem aceitou) |
+| **Datas** (criado/aceito/confirmado/concluído) | auto por evento | `contract-card__dates` (já existe) |
+| **Avaliação + comentário** (dois lados) | na **conclusão** | tela de Avaliação (spec à parte) |
+
+**As telas a construir (backlog):**
+
+1. **Criar Acordo — formulário** · `#acordo-sheet` (NOVO) — reusa o scaffolding `.pedido-sheet*` do
+   `#vaga-sheet` (3 camadas, `--sheet-top`, backNav+layerFocus, tap-outside). Campos acima; **rodapé fixo**
+   `.pedido-sheet__actions--footer` com CTA **"Gerar link do Acordo"** (`btn--accent`). Abridor = o CTA
+   "Criar Acordo" que já existe no rodapé da gaveta de Acordos.
+2. **Link gerado / compartilhar** · estado pós-criação — card `.card` "Acordo criado" + o link + botão
+   **"Compartilhar"** (reusa a Web Share `shareOrCopy`/`sharePedidoExternal` que JÁ existe). O Acordo entra
+   como **Modelo** na bandeja.
+3. **Detalhe do Acordo (visualização)** · sheet de leitura — reusa o VISUAL do `.contract-card` como fonte
+   única (mesmo padrão do vaga-detail que reusa `vagaContentHTML`): topo (partes: pro + cliente com
+   `icBarHTML`) + status badge (`contract-card__status--*`) + `__body` (escopo + `value-box`) + datas.
+   Ações no rodapé variam por estado. Ponto de entrada: o "Abrir Acordo" (`contract-mini__open`) já no HTML.
+4. **Aceite do cliente (landing do link)** · o cliente abre o link **logado** (se não, passa pelo auth e
+   volta — laço de crescimento, **D10**). Vê a tela 3 em leitura + rodapé **"Tenho interesse"**
+   (`btn--accent`) e "Agora não". Ao aceitar → cria o **Pendente**, notifica o pro, e ele passa a ver
+   "Aguardando o profissional confirmar".
+5. **Confirmação do profissional** · o pro é avisado (hoje: **pulso `--notify`** no botão de Acordos, que JÁ
+   existe, + contador na bandeja; push real na Fase 3). Abre o pendente → vê o Acordo **+ o cliente
+   específico** (nome + IC + foto) → CTA **"Confirmar com [Cliente]"** (`btn--accent`) + "Recusar". Ao
+   confirmar → **Ativo**, ambos notificados; se reutilizável, o modelo segue aberto.
+6. *(próximo conceito)* **Conclusão + avaliação dos dois lados** — marca concluído → destrava a avaliação
+   (tela da Avaliação, especificada quando atacarmos esse conceito).
+
+**Reuso vs. novo (resumo p/ implementação):**
+- **Já existe:** gaveta de Acordos + lista, `.contract-card` (active/done/cancelled), bandeja "Acordos
+  pendentes" + `contract-mini`, CTA "Criar Acordo", pulso `--notify` do botão, Web Share.
+- **Novo:** o `#acordo-sheet` (formulário), a geração/estado de **link**, o **detalhe** com ações por
+  estado, a **landing de aceite** do cliente, a **confirmação** do pro, e dois estados novos no
+  `CONTRACT_STATUS` (**modelo**, **pendente-aceito**). Nada disso pede primitiva nova de CSS — tudo compõe
+  `.pedido-sheet*` / `.contract-card` / `.card` / `.chip` / `.btn`.
+
+**Decisões de design abertas:**
+- **`[DECISÃO D11]` — Reutilizável:** um link gera um pendente POR cliente (proposto) vs. uso único. Sugestão:
+  **toggle na criação** (reutilizável = multi-cliente; senão o link "queima" no 1º aceite).
+- **`[DECISÃO D12]` — Prazo:** data específica, duração ("em N dias") ou os dois. Sugestão: **os dois**
+  (o pro escolhe o modo), com a duração virando data na confirmação.
+- **Negociação (parqueado):** valor/pagamento são fixados pelo pro (o cliente aceita como está); qualquer
+  ajuste acontece no WhatsApp e o pro edita o modelo. Sem negociação dentro do app no v1.
+
+---
+
+## 12. Changelog do conceito
 
 - **(criação)** — primeira versão do registro de conceito: tese, dois lados, flywheel, análise do IC,
   inventário do estado atual, lacunas, visão e roadmap em 6 fases. Sete decisões em aberto (D1–D7).
@@ -643,3 +734,8 @@ com "todo indicado é conta real" e com o motor de crescimento.
   + concluído; valor é declarado), e o **catálogo Acordo → IC** para aplicar nas zonas. Abre **D10** (Acordo
   com cliente não cadastrado). Rename "minicontrato"→"Acordo" aplicado também no CÓDIGO (botão + comentários
   + feed.md).
+- **(revisão 7)** — vira design: **§11 Especificação de telas** (nova seção; changelog vira §12). **§11.1 O
+  Acordo**: fluxo de **handshake duplo por link** (pro cria modelo → cliente aceita → pro reconfirma), dois
+  estados novos (modelo, pendente-aceito), tabela de campos por etapa, e o **backlog de 6 telas** mapeado ao
+  design system existente (`.pedido-sheet*`, `.contract-card`, `--notify`, Web Share — nada de primitiva CSS
+  nova). Abre **D11** (link reutilizável) e **D12** (formato do prazo).
