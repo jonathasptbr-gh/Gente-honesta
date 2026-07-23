@@ -633,3 +633,9 @@
   color: var(--t-sub);
 }
 
+/* ── Criar Acordo (Tela 1) — reusa .pedido-sheet*/.pedido-field*/.pedido-chip*/
+   .vaga-salary*/.vaga-check*. Único ajuste: o input de prazo (data OU duração)
+   respira sob os chips de modo dentro do mesmo .pedido-field. CONCEITO.md §11.1. */
+#acordo-sheet #inp-acordo-prazo-data,
+#acordo-sheet #acordo-prazo-dur-wrap { margin-top: var(--space-sm); }
+

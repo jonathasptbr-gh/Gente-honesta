@@ -2372,6 +2372,133 @@ document.addEventListener('DOMContentLoaded', () => {
     resetVagaForm();
   }
 
+  // ── Sheet "Criar Acordo" (Tela 1) ──────────────────────────────────────
+  // Formulário do PROFISSIONAL: ele preenche os termos do combinado e gera um
+  // link para enviar ao cliente (que depois aceita; o pro reconfirma). Só o pro
+  // edita; o cliente só aceita/recusa. Abre POR CIMA da gaveta de Acordos
+  // (#btn-new-contract, padrão do filtro de Acordos). Mock — sem persistência
+  // ainda. Conceito: CONCEITO.md §11.1.
+  {
+    const acordoSheet    = document.getElementById('acordo-sheet');
+    const btnNewContract = document.getElementById('btn-new-contract');
+    const inpTitulo      = document.getElementById('inp-acordo-titulo');
+    const inpDesc        = document.getElementById('inp-acordo-desc');
+    const inpValor       = document.getElementById('inp-acordo-valor');
+    const charCount      = document.getElementById('acordo-char-count');
+    const payRow         = document.getElementById('acordo-payment');
+    const prazoModeRow   = document.getElementById('acordo-prazo-mode');
+    const inpPrazoData   = document.getElementById('inp-acordo-prazo-data');
+    const durWrap        = document.getElementById('acordo-prazo-dur-wrap');
+    const inpPrazoDur    = document.getElementById('inp-acordo-prazo-dur');
+    const chkReuse       = document.getElementById('chk-acordo-reuse');
+
+    // Descrição: contador de caracteres (espelha o do pedido) + limpa erro.
+    inpDesc?.addEventListener('input', () => {
+      if (charCount) charCount.textContent = String(inpDesc.value.length);
+      inpDesc.classList.remove('input-text--error');
+    });
+    // Valor: formatação de milhar ao digitar (só dígitos → pt-BR) + limpa erro.
+    inpValor?.addEventListener('input', () => {
+      const d = inpValor.value.replace(/\D/g, '');
+      inpValor.value = d ? Number(d).toLocaleString('pt-BR') : '';
+      inpValor.classList.remove('input-text--error');
+    });
+    inpTitulo?.addEventListener('input', () => inpTitulo.classList.remove('input-text--error'));
+
+    // Pagamento: seleção MÚLTIPLA (o pro pode aceitar mais de uma forma).
+    payRow?.addEventListener('click', (e) => {
+      const chip = e.target.closest('.pedido-chip');
+      if (!chip) return;
+      const on = chip.getAttribute('aria-pressed') !== 'true';
+      chip.setAttribute('aria-pressed', String(on));
+      chip.classList.toggle('pedido-chip--active', on);
+    });
+
+    // Prazo: modo ÚNICO (Data | Duração) — troca o input visível.
+    prazoModeRow?.addEventListener('click', (e) => {
+      const chip = e.target.closest('.pedido-chip');
+      if (!chip) return;
+      prazoModeRow.querySelectorAll('.pedido-chip').forEach(c => {
+        const active = c === chip;
+        c.classList.toggle('pedido-chip--active', active);
+        c.setAttribute('aria-pressed', String(active));
+      });
+      const isData = chip.dataset.mode === 'data';
+      inpPrazoData?.classList.toggle('u-hidden', !isData);
+      durWrap?.classList.toggle('u-hidden', isData);
+    });
+
+    // Reutilizável: toggle (default LIGADO).
+    chkReuse?.addEventListener('click', () =>
+      chkReuse.setAttribute('aria-pressed', String(chkReuse.getAttribute('aria-pressed') !== 'true')));
+
+    const resetAcordoForm = () => {
+      [inpTitulo, inpDesc, inpValor].forEach(el => {
+        if (el) { el.value = ''; el.classList.remove('input-text--error'); }
+      });
+      if (charCount) charCount.textContent = '0';
+      payRow?.querySelectorAll('.pedido-chip').forEach(c => {
+        c.setAttribute('aria-pressed', 'false');
+        c.classList.remove('pedido-chip--active');
+      });
+      prazoModeRow?.querySelectorAll('.pedido-chip').forEach(c => {
+        const isData = c.dataset.mode === 'data';
+        c.classList.toggle('pedido-chip--active', isData);
+        c.setAttribute('aria-pressed', String(isData));
+      });
+      if (inpPrazoData) { inpPrazoData.value = ''; inpPrazoData.classList.remove('u-hidden'); }
+      if (inpPrazoDur)  inpPrazoDur.value = '';
+      durWrap?.classList.add('u-hidden');
+      chkReuse?.setAttribute('aria-pressed', 'true');
+    };
+
+    const openAcordoSheet = () => {
+      anchorBelowActionBar(acordoSheet);
+      acordoSheet?.classList.add('pedido-sheet--open');
+      window.backNav?.push('acordo-sheet', closeAcordoSheet);
+      window.layerFocus?.enter(acordoSheet, '.pedido-sheet__panel');
+    };
+    const closeAcordoSheet = () => {
+      window.backNav?.remove('acordo-sheet');
+      window.layerFocus?.leave(acordoSheet);
+      acordoSheet?.classList.remove('pedido-sheet--open');
+    };
+
+    // Abre por cima da gaveta de Acordos (não a fecha — igual ao filtro de Acordos).
+    btnNewContract?.addEventListener('click', openAcordoSheet);
+    // Fecha ao tocar fora do painel (backdrop); a gaveta de Acordos reaparece atrás.
+    acordoSheet?.addEventListener('click', (e) => {
+      if (e.target.closest('.pedido-sheet__panel')) return;
+      closeAcordoSheet();
+    });
+
+    // Gerar link: valida os obrigatórios (título, descrição, valor). No MOCK,
+    // confirma a criação; a tela de compartilhar o link é o próximo passo.
+    document.getElementById('btn-acordo-generate')?.addEventListener('click', async () => {
+      let firstError = null;
+      const markError = (el) => { window.markFieldError(el); if (el && !firstError) firstError = el; };
+      if (!inpTitulo.value.trim())            markError(inpTitulo);
+      if (!inpDesc.value.trim())              markError(inpDesc);
+      if (!inpValor.value.replace(/\D/g, '')) markError(inpValor);
+
+      if (firstError) {
+        const sc = scrollableAncestor(firstError);
+        if (sc) {
+          const cr = firstError.getBoundingClientRect(), kr = sc.getBoundingClientRect();
+          animateScrollTo(sc, sc.scrollTop + (cr.top - kr.top) - (kr.height - cr.height) / 2);
+        }
+        await customAlert(window.MSG_REQUIRED_FIELDS + ' para gerar o link do Acordo.', 'Acordo incompleto', 'edit_note');
+        return;
+      }
+
+      closeAcordoSheet();
+      resetAcordoForm();
+      await customAlert('Acordo criado. Em breve você poderá enviar o link para o cliente aceitar.', 'Acordo criado', 'check_circle');
+    });
+
+    resetAcordoForm();
+  }
+
   // =========================================================================
   // FEED - ABA VAGAS - SERVIÇO DE AJUDANTES (sheet #ajudante-sheet)
   // Duas funções independentes:

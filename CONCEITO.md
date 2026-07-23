@@ -666,10 +666,12 @@ desligado, o link "queima" no 1º aceite.
 
 **As telas a construir (backlog):**
 
-1. **Criar Acordo — formulário** · `#acordo-sheet` (NOVO) — reusa o scaffolding `.pedido-sheet*` do
-   `#vaga-sheet` (3 camadas, `--sheet-top`, backNav+layerFocus, tap-outside). Campos acima; **rodapé fixo**
-   `.pedido-sheet__actions--footer` com CTA **"Gerar link do Acordo"** (`btn--accent`). Abridor = o CTA
-   "Criar Acordo" que já existe no rodapé da gaveta de Acordos.
+1. ✅ **CONSTRUÍDA (v448)** — **Criar Acordo — formulário** · `#acordo-sheet` — reusa o scaffolding
+   `.pedido-sheet*` do `#vaga-sheet` (3 camadas, `--sheet-top`, backNav+layerFocus, tap-outside). Campos
+   acima; **rodapé fixo** `.pedido-sheet__actions--footer` com CTA **"Gerar link do Acordo"** (`btn--accent`).
+   Abridor = o CTA "Criar Acordo" (`#btn-new-contract`) no rodapé da gaveta de Acordos; abre POR CIMA dela.
+   No MOCK, "Gerar link" valida e confirma a criação (a geração/compartilha do link real é a Tela 2). Doc em
+   `feed.md`.
 2. **Link gerado / compartilhar** · estado pós-criação — card `.card` "Acordo criado" + o link + botão
    **"Compartilhar"** (reusa a Web Share `shareOrCopy`/`sharePedidoExternal` que JÁ existe). O Acordo entra
    como **Modelo** na bandeja.
@@ -753,3 +755,8 @@ desligado, o link "queima" no 1º aceite.
   dados do Acordo são do PROFISSIONAL: o cliente só aceita/recusa, nunca edita; ajuste off-app; só o pro
   edita). Novo requisito de integridade: **snapshot** dos termos no aceite — editar o modelo só afeta os
   próximos aceites, não quem já aceitou. §11.1 pronto para virar código.
+- **(revisão 9 — 1ª tela construída, v448)** — **Tela 1 do Acordo (`#acordo-sheet`) implementada** no app
+  (HTML + CSS + JS), reusando o scaffolding do `#vaga-sheet` sem primitiva nova. Formulário do pro (serviço,
+  descrição, valor, pagamento multi, prazo data|duração, reutilizável) com validação e "Gerar link" (mock).
+  Verificada por smoke test headless (abrir, validar, alternar prazo, multi-select, tap-outside). Doc na
+  `feed.md`. Próximo: Tela 2 (gerar/compartilhar o link).

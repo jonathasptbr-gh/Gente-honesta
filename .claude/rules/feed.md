@@ -150,6 +150,22 @@ mesmo z-index). O CTA "Criar Acordo" fica fixo na BASE do painel; lista em ordem
 (pendentes → ativos → concluído → cancelado). `closeContractsSheet` tem guarda de early-return
 (evita TDZ de `renderAgendaList`) e é chamado por `showVagasPanel`/`showPedidosPanel`.
 
+### Sheet "Criar Acordo" (`#acordo-sheet`) — formulário do profissional
+
+Formulário do PRO para criar um Acordo (conceito em `CONCEITO.md §11.1`; ex-"minicontrato"). Reusa o
+scaffolding `.pedido-sheet*` (como o `#vaga-sheet`) + `.pedido-field*`/`.pedido-chip*`/`.vaga-salary*`/
+`.vaga-check*` — **sem primitiva nova**. Abre pelo `#btn-new-contract` ("Criar Acordo", no rodapé da gaveta
+de Acordos) e fica POR CIMA da gaveta de Acordos (não a fecha — mesmo padrão do `#contracts-filters-sheet`);
+tap-outside no backdrop fecha e revela a gaveta atrás. Campos: **Serviço** (título, obrigatório),
+**Descrição** (textarea, contador /280, obrigatória), **Valor** (`.vaga-salary`, R$ com milhar ao digitar,
+obrigatório), **Forma de pagamento** (chips multi-select Dinheiro/Pix/Cartão), **Prazo** (chips de modo
+Data|Duração que trocam o input visível — `type="date"` OU "Em N dias"), **Reutilizável** (`.vaga-check`,
+default LIGADO — D11). Rodapé fixo "Gerar link do Acordo" (`#btn-acordo-generate`): valida os obrigatórios
+(via `markFieldError` + `animateScrollTo`, como o vaga) e, no MOCK atual, confirma a criação — a tela de
+**compartilhar o link** e o handshake (aceite do cliente → reconfirmação do pro) são os próximos passos.
+Registrado no `backNav`/`layerFocus` (id `acordo-sheet`). Bloco JS logo após o do `#vaga-sheet` em
+`feed/index.js`.
+
 ## Lista de Pedidos
 
 Flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas`, texto `--t-light`. Avatar
