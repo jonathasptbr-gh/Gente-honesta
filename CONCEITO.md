@@ -768,3 +768,13 @@ desligado, o link "queima" no 1º aceite.
   **seletor de parcelas** (stepper à vista→12x). Botão de conclusão renomeado **"Gerar link"→"Registrar"**.
   Verificado por smoke test headless (entrar/slide/troca de footer/parcelas/prazo/validar/voltar). Doc na
   `feed.md`.
+- **(revisão 11 — polimento da Tela 1, v451)** — cinco ajustes na criação do Acordo: (1) o **slide** virou
+  DESLIZE REAL de baixo p/ cima (caminho todo, sem fade, na velocidade das gavetas via `moveMs`) no lugar do
+  keyframe de 16px + opacity; (2)/(3) **bug de CSS corrigido** — um comentário com a sequência asterisco-barra
+  no meio fechava cedo e DERRUBAVA a regra `.acordo-create`, zerando `gap`/`padding-top` (campos colados e sem
+  margem no topo); restaurada, os campos voltaram ao respiro de `--space-md`; (4) o botão **"Fechar"** da
+  criação ganhou o **azul do app**; (5) a **Data** passou a abrir um **CALENDÁRIO TEMÁTICO** próprio
+  (`#acordo-calendar`) no lugar do picker nativo do sistema — seleção azul, hoje verde, prazo ≥ hoje,
+  navegação de mês. Verificado por render headless (via servidor HTTP, p/ o ES module carregar): regra
+  aplicada (`gap`/`padding` 20px), slide real (translate cheio + `moveMs`), calendário abre/navega/seleciona.
+  Doc na `feed.md` (slide, calendário, botão azul, gotcha do comentário CSS).

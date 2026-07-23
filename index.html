@@ -291,7 +291,7 @@
     <div id="loader-global" class="overlay-loader">
         <svg class="icon overlay-loader__spinner" aria-hidden="true"><use href="#ic-autorenew"></use></svg>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy). -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v450</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v451</span>
     </div>
 
     <!-- =====================================================================
@@ -1586,6 +1586,29 @@
                     </div>
                 </div>
             </div>
+            </div>
+        </div>
+
+        <!-- ── Calendário TEMÁTICO do Acordo (substitui o picker nativo) ──
+             Overlay modal (padrão dos diálogos): backdrop + card claro no tema do
+             app. Aberto pelo #acordo-date-trigger; a grade é montada em JS
+             (renderAcordoCalendar). Seleção AZUL, hoje VERDE. CONCEITO.md §11.1. -->
+        <div id="acordo-calendar" class="acordo-cal" role="dialog" aria-modal="true" aria-label="Escolher data combinada">
+            <div class="acordo-cal__backdrop"></div>
+            <div class="acordo-cal__panel">
+                <div class="acordo-cal__head">
+                    <button type="button" id="acordo-cal-prev" class="acordo-cal__nav acordo-cal__nav--prev" aria-label="Mês anterior"><svg class="icon" aria-hidden="true"><use href="#ic-chevron_right"></use></svg></button>
+                    <span id="acordo-cal-title" class="acordo-cal__title" aria-live="polite">—</span>
+                    <button type="button" id="acordo-cal-next" class="acordo-cal__nav" aria-label="Próximo mês"><svg class="icon" aria-hidden="true"><use href="#ic-chevron_right"></use></svg></button>
+                </div>
+                <div class="acordo-cal__weekdays" aria-hidden="true">
+                    <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                </div>
+                <div id="acordo-cal-grid" class="acordo-cal__grid" role="grid"></div>
+                <div class="acordo-cal__foot">
+                    <button type="button" id="acordo-cal-clear" class="btn btn--outline">Limpar</button>
+                    <button type="button" id="acordo-cal-today" class="btn btn--accent">Hoje</button>
+                </div>
             </div>
         </div>
 

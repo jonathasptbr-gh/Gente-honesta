@@ -634,8 +634,11 @@
 }
 
 /* ── Criar Acordo (Tela 1) — formulário INTERNO à gaveta de Acordos, alternando
-   com a lista (slide vertical). Reusa .pedido-field*/.pedido-chip*/.vaga-salary*/
-   .vaga-check*/.vaga-stepper. CONCEITO.md §11.1. ── */
+   com a lista (slide vertical). Reusa pedido-field, pedido-chip, vaga-salary,
+   vaga-check e vaga-stepper. CONCEITO.md secao 11.1.
+   ATENCAO: nunca usar a sequencia asterisco-barra num comentario aqui — ela
+   fecharia o comentario no meio e derrubaria a regra .acordo-create abaixo
+   (foi assim que gap/padding sumiram uma vez). ── */
 /* Mesmo layout do .pedido-sheet__state: os .pedido-field NÃO têm margem própria —
    o respiro entre campos vem do gap do container (senão empilham colados). */
 .acordo-create {
@@ -653,9 +656,18 @@
   height: calc(var(--app-height, 100dvh) - var(--sheet-top, 0px) - 12px);
 }
 
-/* Slide vertical no estado que ENTRA (lista ↔ criação). */
-@keyframes acordoSlideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
-.acordo-slide-in { animation: acordoSlideIn 0.28s var(--sheet-ease); }
+/* Slide vertical REAL no estado que ENTRA (lista ↔ criação): desliza de baixo
+   para cima percorrendo o caminho TODO (translateY da altura da área de scroll,
+   setada em JS via --acordo-slide-from), SEM fade — o padrão puro das gavetas.
+   A DURAÇÃO vem de window.moveMs (--acordo-slide-dur, direcional: OPEN ao entrar
+   na criação, CLOSE ao voltar à lista) e a CURVA é a --sheet-ease das gavetas. */
+@keyframes acordoSlideIn {
+  from { transform: translateY(var(--acordo-slide-from, 100%)); }
+  to   { transform: translateY(0); }
+}
+.acordo-slide-in {
+  animation: acordoSlideIn var(--acordo-slide-dur, 0.32s) var(--sheet-ease) both;
+}
 
 /* Prazo: input (data OU duração) respira sob os chips de modo. */
 #acordo-create .acordo-date-trigger,
@@ -677,4 +689,141 @@
   gap: var(--space-sm); margin-top: var(--space-sm);
 }
 .acordo-installments__label { font-size: var(--fs-5); font-weight: var(--fw-medium); color: var(--t-sub); }
+
+/* ── Calendário TEMÁTICO do app (substitui o picker nativo do sistema) ──
+   Overlay modal centrado (padrão dos diálogos: backdrop --overlay + card claro),
+   no MESMO tema do formulário: painel claro, dias em cards brancos, seleção AZUL
+   (a linguagem de seleção sobre claro), hoje em VERDE, tudo por token. Aberto pelo
+   .acordo-date-trigger; registrado no backNav/layerFocus. z-index de diálogo. */
+.acordo-cal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dialog);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  pointer-events: none;
+  visibility: hidden;
+}
+.acordo-cal--open { pointer-events: auto; visibility: visible; }
+
+.acordo-cal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay);
+  opacity: 0;
+  transition: opacity var(--fade-backdrop) var(--ease);
+}
+.acordo-cal--open .acordo-cal__backdrop { opacity: 1; }
+
+.acordo-cal__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 340px;
+  background: var(--bg-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  /* entra subindo levemente (padrão dos diálogos), sem fade próprio do conteúdo */
+  transform: translateY(12px) scale(0.98);
+  opacity: 0;
+  transition: transform var(--fade-backdrop) var(--sheet-ease), opacity var(--fade-backdrop) var(--ease);
+}
+.acordo-cal--open .acordo-cal__panel { transform: none; opacity: 1; }
+
+/* Cabeçalho: ‹ Mês Ano › — navegação de mês nas pontas, título no centro. */
+.acordo-cal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+.acordo-cal__title {
+  flex: 1;
+  text-align: center;
+  font-size: var(--fs-7);
+  font-weight: var(--fw-heavy);
+  color: var(--t-main);
+}
+.acordo-cal__nav {
+  width: var(--control-h);
+  height: var(--control-h);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-white);
+  color: var(--info-blue);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.acordo-cal__nav:active { transform: scale(var(--press-scale)); }
+.acordo-cal__nav:disabled { opacity: 0.35; cursor: default; }
+.acordo-cal__nav .icon { font-size: 1.4rem; }
+/* "Mês anterior" = o mesmo chevron do "próximo", espelhado (sem ícone novo). */
+.acordo-cal__nav--prev .icon { transform: scaleX(-1); }
+
+/* Cabeçalho dos dias da semana (D S T Q Q S S). */
+.acordo-cal__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.acordo-cal__weekdays span {
+  text-align: center;
+  font-size: var(--fs-3);
+  font-weight: var(--fw-bold);
+  color: var(--t-sub);
+  text-transform: uppercase;
+}
+
+/* Grade de dias. */
+.acordo-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.acordo-cal__day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: var(--fs-5);
+  font-weight: var(--fw-medium);
+  background: transparent;
+  color: var(--t-main);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.acordo-cal__day--blank { visibility: hidden; cursor: default; }
+.acordo-cal__day:not(:disabled):active { transform: scale(0.9); }
+.acordo-cal__day:disabled { color: var(--t-sub); opacity: 0.4; cursor: default; }
+/* HOJE (não selecionado) = numeral verde, discreto. */
+.acordo-cal__day--today:not(.acordo-cal__day--selected) {
+  color: var(--p-green);
+  font-weight: var(--fw-heavy);
+}
+/* SELECIONADO = fill azul sólido + numeral claro (seleção = azul, sobre claro
+   pequeno/marcação segue sólido — igual ao thumb/caixa de check). */
+.acordo-cal__day--selected {
+  background: var(--info-blue);
+  color: var(--t-light);
+  font-weight: var(--fw-bold);
+}
+
+/* Rodapé: Limpar (dispensa, --outline) + Hoje (ação, --accent). */
+.acordo-cal__foot {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+.acordo-cal__foot .btn { flex: 1; }
 

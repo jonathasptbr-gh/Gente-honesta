@@ -155,22 +155,30 @@ mesmo z-index). O CTA "Criar Acordo" fica fixo na BASE do painel; lista em ordem
 Formulário do PRO para criar um Acordo (conceito em `CONCEITO.md §11.1`; ex-"minicontrato"). **NÃO é uma
 sheet à parte** — é um estado DENTRO do corpo da própria gaveta de Acordos (`#contracts-sheet`), que
 **alterna com a lista** (`#contracts-list` ↔ `#acordo-create`, ambos no `.historico-sheet__scroll`) com
-**slide vertical** (`.acordo-slide-in`, aplicado ao estado que entra). Reusa `.pedido-field*`/`.pedido-chip*`/
-`.vaga-salary*`/`.vaga-check*`/`.vaga-stepper` — **sem primitiva nova**.
+**SLIDE REAL de baixo para cima** (`.acordo-slide-in`, aplicado ao estado que entra). Reusa `.pedido-field*`/
+`.pedido-chip*`/`.vaga-salary*`/`.vaga-check*`/`.vaga-stepper` — **sem primitiva nova**.
+
+**O slide (padrão das gavetas, não um fade):** o estado que entra desliza percorrendo o CAMINHO TODO —
+`translateY` da ALTURA da área de scroll (`--acordo-slide-from`, medida em JS), **sem fade**, com a curva
+`--sheet-ease` e a DURAÇÃO derivada de `window.moveMs` (`--acordo-slide-dur`, DIRECIONAL: `MOVE_SPEED_OPEN` ao
+entrar na criação, `MOVE_SPEED_CLOSE` ao voltar à lista). `showAcordoState(showCreate)` seta os dois vars no
+elemento e re-dispara a animação por reflow. (Era um keyframe de 16px + opacity — trocado por deslize cheio.)
 
 **O footer compartilhado (`.contracts-footer`) troca de PAPEL** entre os dois estados (`setAcordoCreating`):
 `#btn-new-contract` = **"Criar Acordo"** (lista) ↔ **"Registrar"** (criação); `#btn-toggle-pending` = abridor
-da bandeja de pendentes (lista) ↔ **"Fechar"** (criação, volta à lista). A bandeja de pendentes some no
-modo criação. `enterAcordoCreate`/`exitAcordoCreate` fazem a troca + registram/removem a camada `acordo-create`
+da bandeja de pendentes (lista) ↔ **"Fechar"** (criação, volta à lista). No modo criação o "Fechar" ganha o
+**AZUL do app** (`.contracts-pending-toggle--close` = tint `--info-blue-light`/`--info-blue`, sinalizando o
+estado engajado; o CTA irmão já é o dourado "Registrar"). A bandeja de pendentes some no modo criação. `enterAcordoCreate`/`exitAcordoCreate` fazem a troca + registram/removem a camada `acordo-create`
 no `backNav` (o "voltar" fecha a criação antes da gaveta); `closeContractsSheet` chama `exitAcordoCreate` para
 resetar ao fechar a gaveta.
 
 **Campos:** **Serviço** (título, obrigatório), **Descrição** (textarea, contador /280, obrigatória), **Valor**
 (`.vaga-salary`, R$ com milhar ao digitar, obrigatório), **Forma de pagamento** (chips multi Dinheiro/Pix/
 Cartão — **Cartão revela um stepper `.vaga-stepper` de parcelas**, à vista→até 12x, `acordoParcelas`), **Prazo**
-(chips de modo Data|Duração; **Data usa um gatilho com design do app** — `.acordo-date-trigger` estilo
-`.input-text` que abre o picker NATIVO via `showPicker()`, com o `<input type="date">` escondido
-`.acordo-date-native` — evita o campo nativo cru; ou "Em N dias"), **Reutilizável** (`.vaga-check`, default
+(chips de modo Data|Duração; **Data abre o CALENDÁRIO TEMÁTICO do app** — `.acordo-date-trigger` estilo
+`.input-text` que abre `#acordo-calendar` (ver abaixo), NÃO mais o picker nativo; o valor mora no
+`<input type="date">` escondido `.acordo-date-native` (`#inp-acordo-prazo-data`), então `resetAcordoForm`
+segue limpando por id; ou "Em N dias"), **Reutilizável** (`.vaga-check`, default
 LIGADO — D11). O botão do rodapé **"Registrar"** (`registerAcordo`) valida os obrigatórios (via `markFieldError`
 + `animateScrollTo`) e, no MOCK atual, confirma e volta à lista. Compartilhar o link + o handshake (aceite do
 cliente → reconfirmação do pro) são os próximos passos. As funções (`enter/exit/isAcordoCreating`,
@@ -183,6 +191,30 @@ colados. E no modo criação o painel usa ALTURA CHEIA (`.contracts-sheet--creat
 height: <mesmo calc do max-height> }`) em vez da altura do conteúdo, para casar com o tamanho da lista (o
 painel é `flex-column` dirigido pelo conteúdo; com `flex-basis:0` no scroll, altura de conteúdo curta o
 comprimia).
+
+> **Gotcha CSS (custou uma sessão):** o bloco `.acordo-create` (`css/feed/pedido-sheet.css`) DEPENDE de o
+> comentário logo acima estar bem formado. Um comentário que contenha a sequência asterisco-barra no MEIO
+> (ex.: listar classes como `.pedido-field` seguido de asterisco-barra) **fecha o comentário cedo** e o
+> parser DESCARTA a regra `.acordo-create` inteira — `display` cai para `block`, `gap` e `padding-top`
+> somem, e os campos empilham colados e sem margem no topo. Nunca usar asterisco-barra dentro de comentário
+> ali. O guardrail é só visual (renderizar a tela), não há lint de CSS.
+
+### Calendário temático do prazo (`#acordo-calendar`)
+
+Substitui o **picker nativo do sistema** por um calendário no tema do app (CONCEITO.md §11.1). Overlay modal
+(padrão dos diálogos: `.acordo-cal` com backdrop `--overlay` + card claro `--bg-soft`), `z-index: --z-dialog`,
+aberto pelo `.acordo-date-trigger`. Registrado no `backNav`/`layerFocus` (id `acordo-calendar`); fecha por
+tap no backdrop, seleção de dia, "Hoje"/"Limpar", ou o "voltar" do celular; `exitAcordoCreate` também o fecha.
+
+- **Estrutura:** cabeçalho `‹ Mês Ano ›` (navegação de mês; o "anterior" reusa o `#ic-chevron_right`
+  ESPELHADO via `scaleX(-1)` — sem ícone novo), linha de dias da semana (D S T Q Q S S), grade
+  `#acordo-cal-grid` (montada em `renderAcordoCalendar`), rodapé **Limpar** (`--outline`) + **Hoje** (`--accent`).
+- **Regras:** prazo nunca no passado → dias `< hoje` ficam `disabled`; o "anterior" desabilita no mês corrente.
+  **Hoje** = numeral VERDE (`--p-green`); **selecionado** = fill AZUL sólido + numeral claro (seleção sobre
+  claro). O valor é gravado no `#inp-acordo-prazo-data` (escondido) via `setAcordoDate(iso)`, que também
+  atualiza o rótulo `DD/MM/AAAA` do gatilho. Funções (`open/close/renderAcordoCalendar`, `acCalShift`,
+  `setAcordoDate`, helpers `acStartOfToday`/`acParseISO`/`acISO`) hoistadas no bloco do `#acordo-create` em
+  `feed/index.js`; wiring dos botões no bloco de listeners logo abaixo.
 
 ## Lista de Pedidos
 

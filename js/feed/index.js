@@ -2403,21 +2403,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const ic = toggle?.querySelector('.icon');
     if (ic) window.setIcon(ic, on ? 'close' : 'pending_actions');
     toggle?.setAttribute('aria-label', on ? 'Fechar criação de Acordo' : 'Acordos pendentes');
+    toggle?.classList.toggle('contracts-pending-toggle--close', on);   // "Fechar" ganha o azul do app
     document.getElementById('contracts-pending')?.classList.toggle('u-hidden', on);
   }
-  // Alterna lista ↔ criação com slide vertical no estado que ENTRA.
+  // Alterna lista ↔ criação com SLIDE REAL de baixo p/ cima no estado que ENTRA:
+  // percorre o caminho todo (translateY da altura da área de scroll), SEM fade,
+  // na velocidade das gavetas (moveMs, direcional: OPEN ao entrar, CLOSE ao voltar).
   function showAcordoState(showCreate) {
     const listEl   = document.getElementById('contracts-list');
     const createEl = document.getElementById('acordo-create');
     const entering = showCreate ? createEl : listEl;
     const leaving  = showCreate ? listEl : createEl;
+    const sc = createEl?.closest('.historico-sheet__scroll');
     leaving?.classList.add('u-hidden');
     if (entering) {
       entering.classList.remove('u-hidden', 'acordo-slide-in');
+      // distância = altura visível da gaveta → slide cheio, sem "meio caminho".
+      const dist  = (sc && sc.clientHeight) || entering.offsetHeight || 320;
+      const speed = showCreate ? window.MOVE_SPEED_OPEN : window.MOVE_SPEED_CLOSE;
+      const dur   = window.moveMs ? window.moveMs(dist, speed) : 320;
+      entering.style.setProperty('--acordo-slide-from', dist + 'px');
+      entering.style.setProperty('--acordo-slide-dur', dur + 'ms');
       void entering.offsetWidth;                 // reflow → re-dispara a animação
       entering.classList.add('acordo-slide-in');
     }
-    const sc = createEl?.closest('.historico-sheet__scroll');
     if (sc) sc.scrollTop = 0;
   }
   function resetAcordoForm() {
@@ -2446,6 +2455,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function exitAcordoCreate() {
     if (!isAcordoCreating()) return;
+    closeAcordoCalendar();       // fecha o calendário se estiver aberto
     window.backNav?.remove('acordo-create');
     setAcordoCreating(false);
     showAcordoState(false);
@@ -2472,6 +2482,77 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     exitAcordoCreate();          // volta para a lista + reseta
     await customAlert('Acordo registrado. Em breve você poderá enviar o link para o cliente aceitar.', 'Acordo registrado', 'check_circle');
+  }
+
+  // ── Calendário TEMÁTICO do prazo (substitui o picker nativo do sistema) ──
+  // Modal claro no tema do app; o valor mora no #inp-acordo-prazo-data (escondido),
+  // então resetAcordoForm continua limpando por id. Prazo >= hoje (não há passado).
+  const AC_MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  let acCalYear = 0, acCalMonth = 0;   // mês em exibição
+  function acStartOfToday() { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+  function acParseISO(str) {            // 'YYYY-MM-DD' → Date local (meia-noite) ou null
+    if (!str) return null;
+    const [y, m, d] = str.split('-').map(Number);
+    return (y && m && d) ? new Date(y, m - 1, d) : null;
+  }
+  function acISO(y, m0, d) { return `${y}-${String(m0 + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
+  function setAcordoDate(iso) {
+    const dateNative = document.getElementById('inp-acordo-prazo-data');
+    const dateLabel  = document.getElementById('acordo-date-label');
+    if (dateNative) dateNative.value = iso || '';
+    if (!dateLabel) return;
+    if (iso) { const [y, m, d] = iso.split('-'); dateLabel.textContent = `${d}/${m}/${y}`; dateLabel.classList.remove('acordo-date-trigger__ph'); }
+    else { dateLabel.textContent = 'Escolher data'; dateLabel.classList.add('acordo-date-trigger__ph'); }
+  }
+  function renderAcordoCalendar() {
+    const grid  = document.getElementById('acordo-cal-grid');
+    const title = document.getElementById('acordo-cal-title');
+    const prev  = document.getElementById('acordo-cal-prev');
+    if (!grid) return;
+    const today = acStartOfToday();
+    const sel   = acParseISO(document.getElementById('inp-acordo-prazo-data')?.value);
+    if (title) title.textContent = `${AC_MONTHS[acCalMonth]} ${acCalYear}`;
+    // não navega para antes do mês corrente (prazo nunca é no passado)
+    if (prev) prev.disabled = acCalYear < today.getFullYear() || (acCalYear === today.getFullYear() && acCalMonth <= today.getMonth());
+    const firstDow = new Date(acCalYear, acCalMonth, 1).getDay();      // 0 = Domingo
+    const daysIn   = new Date(acCalYear, acCalMonth + 1, 0).getDate();
+    let html = '';
+    for (let i = 0; i < firstDow; i++) html += '<span class="acordo-cal__day acordo-cal__day--blank" aria-hidden="true"></span>';
+    for (let d = 1; d <= daysIn; d++) {
+      const cur = new Date(acCalYear, acCalMonth, d);
+      const iso = acISO(acCalYear, acCalMonth, d);
+      const isPast  = cur < today;
+      const isToday = cur.getTime() === today.getTime();
+      const isSel   = sel && cur.getTime() === sel.getTime();
+      const cls = ['acordo-cal__day'];
+      if (isToday) cls.push('acordo-cal__day--today');
+      if (isSel)   cls.push('acordo-cal__day--selected');
+      html += `<button type="button" class="${cls.join(' ')}" data-date="${iso}" role="gridcell"${isPast ? ' disabled' : ''}${isSel ? ' aria-selected="true"' : ''}>${d}</button>`;
+    }
+    grid.innerHTML = html;
+  }
+  function openAcordoCalendar() {
+    const cal = document.getElementById('acordo-calendar');
+    if (!cal) return;
+    const base = acParseISO(document.getElementById('inp-acordo-prazo-data')?.value) || acStartOfToday();
+    acCalYear = base.getFullYear(); acCalMonth = base.getMonth();
+    renderAcordoCalendar();
+    cal.classList.add('acordo-cal--open');
+    window.backNav?.push('acordo-calendar', closeAcordoCalendar);
+    window.layerFocus?.enter(cal, '.acordo-cal__panel');
+  }
+  function closeAcordoCalendar() {
+    const cal = document.getElementById('acordo-calendar');
+    if (!cal || !cal.classList.contains('acordo-cal--open')) return;
+    window.backNav?.remove('acordo-calendar');
+    cal.classList.remove('acordo-cal--open');
+    window.layerFocus?.leave(cal);
+  }
+  function acCalShift(delta) {
+    acCalMonth += delta;
+    if (acCalMonth < 0) { acCalMonth = 11; acCalYear--; }
+    else if (acCalMonth > 11) { acCalMonth = 0; acCalYear++; }
+    renderAcordoCalendar();
   }
 
   // Wiring dos campos (listeners locais; block-scoped, sem colisão de nomes).
@@ -2530,22 +2611,29 @@ document.addEventListener('DOMContentLoaded', () => {
       durWrap?.classList.toggle('u-hidden', isData);
     });
 
-    // Data com design do app: o gatilho abre o picker NATIVO (showPicker) e mostra
-    // a data escolhida formatada; o input nativo fica escondido.
-    dateTrigger?.addEventListener('click', () => {
-      try { dateNative.showPicker(); } catch { dateNative.focus(); dateNative.click(); }
+    // Data com design do app: o gatilho abre o CALENDÁRIO TEMÁTICO (não o picker
+    // nativo do sistema). O valor mora no input escondido #inp-acordo-prazo-data.
+    dateTrigger?.addEventListener('click', openAcordoCalendar);
+
+    // Wiring do calendário: navegação de mês, seleção de dia, Hoje/Limpar, fechar.
+    document.getElementById('acordo-cal-prev')?.addEventListener('click', () => acCalShift(-1));
+    document.getElementById('acordo-cal-next')?.addEventListener('click', () => acCalShift(1));
+    document.getElementById('acordo-cal-grid')?.addEventListener('click', (e) => {
+      const day = e.target.closest('.acordo-cal__day[data-date]');
+      if (!day || day.disabled) return;
+      setAcordoDate(day.dataset.date);
+      closeAcordoCalendar();
     });
-    dateNative?.addEventListener('change', () => {
-      if (!dateLabel) return;
-      if (dateNative.value) {
-        const [y, m, d] = dateNative.value.split('-');
-        dateLabel.textContent = `${d}/${m}/${y}`;
-        dateLabel.classList.remove('acordo-date-trigger__ph');
-      } else {
-        dateLabel.textContent = 'Escolher data';
-        dateLabel.classList.add('acordo-date-trigger__ph');
-      }
+    document.getElementById('acordo-cal-today')?.addEventListener('click', () => {
+      const t = acStartOfToday();
+      setAcordoDate(acISO(t.getFullYear(), t.getMonth(), t.getDate()));
+      closeAcordoCalendar();
     });
+    document.getElementById('acordo-cal-clear')?.addEventListener('click', () => {
+      setAcordoDate('');
+      closeAcordoCalendar();
+    });
+    document.querySelector('#acordo-calendar .acordo-cal__backdrop')?.addEventListener('click', closeAcordoCalendar);
 
     chkReuse?.addEventListener('click', () =>
       chkReuse.setAttribute('aria-pressed', String(chkReuse.getAttribute('aria-pressed') !== 'true')));

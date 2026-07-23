@@ -79,6 +79,14 @@
   color: var(--info-blue);
 }
 
+/* Modo criação de Acordo: o botão de pendentes vira "Fechar" — recebe o AZUL
+   do app (tint de superfície clara), sinalizando o estado ativo/engajado da
+   criação (o CTA irmão já é o dourado "Registrar"). */
+.contracts-pending-toggle--close {
+  background: var(--info-blue-light);
+  color: var(--info-blue);
+}
+
 .contracts-pending-toggle .icon {
   font-size: 1.4rem;
 }
