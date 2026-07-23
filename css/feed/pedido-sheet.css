@@ -633,9 +633,33 @@
   color: var(--t-sub);
 }
 
-/* ── Criar Acordo (Tela 1) — reusa .pedido-sheet*/.pedido-field*/.pedido-chip*/
-   .vaga-salary*/.vaga-check*. Único ajuste: o input de prazo (data OU duração)
-   respira sob os chips de modo dentro do mesmo .pedido-field. CONCEITO.md §11.1. */
-#acordo-sheet #inp-acordo-prazo-data,
-#acordo-sheet #acordo-prazo-dur-wrap { margin-top: var(--space-sm); }
+/* ── Criar Acordo (Tela 1) — formulário INTERNO à gaveta de Acordos, alternando
+   com a lista (slide vertical). Reusa .pedido-field*/.pedido-chip*/.vaga-salary*/
+   .vaga-check*/.vaga-stepper. CONCEITO.md §11.1. ── */
+.acordo-create { padding-top: var(--space-md); padding-bottom: var(--space-md); }
+
+/* Slide vertical no estado que ENTRA (lista ↔ criação). */
+@keyframes acordoSlideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.acordo-slide-in { animation: acordoSlideIn 0.28s var(--sheet-ease); }
+
+/* Prazo: input (data OU duração) respira sob os chips de modo. */
+#acordo-create .acordo-date-trigger,
+#acordo-create #acordo-prazo-dur-wrap { margin-top: var(--space-sm); }
+
+/* Seletor de DATA com design do app: gatilho estilo .input-text (rótulo + ícone)
+   que abre o picker NATIVO (showPicker); o input nativo fica escondido. */
+.acordo-date-trigger {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-xs); width: 100%; text-align: left; cursor: pointer;
+}
+.acordo-date-trigger .icon { flex-shrink: 0; font-size: 1.25rem; color: var(--t-sub); }
+.acordo-date-trigger__ph { color: var(--t-sub); }
+.acordo-date-native { position: absolute; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+/* Parcelas do cartão (revela sob "Cartão"): rótulo + stepper .vaga-stepper. */
+.acordo-installments {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--space-sm); margin-top: var(--space-sm);
+}
+.acordo-installments__label { font-size: var(--fs-5); font-weight: var(--fw-medium); color: var(--t-sub); }
 

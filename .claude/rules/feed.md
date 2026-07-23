@@ -150,21 +150,32 @@ mesmo z-index). O CTA "Criar Acordo" fica fixo na BASE do painel; lista em ordem
 (pendentes → ativos → concluído → cancelado). `closeContractsSheet` tem guarda de early-return
 (evita TDZ de `renderAgendaList`) e é chamado por `showVagasPanel`/`showPedidosPanel`.
 
-### Sheet "Criar Acordo" (`#acordo-sheet`) — formulário do profissional
+### Criar Acordo (`#acordo-create`) — estado INTERNO da gaveta de Acordos
 
-Formulário do PRO para criar um Acordo (conceito em `CONCEITO.md §11.1`; ex-"minicontrato"). Reusa o
-scaffolding `.pedido-sheet*` (como o `#vaga-sheet`) + `.pedido-field*`/`.pedido-chip*`/`.vaga-salary*`/
-`.vaga-check*` — **sem primitiva nova**. Abre pelo `#btn-new-contract` ("Criar Acordo", no rodapé da gaveta
-de Acordos) e fica POR CIMA da gaveta de Acordos (não a fecha — mesmo padrão do `#contracts-filters-sheet`);
-tap-outside no backdrop fecha e revela a gaveta atrás. Campos: **Serviço** (título, obrigatório),
-**Descrição** (textarea, contador /280, obrigatória), **Valor** (`.vaga-salary`, R$ com milhar ao digitar,
-obrigatório), **Forma de pagamento** (chips multi-select Dinheiro/Pix/Cartão), **Prazo** (chips de modo
-Data|Duração que trocam o input visível — `type="date"` OU "Em N dias"), **Reutilizável** (`.vaga-check`,
-default LIGADO — D11). Rodapé fixo "Gerar link do Acordo" (`#btn-acordo-generate`): valida os obrigatórios
-(via `markFieldError` + `animateScrollTo`, como o vaga) e, no MOCK atual, confirma a criação — a tela de
-**compartilhar o link** e o handshake (aceite do cliente → reconfirmação do pro) são os próximos passos.
-Registrado no `backNav`/`layerFocus` (id `acordo-sheet`). Bloco JS logo após o do `#vaga-sheet` em
-`feed/index.js`.
+Formulário do PRO para criar um Acordo (conceito em `CONCEITO.md §11.1`; ex-"minicontrato"). **NÃO é uma
+sheet à parte** — é um estado DENTRO do corpo da própria gaveta de Acordos (`#contracts-sheet`), que
+**alterna com a lista** (`#contracts-list` ↔ `#acordo-create`, ambos no `.historico-sheet__scroll`) com
+**slide vertical** (`.acordo-slide-in`, aplicado ao estado que entra). Reusa `.pedido-field*`/`.pedido-chip*`/
+`.vaga-salary*`/`.vaga-check*`/`.vaga-stepper` — **sem primitiva nova**.
+
+**O footer compartilhado (`.contracts-footer`) troca de PAPEL** entre os dois estados (`setAcordoCreating`):
+`#btn-new-contract` = **"Criar Acordo"** (lista) ↔ **"Registrar"** (criação); `#btn-toggle-pending` = abridor
+da bandeja de pendentes (lista) ↔ **"Fechar"** (criação, volta à lista). A bandeja de pendentes some no
+modo criação. `enterAcordoCreate`/`exitAcordoCreate` fazem a troca + registram/removem a camada `acordo-create`
+no `backNav` (o "voltar" fecha a criação antes da gaveta); `closeContractsSheet` chama `exitAcordoCreate` para
+resetar ao fechar a gaveta.
+
+**Campos:** **Serviço** (título, obrigatório), **Descrição** (textarea, contador /280, obrigatória), **Valor**
+(`.vaga-salary`, R$ com milhar ao digitar, obrigatório), **Forma de pagamento** (chips multi Dinheiro/Pix/
+Cartão — **Cartão revela um stepper `.vaga-stepper` de parcelas**, à vista→até 12x, `acordoParcelas`), **Prazo**
+(chips de modo Data|Duração; **Data usa um gatilho com design do app** — `.acordo-date-trigger` estilo
+`.input-text` que abre o picker NATIVO via `showPicker()`, com o `<input type="date">` escondido
+`.acordo-date-native` — evita o campo nativo cru; ou "Em N dias"), **Reutilizável** (`.vaga-check`, default
+LIGADO — D11). O botão do rodapé **"Registrar"** (`registerAcordo`) valida os obrigatórios (via `markFieldError`
++ `animateScrollTo`) e, no MOCK atual, confirma e volta à lista. Compartilhar o link + o handshake (aceite do
+cliente → reconfirmação do pro) são os próximos passos. As funções (`enter/exit/isAcordoCreating`,
+`registerAcordo`, `resetAcordoForm`…) são hoistadas no bloco JS logo após o do `#vaga-sheet` em `feed/index.js`
+(chamadas por `closeContractsSheet` e pelo listener do botão de pendentes, textualmente acima).
 
 ## Lista de Pedidos
 

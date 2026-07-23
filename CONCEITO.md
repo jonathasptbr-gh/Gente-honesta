@@ -666,12 +666,13 @@ desligado, o link "queima" no 1º aceite.
 
 **As telas a construir (backlog):**
 
-1. ✅ **CONSTRUÍDA (v448)** — **Criar Acordo — formulário** · `#acordo-sheet` — reusa o scaffolding
-   `.pedido-sheet*` do `#vaga-sheet` (3 camadas, `--sheet-top`, backNav+layerFocus, tap-outside). Campos
-   acima; **rodapé fixo** `.pedido-sheet__actions--footer` com CTA **"Gerar link do Acordo"** (`btn--accent`).
-   Abridor = o CTA "Criar Acordo" (`#btn-new-contract`) no rodapé da gaveta de Acordos; abre POR CIMA dela.
-   No MOCK, "Gerar link" valida e confirma a criação (a geração/compartilha do link real é a Tela 2). Doc em
-   `feed.md`.
+1. ✅ **CONSTRUÍDA (v448, refinada v449)** — **Criar Acordo — formulário** · `#acordo-create`. **Estado
+   INTERNO da gaveta de Acordos** (não uma sheet à parte): o corpo da gaveta **alterna** entre a lista e o
+   formulário com **slide vertical**. O footer compartilhado troca de papel: **"Criar Acordo"↔"Registrar"** e
+   o botão de pendentes↔**"Fechar"**. Campos reusando `.pedido-field*`/`.vaga-salary*`/`.vaga-check*`/
+   `.vaga-stepper`; **Cartão revela um stepper de parcelas** (à vista→12x); **Data usa um gatilho com design
+   do app** (abre o picker nativo via `showPicker`, sem o campo nativo cru). No MOCK, **"Registrar"** valida e
+   volta à lista (compartilhar o link é a Tela 2). Doc em `feed.md`.
 2. **Link gerado / compartilhar** · estado pós-criação — card `.card` "Acordo criado" + o link + botão
    **"Compartilhar"** (reusa a Web Share `shareOrCopy`/`sharePedidoExternal` que JÁ existe). O Acordo entra
    como **Modelo** na bandeja.
@@ -760,3 +761,10 @@ desligado, o link "queima" no 1º aceite.
   descrição, valor, pagamento multi, prazo data|duração, reutilizável) com validação e "Gerar link" (mock).
   Verificada por smoke test headless (abrir, validar, alternar prazo, multi-select, tap-outside). Doc na
   `feed.md`. Próximo: Tela 2 (gerar/compartilhar o link).
+- **(revisão 10 — ajustes da Tela 1, v449)** — a criação virou **estado INTERNO da gaveta de Acordos**
+  (`#acordo-create`, não mais a sheet `#acordo-sheet`): alterna com a lista por **slide vertical**; o footer
+  compartilhado troca de papel (**Criar Acordo↔Registrar**, **pendentes↔Fechar**). **Data** ganhou gatilho
+  com **design do app** (abre o picker nativo via `showPicker`, sem o campo nativo cru). **Cartão** ganhou
+  **seletor de parcelas** (stepper à vista→12x). Botão de conclusão renomeado **"Gerar link"→"Registrar"**.
+  Verificado por smoke test headless (entrar/slide/troca de footer/parcelas/prazo/validar/voltar). Doc na
+  `feed.md`.

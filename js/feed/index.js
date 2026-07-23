@@ -147,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function closeContractsSheet() {
     if (!isContractsSheetOpen()) return;   // guarda: também evita TDZ no setup
+    exitAcordoCreate();                     // se estava criando um Acordo, volta ao estado lista
     window.backNav?.remove('contracts-sheet');
     window.layerFocus?.leave(contractsSheet);
     closeContractsFiltersSheet();
@@ -188,8 +189,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isContractsSheetOpen()) closeContractsSheet(); else openContractsSheet();
   });
 
-  // Botão só-ícone do rodapé: alterna a gaveta de contratos pendentes.
+  // Botão só-ícone do rodapé: em modo CRIAÇÃO vira "Fechar" (volta à lista);
+  // caso contrário alterna a gaveta de Acordos pendentes.
   btnTogglePending?.addEventListener('click', () => {
+    if (isAcordoCreating()) { exitAcordoCreate(); return; }
     setPendingOpen(!pendingWrap?.classList.contains('contracts-pending--open'));
   });
 
@@ -2372,32 +2375,125 @@ document.addEventListener('DOMContentLoaded', () => {
     resetVagaForm();
   }
 
-  // ── Sheet "Criar Acordo" (Tela 1) ──────────────────────────────────────
-  // Formulário do PROFISSIONAL: ele preenche os termos do combinado e gera um
-  // link para enviar ao cliente (que depois aceita; o pro reconfirma). Só o pro
-  // edita; o cliente só aceita/recusa. Abre POR CIMA da gaveta de Acordos
-  // (#btn-new-contract, padrão do filtro de Acordos). Mock — sem persistência
-  // ainda. Conceito: CONCEITO.md §11.1.
-  {
-    const acordoSheet    = document.getElementById('acordo-sheet');
-    const btnNewContract = document.getElementById('btn-new-contract');
-    const inpTitulo      = document.getElementById('inp-acordo-titulo');
-    const inpDesc        = document.getElementById('inp-acordo-desc');
-    const inpValor       = document.getElementById('inp-acordo-valor');
-    const charCount      = document.getElementById('acordo-char-count');
-    const payRow         = document.getElementById('acordo-payment');
-    const prazoModeRow   = document.getElementById('acordo-prazo-mode');
-    const inpPrazoData   = document.getElementById('inp-acordo-prazo-data');
-    const durWrap        = document.getElementById('acordo-prazo-dur-wrap');
-    const inpPrazoDur    = document.getElementById('inp-acordo-prazo-dur');
-    const chkReuse       = document.getElementById('chk-acordo-reuse');
+  // ── Criar Acordo (Tela 1) — INTERNO à gaveta de Acordos ─────────────────
+  // O corpo da gaveta alterna entre a LISTA de Acordos e o formulário de CRIAÇÃO
+  // (slide vertical). O footer compartilhado troca de papel: "Criar Acordo" vira
+  // "Registrar" e o botão de pendentes vira "Fechar". Os dados são do PRO (o
+  // cliente só aceita/recusa depois). Mock — sem persistência. CONCEITO.md §11.1.
+  // As funções abaixo são hoistadas: usadas por closeContractsSheet e pelo
+  // listener do botão de pendentes (textualmente acima).
+  let acordoParcelas = 1;   // parcelas do cartão (1 = à vista … até 12x)
+  function renderAcordoParcelas() {
+    const el  = document.getElementById('acordo-parcela-value');
+    if (el) el.textContent = acordoParcelas <= 1 ? 'à vista' : `${acordoParcelas}x`;
+    const dec = document.getElementById('acordo-parcela-dec');
+    const inc = document.getElementById('acordo-parcela-inc');
+    if (dec) dec.disabled = acordoParcelas <= 1;
+    if (inc) inc.disabled = acordoParcelas >= 12;
+  }
+  function isAcordoCreating() {
+    return !!contractsSheet?.classList.contains('contracts-sheet--creating');
+  }
+  // Troca o PAPEL dos dois botões do rodapé + esconde a bandeja de pendentes.
+  function setAcordoCreating(on) {
+    contractsSheet?.classList.toggle('contracts-sheet--creating', on);
+    const btnNew = document.getElementById('btn-new-contract');
+    if (btnNew) btnNew.innerHTML = on ? 'Registrar' : (window.icon('add') + 'Criar Acordo');
+    const toggle = document.getElementById('btn-toggle-pending');
+    const ic = toggle?.querySelector('.icon');
+    if (ic) window.setIcon(ic, on ? 'close' : 'pending_actions');
+    toggle?.setAttribute('aria-label', on ? 'Fechar criação de Acordo' : 'Acordos pendentes');
+    document.getElementById('contracts-pending')?.classList.toggle('u-hidden', on);
+  }
+  // Alterna lista ↔ criação com slide vertical no estado que ENTRA.
+  function showAcordoState(showCreate) {
+    const listEl   = document.getElementById('contracts-list');
+    const createEl = document.getElementById('acordo-create');
+    const entering = showCreate ? createEl : listEl;
+    const leaving  = showCreate ? listEl : createEl;
+    leaving?.classList.add('u-hidden');
+    if (entering) {
+      entering.classList.remove('u-hidden', 'acordo-slide-in');
+      void entering.offsetWidth;                 // reflow → re-dispara a animação
+      entering.classList.add('acordo-slide-in');
+    }
+    const sc = createEl?.closest('.historico-sheet__scroll');
+    if (sc) sc.scrollTop = 0;
+  }
+  function resetAcordoForm() {
+    ['inp-acordo-titulo', 'inp-acordo-desc', 'inp-acordo-valor', 'inp-acordo-prazo-data', 'inp-acordo-prazo-dur']
+      .forEach(id => { const el = document.getElementById(id); if (el) { el.value = ''; el.classList.remove('input-text--error'); } });
+    const cc = document.getElementById('acordo-char-count'); if (cc) cc.textContent = '0';
+    document.querySelectorAll('#acordo-payment .pedido-chip').forEach(c => { c.setAttribute('aria-pressed', 'false'); c.classList.remove('pedido-chip--active'); });
+    document.getElementById('acordo-installments')?.classList.add('u-hidden');
+    acordoParcelas = 1; renderAcordoParcelas();
+    document.querySelectorAll('#acordo-prazo-mode .pedido-chip').forEach(c => {
+      const isData = c.dataset.mode === 'data';
+      c.classList.toggle('pedido-chip--active', isData);
+      c.setAttribute('aria-pressed', String(isData));
+    });
+    document.getElementById('acordo-date-trigger')?.classList.remove('u-hidden');
+    document.getElementById('acordo-prazo-dur-wrap')?.classList.add('u-hidden');
+    const dl = document.getElementById('acordo-date-label');
+    if (dl) { dl.textContent = 'Escolher data'; dl.classList.add('acordo-date-trigger__ph'); }
+    document.getElementById('chk-acordo-reuse')?.setAttribute('aria-pressed', 'true');
+  }
+  function enterAcordoCreate() {
+    setPendingOpen(false);
+    setAcordoCreating(true);
+    showAcordoState(true);
+    window.backNav?.push('acordo-create', exitAcordoCreate);
+  }
+  function exitAcordoCreate() {
+    if (!isAcordoCreating()) return;
+    window.backNav?.remove('acordo-create');
+    setAcordoCreating(false);
+    showAcordoState(false);
+    resetAcordoForm();
+    applyContractsFilters();     // restaura a visibilidade do botão de pendentes por status
+  }
+  async function registerAcordo() {
+    const inpTitulo = document.getElementById('inp-acordo-titulo');
+    const inpDesc   = document.getElementById('inp-acordo-desc');
+    const inpValor  = document.getElementById('inp-acordo-valor');
+    let firstError = null;
+    const markError = (el) => { window.markFieldError(el); if (el && !firstError) firstError = el; };
+    if (!inpTitulo?.value.trim())             markError(inpTitulo);
+    if (!inpDesc?.value.trim())               markError(inpDesc);
+    if (!inpValor?.value.replace(/\D/g, ''))  markError(inpValor);
+    if (firstError) {
+      const sc = scrollableAncestor(firstError);
+      if (sc) {
+        const cr = firstError.getBoundingClientRect(), kr = sc.getBoundingClientRect();
+        animateScrollTo(sc, sc.scrollTop + (cr.top - kr.top) - (kr.height - cr.height) / 2);
+      }
+      await customAlert(window.MSG_REQUIRED_FIELDS + ' para registrar o Acordo.', 'Acordo incompleto', 'edit_note');
+      return;
+    }
+    exitAcordoCreate();          // volta para a lista + reseta
+    await customAlert('Acordo registrado. Em breve você poderá enviar o link para o cliente aceitar.', 'Acordo registrado', 'check_circle');
+  }
 
-    // Descrição: contador de caracteres (espelha o do pedido) + limpa erro.
+  // Wiring dos campos (listeners locais; block-scoped, sem colisão de nomes).
+  {
+    const inpDesc      = document.getElementById('inp-acordo-desc');
+    const charCount    = document.getElementById('acordo-char-count');
+    const inpValor     = document.getElementById('inp-acordo-valor');
+    const inpTitulo    = document.getElementById('inp-acordo-titulo');
+    const payRow       = document.getElementById('acordo-payment');
+    const installments = document.getElementById('acordo-installments');
+    const prazoModeRow = document.getElementById('acordo-prazo-mode');
+    const dateTrigger  = document.getElementById('acordo-date-trigger');
+    const dateNative   = document.getElementById('inp-acordo-prazo-data');
+    const dateLabel    = document.getElementById('acordo-date-label');
+    const durWrap      = document.getElementById('acordo-prazo-dur-wrap');
+    const chkReuse     = document.getElementById('chk-acordo-reuse');
+    const btnNew       = document.getElementById('btn-new-contract');
+
     inpDesc?.addEventListener('input', () => {
       if (charCount) charCount.textContent = String(inpDesc.value.length);
       inpDesc.classList.remove('input-text--error');
     });
-    // Valor: formatação de milhar ao digitar (só dígitos → pt-BR) + limpa erro.
     inpValor?.addEventListener('input', () => {
       const d = inpValor.value.replace(/\D/g, '');
       inpValor.value = d ? Number(d).toLocaleString('pt-BR') : '';
@@ -2405,16 +2501,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     inpTitulo?.addEventListener('input', () => inpTitulo.classList.remove('input-text--error'));
 
-    // Pagamento: seleção MÚLTIPLA (o pro pode aceitar mais de uma forma).
+    // Pagamento multi-select; "Cartão" revela o seletor de parcelas.
     payRow?.addEventListener('click', (e) => {
       const chip = e.target.closest('.pedido-chip');
       if (!chip) return;
       const on = chip.getAttribute('aria-pressed') !== 'true';
       chip.setAttribute('aria-pressed', String(on));
       chip.classList.toggle('pedido-chip--active', on);
+      const cartaoOn = payRow.querySelector('[data-pay="cartao"]')?.getAttribute('aria-pressed') === 'true';
+      installments?.classList.toggle('u-hidden', !cartaoOn);
     });
 
-    // Prazo: modo ÚNICO (Data | Duração) — troca o input visível.
+    // Parcelas do cartão: stepper 1..12.
+    document.getElementById('acordo-parcela-dec')?.addEventListener('click', () => { if (acordoParcelas > 1)  { acordoParcelas--; renderAcordoParcelas(); } });
+    document.getElementById('acordo-parcela-inc')?.addEventListener('click', () => { if (acordoParcelas < 12) { acordoParcelas++; renderAcordoParcelas(); } });
+
+    // Prazo: modo ÚNICO (Data | Duração) — troca entre o gatilho de data e "N dias".
     prazoModeRow?.addEventListener('click', (e) => {
       const chip = e.target.closest('.pedido-chip');
       if (!chip) return;
@@ -2424,77 +2526,32 @@ document.addEventListener('DOMContentLoaded', () => {
         c.setAttribute('aria-pressed', String(active));
       });
       const isData = chip.dataset.mode === 'data';
-      inpPrazoData?.classList.toggle('u-hidden', !isData);
+      dateTrigger?.classList.toggle('u-hidden', !isData);
       durWrap?.classList.toggle('u-hidden', isData);
     });
 
-    // Reutilizável: toggle (default LIGADO).
+    // Data com design do app: o gatilho abre o picker NATIVO (showPicker) e mostra
+    // a data escolhida formatada; o input nativo fica escondido.
+    dateTrigger?.addEventListener('click', () => {
+      try { dateNative.showPicker(); } catch { dateNative.focus(); dateNative.click(); }
+    });
+    dateNative?.addEventListener('change', () => {
+      if (!dateLabel) return;
+      if (dateNative.value) {
+        const [y, m, d] = dateNative.value.split('-');
+        dateLabel.textContent = `${d}/${m}/${y}`;
+        dateLabel.classList.remove('acordo-date-trigger__ph');
+      } else {
+        dateLabel.textContent = 'Escolher data';
+        dateLabel.classList.add('acordo-date-trigger__ph');
+      }
+    });
+
     chkReuse?.addEventListener('click', () =>
       chkReuse.setAttribute('aria-pressed', String(chkReuse.getAttribute('aria-pressed') !== 'true')));
 
-    const resetAcordoForm = () => {
-      [inpTitulo, inpDesc, inpValor].forEach(el => {
-        if (el) { el.value = ''; el.classList.remove('input-text--error'); }
-      });
-      if (charCount) charCount.textContent = '0';
-      payRow?.querySelectorAll('.pedido-chip').forEach(c => {
-        c.setAttribute('aria-pressed', 'false');
-        c.classList.remove('pedido-chip--active');
-      });
-      prazoModeRow?.querySelectorAll('.pedido-chip').forEach(c => {
-        const isData = c.dataset.mode === 'data';
-        c.classList.toggle('pedido-chip--active', isData);
-        c.setAttribute('aria-pressed', String(isData));
-      });
-      if (inpPrazoData) { inpPrazoData.value = ''; inpPrazoData.classList.remove('u-hidden'); }
-      if (inpPrazoDur)  inpPrazoDur.value = '';
-      durWrap?.classList.add('u-hidden');
-      chkReuse?.setAttribute('aria-pressed', 'true');
-    };
-
-    const openAcordoSheet = () => {
-      anchorBelowActionBar(acordoSheet);
-      acordoSheet?.classList.add('pedido-sheet--open');
-      window.backNav?.push('acordo-sheet', closeAcordoSheet);
-      window.layerFocus?.enter(acordoSheet, '.pedido-sheet__panel');
-    };
-    const closeAcordoSheet = () => {
-      window.backNav?.remove('acordo-sheet');
-      window.layerFocus?.leave(acordoSheet);
-      acordoSheet?.classList.remove('pedido-sheet--open');
-    };
-
-    // Abre por cima da gaveta de Acordos (não a fecha — igual ao filtro de Acordos).
-    btnNewContract?.addEventListener('click', openAcordoSheet);
-    // Fecha ao tocar fora do painel (backdrop); a gaveta de Acordos reaparece atrás.
-    acordoSheet?.addEventListener('click', (e) => {
-      if (e.target.closest('.pedido-sheet__panel')) return;
-      closeAcordoSheet();
-    });
-
-    // Gerar link: valida os obrigatórios (título, descrição, valor). No MOCK,
-    // confirma a criação; a tela de compartilhar o link é o próximo passo.
-    document.getElementById('btn-acordo-generate')?.addEventListener('click', async () => {
-      let firstError = null;
-      const markError = (el) => { window.markFieldError(el); if (el && !firstError) firstError = el; };
-      if (!inpTitulo.value.trim())            markError(inpTitulo);
-      if (!inpDesc.value.trim())              markError(inpDesc);
-      if (!inpValor.value.replace(/\D/g, '')) markError(inpValor);
-
-      if (firstError) {
-        const sc = scrollableAncestor(firstError);
-        if (sc) {
-          const cr = firstError.getBoundingClientRect(), kr = sc.getBoundingClientRect();
-          animateScrollTo(sc, sc.scrollTop + (cr.top - kr.top) - (kr.height - cr.height) / 2);
-        }
-        await customAlert(window.MSG_REQUIRED_FIELDS + ' para gerar o link do Acordo.', 'Acordo incompleto', 'edit_note');
-        return;
-      }
-
-      closeAcordoSheet();
-      resetAcordoForm();
-      await customAlert('Acordo criado. Em breve você poderá enviar o link para o cliente aceitar.', 'Acordo criado', 'check_circle');
-    });
+    // Botão principal do rodapé: entra na criação (lista) OU registra (criação).
+    btnNew?.addEventListener('click', () => { if (isAcordoCreating()) registerAcordo(); else enterAcordoCreate(); });
 
     resetAcordoForm();
   }

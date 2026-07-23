@@ -291,7 +291,7 @@
     <div id="loader-global" class="overlay-loader">
         <svg class="icon overlay-loader__spinner" aria-hidden="true"><use href="#ic-autorenew"></use></svg>
         <!-- Selo de versão (bumpar o texto vN junto do CACHE_NAME a cada deploy). -->
-        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v448</span>
+        <span id="version-badge" class="overlay-loader__version" aria-hidden="true">v449</span>
     </div>
 
     <!-- =====================================================================
@@ -1422,6 +1422,80 @@
                     </article>
 
                 </div>
+
+                <!-- ── Estado CRIAR ACORDO (Tela 1) — alterna com a lista DENTRO da
+                     própria gaveta de Acordos (slide vertical), não numa sheet à parte.
+                     Reusa os campos .pedido-field*/.pedido-chip*/.vaga-salary*/.vaga-check*.
+                     O footer compartilhado troca de papel: "Criar Acordo"→"Registrar" e o
+                     botão de pendentes→fechar. Os dados são do PRO (o cliente só aceita/
+                     recusa). CONCEITO.md §11.1. -->
+                <div id="acordo-create" class="acordo-create u-hidden">
+                    <div class="pedido-field">
+                        <label class="pedido-field__label eyebrow" for="inp-acordo-titulo">Serviço</label>
+                        <input type="text" id="inp-acordo-titulo" class="input-text" maxlength="60" placeholder="Ex: Montagem de guarda-roupa">
+                    </div>
+
+                    <div class="pedido-field">
+                        <label class="pedido-field__label eyebrow" for="inp-acordo-desc">Descrição do combinado</label>
+                        <textarea id="inp-acordo-desc" class="input-text input-text--multiline pedido-textarea" rows="3" maxlength="280" placeholder="O que está incluído, o que não está, condições…"></textarea>
+                        <span class="pedido-field__hint"><span id="acordo-char-count">0</span>/280</span>
+                    </div>
+
+                    <div class="pedido-field">
+                        <label class="pedido-field__label eyebrow" for="inp-acordo-valor">Valor</label>
+                        <div class="vaga-salary">
+                            <span class="vaga-salary__prefix">R$</span>
+                            <input type="text" id="inp-acordo-valor" class="input-text vaga-salary__input" inputmode="numeric" maxlength="9" placeholder="320">
+                        </div>
+                    </div>
+
+                    <div class="pedido-field">
+                        <span class="pedido-field__label eyebrow">Forma de pagamento <span class="vaga-field__optional">(opcional)</span></span>
+                        <div class="pedido-chip-row" id="acordo-payment">
+                            <button type="button" class="pedido-chip" data-pay="dinheiro" aria-pressed="false">Dinheiro</button>
+                            <button type="button" class="pedido-chip" data-pay="pix" aria-pressed="false">Pix</button>
+                            <button type="button" class="pedido-chip" data-pay="cartao" aria-pressed="false">Cartão</button>
+                        </div>
+                        <div class="acordo-installments u-hidden" id="acordo-installments">
+                            <span class="acordo-installments__label">Crédito em até</span>
+                            <div class="vaga-stepper" id="acordo-parcela">
+                                <button type="button" class="vaga-stepper__btn" id="acordo-parcela-dec" aria-label="Menos parcelas"><svg class="icon" aria-hidden="true"><use href="#ic-remove"></use></svg></button>
+                                <span class="vaga-stepper__value" id="acordo-parcela-value" aria-live="polite">à vista</span>
+                                <button type="button" class="vaga-stepper__btn" id="acordo-parcela-inc" aria-label="Mais parcelas"><svg class="icon" aria-hidden="true"><use href="#ic-add"></use></svg></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pedido-field">
+                        <span class="pedido-field__label eyebrow">Prazo <span class="vaga-field__optional">(opcional)</span></span>
+                        <div class="pedido-chip-row" id="acordo-prazo-mode">
+                            <button type="button" class="pedido-chip pedido-chip--active" data-mode="data" aria-pressed="true">Data</button>
+                            <button type="button" class="pedido-chip" data-mode="duracao" aria-pressed="false">Duração</button>
+                        </div>
+                        <!-- Data: gatilho com DESIGN DO APP (input-text) + picker nativo
+                             escondido (aberto via showPicker) — evita o campo nativo cru. -->
+                        <button type="button" id="acordo-date-trigger" class="input-text acordo-date-trigger">
+                            <span id="acordo-date-label" class="acordo-date-trigger__ph">Escolher data</span>
+                            <svg class="icon" aria-hidden="true"><use href="#ic-event_available"></use></svg>
+                        </button>
+                        <input type="date" id="inp-acordo-prazo-data" class="acordo-date-native" tabindex="-1" aria-label="Data combinada">
+                        <div class="vaga-salary u-hidden" id="acordo-prazo-dur-wrap">
+                            <span class="vaga-salary__prefix">Em</span>
+                            <input type="text" id="inp-acordo-prazo-dur" class="input-text vaga-salary__input" inputmode="numeric" maxlength="3" placeholder="3" aria-label="Prazo em dias">
+                            <span class="vaga-salary__suffix">dias</span>
+                        </div>
+                    </div>
+
+                    <div class="pedido-field">
+                        <button type="button" class="vaga-check" id="chk-acordo-reuse" aria-pressed="true">
+                            <span class="vaga-check__box check-box" aria-hidden="true">
+                                <svg class="icon" aria-hidden="true"><use href="#ic-check"></use></svg>
+                            </span>
+                            <span class="vaga-check__text">Link reutilizável (vários clientes podem aceitar)</span>
+                        </button>
+                        <span class="pedido-field__hint pedido-field__hint--left">Desligado, o link vale para um único cliente.</span>
+                    </div>
+                </div>
                 </div>
                 <!-- Rodapé fixo na BASE do painel (fora do scroll; a lista rola por
                      cima, com a shade de fronteira acendendo logo acima). CTA de criar
@@ -1510,81 +1584,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            </div>
-        </div>
-
-        <!-- ── Sheet "Criar Acordo" (Tela 1) ─────────────────────────────────
-             Formulário do PROFISSIONAL: ele preenche os termos do combinado e
-             gera um link para enviar ao cliente (que depois aceita; o pro
-             reconfirma). Só o pro edita; o cliente só aceita/recusa. Reusa o
-             scaffolding .pedido-sheet* (gaveta clara). Abre POR CIMA da gaveta de
-             Acordos (#btn-new-contract). Mock — sem persistência. CONCEITO.md §11.1. -->
-        <div id="acordo-sheet" class="pedido-sheet" role="dialog" aria-modal="true" aria-label="Criar Acordo">
-            <div class="pedido-sheet__backdrop"></div>
-            <div class="pedido-sheet__clip">
-            <div class="pedido-sheet__panel">
-                <div class="pedido-sheet__body js-scroll-shadows">
-                    <div class="pedido-sheet__state">
-
-                        <div class="pedido-field">
-                            <label class="pedido-field__label eyebrow" for="inp-acordo-titulo">Serviço</label>
-                            <input type="text" id="inp-acordo-titulo" class="input-text" maxlength="60" placeholder="Ex: Montagem de guarda-roupa">
-                        </div>
-
-                        <div class="pedido-field">
-                            <label class="pedido-field__label eyebrow" for="inp-acordo-desc">Descrição do combinado</label>
-                            <textarea id="inp-acordo-desc" class="input-text input-text--multiline pedido-textarea" rows="3" maxlength="280" placeholder="O que está incluído, o que não está, condições…"></textarea>
-                            <span class="pedido-field__hint"><span id="acordo-char-count">0</span>/280</span>
-                        </div>
-
-                        <div class="pedido-field">
-                            <label class="pedido-field__label eyebrow" for="inp-acordo-valor">Valor</label>
-                            <div class="vaga-salary">
-                                <span class="vaga-salary__prefix">R$</span>
-                                <input type="text" id="inp-acordo-valor" class="input-text vaga-salary__input" inputmode="numeric" maxlength="9" placeholder="320">
-                            </div>
-                        </div>
-
-                        <div class="pedido-field">
-                            <span class="pedido-field__label eyebrow">Forma de pagamento <span class="vaga-field__optional">(opcional)</span></span>
-                            <div class="pedido-chip-row" id="acordo-payment">
-                                <button type="button" class="pedido-chip" data-pay="dinheiro" aria-pressed="false">Dinheiro</button>
-                                <button type="button" class="pedido-chip" data-pay="pix" aria-pressed="false">Pix</button>
-                                <button type="button" class="pedido-chip" data-pay="cartao" aria-pressed="false">Cartão</button>
-                            </div>
-                        </div>
-
-                        <div class="pedido-field">
-                            <span class="pedido-field__label eyebrow">Prazo <span class="vaga-field__optional">(opcional)</span></span>
-                            <div class="pedido-chip-row" id="acordo-prazo-mode">
-                                <button type="button" class="pedido-chip pedido-chip--active" data-mode="data" aria-pressed="true">Data</button>
-                                <button type="button" class="pedido-chip" data-mode="duracao" aria-pressed="false">Duração</button>
-                            </div>
-                            <input type="date" id="inp-acordo-prazo-data" class="input-text" aria-label="Data combinada">
-                            <div class="vaga-salary u-hidden" id="acordo-prazo-dur-wrap">
-                                <span class="vaga-salary__prefix">Em</span>
-                                <input type="text" id="inp-acordo-prazo-dur" class="input-text vaga-salary__input" inputmode="numeric" maxlength="3" placeholder="3" aria-label="Prazo em dias">
-                                <span class="vaga-salary__suffix">dias</span>
-                            </div>
-                        </div>
-
-                        <div class="pedido-field">
-                            <button type="button" class="vaga-check" id="chk-acordo-reuse" aria-pressed="true">
-                                <span class="vaga-check__box check-box" aria-hidden="true">
-                                    <svg class="icon" aria-hidden="true"><use href="#ic-check"></use></svg>
-                                </span>
-                                <span class="vaga-check__text">Link reutilizável (vários clientes podem aceitar)</span>
-                            </button>
-                            <span class="pedido-field__hint pedido-field__hint--left">Desligado, o link vale para um único cliente.</span>
-                        </div>
-
-                    </div>
-                </div>
-                <!-- Rodapé FIXO fora do body que rola. -->
-                <div class="pedido-sheet__actions pedido-sheet__actions--footer">
-                    <button type="button" id="btn-acordo-generate" class="btn btn--accent">Gerar link do Acordo</button>
                 </div>
             </div>
             </div>
