@@ -177,6 +177,13 @@ cliente → reconfirmação do pro) são os próximos passos. As funções (`ent
 `registerAcordo`, `resetAcordoForm`…) são hoistadas no bloco JS logo após o do `#vaga-sheet` em `feed/index.js`
 (chamadas por `closeContractsSheet` e pelo listener do botão de pendentes, textualmente acima).
 
+**Layout (gotcha):** `#acordo-create` REPLICA o `.pedido-sheet__state` (`display:flex; flex-direction:column;
+gap: --space-md`) — os `.pedido-field` NÃO têm margem própria, então sem esse gap os campos empilhavam
+colados. E no modo criação o painel usa ALTURA CHEIA (`.contracts-sheet--creating .historico-sheet__panel {
+height: <mesmo calc do max-height> }`) em vez da altura do conteúdo, para casar com o tamanho da lista (o
+painel é `flex-column` dirigido pelo conteúdo; com `flex-basis:0` no scroll, altura de conteúdo curta o
+comprimia).
+
 ## Lista de Pedidos
 
 Flat list com dividers (`.pedido-item`), sem cards. Fundo `--bg-canvas`, texto `--t-light`. Avatar
