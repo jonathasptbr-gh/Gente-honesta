@@ -331,8 +331,9 @@ Cada fase tem **objetivo** (a pergunta que ela responde), **entregáveis**, **cr
 | **D8** | ✅ **DECIDIDA** — só responsabilidade retroativa; a fiança já É a aposta e auto-regula o crescimento. Stake explícito guardado p/ abuso. | — | Fechada. |
 | **D9** | ✅ **DECIDIDA** — vínculo indicador↔indicado (herança + fiança) dura ~1 semana, depois solta. | — | Fechada. |
 | **D10** | Acordo com cliente NÃO cadastrado: exige cadastro (vira growth) ou permite registro unilateral de baixa confiança? | Exigir cadastro — coerente com "indicado é conta real" + motor de crescimento. | Início da Fase 2. |
-| **D11** | Acordo reutilizável: um link gera um pendente POR cliente, ou uso único? | Toggle na criação (reutilizável = multi; senão queima no 1º aceite). | Ao construir as telas do Acordo (§11.1). |
-| **D12** | Prazo do Acordo: data específica, duração ("em N dias") ou os dois? | Os dois (o pro escolhe o modo). | Ao construir as telas do Acordo (§11.1). |
+| **D11** | ✅ **DECIDIDA** — toggle na criação: reutilizável = um pendente por cliente; senão queima no 1º aceite. | — | Fechada. |
+| **D12** | ✅ **DECIDIDA** — os dois: o pro escolhe data específica OU duração ("em N dias"). | — | Fechada. |
+| **D13** | ✅ **DECIDIDA** — os dados são do profissional; o cliente só aceita/recusa; só o pro edita; ajuste off-app; snapshot no aceite. | — | Fechada. |
 
 ---
 
@@ -640,7 +641,15 @@ cliente específico**. Só então o Acordo vale.
 | **Cancelado** | Encerrado antes/durante. | Lista (`--cancelled`, tint vermelho). |
 
 **Um link reutilizável gera UM pendente POR cliente** (cada aceite é uma instância independente que o pro
-confirma separadamente; o modelo segue aberto). O toggle "reutilizável" liga/desliga isso (`[DECISÃO D11]`).
+confirma separadamente; o modelo segue aberto). O toggle "reutilizável" liga/desliga isso (D11, decidido);
+desligado, o link "queima" no 1º aceite.
+
+> **Regra do Acordo (DECIDIDA): os dados são do PROFISSIONAL.** O cliente só pode **ACEITAR ou RECUSAR** —
+> nunca editar. Todo ajuste é por contato direto/WhatsApp, e **só o profissional edita** o Acordo.
+> **Integridade (snapshot):** ao aceitar, o Pendente/Ativo guarda um **snapshot** dos termos do momento do
+> aceite; editar o modelo depois só muda os **próximos** aceites — quem já aceitou segue vinculado ao que
+> viu (mexer num pendente/ativo = novo acordo / re-aceite). Assim "o cliente aceitou exatamente o que viu"
+> se sustenta.
 
 **Os dados do Acordo (campos, por etapa):**
 | Campo | Quem preenche | Widget (reuso) |
@@ -649,7 +658,7 @@ confirma separadamente; o modelo segue aberto). O toggle "reutilizável" liga/de
 | **Descrição / escopo** (o que inclui e o que NÃO inclui) | Pro | `<textarea>` (contador, como o pedido) |
 | **Valor** (R$, DECLARADO) | Pro | padrão do salário da vaga (`toLocaleString('pt-BR')`, `R$` externo) |
 | **Forma de pagamento** | Pro | chips `.chip--payment` (Dinheiro/Pix/Cartão) |
-| **Prazo** (data combinada ou "em N dias") | Pro | `[DECISÃO D12]` — data vs duração |
+| **Prazo** (data combinada e/ou "em N dias") | Pro | data OU duração — o pro escolhe o modo (D12) |
 | **Reutilizável?** | Pro | `.check-box` (toggle) |
 | **Cliente** (vínculo) | definido no **aceite** | — (auto: quem aceitou) |
 | **Datas** (criado/aceito/confirmado/concluído) | auto por evento | `contract-card__dates` (já existe) |
@@ -687,13 +696,14 @@ confirma separadamente; o modelo segue aberto). O toggle "reutilizável" liga/de
   `CONTRACT_STATUS` (**modelo**, **pendente-aceito**). Nada disso pede primitiva nova de CSS — tudo compõe
   `.pedido-sheet*` / `.contract-card` / `.card` / `.chip` / `.btn`.
 
-**Decisões de design abertas:**
-- **`[DECISÃO D11]` — Reutilizável:** um link gera um pendente POR cliente (proposto) vs. uso único. Sugestão:
-  **toggle na criação** (reutilizável = multi-cliente; senão o link "queima" no 1º aceite).
-- **`[DECISÃO D12]` — Prazo:** data específica, duração ("em N dias") ou os dois. Sugestão: **os dois**
-  (o pro escolhe o modo), com a duração virando data na confirmação.
-- **Negociação (parqueado):** valor/pagamento são fixados pelo pro (o cliente aceita como está); qualquer
-  ajuste acontece no WhatsApp e o pro edita o modelo. Sem negociação dentro do app no v1.
+**Decisões de design (DECIDIDAS):**
+- **D11 — Reutilizável:** ✅ **toggle na criação** — ligado, o link gera um pendente por cliente
+  (multi-cliente); desligado, "queima" no 1º aceite.
+- **D12 — Prazo:** ✅ **os dois** — o pro escolhe data específica OU duração ("em N dias"); a duração vira
+  data na confirmação.
+- **Negociação:** ✅ **os dados são do profissional; o cliente só aceita ou recusa** (nunca edita). Ajuste é
+  por contato direto/WhatsApp e só o pro edita. Sem negociação dentro do app. + **snapshot** dos termos no
+  aceite (ver a "Regra do Acordo" acima) para não mudar o que o cliente já aceitou.
 
 ---
 
@@ -739,3 +749,7 @@ confirma separadamente; o modelo segue aberto). O toggle "reutilizável" liga/de
   estados novos (modelo, pendente-aceito), tabela de campos por etapa, e o **backlog de 6 telas** mapeado ao
   design system existente (`.pedido-sheet*`, `.contract-card`, `--notify`, Web Share — nada de primitiva CSS
   nova). Abre **D11** (link reutilizável) e **D12** (formato do prazo).
+- **(revisão 8)** — fechadas **D11** (toggle reutilizável), **D12** (prazo = data OU duração) e **D13** (os
+  dados do Acordo são do PROFISSIONAL: o cliente só aceita/recusa, nunca edita; ajuste off-app; só o pro
+  edita). Novo requisito de integridade: **snapshot** dos termos no aceite — editar o modelo só afeta os
+  próximos aceites, não quem já aceitou. §11.1 pronto para virar código.
