@@ -142,7 +142,11 @@ de conteúdo do pai). `padding-bottom: 0` no body (a faixa do rodapé carrega a 
 `#contracts-sheet` (reusa `.historico-sheet*`) com a variante `.historico-sheet--bar-clear`: o
 container começa em `--sheet-top` e NÃO cobre a action bar → a barra segue interativa (sem
 `tapHitsButton`). Aberta: a busca vira "Buscar Acordos..." (`openContractsSheet`; o texto filtra os
-cards via `applyContractsFilters`), o `#btn-toggle-filters` abre `#contracts-filters-sheet` (chips de
+cards via `applyContractsFilters`). **A gaveta usa a BUSCA da barra, então abri-la FORÇA o estado de
+busca na action bar** (remove `agenda-filters--vagas`/`--pedidos`) — mesmo vindo das abas Vagas ou
+Pedidos, a barra de busca aparece p/ filtrar Acordos; ao fechar, `restoreActionBarForTab()` devolve os
+botões da aba ATUAL (deriva de `#feed-panels`, a fonte de verdade — robusto a qualquer ordem de chamada).
+O `#btn-toggle-filters` abre `#contracts-filters-sheet` (chips de
 status Todos/Ativo/Concluído/Cancelado + valor mín/máx + mês/ano — status e texto filtram de verdade;
 valor/mês são visuais), e `#btn-open-contracts` vira "Fechar" (`.agenda-filters__icon-btn--active`,
 receita do `.action-close-mode`). O `#contracts-filters-sheet` vem DEPOIS no DOM (renderiza por cima,

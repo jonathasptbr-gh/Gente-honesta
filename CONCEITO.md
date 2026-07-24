@@ -806,3 +806,12 @@ desligado, o link "queima" no 1º aceite.
   chips (pagamento/prazo) todos 36px — já consistentes. Verificado por render headless (alturas iguais;
   `backNav.depth()` = 1 na criação; 40 execuções do repro sem fechar a gaveta; "voltar" fecha limpo, depth 0,
   sem sair do PWA). Doc na `feed.md`.
+- **(revisão 15 — busca dos Acordos em qualquer aba + auditoria temática, v455)** — (1) abrir a gaveta de
+  Acordos vindo das abas **Vagas ou Pedidos** agora **traz a barra de BUSCA** para a action bar (some os
+  botões da aba) p/ filtrar Acordos; ao fechar, os botões da aba ATUAL voltam (`restoreActionBarForTab`, que
+  deriva de `#feed-panels`). (2) **Auditoria temática** do formulário de Criar Acordo confirmada por cores
+  computadas × tokens: rótulos `--p-green`, chips brancos/ativo azul (`--info-blue-light`/`--info-blue`),
+  inputs brancos, ícones `--t-sub`, steppers `--info-blue`, CTA `--a-gold`; calendário com hoje verde, nav
+  azul, "Hoje" dourado — tudo em conformidade (o form reusa as primitivas do Criar vaga/pedido). Verificado
+  por render headless (troca de aba → abre Acordos → busca visível → fecha → botões da aba restaurados, nas 3
+  abas; cores batendo com os tokens). Doc na `feed.md`.

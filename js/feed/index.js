@@ -124,11 +124,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById(id)?.addEventListener('input', updateFilterIndicator);
   });
 
+  // A zona do meio da action bar por aba: vagas | busca | pedidos (classes
+  // --vagas/--pedidos; SEM classe = busca). A gaveta de Acordos usa a BUSCA (p/
+  // filtrar Acordos), então ao abri-la forçamos o estado de busca — mesmo vindo
+  // de Vagas/Pedidos — e ao fechar restauramos o estado DA ABA ATUAL (derivado do
+  // #feed-panels, a fonte de verdade — robusto a qualquer ordem de chamada).
+  function restoreActionBarForTab() {
+    const isVagas   = !!feedPanels?.classList.contains('feed-panels--vagas');
+    const isPedidos = !!feedPanels?.classList.contains('feed-panels--pedidos');
+    feedActionBar?.classList.toggle('agenda-filters--vagas', isVagas);
+    feedActionBar?.classList.toggle('agenda-filters--pedidos', isPedidos);
+  }
+
   function openContractsSheet() {
     closeFiltersSheet();     // filtros de profissionais, se abertos
     closeProfileSheet?.();   // perfil, se aberto (contratos segue sempre visível)
     anchorBelowActionBar(contractsSheet);
     contractsSheet?.classList.add('historico-sheet--open');
+    // Traz a BUSCA para a barra (some os botões de Vagas/Pedidos) → filtra Acordos.
+    feedActionBar?.classList.remove('agenda-filters--vagas', 'agenda-filters--pedidos');
     window.backNav?.push('contracts-sheet', closeContractsSheet);
     window.layerFocus?.enter(contractsSheet, '.historico-sheet__panel');
     // Abriu → para de piscar (marca como "visto"). Sem persistência: a cada
@@ -153,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeContractsFiltersSheet();
     contractsSheet?.classList.remove('historico-sheet--open');
     setContractsButtonClose(false);
+    restoreActionBarForTab();   // devolve os botões da aba atual (vagas/pedidos/busca)
     if (agendaSearchInput) {
       agendaSearchInput.placeholder = SEARCH_PLACEHOLDER_PROS;
       agendaSearchInput.value = '';
