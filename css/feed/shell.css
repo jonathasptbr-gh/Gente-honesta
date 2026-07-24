@@ -59,6 +59,12 @@
 .contracts-create__btn {
   flex: 1;
   gap: var(--space-xs);
+  /* Altura ESTÁVEL entre os dois rótulos: "Criar Acordo" leva o ícone (24px, o
+     default do .icon) e "Registrar" é só texto (16px) — o ícone é mais alto e
+     deixava o botão 4px maior no modo lista. Fixa o mínimo pela altura do estado
+     COM ícone p/ o texto igualar; o rodapé é align-items:stretch, então o botão
+     de pendentes/Fechar ao lado acompanha a mesma altura nos dois modos. */
+  min-height: 46px;
 }
 
 /* Botão só-ícone que revela a gaveta de pendentes. Altura estica p/ casar com o

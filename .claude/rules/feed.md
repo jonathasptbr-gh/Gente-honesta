@@ -186,9 +186,17 @@ entrar/sair — assim a shade inferior reflete a altura do CONTEÚDO ATUAL (a cr
 `#btn-new-contract` = **"Criar Acordo"** (lista) ↔ **"Registrar"** (criação); `#btn-toggle-pending` = abridor
 da bandeja de pendentes (lista) ↔ **"Fechar"** (criação, volta à lista). No modo criação o "Fechar" ganha o
 **AZUL do app** (`.contracts-pending-toggle--close` = tint `--info-blue-light`/`--info-blue`, sinalizando o
-estado engajado; o CTA irmão já é o dourado "Registrar"). A bandeja de pendentes some no modo criação. `enterAcordoCreate`/`exitAcordoCreate` fazem a troca + registram/removem a camada `acordo-create`
-no `backNav` (o "voltar" fecha a criação antes da gaveta); `closeContractsSheet` chama `exitAcordoCreate` para
-resetar ao fechar a gaveta.
+estado engajado; o CTA irmão já é o dourado "Registrar"). Os dois botões têm a MESMA altura (`min-height`
+no `.contracts-create__btn`) nos dois rótulos — o ícone `add` de "Criar Acordo" (24px) não deixa mais o botão
+mais alto que "Registrar" (só texto); o rodapé é `align-items:stretch`, então o "Fechar"/pendentes acompanha.
+A bandeja de pendentes some no modo criação.
+
+> **A criação NÃO é uma camada de `backNav` própria — é um SUB-ESTADO da gaveta** (a gaveta `contracts-sheet`
+> é a única camada). `enterAcordoCreate` **não** mexe no histórico (nada de `pushState`), o que ELIMINA uma
+> corrida de `popstate` que às vezes fechava a gaveta inteira ao reabrir + entrar em Criar Acordo. Efeitos:
+> o **"Fechar" do rodapé** (`#btn-toggle-pending`) volta para a lista sem sair da gaveta; o **"voltar" do
+> celular** fecha a GAVETA (a camada `contracts-sheet`, cujo `closeContractsSheet` chama `exitAcordoCreate`
+> para resetar a criação). `closeContractsSheet` reseta a criação ao fechar a gaveta em qualquer via.
 
 **Campos:** **Serviço** (título, obrigatório), **Descrição** (textarea, contador /280, obrigatória), **Valor**
 (`.vaga-salary`, R$ com milhar ao digitar, obrigatório), **Forma de pagamento** (chips multi Dinheiro/Pix/

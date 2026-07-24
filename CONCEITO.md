@@ -794,3 +794,15 @@ desligado, o link "queima" no 1º aceite.
   decide pelo estado atual e é protegido por um token de geração (`acordoAnimGen`) contra abrir↔fechar rápido.
   Verificado por render headless (meio da abertura: overlay absoluto subindo `translateY(from→0)` + card da
   lista visível atrás, sem branco; assentada: form em fluxo + lista oculta). Doc na `feed.md`.
+- **(revisão 14 — bug da gaveta + padronização, v454)** — (1) **Bug corrigido:** às vezes, ao abrir Criar
+  Acordo, fechar toda a gaveta, reabrir e entrar em Criar Acordo, a gaveta INTEIRA fechava. Causa: a criação
+  era uma camada de `backNav` aninhada; o clique em "Criar Acordo" fazia `pushState`, que sob uma corrida de
+  `popstate` (fragilidade conhecida em PWA/Samsung Internet) disparava o fechamento da gaveta. **Correção:** a
+  criação virou SUB-ESTADO da gaveta (não é mais camada de histórico) — o clique não mexe no `history`, então
+  a corrida some. O "voltar" do celular passa a fechar a gaveta (o "Fechar" do rodapé segue voltando à lista).
+  (2) **Padronização:** o botão do rodapé tinha alturas diferentes entre "Criar Acordo" (com ícone 24px, 46px)
+  e "Registrar" (só texto, 42px) — fixado `min-height` p/ igualar (ambos 46px; o botão irmão acompanha por
+  `align-items:stretch`). Verificação dos demais controles: inputs (Serviço/Valor/gatilho de data) todos 48px,
+  chips (pagamento/prazo) todos 36px — já consistentes. Verificado por render headless (alturas iguais;
+  `backNav.depth()` = 1 na criação; 40 execuções do repro sem fechar a gaveta; "voltar" fecha limpo, depth 0,
+  sem sair do PWA). Doc na `feed.md`.

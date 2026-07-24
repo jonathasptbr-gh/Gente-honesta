@@ -2475,16 +2475,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dl) { dl.textContent = 'Escolher data'; dl.classList.add('acordo-date-trigger__ph'); }
     document.getElementById('chk-acordo-reuse')?.setAttribute('aria-pressed', 'true');
   }
+  // A criação NÃO é uma camada de backNav própria — é um SUB-ESTADO da gaveta de
+  // Acordos (a gaveta é a única camada no histórico). Assim entrar em "Criar Acordo"
+  // NÃO mexe no history (nada de pushState/back), o que elimina a corrida de popstate
+  // que às vezes fechava a gaveta inteira ao reabrir + criar. O "voltar" do celular
+  // fecha a gaveta (via a camada contracts-sheet, que reseta a criação em
+  // closeContractsSheet); o "Fechar" do rodapé volta para a lista sem sair da gaveta.
   function enterAcordoCreate() {
+    if (!isContractsSheetOpen()) return;   // só cria com a gaveta aberta
     setPendingOpen(false);
     setAcordoCreating(true);
     showAcordoState(true);
-    window.backNav?.push('acordo-create', exitAcordoCreate);
   }
   function exitAcordoCreate() {
     if (!isAcordoCreating()) return;
     closeAcordoCalendar();       // fecha o calendário se estiver aberto
-    window.backNav?.remove('acordo-create');
     setAcordoCreating(false);
     showAcordoState(false);
     resetAcordoForm();
