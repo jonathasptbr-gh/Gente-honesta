@@ -778,3 +778,11 @@ desligado, o link "queima" no 1º aceite.
   navegação de mês. Verificado por render headless (via servidor HTTP, p/ o ES module carregar): regra
   aplicada (`gap`/`padding` 20px), slide real (translate cheio + `moveMs`), calendário abre/navega/seleciona.
   Doc na `feed.md` (slide, calendário, botão azul, gotcha do comentário CSS).
+- **(revisão 12 — fechamento reverso + shade, v452)** — dois ajustes finos na criação do Acordo: (1) a
+  animação de FECHAMENTO virou REVERSA de verdade — a criação vira overlay absoluto e DESCE saindo de cena,
+  **revelando a lista de Acordos que estava ATRÁS** (antes, o fechar reusava o mesmo slide-up da lista);
+  overlay com `left/right: --space-md` p/ não saltar na horizontal; guarda `isAcordoCreating()` p/ reabertura
+  no meio. (2) as **sombras de scroll** passam a ser **re-checadas ao abrir/fechar** a criação
+  (`dispatchEvent('scroll')` em `showAcordoState`) — a shade inferior não herda mais o estado "ligado" da
+  lista longa quando a criação (curta) não precisa rolar. Verificado por render headless (fechamento: overlay
+  absoluto descendo + lista visível atrás, sem salto horizontal; shade recomputada). Doc na `feed.md`.

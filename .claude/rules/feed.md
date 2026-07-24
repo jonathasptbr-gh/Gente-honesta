@@ -158,11 +158,25 @@ sheet à parte** — é um estado DENTRO do corpo da própria gaveta de Acordos 
 **SLIDE REAL de baixo para cima** (`.acordo-slide-in`, aplicado ao estado que entra). Reusa `.pedido-field*`/
 `.pedido-chip*`/`.vaga-salary*`/`.vaga-check*`/`.vaga-stepper` — **sem primitiva nova**.
 
-**O slide (padrão das gavetas, não um fade):** o estado que entra desliza percorrendo o CAMINHO TODO —
-`translateY` da ALTURA da área de scroll (`--acordo-slide-from`, medida em JS), **sem fade**, com a curva
-`--sheet-ease` e a DURAÇÃO derivada de `window.moveMs` (`--acordo-slide-dur`, DIRECIONAL: `MOVE_SPEED_OPEN` ao
-entrar na criação, `MOVE_SPEED_CLOSE` ao voltar à lista). `showAcordoState(showCreate)` seta os dois vars no
-elemento e re-dispara a animação por reflow. (Era um keyframe de 16px + opacity — trocado por deslize cheio.)
+**O slide (padrão das gavetas, não um fade) — SIMÉTRICO por camada.** A criação é a CAMADA; a lista fica
+ATRÁS. `showAcordoState(showCreate)` mede a distância (altura da área de scroll → `--acordo-slide-from`) e a
+duração (`window.moveMs` → `--acordo-slide-dur`, curva `--sheet-ease`), **sem fade**:
+- **ENTRAR** (`MOVE_SPEED_OPEN`): a lista some (`u-hidden`); a criação SOBE do fundo (em fluxo,
+  `.acordo-slide-in` = keyframe `acordoSlideIn` `translateY(from→0)`).
+- **SAIR / FECHAR — REVERSO** (`MOVE_SPEED_CLOSE`): a lista reaparece ATRÁS (removido o `u-hidden`); a criação
+  vira **OVERLAY absoluto** (`.acordo-create--closing`, `position:absolute` sobre a área de scroll, fundo do
+  painel) e DESCE saindo de cena (`acordoSlideOut` `translateY(0→from`)), **revelando a lista**. No fim
+  (`animationend` + fallback por timer), a criação recebe `u-hidden` e o overlay é limpo — com guarda
+  `isAcordoCreating()` p/ não esconder se reabriu no meio. O overlay usa `left/right: --space-md` (não
+  `inset:0`) p/ casar com a área de CONTEÚDO (o scroll é edge-to-edge com padding lateral).
+
+(Era um keyframe de 16px + opacity, e o fechamento reusava o mesmo slide-up da lista — trocado por deslize
+cheio na entrada e deslize reverso REAL na saída.)
+
+**Sombras de scroll re-checadas na troca:** `.js-scroll-shadows` reavalia sozinho por Mutation/Resize
+Observer, mas `showAcordoState` **força** a reavaliação (`sc.dispatchEvent(new Event('scroll'))`) ao
+entrar/sair — assim a shade inferior reflete a altura do CONTEÚDO ATUAL (a criação, curta, não herda a shade
+"ligada" da lista longa que estava atrás).
 
 **O footer compartilhado (`.contracts-footer`) troca de PAPEL** entre os dois estados (`setAcordoCreating`):
 `#btn-new-contract` = **"Criar Acordo"** (lista) ↔ **"Registrar"** (criação); `#btn-toggle-pending` = abridor

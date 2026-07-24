@@ -2406,28 +2406,49 @@ document.addEventListener('DOMContentLoaded', () => {
     toggle?.classList.toggle('contracts-pending-toggle--close', on);   // "Fechar" ganha o azul do app
     document.getElementById('contracts-pending')?.classList.toggle('u-hidden', on);
   }
-  // Alterna lista ↔ criação com SLIDE REAL de baixo p/ cima no estado que ENTRA:
-  // percorre o caminho todo (translateY da altura da área de scroll), SEM fade,
-  // na velocidade das gavetas (moveMs, direcional: OPEN ao entrar, CLOSE ao voltar).
+  // Alterna lista ↔ criação com SLIDE REAL, na velocidade das gavetas (moveMs,
+  // direcional). SIMÉTRICO por camada — a criação é a camada, a lista fica ATRÁS:
+  //  • ENTRAR: a lista some; a criação SOBE do fundo (em fluxo), sem fade.
+  //  • SAIR (reverso): a lista reaparece ATRÁS; a criação vira OVERLAY absoluto
+  //    (`.acordo-create--closing`) e DESCE saindo de cena, revelando a lista.
+  // Re-checa as sombras de scroll ao trocar (o conteúdo muda de altura).
   function showAcordoState(showCreate) {
     const listEl   = document.getElementById('contracts-list');
     const createEl = document.getElementById('acordo-create');
-    const entering = showCreate ? createEl : listEl;
-    const leaving  = showCreate ? listEl : createEl;
     const sc = createEl?.closest('.historico-sheet__scroll');
-    leaving?.classList.add('u-hidden');
-    if (entering) {
-      entering.classList.remove('u-hidden', 'acordo-slide-in');
-      // distância = altura visível da gaveta → slide cheio, sem "meio caminho".
-      const dist  = (sc && sc.clientHeight) || entering.offsetHeight || 320;
-      const speed = showCreate ? window.MOVE_SPEED_OPEN : window.MOVE_SPEED_CLOSE;
-      const dur   = window.moveMs ? window.moveMs(dist, speed) : 320;
-      entering.style.setProperty('--acordo-slide-from', dist + 'px');
-      entering.style.setProperty('--acordo-slide-dur', dur + 'ms');
-      void entering.offsetWidth;                 // reflow → re-dispara a animação
-      entering.classList.add('acordo-slide-in');
+    const dist = (sc && sc.clientHeight) || createEl?.offsetHeight || 320;
+    const refreshShade = () => sc?.dispatchEvent(new Event('scroll'));   // força watchScrollShadows
+
+    if (showCreate) {
+      listEl?.classList.add('u-hidden');
+      if (createEl) {
+        createEl.classList.remove('u-hidden', 'acordo-create--closing');
+        const dur = window.moveMs ? window.moveMs(dist, window.MOVE_SPEED_OPEN) : 320;
+        createEl.style.setProperty('--acordo-slide-from', dist + 'px');
+        createEl.style.setProperty('--acordo-slide-dur', dur + 'ms');
+        void createEl.offsetWidth;               // reflow → re-dispara a animação
+        createEl.classList.add('acordo-slide-in');
+      }
+    } else if (createEl) {
+      listEl?.classList.remove('u-hidden');       // lista reaparece ATRÁS
+      createEl.classList.remove('acordo-slide-in');
+      const dur = window.moveMs ? window.moveMs(dist, window.MOVE_SPEED_CLOSE) : 320;
+      createEl.style.setProperty('--acordo-slide-from', dist + 'px');
+      createEl.style.setProperty('--acordo-slide-dur', dur + 'ms');
+      void createEl.offsetWidth;
+      createEl.classList.add('acordo-create--closing');   // overlay absoluto + desce
+      const done = () => {
+        if (isAcordoCreating()) return;           // reabriu no meio → não esconder
+        createEl.classList.add('u-hidden');
+        createEl.classList.remove('acordo-create--closing');
+        createEl.style.removeProperty('--acordo-slide-from');
+        createEl.style.removeProperty('--acordo-slide-dur');
+        refreshShade();
+      };
+      createEl.addEventListener('animationend', done, { once: true });
+      setTimeout(done, dur + 150);                // fallback anti-deadlock
     }
-    if (sc) sc.scrollTop = 0;
+    if (sc) { sc.scrollTop = 0; refreshShade(); }
   }
   function resetAcordoForm() {
     ['inp-acordo-titulo', 'inp-acordo-desc', 'inp-acordo-valor', 'inp-acordo-prazo-data', 'inp-acordo-prazo-dur']
