@@ -786,3 +786,11 @@ desligado, o link "queima" no 1º aceite.
   (`dispatchEvent('scroll')` em `showAcordoState`) — a shade inferior não herda mais o estado "ligado" da
   lista longa quando a criação (curta) não precisa rolar. Verificado por render headless (fechamento: overlay
   absoluto descendo + lista visível atrás, sem salto horizontal; shade recomputada). Doc na `feed.md`.
+- **(revisão 13 — abertura em camada, v453)** — a ABERTURA da criação virou simétrica ao fechamento: em vez
+  de ocultar a lista e subir o form "em fluxo" (o que **piscava a lista em branco** antes do slide), a criação
+  agora é SEMPRE uma CAMADA (`.acordo-create--overlay`, absoluta) — ao abrir, a lista fica VISÍVEL atrás e o
+  form SOBE cobrindo-a (`.acordo-create--opening`); só ao fim a lista é ocultada e o form volta ao fluxo
+  rolável. Fechar segue igual (`.acordo-create--closing`, desce revelando a lista). O fim de cada animação
+  decide pelo estado atual e é protegido por um token de geração (`acordoAnimGen`) contra abrir↔fechar rápido.
+  Verificado por render headless (meio da abertura: overlay absoluto subindo `translateY(from→0)` + card da
+  lista visível atrás, sem branco; assentada: form em fluxo + lista oculta). Doc na `feed.md`.

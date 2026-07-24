@@ -656,42 +656,32 @@
   height: calc(var(--app-height, 100dvh) - var(--sheet-top, 0px) - 12px);
 }
 
-/* Slide vertical REAL no estado que ENTRA (lista ↔ criação): desliza de baixo
-   para cima percorrendo o caminho TODO (translateY da altura da área de scroll,
-   setada em JS via --acordo-slide-from), SEM fade — o padrão puro das gavetas.
-   A DURAÇÃO vem de window.moveMs (--acordo-slide-dur, direcional: OPEN ao entrar
-   na criação, CLOSE ao voltar à lista) e a CURVA é a --sheet-ease das gavetas. */
-@keyframes acordoSlideIn {
-  from { transform: translateY(var(--acordo-slide-from, 100%)); }
-  to   { transform: translateY(0); }
-}
-.acordo-slide-in {
-  animation: acordoSlideIn var(--acordo-slide-dur, 0.32s) var(--sheet-ease) both;
-}
-
-/* Fechamento REVERSO: a criação vira OVERLAY absoluto sobre a área de scroll
-   (a lista reaparece ATRÁS, em fluxo) e DESLIZA para baixo saindo de cena.
-   Opaca (fundo do painel) p/ cobrir a lista até começar a descer; a mesma
-   distância/curva/velocidade (CLOSE) do slide-in, ao contrário. O scroll é a
-   âncora do overlay (position:relative) e recorta o que passar da base. */
+/* Slide REAL da criação como CAMADA sobre a lista (abrir E fechar), SEM fade —
+   o padrão puro das gavetas. Durante a animação a criação é um OVERLAY absoluto
+   sobre a área de scroll (a lista fica/reaparece ATRÁS, VISÍVEL); a criação é
+   OPACA (fundo do painel) p/ cobri-la. O scroll é a âncora (position:relative)
+   e recorta o que passar da base. A DURAÇÃO vem de window.moveMs
+   (--acordo-slide-dur, direcional: OPEN ao abrir, CLOSE ao fechar) e a CURVA é a
+   --sheet-ease das gavetas.
+     • ABRIR  (--opening): sobe cobrindo a lista (translateY from→0).
+     • FECHAR (--closing): desce revelando a lista (translateY 0→from). */
 #contracts-sheet .historico-sheet__scroll { position: relative; }
-@keyframes acordoSlideOut {
-  from { transform: translateY(0); }
-  to   { transform: translateY(var(--acordo-slide-from, 100%)); }
-}
-.acordo-create--closing {
+@keyframes acordoSlideIn  { from { transform: translateY(var(--acordo-slide-from, 100%)); } to { transform: translateY(0); } }
+@keyframes acordoSlideOut { from { transform: translateY(0); } to { transform: translateY(var(--acordo-slide-from, 100%)); } }
+.acordo-create--overlay {
   position: absolute;
-  /* left/right batem com a área de CONTEÚDO: o scroll é edge-to-edge
-     (padding lateral --space-md devolvido por margem negativa), então inset:0
-     (caixa de padding) jogaria o overlay ~20px p/ a esquerda e mais largo. */
+  /* left/right batem com a área de CONTEÚDO: o scroll é edge-to-edge (padding
+     lateral --space-md devolvido por margem negativa), então inset:0 (caixa de
+     padding) jogaria o overlay ~20px p/ a esquerda e mais largo. */
   top: 0;
   bottom: 0;
   left: var(--space-md);
   right: var(--space-md);
   z-index: 2;
   background: var(--bg-soft);
-  animation: acordoSlideOut var(--acordo-slide-dur, 0.32s) var(--sheet-ease) both;
 }
+.acordo-create--opening { animation: acordoSlideIn  var(--acordo-slide-dur, 0.32s) var(--sheet-ease) both; }
+.acordo-create--closing { animation: acordoSlideOut var(--acordo-slide-dur, 0.32s) var(--sheet-ease) both; }
 
 /* Prazo: input (data OU duração) respira sob os chips de modo. */
 #acordo-create .acordo-date-trigger,

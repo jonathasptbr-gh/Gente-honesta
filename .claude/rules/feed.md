@@ -158,20 +158,24 @@ sheet à parte** — é um estado DENTRO do corpo da própria gaveta de Acordos 
 **SLIDE REAL de baixo para cima** (`.acordo-slide-in`, aplicado ao estado que entra). Reusa `.pedido-field*`/
 `.pedido-chip*`/`.vaga-salary*`/`.vaga-check*`/`.vaga-stepper` — **sem primitiva nova**.
 
-**O slide (padrão das gavetas, não um fade) — SIMÉTRICO por camada.** A criação é a CAMADA; a lista fica
-ATRÁS. `showAcordoState(showCreate)` mede a distância (altura da área de scroll → `--acordo-slide-from`) e a
-duração (`window.moveMs` → `--acordo-slide-dur`, curva `--sheet-ease`), **sem fade**:
-- **ENTRAR** (`MOVE_SPEED_OPEN`): a lista some (`u-hidden`); a criação SOBE do fundo (em fluxo,
-  `.acordo-slide-in` = keyframe `acordoSlideIn` `translateY(from→0)`).
-- **SAIR / FECHAR — REVERSO** (`MOVE_SPEED_CLOSE`): a lista reaparece ATRÁS (removido o `u-hidden`); a criação
-  vira **OVERLAY absoluto** (`.acordo-create--closing`, `position:absolute` sobre a área de scroll, fundo do
-  painel) e DESCE saindo de cena (`acordoSlideOut` `translateY(0→from`)), **revelando a lista**. No fim
-  (`animationend` + fallback por timer), a criação recebe `u-hidden` e o overlay é limpo — com guarda
-  `isAcordoCreating()` p/ não esconder se reabriu no meio. O overlay usa `left/right: --space-md` (não
-  `inset:0`) p/ casar com a área de CONTEÚDO (o scroll é edge-to-edge com padding lateral).
+**O slide (padrão das gavetas, não um fade) — a criação é sempre uma CAMADA SOBRE a lista.** Nos DOIS
+sentidos a lista fica/reaparece ATRÁS, VISÍVEL, e a criação é um **OVERLAY absoluto** (`.acordo-create--overlay`,
+`position:absolute` sobre a área de scroll, fundo `--bg-soft` opaco p/ cobri-la). `showAcordoState(showCreate)`
+mede a distância (altura da área de scroll → `--acordo-slide-from`) e a duração (`window.moveMs` →
+`--acordo-slide-dur`, curva `--sheet-ease`), **sem fade**:
+- **ABRIR** (`MOVE_SPEED_OPEN`, `.acordo-create--opening` = `acordoSlideIn` `translateY(from→0)`): a lista fica
+  VISÍVEL atrás e a criação SOBE cobrindo-a. **No fim** a criação volta ao FLUXO (rolável; overlay removido) e
+  a lista é ocultada (`u-hidden`). Sem "tela em branco" — a lista aparece sob o formulário subindo.
+- **FECHAR** (`MOVE_SPEED_CLOSE`, `.acordo-create--closing` = `acordoSlideOut` `translateY(0→from)`): a lista
+  reaparece atrás e a criação DESCE revelando-a. **No fim** a criação recebe `u-hidden`.
 
-(Era um keyframe de 16px + opacity, e o fechamento reusava o mesmo slide-up da lista — trocado por deslize
-cheio na entrada e deslize reverso REAL na saída.)
+O fim de cada animação (`done`, no `animationend` + fallback por timer) decide pelo estado ATUAL
+(`isAcordoCreating()`) e é protegido por um **token de geração** (`acordoAnimGen`) — se uma troca mais nova
+começou (abrir↔fechar rápido), o `done` velho aborta. O overlay usa `left/right: --space-md` (não `inset:0`)
+p/ casar com a área de CONTEÚDO (o scroll é edge-to-edge com padding lateral) — sem salto horizontal.
+
+(Histórico: era um keyframe de 16px + opacity; depois abertura em fluxo — que piscava a lista em branco antes
+do form subir — e só o fechar era em camada. Agora ABRIR e FECHAR são simétricos, ambos em camada sobre a lista.)
 
 **Sombras de scroll re-checadas na troca:** `.js-scroll-shadows` reavalia sozinho por Mutation/Resize
 Observer, mas `showAcordoState` **força** a reavaliação (`sc.dispatchEvent(new Event('scroll'))`) ao

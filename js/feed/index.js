@@ -2383,6 +2383,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // As funções abaixo são hoistadas: usadas por closeContractsSheet e pelo
   // listener do botão de pendentes (textualmente acima).
   let acordoParcelas = 1;   // parcelas do cartão (1 = à vista … até 12x)
+  let acordoAnimGen = 0;    // geração da animação abrir/fechar (aborta callback velho)
   function renderAcordoParcelas() {
     const el  = document.getElementById('acordo-parcela-value');
     if (el) el.textContent = acordoParcelas <= 1 ? 'à vista' : `${acordoParcelas}x`;
@@ -2406,11 +2407,14 @@ document.addEventListener('DOMContentLoaded', () => {
     toggle?.classList.toggle('contracts-pending-toggle--close', on);   // "Fechar" ganha o azul do app
     document.getElementById('contracts-pending')?.classList.toggle('u-hidden', on);
   }
-  // Alterna lista ↔ criação com SLIDE REAL, na velocidade das gavetas (moveMs,
-  // direcional). SIMÉTRICO por camada — a criação é a camada, a lista fica ATRÁS:
-  //  • ENTRAR: a lista some; a criação SOBE do fundo (em fluxo), sem fade.
-  //  • SAIR (reverso): a lista reaparece ATRÁS; a criação vira OVERLAY absoluto
-  //    (`.acordo-create--closing`) e DESCE saindo de cena, revelando a lista.
+  // Alterna lista ↔ criação com a criação SEMPRE como CAMADA sobreposta à lista
+  // (a lista fica/reaparece ATRÁS, VISÍVEL). SIMÉTRICO, na velocidade das gavetas
+  // (moveMs, direcional), curva --sheet-ease, SEM fade:
+  //  • ENTRAR: a lista fica VISÍVEL atrás; a criação vira OVERLAY absoluto e SOBE
+  //    cobrindo-a (sem "tela em branco"). Ao fim, a lista é ocultada e a criação
+  //    volta ao FLUXO (rolável).
+  //  • SAIR: a lista reaparece atrás; a criação DESCE (overlay) revelando-a. Ao
+  //    fim, a criação é ocultada.
   // Re-checa as sombras de scroll ao trocar (o conteúdo muda de altura).
   function showAcordoState(showCreate) {
     const listEl   = document.getElementById('contracts-list');
@@ -2418,36 +2422,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const sc = createEl?.closest('.historico-sheet__scroll');
     const dist = (sc && sc.clientHeight) || createEl?.offsetHeight || 320;
     const refreshShade = () => sc?.dispatchEvent(new Event('scroll'));   // força watchScrollShadows
+    if (!createEl) return;
 
-    if (showCreate) {
-      listEl?.classList.add('u-hidden');
-      if (createEl) {
-        createEl.classList.remove('u-hidden', 'acordo-create--closing');
-        const dur = window.moveMs ? window.moveMs(dist, window.MOVE_SPEED_OPEN) : 320;
-        createEl.style.setProperty('--acordo-slide-from', dist + 'px');
-        createEl.style.setProperty('--acordo-slide-dur', dur + 'ms');
-        void createEl.offsetWidth;               // reflow → re-dispara a animação
-        createEl.classList.add('acordo-slide-in');
-      }
-    } else if (createEl) {
-      listEl?.classList.remove('u-hidden');       // lista reaparece ATRÁS
-      createEl.classList.remove('acordo-slide-in');
-      const dur = window.moveMs ? window.moveMs(dist, window.MOVE_SPEED_CLOSE) : 320;
-      createEl.style.setProperty('--acordo-slide-from', dist + 'px');
-      createEl.style.setProperty('--acordo-slide-dur', dur + 'ms');
-      void createEl.offsetWidth;
-      createEl.classList.add('acordo-create--closing');   // overlay absoluto + desce
-      const done = () => {
-        if (isAcordoCreating()) return;           // reabriu no meio → não esconder
+    // Ponto de partida comum: lista VISÍVEL atrás + criação como overlay limpo.
+    listEl?.classList.remove('u-hidden');
+    createEl.classList.remove('u-hidden', 'acordo-create--opening', 'acordo-create--closing');
+    const speed = showCreate ? window.MOVE_SPEED_OPEN : window.MOVE_SPEED_CLOSE;
+    const dur = window.moveMs ? window.moveMs(dist, speed) : 320;
+    createEl.style.setProperty('--acordo-slide-from', dist + 'px');
+    createEl.style.setProperty('--acordo-slide-dur', dur + 'ms');
+    createEl.classList.add('acordo-create--overlay');
+    void createEl.offsetWidth;                    // reflow → re-dispara a animação
+    createEl.classList.add(showCreate ? 'acordo-create--opening' : 'acordo-create--closing');
+
+    const gen = ++acordoAnimGen;                  // invalida callbacks de trocas anteriores
+    const done = () => {
+      if (gen !== acordoAnimGen) return;          // uma troca mais nova assumiu
+      // Estado do clique pode estar velho: decide pelo estado ATUAL da criação.
+      if (isAcordoCreating()) {
+        // ABRIU: a criação vira o conteúdo em FLUXO (rolável); a lista some atrás.
+        createEl.classList.remove('acordo-create--overlay', 'acordo-create--opening');
+        listEl?.classList.add('u-hidden');
+      } else {
+        // FECHOU: a criação some; a lista (já visível atrás) fica.
         createEl.classList.add('u-hidden');
-        createEl.classList.remove('acordo-create--closing');
-        createEl.style.removeProperty('--acordo-slide-from');
-        createEl.style.removeProperty('--acordo-slide-dur');
-        refreshShade();
-      };
-      createEl.addEventListener('animationend', done, { once: true });
-      setTimeout(done, dur + 150);                // fallback anti-deadlock
-    }
+        createEl.classList.remove('acordo-create--overlay', 'acordo-create--closing');
+      }
+      createEl.style.removeProperty('--acordo-slide-from');
+      createEl.style.removeProperty('--acordo-slide-dur');
+      refreshShade();
+    };
+    createEl.addEventListener('animationend', done, { once: true });
+    setTimeout(done, dur + 150);                  // fallback anti-deadlock
+
     if (sc) { sc.scrollTop = 0; refreshShade(); }
   }
   function resetAcordoForm() {
